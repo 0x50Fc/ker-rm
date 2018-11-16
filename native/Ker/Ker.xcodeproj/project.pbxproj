@@ -1,0 +1,591 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1AF0658D219D516000F8F7A8 /* Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0658B219D516000F8F7A8 /* Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */; };
+		1AF065A4219D518200F8F7A8 /* bio.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06595219D518200F8F7A8 /* bio.h */; };
+		1AF065A5219D518200F8F7A8 /* event.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06596219D518200F8F7A8 /* event.h */; };
+		1AF065A7219D518200F8F7A8 /* container.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06598219D518200F8F7A8 /* container.h */; };
+		1AF065A8219D518200F8F7A8 /* kk.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06599219D518200F8F7A8 /* kk.h */; };
+		1AF065A9219D518200F8F7A8 /* bio.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF0659A219D518200F8F7A8 /* bio.cc */; };
+		1AF065AA219D518200F8F7A8 /* kk.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF0659B219D518200F8F7A8 /* kk.cc */; };
+		1AF065AB219D518200F8F7A8 /* timer.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0659C219D518200F8F7A8 /* timer.h */; };
+		1AF065AC219D518200F8F7A8 /* jit.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0659D219D518200F8F7A8 /* jit.h */; };
+		1AF065AD219D518200F8F7A8 /* timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF0659E219D518200F8F7A8 /* timer.cc */; };
+		1AF065AE219D518200F8F7A8 /* dispatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0659F219D518200F8F7A8 /* dispatch.h */; };
+		1AF065AF219D518200F8F7A8 /* event.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065A0219D518200F8F7A8 /* event.cc */; };
+		1AF065B0219D518200F8F7A8 /* jit.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065A1219D518200F8F7A8 /* jit.cc */; };
+		1AF065B6219D51C000F8F7A8 /* duktape.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065B3219D51C000F8F7A8 /* duktape.h */; };
+		1AF065B7219D51C000F8F7A8 /* duktape.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065B4219D51C000F8F7A8 /* duktape.c */; };
+		1AF065B8219D51C000F8F7A8 /* duk_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065B5219D51C000F8F7A8 /* duk_config.h */; };
+		1AF065C4219D52AC00F8F7A8 /* page.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065BA219D52AC00F8F7A8 /* page.h */; };
+		1AF065C5219D52AC00F8F7A8 /* ui.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065BB219D52AC00F8F7A8 /* ui.h */; };
+		1AF065C6219D52AC00F8F7A8 /* view.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065BC219D52AC00F8F7A8 /* view.cc */; };
+		1AF065C7219D52AC00F8F7A8 /* app.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065BD219D52AC00F8F7A8 /* app.cc */; };
+		1AF065C8219D52AC00F8F7A8 /* app.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065BE219D52AC00F8F7A8 /* app.h */; };
+		1AF065C9219D52AC00F8F7A8 /* view.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065BF219D52AC00F8F7A8 /* view.h */; };
+		1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065C0219D52AC00F8F7A8 /* ui.cc */; };
+		1AF065CB219D52AC00F8F7A8 /* CGContext.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065C1219D52AC00F8F7A8 /* CGContext.cc */; };
+		1AF065CC219D52AC00F8F7A8 /* page.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065C2219D52AC00F8F7A8 /* page.cc */; };
+		1AF065CD219D52AC00F8F7A8 /* CGContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065C3219D52AC00F8F7A8 /* CGContext.h */; };
+		1AF065CF219D52E200F8F7A8 /* KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065CE219D52E200F8F7A8 /* KerViewProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065D0219D535A00F8F7A8 /* CGContext.mm */; };
+		1AF065D3219D536700F8F7A8 /* UI.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065D2219D536700F8F7A8 /* UI.h */; };
+		1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065D4219D536D00F8F7A8 /* Image.mm */; };
+		1AF065D7219D537600F8F7A8 /* View.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065D6219D537600F8F7A8 /* View.mm */; };
+		1AF065DA219D53CC00F8F7A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF065D9219D53CC00F8F7A8 /* UIKit.framework */; };
+		1AF065DC219D53DA00F8F7A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF065DB219D53DA00F8F7A8 /* CoreGraphics.framework */; };
+		1AF065DF219D53EB00F8F7A8 /* KerObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065DD219D53EA00F8F7A8 /* KerObject.mm */; };
+		1AF065E0219D53EB00F8F7A8 /* KerObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065DE219D53EA00F8F7A8 /* KerObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF065E3219D547000F8F7A8 /* KerApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065E1219D547000F8F7A8 /* KerApp.mm */; };
+		1AF065E4219D547000F8F7A8 /* KerApp.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065E2219D547000F8F7A8 /* KerApp.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF065E7219D54AC00F8F7A8 /* KerPage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065E5219D54AC00F8F7A8 /* KerPage.mm */; };
+		1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065E6219D54AC00F8F7A8 /* KerPage.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF065EB219D54E600F8F7A8 /* KerPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065E9219D54E600F8F7A8 /* KerPageViewController.m */; };
+		1AF065EC219D54E600F8F7A8 /* KerPageViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065EA219D54E600F8F7A8 /* KerPageViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065ED219D555C00F8F7A8 /* UIScrollView+KerViewProtocol.h */; };
+		1AF065FA219D555E00F8F7A8 /* KerCanvas.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065EE219D555C00F8F7A8 /* KerCanvas.m */; };
+		1AF065FB219D555E00F8F7A8 /* UITextField+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065EF219D555C00F8F7A8 /* UITextField+KerViewProtocol.h */; };
+		1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F0219D555D00F8F7A8 /* UITextView+KerViewProtocol.mm */; };
+		1AF065FD219D555E00F8F7A8 /* UIView+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065F1219D555D00F8F7A8 /* UIView+KerViewProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF065FE219D555E00F8F7A8 /* UITextView+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065F2219D555D00F8F7A8 /* UITextView+KerViewProtocol.h */; };
+		1AF065FF219D555E00F8F7A8 /* UIView+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F3219D555D00F8F7A8 /* UIView+KerViewProtocol.mm */; };
+		1AF06600219D555E00F8F7A8 /* UIScrollView+KKViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F4219D555D00F8F7A8 /* UIScrollView+KKViewProtocol.mm */; };
+		1AF06601219D555E00F8F7A8 /* WKWebView+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065F5219D555D00F8F7A8 /* WKWebView+KerViewProtocol.h */; };
+		1AF06602219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F6219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm */; };
+		1AF06603219D555E00F8F7A8 /* KerCanvas.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065F7219D555E00F8F7A8 /* KerCanvas.h */; };
+		1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F8219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm */; };
+		1AF06606219D567400F8F7A8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06605219D567400F8F7A8 /* WebKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1AF06588219D516000F8F7A8 /* Ker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AF0658B219D516000F8F7A8 /* Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ker.h; sourceTree = "<group>"; };
+		1AF0658C219D516000F8F7A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "dispatch-GCD.cc"; sourceTree = "<group>"; };
+		1AF06595219D518200F8F7A8 /* bio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bio.h; sourceTree = "<group>"; };
+		1AF06596219D518200F8F7A8 /* event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = event.h; sourceTree = "<group>"; };
+		1AF06598219D518200F8F7A8 /* container.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = container.h; sourceTree = "<group>"; };
+		1AF06599219D518200F8F7A8 /* kk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kk.h; sourceTree = "<group>"; };
+		1AF0659A219D518200F8F7A8 /* bio.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bio.cc; sourceTree = "<group>"; };
+		1AF0659B219D518200F8F7A8 /* kk.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kk.cc; sourceTree = "<group>"; };
+		1AF0659C219D518200F8F7A8 /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timer.h; sourceTree = "<group>"; };
+		1AF0659D219D518200F8F7A8 /* jit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jit.h; sourceTree = "<group>"; };
+		1AF0659E219D518200F8F7A8 /* timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = timer.cc; sourceTree = "<group>"; };
+		1AF0659F219D518200F8F7A8 /* dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dispatch.h; sourceTree = "<group>"; };
+		1AF065A0219D518200F8F7A8 /* event.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = event.cc; sourceTree = "<group>"; };
+		1AF065A1219D518200F8F7A8 /* jit.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jit.cc; sourceTree = "<group>"; };
+		1AF065B3219D51C000F8F7A8 /* duktape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = duktape.h; path = ../../../lib/duktape/src/duktape.h; sourceTree = "<group>"; };
+		1AF065B4219D51C000F8F7A8 /* duktape.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = duktape.c; path = ../../../lib/duktape/src/duktape.c; sourceTree = "<group>"; };
+		1AF065B5219D51C000F8F7A8 /* duk_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = duk_config.h; path = ../../../lib/duktape/src/duk_config.h; sourceTree = "<group>"; };
+		1AF065BA219D52AC00F8F7A8 /* page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = page.h; sourceTree = "<group>"; };
+		1AF065BB219D52AC00F8F7A8 /* ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ui.h; sourceTree = "<group>"; };
+		1AF065BC219D52AC00F8F7A8 /* view.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = view.cc; sourceTree = "<group>"; };
+		1AF065BD219D52AC00F8F7A8 /* app.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = app.cc; sourceTree = "<group>"; };
+		1AF065BE219D52AC00F8F7A8 /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app.h; sourceTree = "<group>"; };
+		1AF065BF219D52AC00F8F7A8 /* view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = view.h; sourceTree = "<group>"; };
+		1AF065C0219D52AC00F8F7A8 /* ui.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ui.cc; sourceTree = "<group>"; };
+		1AF065C1219D52AC00F8F7A8 /* CGContext.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGContext.cc; sourceTree = "<group>"; };
+		1AF065C2219D52AC00F8F7A8 /* page.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = page.cc; sourceTree = "<group>"; };
+		1AF065C3219D52AC00F8F7A8 /* CGContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGContext.h; sourceTree = "<group>"; };
+		1AF065CE219D52E200F8F7A8 /* KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerViewProtocol.h; sourceTree = "<group>"; };
+		1AF065D0219D535A00F8F7A8 /* CGContext.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CGContext.mm; sourceTree = "<group>"; };
+		1AF065D2219D536700F8F7A8 /* UI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UI.h; sourceTree = "<group>"; };
+		1AF065D4219D536D00F8F7A8 /* Image.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Image.mm; sourceTree = "<group>"; };
+		1AF065D6219D537600F8F7A8 /* View.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = View.mm; sourceTree = "<group>"; };
+		1AF065D9219D53CC00F8F7A8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		1AF065DB219D53DA00F8F7A8 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		1AF065DD219D53EA00F8F7A8 /* KerObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KerObject.mm; sourceTree = "<group>"; };
+		1AF065DE219D53EA00F8F7A8 /* KerObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerObject.h; sourceTree = "<group>"; };
+		1AF065E1219D547000F8F7A8 /* KerApp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KerApp.mm; sourceTree = "<group>"; };
+		1AF065E2219D547000F8F7A8 /* KerApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerApp.h; sourceTree = "<group>"; };
+		1AF065E5219D54AC00F8F7A8 /* KerPage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KerPage.mm; sourceTree = "<group>"; };
+		1AF065E6219D54AC00F8F7A8 /* KerPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerPage.h; sourceTree = "<group>"; };
+		1AF065E9219D54E600F8F7A8 /* KerPageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KerPageViewController.m; sourceTree = "<group>"; };
+		1AF065EA219D54E600F8F7A8 /* KerPageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerPageViewController.h; sourceTree = "<group>"; };
+		1AF065ED219D555C00F8F7A8 /* UIScrollView+KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+KerViewProtocol.h"; sourceTree = "<group>"; };
+		1AF065EE219D555C00F8F7A8 /* KerCanvas.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KerCanvas.m; sourceTree = "<group>"; };
+		1AF065EF219D555C00F8F7A8 /* UITextField+KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextField+KerViewProtocol.h"; sourceTree = "<group>"; };
+		1AF065F0219D555D00F8F7A8 /* UITextView+KerViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UITextView+KerViewProtocol.mm"; sourceTree = "<group>"; };
+		1AF065F1219D555D00F8F7A8 /* UIView+KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+KerViewProtocol.h"; sourceTree = "<group>"; };
+		1AF065F2219D555D00F8F7A8 /* UITextView+KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextView+KerViewProtocol.h"; sourceTree = "<group>"; };
+		1AF065F3219D555D00F8F7A8 /* UIView+KerViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIView+KerViewProtocol.mm"; sourceTree = "<group>"; };
+		1AF065F4219D555D00F8F7A8 /* UIScrollView+KKViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIScrollView+KKViewProtocol.mm"; sourceTree = "<group>"; };
+		1AF065F5219D555D00F8F7A8 /* WKWebView+KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+KerViewProtocol.h"; sourceTree = "<group>"; };
+		1AF065F6219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "WKWebView+KerViewProtocol.mm"; sourceTree = "<group>"; };
+		1AF065F7219D555E00F8F7A8 /* KerCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerCanvas.h; sourceTree = "<group>"; };
+		1AF065F8219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UITextField+KerViewProtocol.mm"; sourceTree = "<group>"; };
+		1AF06605219D567400F8F7A8 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1AF06585219D516000F8F7A8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AF06606219D567400F8F7A8 /* WebKit.framework in Frameworks */,
+				1AF065DC219D53DA00F8F7A8 /* CoreGraphics.framework in Frameworks */,
+				1AF065DA219D53CC00F8F7A8 /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1AF0657E219D516000F8F7A8 = {
+			isa = PBXGroup;
+			children = (
+				1AF0658A219D516000F8F7A8 /* Ker */,
+				1AF06589219D516000F8F7A8 /* Products */,
+				1AF065D8219D53CC00F8F7A8 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		1AF06589219D516000F8F7A8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1AF06588219D516000F8F7A8 /* Ker.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1AF0658A219D516000F8F7A8 /* Ker */ = {
+			isa = PBXGroup;
+			children = (
+				1AF065B9219D52AC00F8F7A8 /* ui */,
+				1AF065B2219D51A000F8F7A8 /* duktape */,
+				1AF06593219D518200F8F7A8 /* core */,
+				1AF0658B219D516000F8F7A8 /* Ker.h */,
+				1AF065CE219D52E200F8F7A8 /* KerViewProtocol.h */,
+				1AF065D2219D536700F8F7A8 /* UI.h */,
+				1AF065D0219D535A00F8F7A8 /* CGContext.mm */,
+				1AF065D4219D536D00F8F7A8 /* Image.mm */,
+				1AF065D6219D537600F8F7A8 /* View.mm */,
+				1AF065DE219D53EA00F8F7A8 /* KerObject.h */,
+				1AF065DD219D53EA00F8F7A8 /* KerObject.mm */,
+				1AF065E2219D547000F8F7A8 /* KerApp.h */,
+				1AF065E1219D547000F8F7A8 /* KerApp.mm */,
+				1AF065E6219D54AC00F8F7A8 /* KerPage.h */,
+				1AF065E5219D54AC00F8F7A8 /* KerPage.mm */,
+				1AF065EA219D54E600F8F7A8 /* KerPageViewController.h */,
+				1AF065E9219D54E600F8F7A8 /* KerPageViewController.m */,
+				1AF065F7219D555E00F8F7A8 /* KerCanvas.h */,
+				1AF065EE219D555C00F8F7A8 /* KerCanvas.m */,
+				1AF065ED219D555C00F8F7A8 /* UIScrollView+KerViewProtocol.h */,
+				1AF065F4219D555D00F8F7A8 /* UIScrollView+KKViewProtocol.mm */,
+				1AF065EF219D555C00F8F7A8 /* UITextField+KerViewProtocol.h */,
+				1AF065F8219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm */,
+				1AF065F2219D555D00F8F7A8 /* UITextView+KerViewProtocol.h */,
+				1AF065F0219D555D00F8F7A8 /* UITextView+KerViewProtocol.mm */,
+				1AF065F1219D555D00F8F7A8 /* UIView+KerViewProtocol.h */,
+				1AF065F3219D555D00F8F7A8 /* UIView+KerViewProtocol.mm */,
+				1AF065F5219D555D00F8F7A8 /* WKWebView+KerViewProtocol.h */,
+				1AF065F6219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm */,
+				1AF0658C219D516000F8F7A8 /* Info.plist */,
+			);
+			path = Ker;
+			sourceTree = "<group>";
+		};
+		1AF06593219D518200F8F7A8 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				1AF06599219D518200F8F7A8 /* kk.h */,
+				1AF0659B219D518200F8F7A8 /* kk.cc */,
+				1AF0659D219D518200F8F7A8 /* jit.h */,
+				1AF065A1219D518200F8F7A8 /* jit.cc */,
+				1AF06595219D518200F8F7A8 /* bio.h */,
+				1AF0659A219D518200F8F7A8 /* bio.cc */,
+				1AF06596219D518200F8F7A8 /* event.h */,
+				1AF065A0219D518200F8F7A8 /* event.cc */,
+				1AF06598219D518200F8F7A8 /* container.h */,
+				1AF0659C219D518200F8F7A8 /* timer.h */,
+				1AF0659E219D518200F8F7A8 /* timer.cc */,
+				1AF0659F219D518200F8F7A8 /* dispatch.h */,
+				1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */,
+			);
+			name = core;
+			path = ../../../core;
+			sourceTree = "<group>";
+		};
+		1AF065B2219D51A000F8F7A8 /* duktape */ = {
+			isa = PBXGroup;
+			children = (
+				1AF065B5219D51C000F8F7A8 /* duk_config.h */,
+				1AF065B4219D51C000F8F7A8 /* duktape.c */,
+				1AF065B3219D51C000F8F7A8 /* duktape.h */,
+			);
+			name = duktape;
+			sourceTree = "<group>";
+		};
+		1AF065B9219D52AC00F8F7A8 /* ui */ = {
+			isa = PBXGroup;
+			children = (
+				1AF065BB219D52AC00F8F7A8 /* ui.h */,
+				1AF065C0219D52AC00F8F7A8 /* ui.cc */,
+				1AF065BF219D52AC00F8F7A8 /* view.h */,
+				1AF065BC219D52AC00F8F7A8 /* view.cc */,
+				1AF065BE219D52AC00F8F7A8 /* app.h */,
+				1AF065BD219D52AC00F8F7A8 /* app.cc */,
+				1AF065BA219D52AC00F8F7A8 /* page.h */,
+				1AF065C2219D52AC00F8F7A8 /* page.cc */,
+				1AF065C3219D52AC00F8F7A8 /* CGContext.h */,
+				1AF065C1219D52AC00F8F7A8 /* CGContext.cc */,
+			);
+			name = ui;
+			path = ../../../ui;
+			sourceTree = "<group>";
+		};
+		1AF065D8219D53CC00F8F7A8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1AF06605219D567400F8F7A8 /* WebKit.framework */,
+				1AF065DB219D53DA00F8F7A8 /* CoreGraphics.framework */,
+				1AF065D9219D53CC00F8F7A8 /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		1AF06583219D516000F8F7A8 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AF065D3219D536700F8F7A8 /* UI.h in Headers */,
+				1AF065B8219D51C000F8F7A8 /* duk_config.h in Headers */,
+				1AF065FE219D555E00F8F7A8 /* UITextView+KerViewProtocol.h in Headers */,
+				1AF065AE219D518200F8F7A8 /* dispatch.h in Headers */,
+				1AF065AB219D518200F8F7A8 /* timer.h in Headers */,
+				1AF065A8219D518200F8F7A8 /* kk.h in Headers */,
+				1AF065E4219D547000F8F7A8 /* KerApp.h in Headers */,
+				1AF06601219D555E00F8F7A8 /* WKWebView+KerViewProtocol.h in Headers */,
+				1AF065C8219D52AC00F8F7A8 /* app.h in Headers */,
+				1AF065A7219D518200F8F7A8 /* container.h in Headers */,
+				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
+				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
+				1AF0658D219D516000F8F7A8 /* Ker.h in Headers */,
+				1AF065CF219D52E200F8F7A8 /* KerViewProtocol.h in Headers */,
+				1AF065FD219D555E00F8F7A8 /* UIView+KerViewProtocol.h in Headers */,
+				1AF065E0219D53EB00F8F7A8 /* KerObject.h in Headers */,
+				1AF065AC219D518200F8F7A8 /* jit.h in Headers */,
+				1AF065C5219D52AC00F8F7A8 /* ui.h in Headers */,
+				1AF065EC219D54E600F8F7A8 /* KerPageViewController.h in Headers */,
+				1AF06603219D555E00F8F7A8 /* KerCanvas.h in Headers */,
+				1AF065C4219D52AC00F8F7A8 /* page.h in Headers */,
+				1AF065A4219D518200F8F7A8 /* bio.h in Headers */,
+				1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */,
+				1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */,
+				1AF065FB219D555E00F8F7A8 /* UITextField+KerViewProtocol.h in Headers */,
+				1AF065B6219D51C000F8F7A8 /* duktape.h in Headers */,
+				1AF065CD219D52AC00F8F7A8 /* CGContext.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		1AF06587219D516000F8F7A8 /* Ker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1AF06590219D516000F8F7A8 /* Build configuration list for PBXNativeTarget "Ker" */;
+			buildPhases = (
+				1AF06583219D516000F8F7A8 /* Headers */,
+				1AF06584219D516000F8F7A8 /* Sources */,
+				1AF06585219D516000F8F7A8 /* Frameworks */,
+				1AF06586219D516000F8F7A8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Ker;
+			productName = Ker;
+			productReference = 1AF06588219D516000F8F7A8 /* Ker.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1AF0657F219D516000F8F7A8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = kkmofang.cn;
+				TargetAttributes = {
+					1AF06587219D516000F8F7A8 = {
+						CreatedOnToolsVersion = 10.1;
+					};
+				};
+			};
+			buildConfigurationList = 1AF06582219D516000F8F7A8 /* Build configuration list for PBXProject "Ker" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 1AF0657E219D516000F8F7A8;
+			productRefGroup = 1AF06589219D516000F8F7A8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1AF06587219D516000F8F7A8 /* Ker */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1AF06586219D516000F8F7A8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1AF06584219D516000F8F7A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AF065E7219D54AC00F8F7A8 /* KerPage.mm in Sources */,
+				1AF065DF219D53EB00F8F7A8 /* KerObject.mm in Sources */,
+				1AF06600219D555E00F8F7A8 /* UIScrollView+KKViewProtocol.mm in Sources */,
+				1AF065CC219D52AC00F8F7A8 /* page.cc in Sources */,
+				1AF06602219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm in Sources */,
+				1AF065FA219D555E00F8F7A8 /* KerCanvas.m in Sources */,
+				1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */,
+				1AF065B7219D51C000F8F7A8 /* duktape.c in Sources */,
+				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
+				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
+				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
+				1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */,
+				1AF065EB219D54E600F8F7A8 /* KerPageViewController.m in Sources */,
+				1AF065B0219D518200F8F7A8 /* jit.cc in Sources */,
+				1AF065C7219D52AC00F8F7A8 /* app.cc in Sources */,
+				1AF065AF219D518200F8F7A8 /* event.cc in Sources */,
+				1AF065FF219D555E00F8F7A8 /* UIView+KerViewProtocol.mm in Sources */,
+				1AF065E3219D547000F8F7A8 /* KerApp.mm in Sources */,
+				1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */,
+				1AF065AA219D518200F8F7A8 /* kk.cc in Sources */,
+				1AF065C6219D52AC00F8F7A8 /* view.cc in Sources */,
+				1AF065AD219D518200F8F7A8 /* timer.cc in Sources */,
+				1AF065D7219D537600F8F7A8 /* View.mm in Sources */,
+				1AF065CB219D52AC00F8F7A8 /* CGContext.cc in Sources */,
+				1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1AF0658E219D516000F8F7A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		1AF0658F219D516000F8F7A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		1AF06591219D516000F8F7A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8V7A9F9SCJ;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				HEADER_SEARCH_PATHS = (
+					../../lib/duktape/src,
+					../../,
+				);
+				INFOPLIST_FILE = Ker/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.Ker;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1AF06592219D516000F8F7A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8V7A9F9SCJ;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				HEADER_SEARCH_PATHS = (
+					../../lib/duktape/src,
+					../../,
+				);
+				INFOPLIST_FILE = Ker/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.Ker;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1AF06582219D516000F8F7A8 /* Build configuration list for PBXProject "Ker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AF0658E219D516000F8F7A8 /* Debug */,
+				1AF0658F219D516000F8F7A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AF06590219D516000F8F7A8 /* Build configuration list for PBXNativeTarget "Ker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AF06591219D516000F8F7A8 /* Debug */,
+				1AF06592219D516000F8F7A8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1AF0657F219D516000F8F7A8 /* Project object */;
+}
