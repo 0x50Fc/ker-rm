@@ -44,8 +44,9 @@ namespace kk {
         for(i = 0;i<n;i++) {
             
             if(protocol_conformsToProtocol(p[i], @protocol(KerJSExport))) {
+                kk::CString name = protocol_getName(p[i]);
                 free(p);
-                return protocol_getName(p[i]);
+                return name;
             }
             
         }
@@ -57,7 +58,7 @@ namespace kk {
     
     NativeObject::~NativeObject() {
         if(_native != nullptr) {
-            CFRelease((CFTypeRef) _native);
+            CFAutorelease((CFTypeRef) _native);
         }
     }
     
@@ -92,7 +93,79 @@ namespace kk {
     
     namespace objc {
         
-        void PushInterface(duk_context * ctx,kk::CString name,kk::CString base, std::function<void(duk_context *)> && func) {
+        static void SignatureSetArguments(NSInvocation * inv,NSUInteger index,Signature & s) {
+            
+            switch (* [inv.methodSignature getArgumentTypeAtIndex:index]) {
+                case 'c':
+                    [inv setArgument:&s.int8Value atIndex:index];
+                    break;
+                case 's':
+                    [inv setArgument:&s.int16Value atIndex:index];
+                    break;
+                case 'l':
+                    [inv setArgument:&s.int32Value atIndex:index];
+                    break;
+                case 'q':
+                    [inv setArgument:&s.int64Value atIndex:index];
+                    break;
+                case 'f':
+                    [inv setArgument:&s.float32Value atIndex:index];
+                    break;
+                case 'd':
+                    [inv setArgument:&s.float64Value atIndex:index];
+                    break;
+                case 'B':
+                    [inv setArgument:&s.booleanValue atIndex:index];
+                    break;
+                case ':':
+                case '*':
+                    [inv setArgument:&s.cstringValue atIndex:index];
+                    break;
+                case '@':
+                    [inv setArgument:&s.nativeValue atIndex:index];
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        static void SignatureGetReturnValue(NSInvocation * inv,Signature & s) {
+            
+            switch (* [inv.methodSignature methodReturnType]) {
+                case 'c':
+                    [inv getReturnValue:&s.int8Value];
+                    break;
+                case 's':
+                    [inv getReturnValue:&s.int16Value];
+                    break;
+                case 'l':
+                    [inv getReturnValue:&s.int32Value];
+                    break;
+                case 'q':
+                    [inv getReturnValue:&s.int64Value];
+                    break;
+                case 'f':
+                    [inv getReturnValue:&s.float32Value];
+                    break;
+                case 'd':
+                    [inv getReturnValue:&s.float64Value];
+                    break;
+                case 'B':
+                    [inv getReturnValue:&s.booleanValue];
+                    break;
+                case ':':
+                case '*':
+                    [inv getReturnValue:&s.cstringValue];
+                    break;
+                case '@':
+                    [inv getReturnValue:&s.nativeValue];
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        void PushInterface(duk_context * ctx, ::Class isa) {
             
             duk_push_c_function(ctx, [](duk_context * ctx)->duk_ret_t{
                 return 0;
@@ -100,17 +173,272 @@ namespace kk {
             
             duk_push_object(ctx);
             
-            if(base) {
-                SetPrototype(ctx, -1, base);
+            ::Class base = class_getSuperclass(isa);
+            
+            if(base && base != [NSObject class]) {
+                SetPrototype(ctx, -1, class_getName(base));
             }
             
-            if(func != nullptr) {
-                func(ctx);
+            {
+                unsigned int n = 0;
+                ::Method * p =class_copyMethodList(isa, &n);
+                
+                for(unsigned int i = 0;i<n;i++){
+                    
+                    NSString * name = [NSString stringWithCString:sel_getName(method_getName(p[i])) encoding:NSUTF8StringEncoding];
+                    NSRange r = [name rangeOfString:@":"];
+                    
+                    if(r.location != NSNotFound) {
+                        name = [name substringToIndex:r.location];
+                    }
+                    
+                    duk_push_string(ctx, [name UTF8String]);
+                    
+                    duk_push_c_function(ctx, [](duk_context *ctx) -> duk_ret_t {
+                        
+                        duk_push_this(ctx);
+                        
+                        kk::NativeObject * v = dynamic_cast<kk::NativeObject *>(kk::GetObject(ctx, -1));
+                        
+                        duk_pop(ctx);
+                        
+                        duk_push_current_function(ctx);
+                        
+                        duk_get_prop_string(ctx, -1, "__method");
+                        
+                        ::Method m = (::Method) duk_to_pointer(ctx, -1);
+                        
+                        duk_pop_2(ctx);
+                        
+                        if(m && v) {
+                            
+                            Signature r = {SignatureTypeVoid,nullptr,nullptr};
+                            
+                            std::vector<Signature> args;
+                            
+                            SignatureInit(r,args,method_getTypeEncoding(m));
+                            
+                            duk_get_Arguments(ctx,args);
+
+                            NSMethodSignature * s = [NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(m)];
+                            NSInvocation * inv = [NSInvocation invocationWithMethodSignature:s];
+                            NSUInteger n = [s numberOfArguments];
+                            for(NSUInteger i = 2;i < n;i++) {
+                                SignatureSetArguments(inv,i,args[i - 2]);
+                            }
+                            
+                            inv.selector = method_getName(m);
+                            
+                            [inv invokeWithTarget:(__bridge id)v->native()];
+                            
+                            SignatureGetReturnValue(inv,r);
+                            
+                            if(r.type != SignatureTypeVoid) {
+                                duk_push_Signature(ctx, r);
+                                return 1;
+                            }
+                            
+                        }
+                        
+                        return 0;
+                    }, method_getNumberOfArguments(p[i]) - 2);
+                    
+                    duk_push_pointer(ctx, p[i]);
+                    duk_put_prop_string(ctx, -2, "__method");
+                    
+                    duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE |  DUK_DEFPROP_CLEAR_WRITABLE | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_CLEAR_CONFIGURABLE);
+                    
+                }
+                
+                free(p);
             }
             
             duk_set_prototype(ctx, -2);
             
-            duk_put_global_string(ctx, name);
+            duk_put_global_string(ctx, class_getName(isa));
+            
+        }
+        
+        void PushProtocol(duk_context * ctx, Protocol * protocol) {
+            
+            duk_push_c_function(ctx, [](duk_context * ctx)->duk_ret_t{
+                return 0;
+            }, 0);
+            
+            duk_push_object(ctx);
+            
+            {
+                unsigned int n = 0;
+                ::objc_method_description * p = protocol_copyMethodDescriptionList(protocol, YES, YES, &n);
+                
+                for(unsigned int i = 0;i<n;i++){
+                    
+                    NSString * name = [NSString stringWithCString:sel_getName(p[i].name) encoding:NSUTF8StringEncoding];
+                    NSRange r = [name rangeOfString:@":"];
+                    
+                    if(r.location != NSNotFound) {
+                        name = [name substringToIndex:r.location];
+                    }
+                    
+                    NSMethodSignature * s = [NSMethodSignature signatureWithObjCTypes:p[i].types];
+                    
+                    duk_push_string(ctx, [name UTF8String]);
+                    
+                    duk_push_c_function(ctx, [](duk_context *ctx) -> duk_ret_t {
+                        
+                        duk_push_this(ctx);
+                        
+                        kk::NativeObject * v = dynamic_cast<kk::NativeObject *>(kk::GetObject(ctx, -1));
+                        
+                        duk_pop(ctx);
+                        
+                        duk_push_current_function(ctx);
+                        
+                        duk_get_prop_string(ctx, -1, "__selector");
+                        
+                        SEL selector = sel_registerName( duk_to_string(ctx, -1));
+                        
+                        duk_pop_2(ctx);
+                        
+                        if(selector && v) {
+                            
+                            id object = (__bridge id) v->native();
+                            
+                            ::Method m = class_getInstanceMethod([object class], selector);
+                            
+                            if(m == nullptr) {
+                                return 0;
+                            }
+                        
+                            Signature r = {SignatureTypeVoid,nullptr,nullptr};
+                            
+                            std::vector<Signature> args;
+                            
+                            SignatureInit(r,args,method_getTypeEncoding(m));
+                            
+                            duk_get_Arguments(ctx,args);
+                        
+                            NSMethodSignature * s = [NSMethodSignature signatureWithObjCTypes:method_getTypeEncoding(m)];
+                            NSInvocation * inv = [NSInvocation invocationWithMethodSignature:s];
+                            NSUInteger n = [s numberOfArguments];
+                            for(NSUInteger i = 2;i < n;i++) {
+                                SignatureSetArguments(inv,i,args[i - 2]);
+                            }
+                            
+                            inv.selector = method_getName(m);
+                            
+                            [inv invokeWithTarget:(__bridge id)v->native()];
+                            
+                            SignatureGetReturnValue(inv,r);
+                            
+                            if(r.type != SignatureTypeVoid) {
+                                duk_push_Signature(ctx, r);
+                                return 1;
+                            }
+                            
+                            
+                        }
+                        
+                        return 0;
+                    }, (duk_idx_t) [s numberOfArguments]);
+                    
+                    duk_push_string(ctx, sel_getName( p[i].name));
+                    duk_put_prop_string(ctx, -2, "__selector");
+                    
+                    duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE |  DUK_DEFPROP_CLEAR_WRITABLE | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_CLEAR_CONFIGURABLE);
+                    
+                }
+                
+                free(p);
+            }
+            
+            duk_set_prototype(ctx, -2);
+            
+            duk_put_global_string(ctx, protocol_getName(protocol));
+            
+        }
+        
+        void SignatureObjectFromFunc(Signature * s,duk_context * ctx, duk_idx_t idx) {
+            if(duk_is_object(ctx, idx)) {
+                if(GetObject(ctx, idx) == nullptr) {
+                    kk::JSObject * v = new kk::JSObject(ctx,duk_get_heapptr(ctx, idx));
+                    KerJSObject * object = [[KerJSObject alloc] initWithJSObject:v];
+                    s->nativeValue = (__bridge kk::Native *) object;
+                    s->objectValue = new kk::NativeObject(s->nativeValue);
+                    return ;
+                }
+            }
+            s->nativeValue = (__bridge kk::Native *) duk_to_NSObject(ctx, idx);
+        }
+        
+        void SignatureObjectToFunc(Signature * s,duk_context * ctx) {
+            duk_push_NSObject(ctx, (__bridge id) s->nativeValue);
+        }
+        
+        static void SignatureSetType(Signature & s, const char * type) {
+            
+            switch (* type) {
+                case 'c':
+                    s.type = SignatureTypeInt8;
+                    s.int8Value = 0;
+                    break;
+                case 's':
+                    s.type = SignatureTypeInt16;
+                    s.int16Value = 0;
+                    break;
+                case 'l':
+                    s.type = SignatureTypeInt32;
+                    s.int32Value = 0;
+                    break;
+                case 'q':
+                    s.type = SignatureTypeInt64;
+                    s.int64Value = 0;
+                    break;
+                case 'f':
+                    s.type = SignatureTypeFloat32;
+                    s.float32Value = 0;
+                    break;
+                case 'd':
+                    s.type = SignatureTypeFloat64;
+                    s.float64Value = 0;
+                    break;
+                case 'B':
+                    s.type = SignatureTypeBoolean;
+                    s.booleanValue = false;
+                    break;
+                case ':':
+                case '*':
+                    s.type = SignatureTypeCString;
+                    s.cstringValue = nullptr;
+                    break;
+                case '@':
+                    s.type = SignatureTypeNative;
+                    s.nativeValue = nullptr;
+                    s.from = SignatureObjectFromFunc;
+                    s.to = SignatureObjectToFunc;
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        void SignatureInit(Signature & returnSignature,std::vector<Signature> & arguments,const char * types) {
+            
+            NSMethodSignature * s = [NSMethodSignature signatureWithObjCTypes:types];
+            
+            SignatureSetType(returnSignature,[s methodReturnType]);
+            
+            NSUInteger n = [s numberOfArguments];
+            
+            for(NSUInteger i=2;i<n;i++) {
+                
+                Signature v = {SignatureTypeVoid,nullptr,nullptr};
+                
+                SignatureSetType(v,[s getArgumentTypeAtIndex:i]);
+                
+                arguments.push_back(v);
+                
+            }
             
         }
         
@@ -181,6 +509,7 @@ void duk_push_NSObject(duk_context * ctx, id object) {
         if(name != nullptr) {
             kk::Strong<kk::NativeObject> v = new kk::NativeObject((__bridge kk::Native *) object);
             kk::PushObject(ctx, v.get());
+            return;
         }
         
     }
@@ -822,6 +1151,7 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
     if(_JSObject) {
         _JSObject->release();
     }
+    NSLog(@"[KerJSObject] [dealloc]");
 }
 
 

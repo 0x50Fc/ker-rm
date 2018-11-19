@@ -8,10 +8,26 @@
 
 #import "KerWXObject+Http.h"
 
+@interface KerWXRequestTask : NSObject<KerWXRequestTask>
+
+@end
+
+@implementation KerWXRequestTask
+
+-(void) dealloc {
+    NSLog(@"[KerWXRequestTask] [dealloc]");
+}
+
+-(void) abort {
+    NSLog(@"");
+}
+
+@end
+
 @implementation KerWXObject (Http)
 
--(void) request:(id<KerWXRequestObject>) object {
-    
+-(id<KerWXRequestTask>) request:(id<KerWXRequestObject>) object {
+    return [[KerWXRequestTask alloc] init];
 }
 
 @end

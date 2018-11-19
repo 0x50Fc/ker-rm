@@ -1,0 +1,116 @@
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">
+
+* {
+    margin: 0px; 
+}
+
+body {
+    line-height:1.6;
+    font-family:-apple-system-font, "Helvetica Neue", sans-serif;
+    background-color:#F8F8F8;
+    height:100%;
+    font-size:1.6rem;
+    -webkit-user-select:none;
+    user-select:none;
+    width:100%;
+    overflow-x:hidden;
+}
+
+wx-view {
+    display: block;
+}
+
+wx-input {
+    display:block;
+    height: 2.2rem;
+    text-overflow:clip;
+    overflow:hidden;
+    white-space:nowrap;
+    font-family:UICTFontTextStyleBody;
+    min-height:2.2rem;
+}
+
+wx-input > span {
+    color: #999999;
+}
+
+wx-canvas {
+    width:300px;
+    height:150px;
+    display:block;
+    position:relative;
+}
+    
+wx-scroll-view {
+    -webkit-overflow-scrolling:touch;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var View = kk.CreateElement;
+kk.Page(function(element,data,context){
+	View(element,data,"view",{"class":"page"},context,function(element,data,context){
+		View(element,data,"view",{"class":"page__hd"},context,function(element,data,context){
+			View(element,data,"text",{"class":"page__title","#text":"input"},context,function(element,data,context){
+			});
+			View(element,data,"text",{"class":"page__desc","#text":"输入框"},context,function(element,data,context){
+			});
+		});
+		View(element,data,"view",{"class":"page__bd"},context,function(element,data,context){
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"placeholder":"这是一个可以自动聚焦的input","auto-focus":"true"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"placeholder":"这个只有在按钮点击的时候才聚焦","focus":"{{focus}}"},context,function(element,data,context){
+				});
+				View(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+					View(element,data,"button",{"bindtap":"bindButtonTap","#text":"使得输入框获取焦点"},context,function(element,data,context){
+					});
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"maxlength":"10","placeholder":"最大输入长度10"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"view",{"class":"section__title","#text":"你输入的是：{{inputValue}}"},context,function(element,data,context){
+				});
+				View(element,data,"input",{"bindinput":"bindKeyInput","placeholder":"输入同步到view中"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"bindinput":"bindReplaceInput","placeholder":"连续的两个1会变成2"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"bindinput":"bindHideKeyboard","placeholder":"输入123自动收起键盘"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"type":"emoji","placeholder":"这是一个带有表情的输入框"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"password":"true","type":"number","placeholder":"这是一个数字输入框"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"password":"true","type":"text","placeholder":"这是一个文本输入框"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"type":"digit","placeholder":"带小数点的数字键盘"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"type":"idcard","placeholder":"身份证输入键盘"},context,function(element,data,context){
+				});
+			});
+			View(element,data,"view",{"class":"section"},context,function(element,data,context){
+				View(element,data,"input",{"placeholder-style":"color:red","placeholder":"占位符字体是红色的"},context,function(element,data,context){
+				});
+			});
+		});
+	});
+});})();
+</script></body>

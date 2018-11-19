@@ -1,0 +1,394 @@
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">
+
+* {
+    margin: 0px; 
+}
+
+body {
+    line-height:1.6;
+    font-family:-apple-system-font, "Helvetica Neue", sans-serif;
+    background-color:#F8F8F8;
+    height:100%;
+    font-size:1.6rem;
+    -webkit-user-select:none;
+    user-select:none;
+    width:100%;
+    overflow-x:hidden;
+}
+
+wx-view {
+    display: block;
+}
+
+wx-input {
+    display:block;
+    height: 2.2rem;
+    text-overflow:clip;
+    overflow:hidden;
+    white-space:nowrap;
+    font-family:UICTFontTextStyleBody;
+    min-height:2.2rem;
+}
+
+wx-input > span {
+    color: #999999;
+}
+
+wx-canvas {
+    width:300px;
+    height:150px;
+    display:block;
+    position:relative;
+}
+    
+wx-scroll-view {
+    -webkit-overflow-scrolling:touch;
+}
+.index{
+    background-color: #FBF9FE;
+    font-family: -apple-system-font,Helvetica Neue,Helvetica,sans-serif;
+    flex: 1;
+    min-height: 100%;
+    font-size: 16px;
+}
+.head{
+    padding: 40px;
+}
+.body{
+    padding-left: 15px;
+    padding-right: 15px;
+    overflow: hidden;
+}
+.title{
+    font-size: 30px;
+}
+.desc{
+    margin-top: 5px;
+    color: #888888;
+    font-size: 14px;
+}
+
+.widgets__item{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: #FFFFFF;
+    overflow: hidden;
+    border-radius: 2px;
+    cursor: pointer;
+}
+.widgets__info{
+    display: flex;
+    padding: 20px;
+    align-items: center;
+    flex-direction: row;
+}
+.widgets__info_show{
+    opacity: .4;
+}
+.widgets__info-name{
+    flex: 1;
+}
+.widgets__info-img{
+    width: 30px;
+    height: 30px;
+}
+
+.widgets__list{
+    display: none;
+}
+.widgets__list_show{
+    display: block;
+}
+/*
+.widgets__list{
+    height: 0;
+    overflow: hidden;
+}
+.widgets__list_show{
+    height: auto;
+}
+.widgets__list-inner{
+    opacity: 0;
+    transform: translateY(-50%);
+    transition: .3s;
+}
+.widgets__list-inner_show{
+    opacity: 1;
+    transform: translateY(0);
+}
+*/
+
+.widget{
+    position: relative;
+    padding-top: 13px;
+    padding-bottom: 13px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.widget__arrow{
+    position: absolute;
+    top: 14px;
+    right: 22px;
+    width: 8px;
+    height: 16px;
+}
+.widget__line{
+    content: " ";
+    position: absolute;
+    left: 20px;
+    bottom: 0;
+    right: 20px;
+    height: 0.05rem;
+    background-color: #DFDFDF;
+}</style></head><body><script type="text/javascript">
+(function(){
+var View = kk.CreateElement;
+kk.Page(function(element,data,context){
+	View(element,data,"view",{"class":"index"},context,function(element,data,context){
+		View(element,data,"view",{"class":"head"},context,function(element,data,context){
+			View(element,data,"view",{"class":"title","#text":"小程序组件"},context,function(element,data,context){
+			});
+			View(element,data,"view",{"class":"desc","#text":"这是展示小程序组件的DEMO。"},context,function(element,data,context){
+			});
+		});
+		View(element,data,"view",{"class":"body"},context,function(element,data,context){
+			View(element,data,"view",{"class":"widgets"},context,function(element,data,context){
+				View(element,data,"view",{"class":"widgets__item"},context,function(element,data,context){
+					View(element,data,"view",{"id":"view","class":"widgets__info {{viewShow ? 'widgets__info_show' : ''}}","bindtap":"widgetsToggle"},context,function(element,data,context){
+						View(element,data,"text",{"class":"widgets__info-name","#text":"内容分区"},context,function(element,data,context){
+						});
+						View(element,data,"image",{"class":"widgets__info-img","src":"resources/kind/view.png","background-size":"cover"},context,function(element,data,context){
+						});
+					});
+					View(element,data,"view",{"class":"widgets__list {{viewShow ? 'widgets__list_show' : ''}}"},context,function(element,data,context){
+						View(element,data,"navigator",{"url":"component-pages/wx-view/wx-view","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"view"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-scroll-view/wx-scroll-view","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"scroll-view"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-swiper/wx-swiper","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"swiper"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+							});
+						});
+					});
+				});
+				View(element,data,"view",{"class":"widgets__item"},context,function(element,data,context){
+					View(element,data,"view",{"id":"content","class":"widgets__info {{contentShow ? 'widgets__info_show' : ''}}","bindtap":"widgetsToggle"},context,function(element,data,context){
+						View(element,data,"text",{"class":"widgets__info-name","#text":"内容"},context,function(element,data,context){
+						});
+						View(element,data,"image",{"class":"widgets__info-img","src":"resources/kind/content.png","background-size":"cover"},context,function(element,data,context){
+						});
+					});
+					View(element,data,"view",{"class":"widgets__list {{contentShow ? 'widgets__list_show' : ''}}"},context,function(element,data,context){
+						View(element,data,"navigator",{"url":"component-pages/wx-text/wx-text","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"text"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-icon/wx-icon","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"icon"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-mask/wx-mask","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"mask"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-toast/wx-toast","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"toast"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-progress/wx-progress","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"progress"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+							});
+						});
+					});
+				});
+				View(element,data,"view",{"class":"widgets__item"},context,function(element,data,context){
+					View(element,data,"view",{"id":"form","class":"widgets__info {{formShow ? 'widgets__info_show' : ''}}","bindtap":"widgetsToggle"},context,function(element,data,context){
+						View(element,data,"text",{"class":"widgets__info-name","#text":"表单组件"},context,function(element,data,context){
+						});
+						View(element,data,"image",{"class":"widgets__info-img","src":"resources/kind/form.png","background-size":"cover"},context,function(element,data,context){
+						});
+					});
+					View(element,data,"view",{"class":"widgets__list {{formShow ? 'widgets__list_show' : ''}}"},context,function(element,data,context){
+						View(element,data,"navigator",{"url":"component-pages/wx-button/wx-button","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"button"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-checkbox/wx-checkbox","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"checkbox"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-form/wx-form","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"form"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-input/wx-input","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"input"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-label/wx-label","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"label"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-picker/wx-picker","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"picker"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-radio/wx-radio","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"radio"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-slider/wx-slider","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"slider"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-switch/wx-switch","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"switch"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+							});
+						});
+					});
+				});
+				View(element,data,"view",{"class":"widgets__item"},context,function(element,data,context){
+					View(element,data,"view",{"id":"interact","class":"widgets__info {{interactShow ? 'widgets__info_show' : ''}}","bindtap":"widgetsToggle"},context,function(element,data,context){
+						View(element,data,"text",{"class":"widgets__info-name","#text":"交互组件"},context,function(element,data,context){
+						});
+						View(element,data,"image",{"class":"widgets__info-img","src":"resources/kind/interact.png","background-size":"cover"},context,function(element,data,context){
+						});
+					});
+					View(element,data,"view",{"class":"widgets__list {{interactShow ? 'widgets__list_show' : ''}}"},context,function(element,data,context){
+						View(element,data,"navigator",{"url":"component-pages/wx-action-sheet/wx-action-sheet","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"action-sheet"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"navigator",{"url":"component-pages/wx-modal/wx-modal","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"modal"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+							});
+						});
+					});
+				});
+				View(element,data,"view",{"class":"widgets__item"},context,function(element,data,context){
+					View(element,data,"view",{"id":"nav","class":"widgets__info {{navShow ? 'widgets__info_show' : ''}}","bindtap":"widgetsToggle"},context,function(element,data,context){
+						View(element,data,"text",{"class":"widgets__info-name","#text":"导航"},context,function(element,data,context){
+						});
+						View(element,data,"image",{"class":"widgets__info-img","src":"resources/kind/nav.png","background-size":"cover"},context,function(element,data,context){
+						});
+					});
+					View(element,data,"view",{"class":"widgets__list {{navShow ? 'widgets__list_show' : ''}}"},context,function(element,data,context){
+						View(element,data,"navigator",{"url":"component-pages/wx-navigator/wx-navigator","class":"widget"},context,function(element,data,context){
+							View(element,data,"text",{"class":"widget__name","#text":"navigator"},context,function(element,data,context){
+							});
+							View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+							});
+						});
+					});
+				});
+				View(element,data,"view",{"class":"widgets__item"},context,function(element,data,context){
+					View(element,data,"view",{"id":"media","class":"widgets__info {{mediaShow ? 'widgets__info_show' : ''}}","bindtap":"widgetsToggle"},context,function(element,data,context){
+						View(element,data,"text",{"class":"widgets__info-name","#text":"媒体"},context,function(element,data,context){
+						});
+						View(element,data,"image",{"class":"widgets__info-img","src":"resources/kind/media.png","background-size":"cover"},context,function(element,data,context){
+						});
+					});
+					View(element,data,"view",{"class":"widgets__list {{mediaShow ? 'widgets__list_show' : ''}}"},context,function(element,data,context){
+						View(element,data,"view",{"class":"widgets__list-inner {{mediaShow ? 'widgets__list-inner_show' : ''}}"},context,function(element,data,context){
+							View(element,data,"navigator",{"url":"component-pages/wx-image/wx-image","class":"widget"},context,function(element,data,context){
+								View(element,data,"text",{"class":"widget__name","#text":"image"},context,function(element,data,context){
+								});
+								View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+									View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+									});
+								});
+							});
+							View(element,data,"navigator",{"url":"component-pages/wx-audio/wx-audio","class":"widget"},context,function(element,data,context){
+								View(element,data,"text",{"class":"widget__name","#text":"audio"},context,function(element,data,context){
+								});
+								View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+									View(element,data,"view",{"class":"widget__line"},context,function(element,data,context){
+									});
+								});
+							});
+							View(element,data,"navigator",{"url":"component-pages/wx-video/wx-video","class":"widget"},context,function(element,data,context){
+								View(element,data,"text",{"class":"widget__name","#text":"video"},context,function(element,data,context){
+								});
+								View(element,data,"image",{"class":"widget__arrow","src":"resources/arrow.png","background-size":"cover"},context,function(element,data,context){
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+	});
+});})();
+</script></body>

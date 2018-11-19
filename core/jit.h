@@ -797,6 +797,62 @@ namespace kk {
         void * _heapptr;
     };
     
+    
+    enum SignatureType {
+        SignatureTypeVoid,
+        SignatureTypeInt8,
+        SignatureTypeUint8,
+        SignatureTypeInt16,
+        SignatureTypeUint16,
+        SignatureTypeInt32,
+        SignatureTypeUint32,
+        SignatureTypeInt64,
+        SignatureTypeUint64,
+        SignatureTypeFloat32,
+        SignatureTypeFloat64,
+        SignatureTypeBoolean,
+        SignatureTypeObject,
+        SignatureTypeCString,
+        SignatureTypeNative,
+    };
+    
+    struct Signature;
+    
+    typedef void (*SignatureFromFunc)(Signature * s,duk_context * ctx, duk_idx_t idx);
+    typedef void (*SignatureToFunc)(Signature * s,duk_context * ctx);
+    
+    struct Signature {
+        SignatureType type;
+        SignatureFromFunc from;
+        SignatureToFunc to;
+        union {
+            Int8 int8Value;
+            Uint8 uint8Value;
+            Int16 int16Value;
+            Uint16 uint16Value;
+            Int32 int32Value;
+            Uint32 uint32Value;
+            Int64 int64Value;
+            Uint64 uint64Value;
+            Float32 float32Value;
+            Float64 float64Value;
+            Boolean booleanValue;
+            CString cstringValue;
+            kk::Native * nativeValue;
+        };
+        Strong<kk::Object> objectValue;
+    };
+    
+    void duk_push_Signature(duk_context * ctx,Signature & v);
+    
+    void duk_get_Signature(duk_context * ctx,duk_idx_t idx,Signature & v);
+    
+    void duk_get_Arguments(duk_context * ctx,std::vector<Signature> & arguments);
+    
+    void duk_pcall(duk_context * ctx,Signature returnSignature,std::vector<Signature> & arguments);
+    
+    void duk_pcall_method(duk_context * ctx,Signature returnSignature,std::vector<Signature> & arguments);
+    
 }
 
 #endif /* jit_h */

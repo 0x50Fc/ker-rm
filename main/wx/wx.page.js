@@ -10,7 +10,7 @@ function diranme(path) {
 var V = require("wx/wx.view.js");
 var wx = require("wx/wx.js");
 
-module.exports = function (options, path, page) {
+module.exports = function (options, path, page, padding) {
 
     print("[PAGE]");
 
@@ -18,7 +18,10 @@ module.exports = function (options, path, page) {
 
     page.setOptions(options);
 
-    view.set("background-color", "#fff");
+    if (padding === undefined) {
+        padding = { top: 64, left: 0, bottom: 0, right: 0 };
+        view.set("background-color", "#fff");
+    }
 
     var config = new UIWebViewConfiguration();
 
@@ -35,7 +38,7 @@ module.exports = function (options, path, page) {
 
     view.addSubview(webview);
 
-    webview.setFrame(0, 64, page.width, page.height - 64);
+    webview.setFrame(padding.left, padding.top, page.width - padding.left - padding.right, page.height - padding.top - padding.bottom);
     webview.set("background-color", "#fff");
 
     (function () {
@@ -44,7 +47,7 @@ module.exports = function (options, path, page) {
 
         var readying = function () {
 
-            var fn = compile("(function(Page, getApp, app, page, wx){" + app.getTextContent(path + ".wx.js") + "})", path + ".wx.js")();
+            var fn = compile("(function(Page, getApp, app, page, wx){" + app.getTextContent(path + ".js") + "})", path + ".wx.js")();
 
             fn(
                 function (object) {

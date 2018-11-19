@@ -26,14 +26,10 @@
     
     NSLog(@"%@",v.type);
     
-    WXGetLocationRes * r = [[WXGetLocationRes alloc] init];
-    
-    [v success:r errmsg:@"OK"];
-//
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        WXGetLocationRes * r = [[WXGetLocationRes alloc] init];
-//        [v success:r errmsg:@"OK"];
-//    });
+    dispatch_async(dispatch_get_main_queue(), ^{
+        WXGetLocationRes * r = [[WXGetLocationRes alloc] init];
+        [v success:r errmsg:@"OK"];
+    });
     
 }
 

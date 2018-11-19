@@ -1,0 +1,100 @@
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">
+
+* {
+    margin: 0px; 
+}
+
+body {
+    line-height:1.6;
+    font-family:-apple-system-font, "Helvetica Neue", sans-serif;
+    background-color:#F8F8F8;
+    height:100%;
+    font-size:1.6rem;
+    -webkit-user-select:none;
+    user-select:none;
+    width:100%;
+    overflow-x:hidden;
+}
+
+wx-view {
+    display: block;
+}
+
+wx-input {
+    display:block;
+    height: 2.2rem;
+    text-overflow:clip;
+    overflow:hidden;
+    white-space:nowrap;
+    font-family:UICTFontTextStyleBody;
+    min-height:2.2rem;
+}
+
+wx-input > span {
+    color: #999999;
+}
+
+wx-canvas {
+    width:300px;
+    height:150px;
+    display:block;
+    position:relative;
+}
+    
+wx-scroll-view {
+    -webkit-overflow-scrolling:touch;
+}
+.page-body-text-small {
+  font-size: 1.2000000000000002rem;
+  color: #000;
+  margin-bottom: 5rem;
+}
+.page-body-text-location {
+  display: flex;
+  font-size: 2.5rem;
+}
+.page-body-text-location text {
+  margin: 0.5rem;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var View = kk.CreateElement;
+kk.Page(function(element,data,context){
+	View(element,data,"import",{"src":"../common/header.wxml"},context,function(element,data,context){
+		View(element,data,"import",{"src":"../common/footer.wxml"},context,function(element,data,context){
+			View(element,data,"view",{"class":"container"},context,function(element,data,context){
+				View(element,data,"template",{"is":"header","data":"{{title: 'getLocation'}}"},context,function(element,data,context){
+					View(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+						View(element,data,"view",{"class":"page-body-wrapper"},context,function(element,data,context){
+							View(element,data,"view",{"class":"page-body-info"},context,function(element,data,context){
+								View(element,data,"text",{"class":"page-body-text-small","#text":"当前位置经纬度"},context,function(element,data,context){
+								});
+								View(element,data,"block",{"wx:if":"{{hasLocation === false}}"},context,function(element,data,context){
+									View(element,data,"text",{"class":"page-body-text","#text":"未获取"},context,function(element,data,context){
+									});
+								});
+								View(element,data,"block",{"wx:if":"{{hasLocation === true}}"},context,function(element,data,context){
+									View(element,data,"view",{"class":"page-body-text-location"},context,function(element,data,context){
+										View(element,data,"text",{"#text":"E{{location.longitude[0]}}°{{location.longitude[1]}}′"},context,function(element,data,context){
+										});
+										View(element,data,"text",{"#text":"N{{location.latitude[0]}}°{{location.latitude[1]}}′"},context,function(element,data,context){
+										});
+									});
+								});
+							});
+							View(element,data,"view",{"class":"page-body-buttons"},context,function(element,data,context){
+								View(element,data,"button",{"class":"page-body-button","type":"primary","bindtap":"getLocation","#text":"获取位置"},context,function(element,data,context){
+								});
+								View(element,data,"button",{"class":"page-body-button","bindtap":"clear","#text":"清空"},context,function(element,data,context){
+								});
+							});
+						});
+					});
+					View(element,data,"template",{"is":"footer"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+	});
+});})();
+</script></body>

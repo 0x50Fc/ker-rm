@@ -3,6 +3,8 @@ module.exports = function (options) {
 
     print("[APP]");
 
+    app.options = options;
+
     app.object = {};
 
     (function (__CODE__, App, app) {
@@ -32,6 +34,10 @@ module.exports = function (options) {
     var fn = app.object['onLaunch'];
     if (typeof fn == 'function') {
         fn.call(app.object, options);
+    }
+
+    if(options && options.tabBar) {
+        app.open("wx/tabbar.js");
     }
 
 };

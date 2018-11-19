@@ -6,7 +6,7 @@ class ButtonElement extends ViewElement_1.ViewElement {
 }
 exports.ButtonElement = ButtonElement;
 
-},{"./ViewElement":33}],2:[function(require,module,exports){
+},{"./ViewElement":34}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const NViewElement_1 = require("./NViewElement");
@@ -22,7 +22,7 @@ class CheckboxElement extends ViewElement_1.ViewElement {
 }
 exports.CheckboxElement = CheckboxElement;
 
-},{"./ViewElement":33}],4:[function(require,module,exports){
+},{"./ViewElement":34}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class IObject {
@@ -662,7 +662,7 @@ class FormElement extends ViewElement_1.ViewElement {
 }
 exports.FormElement = FormElement;
 
-},{"./ViewElement":33}],10:[function(require,module,exports){
+},{"./ViewElement":34}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function postMessage(data) {
@@ -681,7 +681,7 @@ class IconElement extends ViewElement_1.ViewElement {
 }
 exports.IconElement = IconElement;
 
-},{"./ViewElement":33}],12:[function(require,module,exports){
+},{"./ViewElement":34}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -712,7 +712,7 @@ class ImageElement extends ViewElement_1.ViewElement {
 }
 exports.ImageElement = ImageElement;
 
-},{"./URI":32,"./ViewElement":33}],13:[function(require,module,exports){
+},{"./URI":32,"./ViewElement":34}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const NViewElement_1 = require("./NViewElement");
@@ -777,7 +777,7 @@ class LabelElement extends ViewElement_1.ViewElement {
 }
 exports.LabelElement = LabelElement;
 
-},{"./ViewElement":33}],15:[function(require,module,exports){
+},{"./ViewElement":34}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Data_1 = require("./Data");
@@ -1072,7 +1072,7 @@ function sendEvent(id, name, data) {
 }
 exports.sendEvent = sendEvent;
 
-},{"./ButtonElement":1,"./CanvasElement":2,"./CheckboxElement":3,"./Data":4,"./Element":6,"./FormElement":9,"./IPC":10,"./IconElement":11,"./ImageElement":12,"./InputElement":13,"./LabelElement":14,"./MovableViewElement":16,"./NavigatorElement":18,"./Page":19,"./PickerElement":20,"./PickerViewElement":21,"./ProgressElement":22,"./RadioElement":23,"./RichTextElement":24,"./ScrollViewElement":25,"./SliderElement":26,"./SwiperElement":28,"./SwitchElement":29,"./TextElement":30,"./TextareaElement":31,"./ViewElement":33,"./once":34}],16:[function(require,module,exports){
+},{"./ButtonElement":1,"./CanvasElement":2,"./CheckboxElement":3,"./Data":4,"./Element":6,"./FormElement":9,"./IPC":10,"./IconElement":11,"./ImageElement":12,"./InputElement":13,"./LabelElement":14,"./MovableViewElement":16,"./NavigatorElement":18,"./Page":19,"./PickerElement":20,"./PickerViewElement":21,"./ProgressElement":22,"./RadioElement":23,"./RichTextElement":24,"./ScrollViewElement":25,"./SliderElement":26,"./SwiperElement":28,"./SwitchElement":29,"./TextElement":30,"./TextareaElement":31,"./ViewElement":34,"./once":35}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1080,7 +1080,7 @@ class MovableViewElement extends ViewElement_1.ViewElement {
 }
 exports.MovableViewElement = MovableViewElement;
 
-},{"./ViewElement":33}],17:[function(require,module,exports){
+},{"./ViewElement":34}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1170,7 +1170,7 @@ class NViewElement extends ViewElement_1.ViewElement {
 }
 exports.NViewElement = NViewElement;
 
-},{"./IPC":10,"./ViewElement":33,"./once":34}],18:[function(require,module,exports){
+},{"./IPC":10,"./ViewElement":34,"./once":35}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1178,7 +1178,7 @@ class NavigatorElement extends ViewElement_1.ViewElement {
 }
 exports.NavigatorElement = NavigatorElement;
 
-},{"./ViewElement":33}],19:[function(require,module,exports){
+},{"./ViewElement":34}],19:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Data_1 = require("./Data");
@@ -1234,7 +1234,7 @@ class PickerElement extends ViewElement_1.ViewElement {
 }
 exports.PickerElement = PickerElement;
 
-},{"./ViewElement":33}],21:[function(require,module,exports){
+},{"./ViewElement":34}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1242,7 +1242,7 @@ class PickerViewElement extends ViewElement_1.ViewElement {
 }
 exports.PickerViewElement = PickerViewElement;
 
-},{"./ViewElement":33}],22:[function(require,module,exports){
+},{"./ViewElement":34}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1250,7 +1250,7 @@ class ProgressElement extends ViewElement_1.ViewElement {
 }
 exports.ProgressElement = ProgressElement;
 
-},{"./ViewElement":33}],23:[function(require,module,exports){
+},{"./ViewElement":34}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1258,7 +1258,7 @@ class RadioElement extends ViewElement_1.ViewElement {
 }
 exports.RadioElement = RadioElement;
 
-},{"./ViewElement":33}],24:[function(require,module,exports){
+},{"./ViewElement":34}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1266,15 +1266,73 @@ class RichTextElement extends ViewElement_1.ViewElement {
 }
 exports.RichTextElement = RichTextElement;
 
-},{"./ViewElement":33}],25:[function(require,module,exports){
+},{"./ViewElement":34}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
+const V_1 = require("./V");
 class ScrollViewElement extends ViewElement_1.ViewElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+        let element = this;
+        let delta = {
+            x: 0,
+            y: 0,
+            deltaX: 0,
+            deltaY: 0
+        };
+        this._view = this.createView();
+        this._view.addEventListener("scroll", (event) => {
+            delta.deltaX = element.scrollLeft - delta.x;
+            delta.deltaY = element.scrollTop - delta.y;
+            delta.x = element.scrollLeft;
+            delta.y = element.scrollTop;
+            element.doEvent(event, "scroll", {
+                scrollLeft: element.scrollLeft,
+                scrollTop: element.scrollTop,
+                scrollWidth: element.scrollWidth,
+                scrollHeight: element.scrollHeight,
+                deltaX: delta.deltaX,
+                deltaY: delta.deltaY
+            });
+            event.stopPropagation();
+        });
+    }
+    get scrollLeft() {
+        return this._view.scrollLeft;
+    }
+    get scrollTop() {
+        return this._view.scrollTop;
+    }
+    get scrollWidth() {
+        return this._view.scrollWidth;
+    }
+    get scrollHeight() {
+        return this._view.scrollHeight;
+    }
+    set(key, value) {
+        super.set(key, value);
+        if (key == 'scroll-x') {
+            if (V_1.booleanValue(value)) {
+                this._view.style.overflowX = 'auto';
+            }
+            else {
+                this._view.style.overflowX = 'hidden';
+            }
+        }
+        else if (key == 'scroll-y') {
+            if (V_1.booleanValue(value)) {
+                this._view.style.overflowY = 'auto';
+            }
+            else {
+                this._view.style.overflowY = 'hidden';
+            }
+        }
+    }
 }
 exports.ScrollViewElement = ScrollViewElement;
 
-},{"./ViewElement":33}],26:[function(require,module,exports){
+},{"./V":33,"./ViewElement":34}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1282,7 +1340,7 @@ class SliderElement extends ViewElement_1.ViewElement {
 }
 exports.SliderElement = SliderElement;
 
-},{"./ViewElement":33}],27:[function(require,module,exports){
+},{"./ViewElement":34}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -1294,7 +1352,7 @@ class SwiperElement extends ViewElement_1.ViewElement {
 }
 exports.SwiperElement = SwiperElement;
 
-},{"./ViewElement":33}],29:[function(require,module,exports){
+},{"./ViewElement":34}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1302,7 +1360,7 @@ class SwitchElement extends ViewElement_1.ViewElement {
 }
 exports.SwitchElement = SwitchElement;
 
-},{"./ViewElement":33}],30:[function(require,module,exports){
+},{"./ViewElement":34}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1310,7 +1368,7 @@ class TextElement extends ViewElement_1.ViewElement {
 }
 exports.TextElement = TextElement;
 
-},{"./ViewElement":33}],31:[function(require,module,exports){
+},{"./ViewElement":34}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const InputElement_1 = require("./InputElement");
@@ -1333,6 +1391,14 @@ function resolveURI(uri) {
 exports.resolveURI = resolveURI;
 
 },{}],33:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function booleanValue(v) {
+    return v == 'true';
+}
+exports.booleanValue = booleanValue;
+
+},{}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Element_1 = require("./Element");
@@ -1369,8 +1435,9 @@ class ViewElement extends Element_1.Element {
     createView() {
         return document.createElement("wx-" + this._name);
     }
-    doEvent(event, name) {
-        let data = {
+    doEvent(event, name, detail) {
+        let e = new Element_1.ElementEvent(this);
+        e.data = {
             type: name,
             timeStamp: event.timeStamp,
             target: event.target ? {
@@ -1381,11 +1448,10 @@ class ViewElement extends Element_1.Element {
                 id: event.currentTarget.id,
                 dataset: getDataSet(event.target)
             } : undefined,
+            detail: detail,
             touches: event instanceof TouchEvent ? getTouches(event.touches) : undefined,
             changedTouches: event instanceof TouchEvent ? getTouches(event.changedTouches) : undefined,
         };
-        let e = new Element_1.ElementEvent(this);
-        e.data = data;
         this.emit(name, e);
     }
     constructor(document, name, id) {
@@ -1395,31 +1461,31 @@ class ViewElement extends Element_1.Element {
         this._view = this.createView();
         this._view.addEventListener("touchstart", (event) => {
             timeStamp = event.timeStamp;
-            element.doEvent(event, "touchstart");
+            element.doEvent(event, "touchstart", {});
             event.stopPropagation();
         });
         this._view.addEventListener("touchmove", (event) => {
-            element.doEvent(event, "touchmove");
+            element.doEvent(event, "touchmove", {});
             event.stopPropagation();
         });
         this._view.addEventListener("touchcancel", (event) => {
-            element.doEvent(event, "touchcancel");
+            element.doEvent(event, "touchcancel", {});
             event.stopPropagation();
         });
         this._view.addEventListener("touchend", (event) => {
-            element.doEvent(event, "touchend");
+            element.doEvent(event, "touchend", {});
             if (event.timeStamp - timeStamp > 350) {
                 if (element.has("longpress")) {
-                    element.doEvent(event, "longpress");
+                    element.doEvent(event, "longpress", {});
                     return;
                 }
-                element.doEvent(event, "longtap");
+                element.doEvent(event, "longtap", {});
             }
-            element.doEvent(event, "tap");
+            element.doEvent(event, "tap", {});
             event.stopPropagation();
         });
         this._view.addEventListener("touchforcechange", (event) => {
-            element.doEvent(event, "touchforcechange");
+            element.doEvent(event, "touchforcechange", {});
             event.stopPropagation();
         });
     }
@@ -1478,7 +1544,7 @@ class ViewElement extends Element_1.Element {
 }
 exports.ViewElement = ViewElement;
 
-},{"./Element":6}],34:[function(require,module,exports){
+},{"./Element":6}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var _running = false;
@@ -1501,9 +1567,10 @@ function once(func) {
 }
 exports.once = once;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 
 require('./bin/Data.js');
+require('./bin/V.js');
 require('./bin/URI.js');
 require('./bin/IPC.js');
 require('./bin/once.js');
@@ -1541,4 +1608,4 @@ require('./bin/Page.js');
 kk = require('./bin/Main.js');
 
 
-},{"./bin/ButtonElement.js":1,"./bin/CanvasElement.js":2,"./bin/CheckboxElement.js":3,"./bin/Data.js":4,"./bin/Document.js":5,"./bin/Element.js":6,"./bin/Event.js":7,"./bin/EventEmitter.js":8,"./bin/FormElement.js":9,"./bin/IPC.js":10,"./bin/IconElement.js":11,"./bin/ImageElement.js":12,"./bin/InputElement.js":13,"./bin/LabelElement.js":14,"./bin/Main.js":15,"./bin/MovableViewElement.js":16,"./bin/NViewElement.js":17,"./bin/NavigatorElement.js":18,"./bin/Page.js":19,"./bin/PickerElement.js":20,"./bin/PickerViewElement.js":21,"./bin/ProgressElement.js":22,"./bin/RadioElement.js":23,"./bin/RichTextElement.js":24,"./bin/ScrollViewElement.js":25,"./bin/SliderElement.js":26,"./bin/Style.js":27,"./bin/SwiperElement.js":28,"./bin/SwitchElement.js":29,"./bin/TextElement.js":30,"./bin/TextareaElement.js":31,"./bin/URI.js":32,"./bin/ViewElement.js":33,"./bin/once.js":34}]},{},[35]);
+},{"./bin/ButtonElement.js":1,"./bin/CanvasElement.js":2,"./bin/CheckboxElement.js":3,"./bin/Data.js":4,"./bin/Document.js":5,"./bin/Element.js":6,"./bin/Event.js":7,"./bin/EventEmitter.js":8,"./bin/FormElement.js":9,"./bin/IPC.js":10,"./bin/IconElement.js":11,"./bin/ImageElement.js":12,"./bin/InputElement.js":13,"./bin/LabelElement.js":14,"./bin/Main.js":15,"./bin/MovableViewElement.js":16,"./bin/NViewElement.js":17,"./bin/NavigatorElement.js":18,"./bin/Page.js":19,"./bin/PickerElement.js":20,"./bin/PickerViewElement.js":21,"./bin/ProgressElement.js":22,"./bin/RadioElement.js":23,"./bin/RichTextElement.js":24,"./bin/ScrollViewElement.js":25,"./bin/SliderElement.js":26,"./bin/Style.js":27,"./bin/SwiperElement.js":28,"./bin/SwitchElement.js":29,"./bin/TextElement.js":30,"./bin/TextareaElement.js":31,"./bin/URI.js":32,"./bin/V.js":33,"./bin/ViewElement.js":34,"./bin/once.js":35}]},{},[36]);

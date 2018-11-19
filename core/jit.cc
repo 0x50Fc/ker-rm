@@ -736,4 +736,271 @@ namespace kk {
     }
     
     
+    void duk_push_Signature(duk_context * ctx,Signature & v) {
+        
+        if(v.to != nullptr) {
+            (*v.to)(&v,ctx);
+            return;
+        }
+        
+        switch (v.type) {
+            case SignatureTypeInt8:
+                duk_push_int(ctx, v.int8Value);
+                break;
+            case SignatureTypeUint8:
+                duk_push_uint(ctx, v.uint8Value);
+                break;
+            case SignatureTypeInt16:
+                duk_push_int(ctx, v.int16Value);
+                break;
+            case SignatureTypeUint16:
+                duk_push_uint(ctx, v.uint16Value);
+                break;
+            case SignatureTypeInt32:
+                duk_push_int(ctx, v.int32Value);
+                break;
+            case SignatureTypeUint32:
+                duk_push_uint(ctx, v.uint32Value);
+                break;
+            case SignatureTypeInt64:
+                duk_push_sprintf(ctx, "%lld",v.int64Value);
+                break;
+            case SignatureTypeUint64:
+                duk_push_sprintf(ctx, "%llu",v.uint64Value);
+                break;
+            case SignatureTypeFloat32:
+                duk_push_number(ctx, v.float32Value);
+                break;
+            case SignatureTypeFloat64:
+                duk_push_number(ctx, v.float64Value);
+                break;
+            case SignatureTypeBoolean:
+                duk_push_boolean(ctx, v.booleanValue);
+                break;
+            case SignatureTypeCString:
+                if(v.cstringValue != nullptr) {
+                    duk_push_string(ctx, v.cstringValue);
+                } else {
+                    duk_push_undefined(ctx);
+                }
+                break;
+            case SignatureTypeObject:
+                if(v.objectValue != nullptr) {
+                    PushObject(ctx, v.objectValue);
+                } else {
+                    duk_push_undefined(ctx);
+                }
+                break;
+            case SignatureTypeNative:
+                if(v.nativeValue != nullptr) {
+                    PushObject(ctx, new NativeObject(v.nativeValue));
+                } else {
+                    duk_push_undefined(ctx);
+                }
+                break;
+            default:
+                duk_push_undefined(ctx);
+                break;
+        }
+    }
+    
+    void duk_get_Signature(duk_context * ctx,duk_idx_t idx,Signature & v) {
+        
+        if(v.from != nullptr) {
+            (*v.from)(&v,ctx,idx);
+            return;
+        }
+        
+        switch (duk_get_type(ctx, idx)) {
+            case DUK_TYPE_NUMBER:
+            {
+                switch (v.type) {
+                    case SignatureTypeInt8:
+                        v.int8Value = duk_to_int(ctx, idx);
+                        break;
+                    case SignatureTypeUint8:
+                        v.uint8Value = duk_to_uint(ctx, idx);
+                        break;
+                    case SignatureTypeInt16:
+                        v.int16Value = duk_to_int(ctx, idx);
+                        break;
+                    case SignatureTypeUint16:
+                        v.uint16Value = duk_to_uint(ctx, idx);
+                        break;
+                    case SignatureTypeInt32:
+                        v.int32Value = duk_to_int(ctx, idx);
+                        break;
+                    case SignatureTypeUint32:
+                        v.uint32Value = duk_to_uint(ctx, idx);
+                        break;
+                    case SignatureTypeInt64:
+                        v.int64Value = duk_to_int(ctx, idx);
+                        break;
+                    case SignatureTypeUint64:
+                        v.uint64Value = duk_to_uint(ctx, idx);
+                        break;
+                    case SignatureTypeFloat32:
+                        v.float32Value = duk_to_number(ctx, idx);
+                        break;
+                    case SignatureTypeFloat64:
+                        v.float64Value = duk_to_number(ctx, idx);
+                        break;
+                    case SignatureTypeBoolean:
+                        v.booleanValue = duk_to_number(ctx, idx) != 0;
+                        break;
+                    default:
+                        break;
+                }
+            }
+                break;
+            case DUK_TYPE_BOOLEAN:
+            {
+                switch (v.type) {
+                    case SignatureTypeInt8:
+                        v.int8Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeUint8:
+                        v.uint8Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeInt16:
+                        v.int16Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeUint16:
+                        v.uint16Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeInt32:
+                        v.int32Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeUint32:
+                        v.uint32Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeInt64:
+                        v.int64Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeUint64:
+                        v.uint64Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeFloat32:
+                        v.float32Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeFloat64:
+                        v.float64Value = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeBoolean:
+                        v.booleanValue = duk_to_boolean(ctx, idx);
+                        break;
+                    case SignatureTypeCString:
+                        v.cstringValue = duk_to_boolean(ctx, idx) ? "true" : "false";
+                        break;
+                    default:
+                        break;
+                }
+            }
+                break;
+            case DUK_TYPE_STRING:
+            {
+                switch (v.type) {
+                    case SignatureTypeInt8:
+                        v.int8Value = atoi(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeUint8:
+                        v.uint8Value = atoi(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeInt16:
+                        v.int16Value = atoi(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeUint16:
+                        v.uint16Value = atoi(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeInt32:
+                        v.int32Value = atoi(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeUint32:
+                        v.uint32Value = atoi(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeInt64:
+                        v.int64Value = atoll(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeUint64:
+                        v.uint64Value = atoll(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeFloat32:
+                        v.float32Value = atof(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeFloat64:
+                        v.float64Value = atof(duk_to_string(ctx, idx));
+                        break;
+                    case SignatureTypeBoolean:
+                        v.booleanValue = kk::CStringEqual(duk_to_string(ctx, idx), "true");
+                        break;
+                    case SignatureTypeCString:
+                        v.cstringValue = duk_to_string(ctx, idx);
+                        break;
+                    default:
+                        break;
+                }
+            }
+                break;
+            case DUK_TYPE_LIGHTFUNC:
+            case DUK_TYPE_OBJECT:
+            {
+                switch (v.type) {
+                    case SignatureTypeObject:
+                        v.objectValue = new JSObject(ctx,duk_get_heapptr(ctx, idx));
+                        break;
+                    default:
+                        break;
+                }
+            }
+                break;
+            default:
+                break;
+        }
+    }
+    
+    void duk_get_Arguments(duk_context * ctx,std::vector<Signature> & arguments) {
+        duk_idx_t n = duk_get_top(ctx);
+        auto i = arguments.begin();
+        while(i != arguments.end() && n > 0) {
+            duk_get_Signature(ctx, - n, * i);
+            i ++;
+        }
+    }
+    
+    void duk_pcall(duk_context * ctx,Signature returnSignature,std::vector<Signature> & arguments) {
+        
+        auto i = arguments.begin();
+        while(i != arguments.end()) {
+            duk_push_Signature(ctx, * i);
+            i ++;
+        }
+        
+        if(::duk_pcall(ctx, (duk_idx_t)arguments.size()) == DUK_EXEC_SUCCESS) {
+            duk_get_Signature(ctx, -1, returnSignature);
+        } else {
+            kk::Error(ctx, -1, "[kk::duk_pcall]");
+        }
+        
+        duk_pop(ctx);
+        
+    }
+    
+    void duk_pcall_method(duk_context * ctx,Signature returnSignature,std::vector<Signature> & arguments) {
+        
+        auto i = arguments.begin();
+        while(i != arguments.end()) {
+            duk_push_Signature(ctx, * i);
+            i ++;
+        }
+        
+        if(::duk_pcall_method(ctx, (duk_idx_t)arguments.size()) == DUK_EXEC_SUCCESS) {
+            duk_get_Signature(ctx, -1, returnSignature);
+        } else {
+            kk::Error(ctx, -1, "[kk::duk_pcall]");
+        }
+        
+        duk_pop(ctx);
+        
+    }
+    
 }

@@ -1,0 +1,1 @@
+require("wx/wx.page.js")({path: path,query: query}, "page/component/component-pages/wx-action-sheet/wx-action-sheet", page);

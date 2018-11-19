@@ -1,0 +1,171 @@
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">
+
+* {
+    margin: 0px; 
+}
+
+body {
+    line-height:1.6;
+    font-family:-apple-system-font, "Helvetica Neue", sans-serif;
+    background-color:#F8F8F8;
+    height:100%;
+    font-size:1.6rem;
+    -webkit-user-select:none;
+    user-select:none;
+    width:100%;
+    overflow-x:hidden;
+}
+
+wx-view {
+    display: block;
+}
+
+wx-input {
+    display:block;
+    height: 2.2rem;
+    text-overflow:clip;
+    overflow:hidden;
+    white-space:nowrap;
+    font-family:UICTFontTextStyleBody;
+    min-height:2.2rem;
+}
+
+wx-input > span {
+    color: #999999;
+}
+
+wx-canvas {
+    width:300px;
+    height:150px;
+    display:block;
+    position:relative;
+}
+    
+wx-scroll-view {
+    -webkit-overflow-scrolling:touch;
+}
+.header {
+  padding: 40px;
+}
+.title {
+  font-size: 30px;
+}
+.desc {
+  margin-top: 5px;
+  color: #888888;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  background-color: #fbf9fe;
+}
+.menu-item {
+  color: #000000;
+  display: flex;
+  background-color: #fff;
+  margin: 0.5rem 2rem;
+  flex-direction: column;
+}
+.menu-item-main {
+  display: flex;
+  height: 5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  align-items: center;
+  font-size: 1.6rem;
+  justify-content: space-between;
+}
+.menu-item-arrow {
+  width: 1.6rem;
+  height: 1.6rem;
+  transition: 400ms;
+}
+.menu-item-arrow.open {
+  transform: rotate(-90deg);
+}
+.menu-item-arrow.close {
+  transform: rotate(90deg);
+}
+.menu-item-arrow.url {
+  transform: rotate(0deg);
+}
+
+.menu-item-api-list {
+  transition: 200ms;
+  height: auto;
+  border-top: 1px solid #d8d8d8;
+}
+.menu-item-api-list.close {
+  display: none;
+  height: 0;
+}
+.menu-item-api-item {
+  display: flex;
+  justify-content: space-between;
+  height: 4rem;
+  padding: 1rem 1rem 1rem 0;
+  margin-left: 1rem;
+  align-items: center;
+  border-top: 1px solid #f0f0f0;
+}
+.menu-item-api-item-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+.menu-item-api-item-text-zhname {
+  font-size: 1.5rem;
+}
+.menu-item-api-item-text-enname {
+  font-size: 1.3rem;
+  color: #6b6b6b;
+}
+.menu-item-api-item-arrow {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var View = kk.CreateElement;
+kk.Page(function(element,data,context){
+	View(element,data,"view",{"class":"container"},context,function(element,data,context){
+		View(element,data,"view",{"class":"header"},context,function(element,data,context){
+			View(element,data,"view",{"class":"title","#text":"小程序接口"},context,function(element,data,context){
+			});
+			View(element,data,"view",{"class":"desc","#text":"为便于开发者直观了解小程序接口能力，该小程序就当前已支持的接口能力进行演示。"},context,function(element,data,context){
+			});
+		});
+		View(element,data,"view",{"class":"menu-list"},context,function(element,data,context){
+			View(element,data,"block",{"wx:for-items":"{{menuList}}","wx:for-item":"menuItem"},context,function(element,data,context){
+				View(element,data,"view",{"class":"menu-item"},context,function(element,data,context){
+					View(element,data,"view",{"class":"menu-item-main","id":"{{index}}","bindtap":"tapMenuItem"},context,function(element,data,context){
+						View(element,data,"text",{"class":"menu-item-name","#text":"{{menuItem.name}}"},context,function(element,data,context){
+						});
+						View(element,data,"image",{"class":"menu-item-arrow {{menuItem.opened ? 'open' : 'close'}} {{menuItem.url ? 'url' : ''}}","src":"/image/arrowright.png"},context,function(element,data,context){
+						});
+					});
+					View(element,data,"view",{"class":"menu-item-api-list {{menuItem.opened ? 'open' : 'close'}}"},context,function(element,data,context){
+						View(element,data,"block",{"wx:for-items":"{{menuItem.APIList}}","wx:for-item":"APIItem"},context,function(element,data,context){
+							View(element,data,"navigator",{"url":"{{APIItem.url}}"},context,function(element,data,context){
+								View(element,data,"view",{"class":"menu-item-api-item","style":"{{index === 0 ? 'border-top:none;' : ''}}"},context,function(element,data,context){
+									View(element,data,"view",{"class":"menu-item-api-item-text"},context,function(element,data,context){
+										View(element,data,"text",{"class":"menu-item-api-item-text-zhname","#text":"{{APIItem.zhName}}"},context,function(element,data,context){
+										});
+										View(element,data,"text",{"class":"menu-item-api-item-text-enname","#text":"{{APIItem.enName}}"},context,function(element,data,context){
+										});
+									});
+									View(element,data,"image",{"class":"menu-item-api-item-arrow","src":"/image/arrowright.png"},context,function(element,data,context){
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+	});
+});})();
+</script></body>

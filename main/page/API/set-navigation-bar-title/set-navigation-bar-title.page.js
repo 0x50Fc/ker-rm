@@ -1,0 +1,1 @@
+require("wx/wx.page.js")({path: path,query: query}, "page/API/set-navigation-bar-title/set-navigation-bar-title", page);
