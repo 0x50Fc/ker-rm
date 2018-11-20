@@ -1156,25 +1156,5 @@ namespace kk {
         return v.substr(0,n);
     }
     
-    SFunction::SFunction(Invoke invoke,Signature returnType,std::vector<Signature> && arguments):_invoke(invoke),_returnType(returnType),_arguments(arguments) {
-
-    }
-    
-    Invoke SFunction::invoke() {
-        return _invoke;
-    }
-    
-    size_t SFunction::length() {
-        return _arguments.size();
-    }
-    
-    Signature & SFunction::getArgument(size_t index) {
-        return _arguments[index];
-    }
-    
-    Signature & SFunction::returnType() {
-        return _returnType;
-    }
-    
 }
 

@@ -25,8 +25,6 @@ namespace kk {
     
     namespace objc {
         
-        void SignatureInit(Signature & returnSignature,std::vector<Signature> & arguments,const char * types);
-        
         void PushInterface(duk_context * ctx, ::Class isa);
         
         void PushProtocol(duk_context * ctx, Protocol * protocol);

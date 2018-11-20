@@ -62,6 +62,8 @@
 		1AF06603219D555E00F8F7A8 /* KerCanvas.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065F7219D555E00F8F7A8 /* KerCanvas.h */; };
 		1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F8219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm */; };
 		1AF06606219D567400F8F7A8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06605219D567400F8F7A8 /* WebKit.framework */; };
+		1AF4CE2921A3EB5C00AE1249 /* KerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE2721A3EB5C00AE1249 /* KerView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF4CE2A21A3EB5C00AE1249 /* KerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE2821A3EB5C00AE1249 /* KerView.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -122,6 +124,8 @@
 		1AF065F7219D555E00F8F7A8 /* KerCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerCanvas.h; sourceTree = "<group>"; };
 		1AF065F8219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UITextField+KerViewProtocol.mm"; sourceTree = "<group>"; };
 		1AF06605219D567400F8F7A8 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		1AF4CE2721A3EB5C00AE1249 /* KerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerView.h; sourceTree = "<group>"; };
+		1AF4CE2821A3EB5C00AE1249 /* KerView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerView.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +191,8 @@
 				1AF065F3219D555D00F8F7A8 /* UIView+KerViewProtocol.mm */,
 				1AF065F5219D555D00F8F7A8 /* WKWebView+KerViewProtocol.h */,
 				1AF065F6219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm */,
+				1AF4CE2721A3EB5C00AE1249 /* KerView.h */,
+				1AF4CE2821A3EB5C00AE1249 /* KerView.mm */,
 				1AF0658C219D516000F8F7A8 /* Info.plist */,
 			);
 			path = Ker;
@@ -270,6 +276,7 @@
 				1AF065A7219D518200F8F7A8 /* container.h in Headers */,
 				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
+				1AF4CE2921A3EB5C00AE1249 /* KerView.h in Headers */,
 				1AF0658D219D516000F8F7A8 /* Ker.h in Headers */,
 				1AF065CF219D52E200F8F7A8 /* KerViewProtocol.h in Headers */,
 				1AF065FD219D555E00F8F7A8 /* UIView+KerViewProtocol.h in Headers */,
@@ -380,6 +387,7 @@
 				1AF065D7219D537600F8F7A8 /* View.mm in Sources */,
 				1AF065CB219D52AC00F8F7A8 /* CGContext.cc in Sources */,
 				1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */,
+				1AF4CE2A21A3EB5C00AE1249 /* KerView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

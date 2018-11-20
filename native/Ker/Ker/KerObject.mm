@@ -93,6 +93,8 @@ namespace kk {
     
     namespace objc {
         
+        static void SignatureInit(Signature & returnSignature,std::vector<Signature> & arguments,const char * types);
+        
         static void SignatureSetArguments(NSInvocation * inv,NSUInteger index,Signature & s) {
             
             switch (* [inv.methodSignature getArgumentTypeAtIndex:index]) {
@@ -422,7 +424,7 @@ namespace kk {
             }
         }
         
-        void SignatureInit(Signature & returnSignature,std::vector<Signature> & arguments,const char * types) {
+        static void SignatureInit(Signature & returnSignature,std::vector<Signature> & arguments,const char * types) {
             
             NSMethodSignature * s = [NSMethodSignature signatureWithObjCTypes:types];
             
