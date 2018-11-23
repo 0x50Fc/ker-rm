@@ -35,16 +35,16 @@ namespace kk {
         }
         
         Page::~Page() {
-            
+          
             {
                 duk_context * ctx = _app->jsContext();
                 duk_push_heap_stash(ctx);
                 duk_push_sprintf(ctx, "0x%x",_jsContext);
                 duk_del_prop(ctx, -2);
                 duk_pop(ctx);
+                
+                duk_gc(ctx, DUK_GC_COMPACT);
             }
-            
-            duk_destroy_heap(_jsContext);
             
             kk::Log("[Page] [dealloc]");
             

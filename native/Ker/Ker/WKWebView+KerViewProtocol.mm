@@ -206,13 +206,13 @@
     return view;
 }
 
--(void) KerViewObtain:(void *) view {
+-(void) KerViewObtain:(KerViewCPointer) view {
     [super KerViewObtain:view];
     objc_setAssociatedObject(self, "__WKWebViewKKViewProtocol", (__bridge id) view, OBJC_ASSOCIATION_ASSIGN);
     [self.scrollView KerViewObtain:view];
 }
 
--(void) KerViewRecycle:(void *) view {
+-(void) KerViewRecycle:(KerViewCPointer) view {
     [super KerViewRecycle:view];
     objc_setAssociatedObject(self, "__WKWebViewKKViewProtocol", nil, OBJC_ASSOCIATION_ASSIGN);
     [self.scrollView KerViewRecycle:view];
@@ -222,9 +222,9 @@
     return self.scrollView;
 }
 
--(void) KerViewSetAttribute:(const char *) key value:(const char *) value {
+-(void) KerView:(KerViewCPointer) view setAttribute:(const char *) key value:(const char *) value {
     
-    [super KerViewSetAttribute:key value:value];
+    [super KerView:view setAttribute:key value:value];
     
     if(key == nullptr) {
         return ;

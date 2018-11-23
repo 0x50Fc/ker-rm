@@ -8,7 +8,7 @@ import { ImageElement } from './ImageElement';
 import { postMessage } from './IPC';
 import { InputElement } from './InputElement';
 import { ScrollViewElement } from './ScrollViewElement';
-import { SwiperElement } from './SwiperElement';
+import { SwiperElement, SwiperItemElement } from './SwiperElement';
 import { MovableViewElement } from './MovableViewElement';
 import { IconElement } from './IconElement';
 import { TextElement } from './TextElement';
@@ -27,6 +27,7 @@ import { TextareaElement } from './TextareaElement';
 import { NavigatorElement } from './NavigatorElement';
 import { CanvasElement } from './CanvasElement';
 import { once } from './once';
+import { BlockElement } from './BlockElement';
 
 function ElementOnEvent(element: Element, prefix: string, name: string, value: string): void {
 
@@ -299,6 +300,7 @@ page.document.addElementClass("input", InputElement);
 page.document.addElementClass("image", ImageElement);
 page.document.addElementClass("scroll-view", ScrollViewElement);
 page.document.addElementClass("swiper", SwiperElement);
+page.document.addElementClass("swiper-item", SwiperItemElement);
 page.document.addElementClass("movable-view", MovableViewElement);
 page.document.addElementClass("icon", IconElement);
 page.document.addElementClass("text", TextElement);
@@ -316,10 +318,12 @@ page.document.addElementClass("switch", SwitchElement);
 page.document.addElementClass("textarea", TextareaElement);
 page.document.addElementClass("navigator", NavigatorElement);
 page.document.addElementClass("canvas", CanvasElement);
+page.document.addElementClass("block", BlockElement);
 
 export function Page(view: PageView, styleSheet: StyleSheet, options: PageOptions): void {
     postMessage({ page: 'readying' });
     view(page.document.documentElement, page.data, new PageViewContext(page));
+    page.data.changedKeys([]);
     once((): void => { postMessage({ page: 'ready' }); });
 }
 

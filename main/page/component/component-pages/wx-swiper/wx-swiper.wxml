@@ -7,7 +7,7 @@
         <view class="section section_gap swiper">
             <swiper indicator-dots="{{indicatorDots}}" vertical="{{vertical}}"
                     autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}">
-                <block wx:for-items="{{background}}">
+                <block wx:for="{{background}}">
                     <swiper-item>
                         <view class="swiper-item bc_{{item}}"></view>
                     </swiper-item>

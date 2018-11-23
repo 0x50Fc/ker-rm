@@ -43,6 +43,8 @@ typedef void * KerAppCPointer;
 
 -(void) open:(NSString *) uri animated:(BOOL) animated;
 
+-(void) back:(NSUInteger)delta animated:(BOOL) animated;
+
 -(void) openPageViewController:(NSString *) path animated:(BOOL) animated query:(NSDictionary<NSString *,NSString *> *) query;
 
 -(void) openPageWindow:(NSString *) path animated:(BOOL) animated query:(NSDictionary<NSString *,NSString *> *) query;

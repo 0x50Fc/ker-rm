@@ -56,14 +56,20 @@ export class NViewElement extends ViewElement {
         });
     }
 
+    protected hasNativeKey(key:string):boolean {
+        return true;
+    }
+
     public set(key: string, value: string | undefined) {
         super.set(key, value);
-        postMessage({
-            view: 'set',
-            id: this._id,
-            name: key,
-            value: value
-        });
+        if(this.hasNativeKey(key)) {
+            postMessage({
+                view: 'set',
+                id: this._id,
+                name: key,
+                value: value
+            });
+        }
         this.setNeedsDisplay();
     }
 

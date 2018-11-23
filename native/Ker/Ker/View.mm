@@ -10,6 +10,8 @@
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 #import "KerViewProtocol.h"
+#import "UIFont+Ker.h"
+#import "UIColor+Ker.h"
 
 #include <ui/ui.h>
 #include <ui/view.h>
@@ -26,6 +28,9 @@ namespace kk {
         extern kk::Strong<kk::ui::CG::Context> createCGContext(kk::Uint width,kk::Uint height);
         extern void displayCGContext(kk::ui::CG::Context * context,CFTypeRef view);
         extern kk::Strong<Image> createImageWithCGContext(kk::ui::CG::Context * context);
+        
+        extern NSAttributedString * GetAttributedText(AttributedText *text,kk::ui::Context * context);
+        extern CGImageRef GetCGImage(Image * image);
         
         class OSCanvas : public Canvas {
         public:
@@ -169,8 +174,8 @@ namespace kk {
             virtual void set(kk::CString name,kk::CString value) {
                 @autoreleasepool {
                     UIView * v = (__bridge UIView *) _view;
-                    if([v respondsToSelector:@selector(KerViewSetAttribute:value:)]) {
-                        [(id<KerViewProtocol>) v KerViewSetAttribute:name value:value];
+                    if([v respondsToSelector:@selector(KerView:setAttribute:value:)]) {
+                        [(id<KerViewProtocol>) v KerView:this setAttribute:name value:value];
                     }
                 }
             }
@@ -314,8 +319,63 @@ namespace kk {
                 }
             }
             
+            virtual void setAttributedText(AttributedText * text) {
+                @autoreleasepool {
+                    UIView * v = (__bridge UIView *) _view;
+                    if([v respondsToSelector:@selector(setAttributedText:)]) {
+                        [(UILabel *) v setAttributedText:GetAttributedText(text,_context)];
+                    }
+                }
+            }
+            
+            virtual void doLoadImage() {
+                if(_image != nullptr) {
+                    @autoreleasepool {
+                        UIView * v = (__bridge UIView *) _view;
+                        v.layer.contents = (__bridge id) GetCGImage(_image);
+                    }
+                }
+            }
+            
+            virtual void setImage(Image * image) {
+                if(_image != nullptr && _onImageLoadFunc != nullptr) {
+                    _image->off("load", (kk::TFunction<void, Event *> *) _onImageLoadFunc);
+                }
+                View::setImage(image);
+                if(image == nullptr) {
+                    @autoreleasepool {
+                        UIView * v = (__bridge UIView *) _view;
+                        v.layer.contents = nil;
+                    }
+                } else if(image->state() == ImageStateLoaded) {
+                    @autoreleasepool {
+                        UIView * v = (__bridge UIView *) _view;
+                        v.layer.contents = (__bridge id) GetCGImage(image);
+                    }
+                } else if(image->state() != ImageStateError) {
+                    if(_onImageLoadFunc == nullptr) {
+                        kk::Weak<OSView> v = this;
+                        _onImageLoadFunc = new kk::TFunction<void, Event *>([v,image](Event *event)->void{
+                            kk::Strong<OSView> vv = v.operator->();
+                            if(vv != nullptr && vv->_image == image) {
+                                vv->doLoadImage();
+                            }
+                        });
+                    }
+                    _image->on("load", (kk::TFunction<void, Event *> *) _onImageLoadFunc);
+                }
+            }
+            
+            virtual void setGravity(kk::CString gravity) {
+                @autoreleasepool {
+                    UIView * v = (__bridge UIView *) _view;
+                    v.layer.contentsGravity = gravity == nullptr ? @"resize":[NSString stringWithCString:gravity encoding:NSUTF8StringEncoding];
+                }
+            }
+            
         protected:
             CFTypeRef _view;
+            kk::Strong<kk::TFunction<void, Event *>> _onImageLoadFunc;
         };
         
         kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration,Context * context) {
@@ -346,6 +406,48 @@ namespace kk {
         
         kk::Strong<Canvas> createCanvas(DispatchQueue * queue) {
             return new OSCanvas(queue);
+        }
+        
+        NSAttributedString * GetAttributedText(AttributedText *text,kk::ui::Context * context) {
+            
+            if(text == nullptr) {
+                return nil;
+            }
+            
+            NSMutableAttributedString * string = [[NSMutableAttributedString alloc] init];
+            
+            auto sp = text->spans();
+            auto i = sp.begin();
+            
+            while (i != sp.end()) {
+                
+                AttributedTextSpan & span = * i;
+                
+                if(span.type == AttributedTextSpanTypeText) {
+                    
+                    NSMutableDictionary * attrs = [NSMutableDictionary dictionaryWithCapacity:4];
+                    
+                    attrs[NSFontAttributeName] = [UIFont fontWithKerUIFont:&span.font];
+                    attrs[NSForegroundColorAttributeName] = [UIColor colorWithKerUIColor:&span.color];
+                   
+                    
+                    [string appendAttributedString:[[NSAttributedString alloc] initWithString:[NSString stringWithCString:span.text.c_str() encoding:NSUTF8StringEncoding] attributes:attrs]];
+                    
+                } else if(span.type == AttributedTextSpanTypeImage) {
+                    if(span.image != nullptr) {
+                        CGImageRef image = GetCGImage(span.image);
+                        if(image != nil) {
+                            NSTextAttachment * attach = [[NSTextAttachment alloc] init];
+                            attach.image = [UIImage imageWithCGImage:image];
+                            [string appendAttributedString:[NSAttributedString attributedStringWithAttachment:attach]];
+                        }
+                    }
+                }
+                
+                i ++;
+            }
+            
+            return string;
         }
         
     }

@@ -216,10 +216,6 @@ namespace kk {
                 return nullptr;
             }
             
-            void ImageData::setSrc(kk::CString src) {
-                
-            }
-            
             void Gradient::addColorStop(Float loc,Color color) {
                 _locations.push_back(loc);
                 _colors.push_back(color);

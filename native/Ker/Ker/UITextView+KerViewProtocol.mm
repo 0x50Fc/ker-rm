@@ -7,6 +7,8 @@
 //
 
 #import "UITextView+KerViewProtocol.h"
+#import "UIFont+Ker.h"
+#import "UIColor+Ker.h"
 
 #import "KerObject.h"
 #include <ui/ui.h>
@@ -59,7 +61,7 @@
 
 @implementation UITextView (KerViewProtocol)
 
--(void) KerViewObtain:(void *) view {
+-(void) KerViewObtain:(KerViewCPointer) view {
     [super KerViewObtain:view];
     UITextViewKKViewProtocol * object = [[UITextViewKKViewProtocol alloc] init];
     object.view = (kk::ui::View *) view;
@@ -67,7 +69,7 @@
     objc_setAssociatedObject(self, "__UITextViewKKViewProtocol", object, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
--(void) KerViewRecycle:(void *) view {
+-(void) KerViewRecycle:(KerViewCPointer) view {
     [super KerViewRecycle:view];
     UITextViewKKViewProtocol * object = objc_getAssociatedObject(self, "__UITextViewKKViewProtocol");
     if(object) {
@@ -76,9 +78,9 @@
     }
 }
 
--(void) KerViewSetAttribute:(const char *) key value:(const char *) value {
+-(void) KerView:(KerViewCPointer) view setAttribute:(const char *) key value:(const char *) value {
     
-    [super KerViewSetAttribute:key value:value];
+    [super KerView:view setAttribute:key value:value];
     
     if(key == nullptr) {
         return ;
@@ -117,34 +119,9 @@
             self.returnKeyType = UIReturnKeyDone;
         }
     } else if(strcmp(key, "color") == 0) {
-        kk::ui::Color v(value);
-        self.backgroundColor = [UIColor colorWithRed:v.r green:v.g blue:v.b alpha:v.a];
+        self.textColor = [UIColor colorWithKerCString:value];
     } else if(strcmp(key, "font") == 0) {
-        
-        kk::ui::Font v(value);
-        
-        UIFont * font = nil;
-        
-        if(v.family != "") {
-            NSString * name = [[UIFont fontNamesForFamilyName:[NSString stringWithCString:v.family.c_str() encoding:NSUTF8StringEncoding]] firstObject];
-            if(name != nil) {
-                font = [UIFont fontWithName:name size:v.size];
-            }
-        }
-        
-        if(font == nil && v.weight == kk::ui::FontWeightBold) {
-            font = [UIFont boldSystemFontOfSize:v.size];
-        }
-        
-        if(font == nil && v.style == kk::ui::FontStyleItalic) {
-            font = [UIFont italicSystemFontOfSize:v.size];
-        }
-        
-        if(font == nil ) {
-            font = [UIFont systemFontOfSize:v.size];
-        }
-        
-        self.font = font;
+        self.font = [UIFont fontWithKerCString:value];
         
     } else {
         kk::ui::TextAlign v = kk::ui::TextAlignFromString(value);

@@ -16,16 +16,21 @@ module.exports = function (options, path, page, padding) {
 
     var view = page.view;
 
-    page.setOptions(options);
-
     if (padding === undefined) {
+        if(options.title === undefined) {
+            options.title = app.options.window.navigationBarTitleText;
+        }
+        if(options.backgroundColor === undefined) {
+            options.backgroundColor = app.options.window.backgroundColor;
+        }
+        page.setOptions(options);
         padding = { top: 64, left: 0, bottom: 0, right: 0 };
-        view.set("background-color", "#fff");
+        view.set("background-color", options.backgroundColor || "#fff");
     }
 
     var config = new UIWebViewConfiguration();
 
-    var basePath = diranme(options.path);
+    var basePath = diranme(path);
 
     config.addUserScript(app.getTextContent("wx/wx.web.js"));
     config.addUserScript("__basePath=" + JSON.stringify(basePath) + ";\n");
@@ -43,7 +48,7 @@ module.exports = function (options, path, page, padding) {
 
     (function () {
 
-        page.object = {};
+        var pageObject = {};
 
         var readying = function () {
 
@@ -51,43 +56,46 @@ module.exports = function (options, path, page, padding) {
 
             fn(
                 function (object) {
-                    page.object = object;
+                    pageObject = object;
                 },
                 function () {
-                    return app.object;
+                    return pageObject;
                 },
                 undefined,
                 undefined,
                 wx
             );
-            Object.defineProperty(page.object, "setData", {
+            Object.defineProperty(pageObject, "setData", {
                 value: function (data) {
+                    for(var key in data) {
+                        this.data[key] = data[key];
+                    }
                     webview.evaluateJavaScript("kk.setData(" + JSON.stringify(data) + ");");
                 },
                 writable: false,
                 configurable: false,
                 enumerable: true
             });
-            if (page.object.data === undefined) {
-                page.object.data = {};
+            if (pageObject.data === undefined) {
+                pageObject.data = {};
             }
-            webview.evaluateJavaScript("kk.setData(" + JSON.stringify(page.object.data) + ");");
+            webview.evaluateJavaScript("kk.setData(" + JSON.stringify(pageObject.data) + ");");
             page.on("willAppera", function () {
-                var fn = page.object['onShow'];
+                var fn = pageObject['onShow'];
                 if (typeof fn == 'function') {
-                    fn.call(page.object);
+                    fn.call(pageObject);
                 }
             });
             page.on("didDisappera", function () {
-                var fn = page.object['onHide'];
+                var fn = pageObject['onHide'];
                 if (typeof fn == 'function') {
-                    fn.call(page.object);
+                    fn.call(pageObject);
                 }
             });
             page.on("close", function () {
-                var fn = page.object['onUnload'];
+                var fn = pageObject['onUnload'];
                 if (typeof fn == 'function') {
-                    fn.call(page.object);
+                    fn.call(pageObject);
                 }
             });
         }
@@ -96,23 +104,25 @@ module.exports = function (options, path, page, padding) {
             var data = event.data;
             if (data.page == 'readying') {
                 readying();
-                var fn = page.object['onLoad'];
+                var fn = pageObject['onLoad'];
                 if (typeof fn == 'function') {
-                    fn.call(page.object, options.query);
+                    fn.call(pageObject, options.query);
                 }
-                fn = page.object['onShow'];
+                fn = pageObject['onShow'];
                 if (typeof fn == 'function') {
-                    fn.call(page.object);
+                    fn.call(pageObject);
                 }
             } else if (data.page == 'ready') {
-                var fn = page.object['onReady'];
+                var fn = pageObject['onReady'];
                 if (typeof fn == 'function') {
-                    fn.call(page.object);
+                    fn.call(pageObject);
                 }
+            } else if (data.page == 'open') {
+                app.open(basePath + "/" + data.url + ".page.js", true);
             } else if (data.event) {
-                var fn = page.object[data.event];
+                var fn = pageObject[data.event];
                 if (typeof fn == 'function') {
-                    fn.call(page.object, data.data);
+                    fn.call(pageObject, data.data);
                 }
             } else if (data.view == 'create') {
                 context.create(data.name, data.id);
@@ -145,6 +155,9 @@ module.exports = function (options, path, page, padding) {
     var content = app.getTextContent(path + ".wx.html");
     var rem = page.width * 20 / 750.0;
 
-    webview.set("#text", '<html style="font-size: ' + rem + 'px">' + content + '</html>');
+    webview.set("#text", '<html style="font-size: ' + rem + 'px">' 
+        + content + '</html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">'
+        + app.cssContent + '</style>');
 
+    return webview;
 };

@@ -4,7 +4,7 @@ import { postMessage } from './IPC';
 
 export class InputElement extends NViewElement {
 
-    protected _value:string = "";
+    protected _value: string = "";
     protected _placeholderView: HTMLElement | undefined;
 
     protected createView(): HTMLElement {
@@ -19,6 +19,27 @@ export class InputElement extends NViewElement {
         return v;
     }
 
+    public display(): void {
+        super.display();
+
+        let s = window.getComputedStyle(this._view);
+
+        postMessage({
+            view: 'set',
+            id: this._id,
+            name: 'padding',
+            value: [s.paddingTop, s.paddingRight, s.paddingBottom, s.paddingLeft].join(' '),
+        });
+
+    }
+
+    protected hasNativeKey(key: string): boolean {
+        if (key == "placeholder" || key.startsWith("placeholder-")) {
+            return false;
+        }
+        return super.hasNativeKey(key);
+    }
+
     public set(key: string, value: string | undefined) {
         super.set(key, value);
         if (key == 'placeholder') {
@@ -27,28 +48,28 @@ export class InputElement extends NViewElement {
             this._placeholderView!.setAttribute("style", value as string);
         } else if (key == 'placeholder-class') {
             this._placeholderView!.className = value as string;
-        } else if(key == 'value') {
+        } else if (key == 'value') {
             this.value = value || '';
         }
     }
 
 
-    public set value(value:string) {
+    public set value(value: string) {
         this._value = value;
-        if(this._value) {
+        if (this._value) {
             this._placeholderView!.style.visibility = 'hidden';
         } else {
             this._placeholderView!.style.visibility = 'visible';
         }
     }
 
-    public get value():string {
+    public get value(): string {
         return this._value;
     }
 
     public onEvent(name: string, data: any): void {
-        console.info(name,data);
-        if(name == "change") {
+        console.info(name, data);
+        if (name == "change") {
             this.value = data.value || '';
         }
     }

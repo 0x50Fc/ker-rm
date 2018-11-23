@@ -4,7 +4,7 @@ module.exports = function (options) {
     print("[APP]");
 
     app.options = options;
-
+    app.cssContent = app.getTextContent("app.css");
     app.object = {};
 
     (function (__CODE__, App, app) {
@@ -37,7 +37,7 @@ module.exports = function (options) {
     }
 
     if(options && options.tabBar) {
-        app.open("wx/tabbar.js");
+        app.open("wx/tabbar.js",true);
     }
 
 };

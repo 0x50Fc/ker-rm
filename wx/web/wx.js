@@ -1,6 +1,7 @@
 
 require('./bin/Data.js');
 require('./bin/V.js');
+require('./bin/Anim.js');
 require('./bin/URI.js');
 require('./bin/IPC.js');
 require('./bin/once.js');
@@ -31,6 +32,7 @@ require('./bin/SwitchElement.js');
 require('./bin/TextareaElement.js');
 require('./bin/NavigatorElement.js');
 require('./bin/CanvasElement.js');
+require('./bin/BlockElement.js');
 
 require('./bin/Document.js');
 require('./bin/Page.js');

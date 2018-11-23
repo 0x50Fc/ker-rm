@@ -20,7 +20,7 @@ namespace kk {
         class OSImage : public Image , public CGImageGetter {
         public:
             
-            OSImage():_state(ImageStateNone) {
+            OSImage(kk::CString src):_state(ImageStateNone),_src(src),_image(nil) {
                 
             }
             
@@ -85,7 +85,7 @@ namespace kk {
             }
             
             virtual Boolean isCopyPixels() {
-                return true;
+                return _image != nullptr;
             }
             
             virtual void setImage(CGImageRef image) {
@@ -99,7 +99,16 @@ namespace kk {
             }
             
             virtual void setState(ImageState state) {
-                _state = state;
+                if(_state != state) {
+                    _state = state;
+                    if(state == ImageStateError) {
+                        Strong<Event> e = new Event();
+                        emit("error", e);
+                    } else if(state == ImageStateLoaded) {
+                        Strong<Event> e = new Event();
+                        emit("load", e);
+                    }
+                }
             }
             
             virtual CGImageRef CGImage() {
@@ -114,9 +123,13 @@ namespace kk {
         
         kk::Strong<Image> ImageCreate(Context * context,kk::CString src) {
             
-            kk::Strong<Image> v = new OSImage();
+            if(src == nullptr) {
+                return nullptr;
+            }
             
-            v->setSrc(src);
+            kk::Strong<Image> v = new OSImage(src);
+            
+            getImageLoader()(context,v);
             
             return v;
         }

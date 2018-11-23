@@ -48,7 +48,7 @@
 
 @implementation UIScrollView (KerViewProtocol)
 
--(void) KerViewObtain:(void *) view {
+-(void) KerViewObtain:(KerViewCPointer) view {
     [super KerViewObtain:view];
     UIScrollViewKKViewProtocol * object = [[UIScrollViewKKViewProtocol alloc] init];
     object.view = (kk::ui::View *) view;
@@ -56,7 +56,7 @@
     objc_setAssociatedObject(self, "__UIScrollViewKKViewProtocol", object, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
--(void) KerViewRecycle:(void *) view {
+-(void) KerViewRecycle:(KerViewCPointer) view {
     [super KerViewRecycle:view];
     UIScrollViewKKViewProtocol * object = objc_getAssociatedObject(self, "__UIScrollViewKKViewProtocol");
     if(object) {

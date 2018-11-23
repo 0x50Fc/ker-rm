@@ -1,49 +1,4 @@
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">
-
-* {
-    margin: 0px; 
-}
-
-body {
-    line-height:1.6;
-    font-family:-apple-system-font, "Helvetica Neue", sans-serif;
-    background-color:#F8F8F8;
-    height:100%;
-    font-size:1.6rem;
-    -webkit-user-select:none;
-    user-select:none;
-    width:100%;
-    overflow-x:hidden;
-}
-
-wx-view {
-    display: block;
-}
-
-wx-input {
-    display:block;
-    height: 2.2rem;
-    text-overflow:clip;
-    overflow:hidden;
-    white-space:nowrap;
-    font-family:UICTFontTextStyleBody;
-    min-height:2.2rem;
-}
-
-wx-input > span {
-    color: #999999;
-}
-
-wx-canvas {
-    width:300px;
-    height:150px;
-    display:block;
-    position:relative;
-}
-    
-wx-scroll-view {
-    -webkit-overflow-scrolling:touch;
-}
+<style type="text/css">
 .images-wrapper {
   padding: 1rem;
   background-color: #fff;
@@ -70,57 +25,57 @@ wx-scroll-view {
 var View = kk.CreateElement;
 kk.Page(function(element,data,context){
 	View(element,data,"import",{"src":"../common/header.wxml"},context,function(element,data,context){
-		View(element,data,"import",{"src":"../common/footer.wxml"},context,function(element,data,context){
-			View(element,data,"view",{"class":"container"},context,function(element,data,context){
-				View(element,data,"template",{"is":"header","data":"{{title: 'choose/previewImage'}}"},context,function(element,data,context){
-					View(element,data,"view",{"class":"page-body"},context,function(element,data,context){
-						View(element,data,"view",{"class":"page-body-wrapper"},context,function(element,data,context){
-							View(element,data,"form",{"bindsubmit":"openLocation"},context,function(element,data,context){
-								View(element,data,"view",{"class":"page-body-form"},context,function(element,data,context){
-									View(element,data,"picker",{"range":"{{sourceType}}","bindchange":"sourceTypeChange","value":"{{sourceTypeIndex}}"},context,function(element,data,context){
-										View(element,data,"view",{"class":"page-body-form-picker"},context,function(element,data,context){
-											View(element,data,"view",{"class":"page-body-form-picker-key","#text":"图片来源"},context,function(element,data,context){
-											});
-											View(element,data,"view",{"class":"page-body-form-picker-value","#text":"{{sourceType[sourceTypeIndex]}}"},context,function(element,data,context){
-											});
-										});
-									});
-									View(element,data,"picker",{"range":"{{sizeType}}","bindchange":"sizeTypeChange","value":"{{sizeTypeIndex}}"},context,function(element,data,context){
-										View(element,data,"view",{"class":"page-body-form-picker"},context,function(element,data,context){
-											View(element,data,"view",{"class":"page-body-form-picker-key","#text":"图片质量"},context,function(element,data,context){
-											});
-											View(element,data,"view",{"class":"page-body-form-picker-value","#text":"{{sizeType[sizeTypeIndex]}}"},context,function(element,data,context){
-											});
-										});
-									});
-									View(element,data,"picker",{"range":"{{count}}","bindchange":"countChange","value":"{{countIndex}}"},context,function(element,data,context){
-										View(element,data,"view",{"class":"page-body-form-picker","style":"border-bottom: none;"},context,function(element,data,context){
-											View(element,data,"view",{"class":"page-body-form-picker-key","#text":"数量限制"},context,function(element,data,context){
-											});
-											View(element,data,"view",{"class":"page-body-form-picker-value","#text":"{{count[countIndex]}}"},context,function(element,data,context){
-											});
-										});
-									});
+	});
+	View(element,data,"import",{"src":"../common/footer.wxml"},context,function(element,data,context){
+	});
+	View(element,data,"view",{"class":"container"},context,function(element,data,context){
+		View(element,data,"template",{"is":"header","data":"{{title: 'choose/previewImage'}}"},context,function(element,data,context){
+		});
+		View(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			View(element,data,"view",{"class":"page-body-wrapper"},context,function(element,data,context){
+				View(element,data,"form",{"bindsubmit":"openLocation"},context,function(element,data,context){
+					View(element,data,"view",{"class":"page-body-form"},context,function(element,data,context){
+						View(element,data,"picker",{"range":"{{sourceType}}","bindchange":"sourceTypeChange","value":"{{sourceTypeIndex}}"},context,function(element,data,context){
+							View(element,data,"view",{"class":"page-body-form-picker"},context,function(element,data,context){
+								View(element,data,"view",{"class":"page-body-form-picker-key","#text":"图片来源"},context,function(element,data,context){
 								});
-								View(element,data,"view",{"class":"images-wrapper"},context,function(element,data,context){
-									View(element,data,"text",{"class":"images-text","#text":"请选择图片"},context,function(element,data,context){
-									});
-									View(element,data,"view",{"class":"images-list"},context,function(element,data,context){
-										View(element,data,"block",{"wx:for-items":"{{imageList}}","wx:for-item":"image"},context,function(element,data,context){
-											View(element,data,"image",{"src":"{{image}}","class":"images-image","data-src":"{{image}}","bindtap":"previewImage"},context,function(element,data,context){
-											});
-										});
-										View(element,data,"image",{"src":"/image/plus.png","class":"images-image images-image-plus","bindtap":"chooseImage"},context,function(element,data,context){
-										});
-									});
+								View(element,data,"view",{"class":"page-body-form-picker-value","#text":"{{sourceType[sourceTypeIndex]}}"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"picker",{"range":"{{sizeType}}","bindchange":"sizeTypeChange","value":"{{sizeTypeIndex}}"},context,function(element,data,context){
+							View(element,data,"view",{"class":"page-body-form-picker"},context,function(element,data,context){
+								View(element,data,"view",{"class":"page-body-form-picker-key","#text":"图片质量"},context,function(element,data,context){
+								});
+								View(element,data,"view",{"class":"page-body-form-picker-value","#text":"{{sizeType[sizeTypeIndex]}}"},context,function(element,data,context){
+								});
+							});
+						});
+						View(element,data,"picker",{"range":"{{count}}","bindchange":"countChange","value":"{{countIndex}}"},context,function(element,data,context){
+							View(element,data,"view",{"class":"page-body-form-picker","style":"border-bottom: none;"},context,function(element,data,context){
+								View(element,data,"view",{"class":"page-body-form-picker-key","#text":"数量限制"},context,function(element,data,context){
+								});
+								View(element,data,"view",{"class":"page-body-form-picker-value","#text":"{{count[countIndex]}}"},context,function(element,data,context){
 								});
 							});
 						});
 					});
-					View(element,data,"template",{"is":"footer"},context,function(element,data,context){
+					View(element,data,"view",{"class":"images-wrapper"},context,function(element,data,context){
+						View(element,data,"text",{"class":"images-text","#text":"请选择图片"},context,function(element,data,context){
+						});
+						View(element,data,"view",{"class":"images-list"},context,function(element,data,context){
+							View(element,data,"block",{"wx:for-items":"{{imageList}}","wx:for-item":"image"},context,function(element,data,context){
+								View(element,data,"image",{"src":"{{image}}","class":"images-image","data-src":"{{image}}","bindtap":"previewImage"},context,function(element,data,context){
+								});
+							});
+							View(element,data,"image",{"src":"/image/plus.png","class":"images-image images-image-plus","bindtap":"chooseImage"},context,function(element,data,context){
+							});
+						});
 					});
 				});
 			});
+		});
+		View(element,data,"template",{"is":"footer"},context,function(element,data,context){
 		});
 	});
 });})();

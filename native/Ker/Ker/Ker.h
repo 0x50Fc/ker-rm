@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <Ker/KerObject.h>
 #import <Ker/KerApp.h>
-#import <Ker/KerView.h>
+#import <Ker/KerButton.h>
 
 //! Project version number for Ker.
 FOUNDATION_EXPORT double KerVersionNumber;

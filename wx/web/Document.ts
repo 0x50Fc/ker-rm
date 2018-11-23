@@ -1,6 +1,7 @@
 
 
 import { Element } from "./Element"
+import { EventEmitter } from "events";
 
 interface ElemnetClassMap {
     [keys: string]: any
@@ -10,7 +11,7 @@ interface ElemnetMap {
     [keys: number]: Element
 }
 
-export class Document {
+export class Document extends EventEmitter {
 
     private _autoId:number = 0;
     private _elementClass:ElemnetClassMap = {};

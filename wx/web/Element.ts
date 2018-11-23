@@ -19,9 +19,9 @@ export interface AttributeMap {
 
 export class Element extends EventEmitter {
 
-    protected _name:string;
-    protected _id:number;
-    protected _document:Document;
+    protected _name: string;
+    protected _id: number;
+    protected _document: Document;
 
     private _firstChild: Element | undefined;
     private _lastChild: Element | undefined;
@@ -33,22 +33,22 @@ export class Element extends EventEmitter {
     private _depth: int = 0;
     private _autoLevelId: int = 0;
 
-    constructor(document:Document,name:string,id:number) {
+    constructor(document: Document, name: string, id: number) {
         super();
         this._name = name;
         this._id = id;
         this._document = document;
     }
-    
-    public get document():Document {
+
+    public get document(): Document {
         return this._document;
     }
 
-    public get id():number {
+    public get id(): number {
         return this._id;
     }
-    
-    public get name():string {
+
+    public get name(): string {
         return this._name;
     }
     public get levelId(): int {
@@ -233,19 +233,21 @@ export class Element extends EventEmitter {
         return this._attributes;
     }
 
-    public emit(name: string, event: Event): void {
+    public emitBubble(name: string, event: Event): void {
         if (event instanceof ElementEvent) {
             var e = event as ElementEvent;
             if (e.element === undefined) {
                 e.element = this;
             }
         }
-        super.emit(name, event);
+        this.emit(name, event);
         if (event instanceof ElementEvent) {
             var e = event as ElementEvent;
             if (!e.cancelBubble) {
                 if (this._parent !== undefined) {
                     this._parent.emit(name, event);
+                } else if (this._document !== undefined) {
+                    this._document.emit(name, event);
                 }
             }
         }
@@ -278,11 +280,11 @@ export class Element extends EventEmitter {
         this._lastChild = undefined;
         this._prevSibling = undefined;
         this._nextSibling = undefined;
- 
+
     }
 
-    public onEvent(name: string, data: any):void {
-        
+    public onEvent(name: string, data: any): void {
+
     }
 
 }

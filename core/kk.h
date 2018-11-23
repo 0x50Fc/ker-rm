@@ -160,6 +160,12 @@ static const kk::Class * Class() { \
         bool operator!=(std::nullptr_t v) {
             return _object != v;
         }
+        bool operator==(T * v) {
+            return _object == v;
+        }
+        bool operator!=(T * v) {
+            return _object != v;
+        }
         Strong& operator=(T * object) {
             set(object);
             return *this;
@@ -212,6 +218,12 @@ static const kk::Class * Class() { \
             return _object == v;
         }
         bool operator!=(std::nullptr_t v) {
+            return _object != v;
+        }
+        bool operator==(T * v) {
+            return _object == v;
+        }
+        bool operator!=(T * v) {
             return _object != v;
         }
         Weak& operator=(T * object) {

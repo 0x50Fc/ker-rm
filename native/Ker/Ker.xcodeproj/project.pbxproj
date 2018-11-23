@@ -62,8 +62,14 @@
 		1AF06603219D555E00F8F7A8 /* KerCanvas.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065F7219D555E00F8F7A8 /* KerCanvas.h */; };
 		1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F8219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm */; };
 		1AF06606219D567400F8F7A8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06605219D567400F8F7A8 /* WebKit.framework */; };
-		1AF4CE2921A3EB5C00AE1249 /* KerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE2721A3EB5C00AE1249 /* KerView.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		1AF4CE2A21A3EB5C00AE1249 /* KerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE2821A3EB5C00AE1249 /* KerView.mm */; };
+		1AF4CE3121A56A2000AE1249 /* UIFont+Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE2F21A56A2000AE1249 /* UIFont+Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF4CE3221A56A2000AE1249 /* UIFont+Ker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3021A56A2000AE1249 /* UIFont+Ker.mm */; };
+		1AF4CE3521A56B5A00AE1249 /* UIColor+Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE3321A56B5A00AE1249 /* UIColor+Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF4CE3621A56B5A00AE1249 /* UIColor+Ker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3421A56B5A00AE1249 /* UIColor+Ker.mm */; };
+		1AF4CE3921A56DF600AE1249 /* UILabel+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE3721A56DF600AE1249 /* UILabel+KerViewProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF4CE3A21A56DF600AE1249 /* UILabel+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */; };
+		1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE3B21A5719800AE1249 /* KerButton.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3C21A5719800AE1249 /* KerButton.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -124,8 +130,14 @@
 		1AF065F7219D555E00F8F7A8 /* KerCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerCanvas.h; sourceTree = "<group>"; };
 		1AF065F8219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UITextField+KerViewProtocol.mm"; sourceTree = "<group>"; };
 		1AF06605219D567400F8F7A8 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		1AF4CE2721A3EB5C00AE1249 /* KerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerView.h; sourceTree = "<group>"; };
-		1AF4CE2821A3EB5C00AE1249 /* KerView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerView.mm; sourceTree = "<group>"; };
+		1AF4CE2F21A56A2000AE1249 /* UIFont+Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIFont+Ker.h"; sourceTree = "<group>"; };
+		1AF4CE3021A56A2000AE1249 /* UIFont+Ker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIFont+Ker.mm"; sourceTree = "<group>"; };
+		1AF4CE3321A56B5A00AE1249 /* UIColor+Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIColor+Ker.h"; sourceTree = "<group>"; };
+		1AF4CE3421A56B5A00AE1249 /* UIColor+Ker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIColor+Ker.mm"; sourceTree = "<group>"; };
+		1AF4CE3721A56DF600AE1249 /* UILabel+KerViewProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UILabel+KerViewProtocol.h"; sourceTree = "<group>"; };
+		1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UILabel+KerViewProtocol.mm"; sourceTree = "<group>"; };
+		1AF4CE3B21A5719800AE1249 /* KerButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerButton.h; sourceTree = "<group>"; };
+		1AF4CE3C21A5719800AE1249 /* KerButton.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerButton.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,8 +203,14 @@
 				1AF065F3219D555D00F8F7A8 /* UIView+KerViewProtocol.mm */,
 				1AF065F5219D555D00F8F7A8 /* WKWebView+KerViewProtocol.h */,
 				1AF065F6219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm */,
-				1AF4CE2721A3EB5C00AE1249 /* KerView.h */,
-				1AF4CE2821A3EB5C00AE1249 /* KerView.mm */,
+				1AF4CE3721A56DF600AE1249 /* UILabel+KerViewProtocol.h */,
+				1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */,
+				1AF4CE2F21A56A2000AE1249 /* UIFont+Ker.h */,
+				1AF4CE3021A56A2000AE1249 /* UIFont+Ker.mm */,
+				1AF4CE3321A56B5A00AE1249 /* UIColor+Ker.h */,
+				1AF4CE3421A56B5A00AE1249 /* UIColor+Ker.mm */,
+				1AF4CE3B21A5719800AE1249 /* KerButton.h */,
+				1AF4CE3C21A5719800AE1249 /* KerButton.mm */,
 				1AF0658C219D516000F8F7A8 /* Info.plist */,
 			);
 			path = Ker;
@@ -266,6 +284,7 @@
 			files = (
 				1AF065D3219D536700F8F7A8 /* UI.h in Headers */,
 				1AF065B8219D51C000F8F7A8 /* duk_config.h in Headers */,
+				1AF4CE3121A56A2000AE1249 /* UIFont+Ker.h in Headers */,
 				1AF065FE219D555E00F8F7A8 /* UITextView+KerViewProtocol.h in Headers */,
 				1AF065AE219D518200F8F7A8 /* dispatch.h in Headers */,
 				1AF065AB219D518200F8F7A8 /* timer.h in Headers */,
@@ -276,9 +295,10 @@
 				1AF065A7219D518200F8F7A8 /* container.h in Headers */,
 				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
-				1AF4CE2921A3EB5C00AE1249 /* KerView.h in Headers */,
+				1AF4CE3521A56B5A00AE1249 /* UIColor+Ker.h in Headers */,
 				1AF0658D219D516000F8F7A8 /* Ker.h in Headers */,
 				1AF065CF219D52E200F8F7A8 /* KerViewProtocol.h in Headers */,
+				1AF4CE3921A56DF600AE1249 /* UILabel+KerViewProtocol.h in Headers */,
 				1AF065FD219D555E00F8F7A8 /* UIView+KerViewProtocol.h in Headers */,
 				1AF065E0219D53EB00F8F7A8 /* KerObject.h in Headers */,
 				1AF065AC219D518200F8F7A8 /* jit.h in Headers */,
@@ -292,6 +312,7 @@
 				1AF065FB219D555E00F8F7A8 /* UITextField+KerViewProtocol.h in Headers */,
 				1AF065B6219D51C000F8F7A8 /* duktape.h in Headers */,
 				1AF065CD219D52AC00F8F7A8 /* CGContext.h in Headers */,
+				1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,12 +387,15 @@
 				1AF065DF219D53EB00F8F7A8 /* KerObject.mm in Sources */,
 				1AF06600219D555E00F8F7A8 /* UIScrollView+KKViewProtocol.mm in Sources */,
 				1AF065CC219D52AC00F8F7A8 /* page.cc in Sources */,
+				1AF4CE3A21A56DF600AE1249 /* UILabel+KerViewProtocol.mm in Sources */,
 				1AF06602219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm in Sources */,
 				1AF065FA219D555E00F8F7A8 /* KerCanvas.m in Sources */,
+				1AF4CE3621A56B5A00AE1249 /* UIColor+Ker.mm in Sources */,
 				1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */,
 				1AF065B7219D51C000F8F7A8 /* duktape.c in Sources */,
 				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
 				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
+				1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */,
 				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
 				1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */,
 				1AF065EB219D54E600F8F7A8 /* KerPageViewController.m in Sources */,
@@ -381,13 +405,13 @@
 				1AF065FF219D555E00F8F7A8 /* UIView+KerViewProtocol.mm in Sources */,
 				1AF065E3219D547000F8F7A8 /* KerApp.mm in Sources */,
 				1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */,
+				1AF4CE3221A56A2000AE1249 /* UIFont+Ker.mm in Sources */,
 				1AF065AA219D518200F8F7A8 /* kk.cc in Sources */,
 				1AF065C6219D52AC00F8F7A8 /* view.cc in Sources */,
 				1AF065AD219D518200F8F7A8 /* timer.cc in Sources */,
 				1AF065D7219D537600F8F7A8 /* View.mm in Sources */,
 				1AF065CB219D52AC00F8F7A8 /* CGContext.cc in Sources */,
 				1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */,
-				1AF4CE2A21A3EB5C00AE1249 /* KerView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

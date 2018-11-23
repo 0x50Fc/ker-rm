@@ -25,6 +25,8 @@ namespace kk {
             
             virtual void open(kk::CString uri,kk::Boolean animated);
             
+            virtual void back(kk::Uint delta,kk::Boolean animated);
+            
             virtual kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration);
             
             static void Openlib();

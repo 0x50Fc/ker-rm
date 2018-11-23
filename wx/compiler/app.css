@@ -1,12 +1,13 @@
 
 * {
     margin: 0px; 
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
 }
 
 body {
-    line-height:1.6;
     font-family:-apple-system-font, "Helvetica Neue", sans-serif;
-    background-color:#F8F8F8;
+    background-color:rgba(255,255,255,0);
     height:100%;
     font-size:32rpx;
     -webkit-user-select:none;
@@ -42,4 +43,184 @@ wx-canvas {
     
 wx-scroll-view {
     -webkit-overflow-scrolling:touch;
+    display: block;
+    overflow: auto;
+}
+
+wx-image {
+    display:inline-block;
+    overflow:hidden;
+}
+
+wx-image img {
+    width: 100%;
+}
+
+wx-navigator {
+    height:auto;
+    width:auto;
+    display:block;
+}
+
+wx-button {
+    position:relative;
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+    padding-left:14px;
+    padding-right:14px;
+    box-sizing:border-box;
+    font-size:18px;
+    text-align:center;
+    text-decoration:none;
+    line-height:2.55555556;
+    border-radius:5px;
+    overflow:hidden;
+    color:#000000;
+    background-color:#F8F8F8;
+    border: solid 1rpx #999;
+}
+
+wx-button[plain] {
+    color:#353535;
+    border:1px solid #353535;
+    background-color:transparent;
+}
+    
+wx-button[size=mini] {
+    display:inline-block;
+    line-height:2.3;
+    font-size:13px;
+    padding:0 1.34em;
+}
+
+wx-button[disabled] {
+    color:rgba(255, 255, 255, 0.6);
+}
+    
+wx-button[type=default] {
+    color:#000000;
+    background-color:#F8F8F8;
+}
+
+wx-button[type=default][disabled] {
+    color:rgba(0, 0, 0, 0.3);
+    background-color:#F7F7F7;
+}
+
+wx-button[type=primary] {
+    color:#FFFFFF;
+    background-color:#1AAD19;
+}
+
+wx-button[type=primary][plain] {
+    color:#1aad19;
+    border:1px solid #1aad19;
+    background-color:transparent;
+}
+
+wx-button[type=primary][disabled] {
+    background-color:#9ED99D;
+}
+
+wx-button[type=warn] {
+    color:#FFFFFF;
+    background-color:#E64340;
+}
+
+wx-button[type=warn][plain] {
+    color:#e64340;
+    border:1px solid #e64340;
+    background-color:transparent;
+}
+
+wx-button[disabled][type=warn] {
+    background-color:#EC8B89;
+}
+
+.button-hover {
+    color:rgba(0, 0, 0, 0.6);
+    background-color:#DEDEDE;
+}
+    
+.button-hover[type=default] {
+    color:rgba(0, 0, 0, 0.6);
+    background-color:#DEDEDE;
+}
+
+.button-hover[type=primary] {
+    color:rgba(255, 255, 255, 0.6);
+    background-color:#179B16;
+}
+
+.button-hover[type=warn] {
+    color:rgba(255, 255, 255, 0.6);
+    background-color:#CE3C39;
+}
+    
+.navigator-hover {
+    background-color:rgba(0, 0, 0, 0.1);
+    opacity:0.7;
+}
+    
+wx-swiper {
+    position: relative;
+    height: 150px;
+    display: block;
+    overflow: hidden;
+}
+
+wx-swiper div.wx-scroll {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+wx-swiper div.wx-content {
+    display: block;
+}
+
+wx-swiper div.wx-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: auto;
+    height: auto;
+    display: none;
+}
+
+wx-swiper div.wx-dots.wx-vertical {
+    left: auto;
+    right: 9px;
+    top: 50%;
+}
+
+wx-swiper div.wx-clear {
+    clear: both;
+}
+
+wx-swiper div.wx-dots span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    margin: 0px 1.5px;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+wx-swiper div.wx-dots.wx-vertical span {
+    display: block;
+    margin: 1.5px 0px;
+}
+
+wx-swiper div.wx-dots span.wx-active {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+wx-swiper-item {
+    position: absolute;
+    left: 0px;
+    top: 0px;
 }

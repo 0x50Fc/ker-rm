@@ -1172,6 +1172,10 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
     return nil;
 }
 
+-(id) ker_getValue:(NSString *) key {
+    return [self propertyForKey:key];
+}
+
 -(void) setProperty:(id) value forKey:(NSString *) key {
     if(_JSObject) {
         duk_context * ctx = _JSObject->jsContext();

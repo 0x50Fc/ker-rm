@@ -40,11 +40,34 @@
                 KerApp * a = (__bridge KerApp *) app;
                 kk::TObject<kk::String, kk::Any> * data = (kk::TObject<kk::String, kk::Any> *) event->data();
                 kk::CString uri = (*data)["uri"];
-                kk::Boolean animated = (*data)["animated"];
+                kk::Boolean animated = true;
+                
+                if(data->find("animated") != data->end()) {
+                    animated = (*data)["animated"];
+                }
+                
                 [a open:[NSString stringWithCString:uri encoding:NSUTF8StringEncoding] animated:animated];
             }
             
         }));
+        
+        _app->on("back", new kk::TFunction<void,kk::Event *>([app](kk::Event * event)->void{
+            
+            @autoreleasepool {
+                KerApp * a = (__bridge KerApp *) app;
+                kk::TObject<kk::String, kk::Any> * data = (kk::TObject<kk::String, kk::Any> *) event->data();
+                kk::Uint delta = (*data)["delta"];
+                kk::Boolean animated = true;
+                
+                if(data->find("animated") != data->end()) {
+                    animated = (*data)["animated"];
+                }
+                
+                [a back:(NSUInteger) delta animated:animated];
+            }
+            
+        }));
+        
     }
     return self;
 }
@@ -81,6 +104,37 @@
         (*librarys)[[key UTF8String]] = (kk::Any) [value UTF8String];
     }
     app->exec("main.js", (kk::TObject<kk::String, kk::Any> *) librarys);
+}
+
+-(void) back:(NSUInteger)delta animated:(BOOL) animated {
+    
+    UIViewController * topViewController = [self rootViewController];
+    
+    if([topViewController isKindOfClass:[UINavigationController class]]) {
+        NSArray * viewControllers = [(UINavigationController *) topViewController viewControllers];
+        if(delta + 1 < [viewControllers count]) {
+            [(UINavigationController *) topViewController popToViewController:[viewControllers objectAtIndex:[viewControllers count] - delta - 1] animated:animated];
+        } else {
+            [(UINavigationController *) topViewController popToRootViewControllerAnimated:animated];
+        }
+        
+    } else {
+        
+        while([topViewController presentingViewController]) {
+            topViewController = [topViewController presentingViewController];
+        }
+        
+        while([topViewController presentedViewController] && delta > 0) {
+            
+            UIViewController * v = [topViewController presentedViewController];
+            
+            [topViewController dismissViewControllerAnimated:delta == 1 && animated completion:nil];
+            
+            topViewController = v;
+            delta --;
+        }
+    }
+    
 }
 
 -(void) open:(NSString *) uri animated:(BOOL) animated {

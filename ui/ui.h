@@ -45,6 +45,17 @@ namespace kk {
             }
         };
         
+        struct Edge {
+            Float top,left,bottom,right;
+            Edge();
+            Edge(Float top,Float right,Float bottom,Float left);
+            Edge(kk::CString v);
+            Edge(Any &v):Edge((kk::CString) v){};
+            operator kk::Any() {
+                return kk::Any(new TObject<kk::String, kk::Float>({{"top",top},{"left",left},{"bottom",bottom},{"right",right}}));
+            }
+        };
+        
         struct Color {
         public:
             Color();
@@ -169,16 +180,18 @@ namespace kk {
             ImageStateNone,ImageStateLoading,ImageStateError,ImageStateLoaded
         };
         
-        class Image {
+        class Image : public kk::EventEmitter {
         public:
             virtual ImageState state() = 0;
             virtual kk::Uint width() = 0;
             virtual kk::Uint height() = 0;
             virtual kk::CString src() = 0;
-            virtual void setSrc(kk::CString src) = 0;
             virtual void copyPixels(void * data) = 0;
             virtual Boolean isCopyPixels() = 0;
+            
+            Ker_CLASS(Image,EventEmitter,"Image")
         };
+        
         
         class Context;
         
@@ -209,6 +222,7 @@ namespace kk {
         class Context : public EventEmitter, public Container {
         public:
             Context(kk::CString basePath,kk::DispatchQueue * queue);
+            virtual ~Context();
             virtual kk::CString basePath();
             virtual kk::DispatchQueue * queue();
             virtual duk_context * jsContext();
@@ -221,6 +235,7 @@ namespace kk {
             virtual void exec(kk::CString path,JSObject * librarys);
             virtual kk::Strong<Worker> createWorker(kk::CString path);
             virtual kk::Strong<Canvas> createCanvas();
+            virtual kk::Strong<Image> createImage(kk::CString src);
             
             static void Openlib();
             

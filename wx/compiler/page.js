@@ -2,6 +2,7 @@
 var path = require('path');
 var fs = require('fs');
 var htmlparser = require("htmlparser2");
+var css = require("./css");
 
 function Page(p, basePath) {
 
@@ -26,13 +27,9 @@ Page.prototype = Object.create(Object.prototype, {
     compile: {
         value: function () {
 
-            fs.writeFileSync(this.path.page, 'require("wx/wx.page.js")({path: path,query: query}, ' + JSON.stringify(path.relative(this.basePath,this.base)) + ', page);');
-
+            fs.writeFileSync(this.path.page, 'require("wx/wx.page.js")({path: path,query: query}, ' + JSON.stringify(path.relative(this.basePath, this.base)) + ', page);');
             var vs = [];
-            vs.push('<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">\n');
-            vs.push((fs.readFileSync("app.css") + '').replace(/([0-9\.\-]+)rpx/g, function (text, v) {
-                return (v * 0.05) + 'rem';
-            }));
+            vs.push('<style type="text/css">\n');
             this.compilePageCSS(vs);
             vs.push('</style></head><body><script type="text/javascript">\n');
             vs.push("(function(){\n");
@@ -128,7 +125,7 @@ Page.prototype = Object.create(Object.prototype, {
                     process.abort();
                 }
 
-            }, { decodeEntities: true });
+            }, { decodeEntities: true, recognizeSelfClosing: true });
 
             parse.write(fs.readFileSync(this.path.wxml, { encoding: 'utf8' }));
             parse.end();
@@ -183,15 +180,10 @@ Page.prototype = Object.create(Object.prototype, {
 
             function Parse(p) {
                 if (fs.existsSync(p)) {
-                    var v = fs.readFileSync(p) + '';
-                    var basedir = path.dirname(p);
-                    v = v.replace(/([0-9\.\-]+)rpx/g, function (text, v) {
-                        return (v * 0.05) + 'rem';
-                    });
-                    v = v.replace(/\@import +\"([^\"]*?)\";/g, function (text, v) {
-                        return Parse(path.join(basedir, v));
-                    });
-                    return v;
+                    var s = new css.Source(p);
+                    s.compile();
+                    s.exec();
+                    return s.toString();
                 }
                 return '';
             }

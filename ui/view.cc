@@ -12,6 +12,57 @@ namespace kk {
     
     namespace ui {
     
+        AttributedText::AttributedText() {
+            
+        }
+        
+        AttributedText::~AttributedText() {
+            
+        }
+        
+        void AttributedText::clear() {
+            _spans.clear();
+        }
+        
+        void AttributedText::appendImage(kk::ui::Image * image,kk::Uint width,kk::Uint height,kk::ui::Float top,kk::ui::Float left,kk::ui::Float bottom,kk::ui::Float right) {
+            append(image,width,height,{top,left,bottom,right});
+        }
+        
+        void AttributedText::append(kk::CString text,kk::ui::Font font,kk::ui::Color color) {
+            AttributedTextSpan v = {AttributedTextSpanTypeText,text};
+            v.font = font;
+            v.color = color;
+            _spans.push_back(v);
+        }
+        
+        void AttributedText::append(kk::ui::Image * image,kk::Uint width,kk::Uint height,kk::ui::Edge margin) {
+            AttributedTextSpan v = {AttributedTextSpanTypeImage};
+            v.image = image;
+            v.width = width;
+            v.height = height;
+            v.margin = margin;
+            _spans.push_back(v);
+        }
+        
+        std::vector<AttributedTextSpan> & AttributedText::spans() {
+            return _spans;
+        }
+        
+        void AttributedText::Openlib() {
+            
+            kk::Openlib<>::add([](duk_context * ctx)->void{
+                
+                kk::PushClass<AttributedText>(ctx, [](duk_context * ctx)->void{
+                    
+                    kk::PutMethod<AttributedText,void>(ctx, -1, "clear", &AttributedText::clear);
+                    kk::PutMethod<AttributedText,void,kk::CString,kk::ui::Font,kk::ui::Color>(ctx, -1, "appendText", &AttributedText::append);
+                    kk::PutMethod<AttributedText,void,kk::ui::Image *,kk::Uint,kk::Uint,kk::ui::Float,kk::ui::Float,kk::ui::Float,kk::ui::Float>(ctx, -1, "appendImage", &AttributedText::appendImage);
+                    
+                });
+                
+            });
+            
+        }
         
         Canvas::Canvas(DispatchQueue * queue):_queue(queue),_width(0),_height(0) {
             
@@ -153,6 +204,9 @@ namespace kk {
                     kk::PutMethod<View,void,View *,SubviewPosition>(ctx, -1, "addSubview", &View::addSubview);
                     kk::PutMethod<View,void>(ctx, -1, "removeView", &View::removeView);
                     kk::PutMethod<View,void,CString>(ctx, -1, "evaluateJavaScript", &View::evaluateJavaScript);
+                    kk::PutMethod<View,void,kk::ui::AttributedText *>(ctx, -1, "setAttributedText", &View::setAttributedText);
+                    kk::PutMethod<View,void,kk::ui::Image *>(ctx, -1, "setImage", &View::setImage);
+                    kk::PutMethod<View,void,kk::CString>(ctx, -1, "setGravity", &View::setGravity);
                     kk::PutProperty<View,Point>(ctx, -1, "contentOffset", &View::contentOffset);
                     kk::PutStrongMethod<View,Canvas,Worker *>(ctx, -1, "createCanvas", &View::createCanvas);
                     
@@ -160,6 +214,10 @@ namespace kk {
                 
             });
             
+        }
+        
+        void View::setImage(Image * image) {
+            _image = image;
         }
         
         void WebViewConfiguration::addUserScript(kk::CString code,WebViewUserScriptInjectionTime injectionTime) {

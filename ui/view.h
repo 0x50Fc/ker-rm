@@ -10,12 +10,48 @@
 #define ui_view_h
 
 #include <ui/ui.h>
+#include <ui/CGContext.h>
 #include <core/event.h>
 #include <core/dispatch.h>
 
 namespace kk {
     
     namespace ui {
+        
+        enum AttributedTextSpanType {
+            AttributedTextSpanTypeText,
+            AttributedTextSpanTypeImage
+        };
+        
+        struct AttributedTextSpan {
+            AttributedTextSpanType type;
+            kk::String text;
+            kk::Strong<Image> image;
+            kk::ui::Font font;
+            kk::ui::Color color;
+            kk::Uint width;
+            kk::Uint height;
+            Edge margin;
+        };
+        
+        class AttributedText: public Object {
+        public:
+            AttributedText();
+            virtual ~AttributedText();
+            virtual void clear();
+            virtual void append(kk::CString text,kk::ui::Font font,kk::ui::Color color);
+            virtual void append(kk::ui::Image * image,kk::Uint width,kk::Uint height,kk::ui::Edge margin);
+            virtual void appendImage(kk::ui::Image * image,kk::Uint width,kk::Uint height,kk::ui::Float top,kk::ui::Float left,kk::ui::Float bottom,kk::ui::Float right);
+            virtual std::vector<AttributedTextSpan> & spans();
+            
+            Ker_CLASS(AttributedText, Object, "UIAttributedText");
+            
+            
+            static void Openlib();
+            
+        protected:
+            std::vector<AttributedTextSpan> _spans;
+        };
         
         extern kk::CString kCanvasCGContext;
         extern kk::CString kCanvasWebGLContext;
@@ -71,6 +107,9 @@ namespace kk {
             
             virtual void evaluateJavaScript(kk::CString code) = 0;
             virtual ViewConfiguration * configuration();
+            virtual void setAttributedText(AttributedText * text) = 0;
+            virtual void setImage(Image * image);
+            virtual void setGravity(kk::CString gravity) = 0;
             
             virtual Context * context();
             
@@ -83,6 +122,7 @@ namespace kk {
             Weak<View> _parent;
             Strong<ViewConfiguration> _configuration;
             Weak<Context> _context;
+            Strong<Image> _image;
         };
         
         kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration,Context * context);

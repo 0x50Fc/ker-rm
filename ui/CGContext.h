@@ -99,7 +99,7 @@ namespace kk {
             GlobalCompositeOperation GlobalCompositeOperationFromString(kk::CString string);
             kk::CString StringFromGlobalCompositeOperation(GlobalCompositeOperation v);
             
-            class ImageData : public kk::Object, public Image {
+            class ImageData :  public Image {
             public:
                 ImageData(Uint width,Uint height);
                 virtual ~ImageData();
@@ -111,7 +111,6 @@ namespace kk {
                 virtual void copyPixels(void * data);
                 virtual ImageState state();
                 virtual kk::CString src();
-                virtual void setSrc(kk::CString src);
             protected:
                 Ubyte * _data;
                 Uint _width;

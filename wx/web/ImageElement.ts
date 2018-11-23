@@ -10,9 +10,7 @@ export class ImageElement extends ViewElement {
     protected createView(): HTMLElement {
         var v = document.createElement("wx-" + this._name);
         var img = document.createElement("img");
-        img.style.width = "100%";
         v.appendChild(img);
-        v.style.overflow = 'hidden';
         return v;
     }
 

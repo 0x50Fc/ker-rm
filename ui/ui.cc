@@ -118,6 +118,47 @@ namespace kk {
             {"yellow",(0xffff00)},
         };
         
+        Edge::Edge():top(0),right(0),bottom(0),left(0) {
+            
+        }
+        
+        Edge::Edge(Float top,Float right,Float bottom,Float left):top(top),right(right),bottom(bottom),left(left) {
+            
+        }
+        
+        Edge::Edge(kk::CString v):Edge() {
+            std::vector<kk::String> vs;
+            kk::CStringSplit(v, " ", vs);
+            Float a;
+            auto i = vs.begin();
+            if(i != vs.end()) {
+                a = atof((*i).c_str());
+                top = a;
+                i ++;
+                if(i != vs.end()) {
+                    a = atof((*i).c_str());
+                    right = a;
+                    i ++;
+                    if(i != vs.end()) {
+                        a = atof((*i).c_str());
+                        bottom = a;
+                        i ++;
+                        if(i != vs.end()) {
+                            a = atof((*i).c_str());
+                            left = a;
+                        } else {
+                            left = right;
+                        }
+                    } else {
+                        bottom = top;
+                        left = right;
+                    }
+                } else {
+                    right = bottom = left = top;
+                }
+            }
+        }
+        
         Color::Color():r(0),g(0),b(0),a(0) {
             
         }
@@ -280,6 +321,10 @@ namespace kk {
             _jsContext = duk_create_heap(nullptr, nullptr, nullptr, nullptr, Context_duk_fatal_function);
             kk::Openlib<>::openlib(_jsContext);
             kk::Openlib<kk::Container *>::openlib(_jsContext, this);
+        }
+        
+        Context::~Context() {
+            duk_destroy_heap(_jsContext);
         }
         
         void Context::set(kk::Object * object) {
@@ -623,6 +668,10 @@ namespace kk {
             return kk::ui::createCanvas((DispatchQueue *) _queue);
         }
         
+        kk::Strong<Image> Context::createImage(kk::CString src) {
+            return ImageCreate(this,src);
+        }
+        
         void Context::Openlib(){
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
@@ -646,6 +695,19 @@ namespace kk {
                     kk::PutStrongMethod<Context,Worker,kk::CString>(ctx, -1, "createWorker", &Context::createWorker);
                     
                     kk::PutStrongMethod<Context,Canvas>(ctx, -1, "createCanvas", &Context::createCanvas);
+                    
+                    kk::PutStrongMethod<Context,Image,kk::CString>(ctx, -1, "createImage", &Context::createImage);
+                    
+                });
+                
+                kk::PushInterface<Image>(ctx, [](duk_context * ctx)->void{
+                    
+                    kk::PutProperty<Image,kk::CString>(ctx, -1, "src", &Image::src);
+                    
+                    kk::PutProperty<Image,kk::Uint>(ctx, -1, "width", &Image::width);
+                    
+                    kk::PutProperty<Image,kk::Uint>(ctx, -1, "height", &Image::height);
+                    
                     
                 });
                 

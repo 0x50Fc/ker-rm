@@ -9,15 +9,35 @@
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 
+#if defined(__cplusplus)
+
+namespace kk {
+    namespace ui {
+        class View;
+        class ViewConfiguration;
+    }
+}
+
+typedef kk::ui::View * KerViewCPointer;
+typedef kk::ui::ViewConfiguration * KerViewConfigurationCPointer;
+
+#else
+
+typedef void * KerViewCPointer;
+
+typedef void * KerViewConfigurationCPointer;
+
+#endif
+
 @protocol KerViewProtocol <NSObject>
 
-+(instancetype) KerViewCreateWithConfiguration:(void *) configuration;
++(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer) configuration;
 
--(void) KerViewObtain:(void *) view;
+-(void) KerViewObtain:(KerViewCPointer) view;
 
--(void) KerViewSetAttribute:(const char *) key value:(const char *) value;
+-(void) KerView:(KerViewCPointer) view setAttribute:(const char *) key value:(const char *) value;
 
--(void) KerViewRecycle:(void *) view;
+-(void) KerViewRecycle:(KerViewCPointer) view;
 
 -(UIView *) KerViewContentView;
 

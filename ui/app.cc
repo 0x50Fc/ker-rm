@@ -41,6 +41,13 @@ namespace kk {
             emit("open", e);
         }
         
+        void App::back(kk::Uint delta,kk::Boolean animated) {
+            kk::Strong<Event> e = new Event();
+            kk::Strong<kk::TObject<kk::String, kk::Any>> data = new kk::TObject<kk::String, kk::Any>({{"delta", kk::Any(delta)},{"animated",kk::Any(animated)}});
+            e->setData((kk::TObject<kk::String, kk::Any> *) data);
+            emit("back", e);
+        }
+        
         kk::Strong<View> App::createView(kk::CString name,ViewConfiguration * configuration) {
             return kk::ui::createView(name, configuration, this);
         }
@@ -54,6 +61,7 @@ namespace kk {
             kk::ui::Context::Openlib();
             kk::ui::View::Openlib();
             kk::ui::Canvas::Openlib();
+            kk::ui::AttributedText::Openlib();
             kk::ui::WebViewConfiguration::Openlib();
             kk::ui::Context::Openlib();
             kk::ui::Page::Openlib();
@@ -64,6 +72,7 @@ namespace kk {
                 kk::PushInterface<App>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutMethod<App,void,kk::CString,kk::Boolean>(ctx, -1, "open", &App::open);
+                    kk::PutMethod<App,void,kk::Uint,kk::Boolean>(ctx, -1, "back", &App::back);
                 
                     kk::PutStrongMethod<App,View,kk::CString,ViewConfiguration *>(ctx,-1,"createView",&App::createView);
                     
