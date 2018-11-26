@@ -68,10 +68,23 @@ export class InputElement extends NViewElement {
     }
 
     public onEvent(name: string, data: any): void {
-        console.info(name, data);
         if (name == "change") {
             this.value = data.value || '';
         }
+    }
+
+    public getValue(): any {
+        return this.value;
+    }
+
+    public setValue(value: any): void {
+        this.value = value;
+        postMessage({
+            view: 'set',
+            id: this._id,
+            name: 'value',
+            value: value
+        });
     }
 
 }

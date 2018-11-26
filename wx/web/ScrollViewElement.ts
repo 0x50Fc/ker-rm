@@ -16,7 +16,7 @@ export class ScrollViewElement extends ViewElement {
     protected _thgresholdin: boolean;
     protected _scrollWithAnimation: boolean;
 
-    protected doEvent(event: Event, name: string, detail: any): void {
+    public doEvent(event: Event, name: string, detail: any): void {
         super.doEvent(event, name, detail);
 
 

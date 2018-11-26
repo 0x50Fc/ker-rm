@@ -1,5 +1,6 @@
 import { ViewElement } from './ViewElement';
 import { Document as KKDocument } from './Document';
+import { FormElement } from './FormElement';
 
 export class ButtonElement extends ViewElement {
 
@@ -13,9 +14,22 @@ export class ButtonElement extends ViewElement {
         this.set("hover-class", "button-hover");
     }
 
-    protected doEvent(event: Event, name: string, detail: any): void {
+    public doEvent(event: Event, name: string, detail: any): void {
         if (this._enabled) {
             super.doEvent(event, name, detail);
+            if(name == "tap") {
+                let v = this.get("formType");
+                if(v) {
+                    let p = this.parent;
+                    while(p) {
+                        if(p instanceof FormElement) {
+                            p.doAction(v);
+                            break;
+                        }
+                        p = p.parent;
+                    }
+                }
+            }
         }
     }
 

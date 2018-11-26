@@ -224,3 +224,174 @@ wx-swiper-item {
     left: 0px;
     top: 0px;
 }
+
+wx-progress {
+    position: relative;
+    display:-webkit-flex;
+    display:flex;
+    -webkit-align-items:center;
+    align-items:center;
+}
+
+wx-progress > div.bar {
+    background-color: #ebebeb;
+    height: auto;
+    width: 100%;
+    display: block;
+    position: relative;
+}
+
+wx-progress > div.bar > div {
+    height: 6px;
+    width: 0%;
+    background-color: #09BB07;
+}
+
+wx-progress > div.info {
+    display: none;
+    color: #000;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+wx-checkbox {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    border: solid 1px #d1d1d1;
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+wx-checkbox > div {
+    display: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    background-color: #09BB07;
+}
+
+wx-checkbox[checked] > div {
+    display: block;
+}
+
+wx-checkbox[disabled] > div {
+    background-color: #d1d1d1;
+}
+
+wx-radio {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    border: solid 1px #d1d1d1;
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+wx-radio > div {
+    display: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    background-color: #09BB07;
+}
+
+wx-radio[checked] > div {
+    display: block;
+}
+
+wx-radio[disabled] > div {
+    background-color: #d1d1d1;
+}
+
+
+wx-label {
+    display: flex;
+    align-items: center;
+}
+
+wx-slider {
+    position: relative;
+    display:-webkit-flex;
+    display:flex;
+    -webkit-align-items:center;
+    align-items:center;
+    padding: 14px;
+}
+
+wx-slider > div.bar {
+    background-color: #ebebeb;
+    height: auto;
+    width: 100%;
+    display: block;
+    border-radius: 1.5px;
+    overflow: visible;
+    position: relative;
+}
+
+wx-slider > div.bar > div {
+    height: 3px;
+    width: 0%;
+    border-radius: 1.5px;
+    background-color: #09BB07;
+}
+
+wx-slider > div.bar > div.cur {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    box-shadow: 0px 0px 6px #888888;
+    margin-top: -14px;
+    margin-left: -14px;
+    left: 0%;
+    top: 50%;
+    background-color: #fff;
+    z-index: 1;
+}
+
+wx-slider > div.info {
+    display: none;
+    color: #000;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+wx-switch {
+    display: inline-block;
+    width: 52px;
+    height: 32px;
+    border-radius: 16px;
+    border: solid 1px #e5e5e5;
+    position: relative;
+    background-color: #fff;
+}
+
+wx-switch > div.cur {
+    height: 30px;
+    width: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 6px #ddd;
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    background-color: #fff;
+}
+
+wx-switch[checked] {
+    background-color: #09BB07;
+    border-color: #09BB07;
+}
+
+wx-switch[checked] > div.cur {
+    left: auto;
+    right: 1px;
+}
+
+wx-switch[disabled] {
+    background-color: #999;
+    border-color: #e5e5e5;
+}
+

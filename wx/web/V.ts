@@ -1,6 +1,6 @@
 
 export function booleanValue(v:string|undefined):boolean {
-    return v == 'true';
+    return v !== undefined && v != 'false' && v != '0';
 }
 
 export function pixelValue(v:string|undefined):number {
@@ -13,4 +13,11 @@ export function pixelValue(v:string|undefined):number {
     }
 
     return 0;
+}
+
+export function pixelStringValue(v:string|undefined):string {
+    if(v && v.endsWith("rpx")) {
+        return (parseFloat(v) * 0.05) + 'rem';
+    } 
+    return v as string;
 }

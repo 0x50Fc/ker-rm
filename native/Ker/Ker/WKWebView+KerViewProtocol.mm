@@ -21,31 +21,19 @@
 
 - (void) userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     
-    NSLog(@"[postMessage] %@",message.body);
+    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(message.webView, "__WKWebViewKKViewProtocol");
     
-    __weak WKWebView * webView = message.webView;
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
+    if(view != nullptr) {
         
-        if(webView == nil) {
-            return;
-        }
+        kk::Strong<kk::Event> e = new kk::Event();
         
-        kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKKViewProtocol");
+        kk::Any v = KerObjectToAny(message.body);
         
-        if(view != nullptr) {
-            
-            kk::Strong<kk::Event> e = new kk::Event();
-            
-            kk::Any v = KerObjectToAny(message.body);
-            
-            e->setData(v.objectValue);
-            
-            view->emit("data", e);
-            
-        }
+        e->setData(v.objectValue);
         
-    });
+        view->emit("data", e);
+        
+    }
     
 }
 

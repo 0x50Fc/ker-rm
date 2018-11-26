@@ -1,9 +1,40 @@
 import { ViewElement } from './ViewElement';
-import { Element as KKElement } from './Element';
+import { Element as KKElement, Element } from './Element';
 import { postMessage } from './IPC';
 import { once } from './once';
+import { Document as KKDocument } from './Document';
 
-var _autoId = 0;
+var _elements: ElementMap = {};
+
+function add(element: NViewElement): void {
+    _elements[element.id] = element;
+}
+
+function remove(element: NViewElement): void {
+    delete _elements[element.id];
+}
+
+setInterval(function () {
+
+    for(var id in _elements) {
+        let e = _elements[id];
+        if(e.needsDisplay) {
+            e.display();
+        }
+    }
+
+}, 1000 / 30);
+
+interface ElementMap {
+    [key: number]: NViewElement
+}
+
+interface Frame {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
 
 export class NViewElement extends ViewElement {
 
@@ -18,6 +49,39 @@ export class NViewElement extends ViewElement {
     }
 
     protected _displaying: boolean = false;
+    protected _displayFrame: Frame = { x: 0, y: 0, width: 0, height: 0 };
+
+    constructor(document: KKDocument, name: string, id: number) {
+        super(document, name, id);
+        add(this);
+    }
+
+    public get displaying(): boolean {
+        return this._displaying;
+    }
+
+    public get needsDisplay(): boolean {
+        
+        if (this._displaying) {
+            return false;
+        }
+
+        var p: HTMLElement | undefined = this._view as HTMLElement;
+        var x: number = 0;
+        var y: number = 0;
+
+        while (p !== undefined && p != document.body) {
+
+            x += p.offsetLeft;
+            y += p.offsetTop;
+
+            p = p.offsetParent as (HTMLElement | undefined);
+        }
+
+        return (x != this._displayFrame.x || y != this._displayFrame.y 
+            || this._view.clientWidth != this._displayFrame.width
+            || this._view.clientHeight != this._displayFrame.height);
+    }
 
     public display(): void {
 
@@ -33,13 +97,18 @@ export class NViewElement extends ViewElement {
             p = p.offsetParent as (HTMLElement | undefined);
         }
 
+        this._displayFrame.x = x;
+        this._displayFrame.y = y;
+        this._displayFrame.width = this._view.clientWidth;
+        this._displayFrame.height = this._view.clientHeight;
+
         postMessage({
             view: 'setFrame',
             id: this._id,
             x: x,
             y: y,
-            width: this._view.clientWidth,
-            height: this._view.clientHeight
+            width: this._displayFrame.width,
+            height: this._displayFrame.height
         });
 
         this._displaying = false;
@@ -56,13 +125,13 @@ export class NViewElement extends ViewElement {
         });
     }
 
-    protected hasNativeKey(key:string):boolean {
+    protected hasNativeKey(key: string): boolean {
         return true;
     }
 
     public set(key: string, value: string | undefined) {
         super.set(key, value);
-        if(this.hasNativeKey(key)) {
+        if (this.hasNativeKey(key)) {
             postMessage({
                 view: 'set',
                 id: this._id,
@@ -101,6 +170,8 @@ export class NViewElement extends ViewElement {
     }
 
     public recycle(): void {
+
+        remove(this);
 
         postMessage({
             view: 'remove',

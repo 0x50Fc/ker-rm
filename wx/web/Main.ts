@@ -15,12 +15,12 @@ import { TextElement } from './TextElement';
 import { RichTextElement } from './RichTextElement';
 import { ProgressElement } from './ProgressElement';
 import { ButtonElement } from './ButtonElement';
-import { CheckboxElement } from './CheckboxElement';
+import { CheckboxElement, CheckboxGroupElement } from './CheckboxElement';
 import { FormElement } from './FormElement';
 import { LabelElement } from './LabelElement';
 import { PickerElement } from './PickerElement';
 import { PickerViewElement } from './PickerViewElement';
-import { RadioElement } from './RadioElement';
+import { RadioElement, RadioGroupElement } from './RadioElement';
 import { SliderElement } from './SliderElement';
 import { SwitchElement } from './SwitchElement';
 import { TextareaElement } from './TextareaElement';
@@ -77,7 +77,11 @@ function ElementSetAttributes(element: Element, data: Data, attributes: Attribut
             } else {
                 let fn = (key: string, element: Element, evaluate: Evaluate): void => {
                     data.on(evaluate, (value: any, changdKeys: string[]): void => {
-                        element.set(key, value + '');
+                        if(value === undefined) {
+                            element.set(key,undefined);
+                        } else {
+                            element.set(key, value + '');
+                        }
                     });
                 };
                 fn(key, element, evaluate);
@@ -308,11 +312,13 @@ page.document.addElementClass("rich-text", RichTextElement);
 page.document.addElementClass("progress", ProgressElement);
 page.document.addElementClass("button", ButtonElement);
 page.document.addElementClass("checkbox", CheckboxElement);
+page.document.addElementClass("checkbox-group", CheckboxGroupElement);
 page.document.addElementClass("form", FormElement);
 page.document.addElementClass("label", LabelElement);
 page.document.addElementClass("picker", PickerElement);
 page.document.addElementClass("picker-view", PickerViewElement);
 page.document.addElementClass("radio", RadioElement);
+page.document.addElementClass("radio-group", RadioGroupElement);
 page.document.addElementClass("slider", SliderElement);
 page.document.addElementClass("switch", SwitchElement);
 page.document.addElementClass("textarea", TextareaElement);

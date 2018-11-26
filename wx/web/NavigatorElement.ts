@@ -11,7 +11,7 @@ export class NavigatorElement extends ViewElement {
         this.set("hover-class","navigator-hover");
     }
 
-    protected doEvent(event: Event, name: string, detail: any): void {
+    public doEvent(event: Event, name: string, detail: any): void {
         super.doEvent(event, name, detail);
 
         var v = this.get("url");

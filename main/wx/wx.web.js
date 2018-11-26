@@ -74,6 +74,7 @@ exports.BlockElement = BlockElement;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
+const FormElement_1 = require("./FormElement");
 class ButtonElement extends ViewElement_1.ViewElement {
     constructor(document, name, id) {
         super(document, name, id);
@@ -85,6 +86,19 @@ class ButtonElement extends ViewElement_1.ViewElement {
     doEvent(event, name, detail) {
         if (this._enabled) {
             super.doEvent(event, name, detail);
+            if (name == "tap") {
+                let v = this.get("formType");
+                if (v) {
+                    let p = this.parent;
+                    while (p) {
+                        if (p instanceof FormElement_1.FormElement) {
+                            p.doAction(v);
+                            break;
+                        }
+                        p = p.parent;
+                    }
+                }
+            }
         }
     }
     set(key, value) {
@@ -127,7 +141,7 @@ class ButtonElement extends ViewElement_1.ViewElement {
 }
 exports.ButtonElement = ButtonElement;
 
-},{"./ViewElement":36}],4:[function(require,module,exports){
+},{"./FormElement":11,"./ViewElement":36}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const NViewElement_1 = require("./NViewElement");
@@ -139,11 +153,122 @@ exports.CanvasElement = CanvasElement;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
+const V_1 = require("./V");
+const Element_1 = require("./Element");
+class CheckboxGroupElement extends ViewElement_1.ViewElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+    }
+    doChange() {
+        this.doElementEvent("change", { value: this.getValue() });
+    }
+    getValue() {
+        let vs = [];
+        Element_1.Each(this, (element) => {
+            if (element instanceof CheckboxElement) {
+                if (V_1.booleanValue(element.get("checked"))) {
+                    let v = element.get("value");
+                    if (v !== undefined) {
+                        vs.push(v);
+                    }
+                }
+                return false;
+            }
+            return true;
+        });
+        return vs;
+    }
+    setValue(value) {
+        let vs = {};
+        if (value instanceof Array) {
+            for (let v of value) {
+                vs[v] = true;
+            }
+        }
+        Element_1.Each(this, (element) => {
+            if (element instanceof CheckboxElement) {
+                let v = element.get("value");
+                if (v) {
+                    if (vs[v]) {
+                        element.set("checked", "true");
+                    }
+                    else {
+                        element.set("checked", undefined);
+                    }
+                }
+                return false;
+            }
+            return true;
+        });
+    }
+}
+exports.CheckboxGroupElement = CheckboxGroupElement;
 class CheckboxElement extends ViewElement_1.ViewElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+    }
+    createView() {
+        let v = super.createView();
+        v.checkedView = document.createElement('div');
+        v.appendChild(v.checkedView);
+        return v;
+    }
+    set(key, value) {
+        super.set(key, value);
+        if (key == 'value') {
+            if (value === undefined) {
+                this._view.removeAttribute("value");
+            }
+            else {
+                this._view.setAttribute("value", value);
+            }
+        }
+        else if (key == 'disabled') {
+            if (V_1.booleanValue(value)) {
+                this._view.setAttribute("disabled", "disabled");
+            }
+            else {
+                this._view.removeAttribute("disabled");
+            }
+        }
+        else if (key == 'checked') {
+            if (V_1.booleanValue(value)) {
+                this._view.setAttribute("checked", "checked");
+            }
+            else {
+                this._view.removeAttribute("checked");
+            }
+        }
+        else if (key == 'color') {
+            this._view.checkedView.style.backgroundColor = value || '';
+        }
+    }
+    doEvent(event, name, detail) {
+        super.doEvent(event, name, detail);
+        if (name == 'tap') {
+            if (!this._view.getAttribute("disabled")) {
+                if (V_1.booleanValue(this.get("checked"))) {
+                    this.set("checked", undefined);
+                }
+                else {
+                    this.set("checked", "true");
+                }
+                let p = this.parent;
+                while (p) {
+                    if (p instanceof CheckboxGroupElement) {
+                        p.doChange();
+                        break;
+                    }
+                    p = p.parent;
+                }
+                event.stopPropagation();
+            }
+        }
+    }
 }
 exports.CheckboxElement = CheckboxElement;
 
-},{"./ViewElement":36}],6:[function(require,module,exports){
+},{"./Element":8,"./V":35,"./ViewElement":36}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class IObject {
@@ -722,6 +847,16 @@ class Element extends EventEmitter_1.EventEmitter {
     }
 }
 exports.Element = Element;
+function Each(element, func) {
+    if (func(element)) {
+        let p = element.firstChild;
+        while (p) {
+            Each(p, func);
+            p = p.nextSibling;
+        }
+    }
+}
+exports.Each = Each;
 
 },{"./Event":9,"./EventEmitter":10}],9:[function(require,module,exports){
 "use strict";
@@ -784,11 +919,85 @@ exports.EventEmitter = EventEmitter;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
+const SwitchElement_1 = require("./SwitchElement");
+const InputElement_1 = require("./InputElement");
+const CheckboxElement_1 = require("./CheckboxElement");
+const SliderElement_1 = require("./SliderElement");
+const RadioElement_1 = require("./RadioElement");
+const PickerElement_1 = require("./PickerElement");
+const once_1 = require("./once");
+function Each(element, func) {
+    if (element instanceof SwitchElement_1.SwitchElement
+        || element instanceof InputElement_1.InputElement
+        || element instanceof CheckboxElement_1.CheckboxGroupElement
+        || element instanceof SliderElement_1.SliderElement
+        || element instanceof RadioElement_1.RadioGroupElement
+        || element instanceof PickerElement_1.PickerElement) {
+        let name = element.get("name");
+        if (name !== undefined) {
+            let v = element;
+            func(name, v);
+        }
+    }
+    else {
+        let p = element.firstChild;
+        while (p) {
+            Each(p, func);
+            p = p.nextSibling;
+        }
+    }
+}
 class FormElement extends ViewElement_1.ViewElement {
+    doAction(action) {
+        switch (action) {
+            case 'submit':
+                this.doSubmit();
+                break;
+            case 'reset':
+                this.doReset();
+                break;
+        }
+    }
+    defaultValues() {
+        if (this._formValues === undefined) {
+            this._formValues = {};
+            this.getValues(this._formValues, this);
+        }
+    }
+    constructor(document, name, id) {
+        super(document, name, id);
+        let v = this;
+        once_1.once(() => {
+            v.defaultValues();
+        });
+    }
+    doSubmit() {
+        let values = {};
+        Each(this, (name, element) => {
+            values[name] = element.getValue();
+        });
+        this.doElementEvent("submit", { value: values, formId: this.get("id") });
+    }
+    getValues(values, element) {
+        Each(this, (name, element) => {
+            values[name] = element.getValue();
+        });
+    }
+    setValues(values, element) {
+        Each(this, (name, element) => {
+            element.setValue(values[name]);
+        });
+    }
+    doReset() {
+        if (this._formValues !== undefined) {
+            this.setValues(this._formValues, this);
+        }
+        this.doElementEvent("reset", {});
+    }
 }
 exports.FormElement = FormElement;
 
-},{"./ViewElement":36}],12:[function(require,module,exports){
+},{"./CheckboxElement":5,"./InputElement":15,"./PickerElement":22,"./RadioElement":25,"./SliderElement":28,"./SwitchElement":31,"./ViewElement":36,"./once":37}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function postMessage(data) {
@@ -901,10 +1110,21 @@ class InputElement extends NViewElement_1.NViewElement {
         return this._value;
     }
     onEvent(name, data) {
-        console.info(name, data);
         if (name == "change") {
             this.value = data.value || '';
         }
+    }
+    getValue() {
+        return this.value;
+    }
+    setValue(value) {
+        this.value = value;
+        IPC_1.postMessage({
+            view: 'set',
+            id: this._id,
+            name: 'value',
+            value: value
+        });
     }
 }
 exports.InputElement = InputElement;
@@ -913,11 +1133,28 @@ exports.InputElement = InputElement;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
+const ButtonElement_1 = require("./ButtonElement");
+const CheckboxElement_1 = require("./CheckboxElement");
+const RadioElement_1 = require("./RadioElement");
+const SwitchElement_1 = require("./SwitchElement");
 class LabelElement extends ViewElement_1.ViewElement {
+    doEvent(event, name, detail) {
+        super.doEvent(event, name, detail);
+        if (name == "tap") {
+            let p = this.firstChild;
+            while (p) {
+                if (p instanceof ButtonElement_1.ButtonElement || p instanceof CheckboxElement_1.CheckboxElement || p instanceof RadioElement_1.RadioElement || p instanceof SwitchElement_1.SwitchElement) {
+                    p.doEvent(event, name, detail);
+                    break;
+                }
+                p = p.nextSibling;
+            }
+        }
+    }
 }
 exports.LabelElement = LabelElement;
 
-},{"./ViewElement":36}],17:[function(require,module,exports){
+},{"./ButtonElement":3,"./CheckboxElement":5,"./RadioElement":25,"./SwitchElement":31,"./ViewElement":36}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Data_1 = require("./Data");
@@ -998,7 +1235,12 @@ function ElementSetAttributes(element, data, attributes) {
             else {
                 let fn = (key, element, evaluate) => {
                     data.on(evaluate, (value, changdKeys) => {
-                        element.set(key, value + '');
+                        if (value === undefined) {
+                            element.set(key, undefined);
+                        }
+                        else {
+                            element.set(key, value + '');
+                        }
                     });
                 };
                 fn(key, element, evaluate);
@@ -1183,11 +1425,13 @@ page.document.addElementClass("rich-text", RichTextElement_1.RichTextElement);
 page.document.addElementClass("progress", ProgressElement_1.ProgressElement);
 page.document.addElementClass("button", ButtonElement_1.ButtonElement);
 page.document.addElementClass("checkbox", CheckboxElement_1.CheckboxElement);
+page.document.addElementClass("checkbox-group", CheckboxElement_1.CheckboxGroupElement);
 page.document.addElementClass("form", FormElement_1.FormElement);
 page.document.addElementClass("label", LabelElement_1.LabelElement);
 page.document.addElementClass("picker", PickerElement_1.PickerElement);
 page.document.addElementClass("picker-view", PickerViewElement_1.PickerViewElement);
 page.document.addElementClass("radio", RadioElement_1.RadioElement);
+page.document.addElementClass("radio-group", RadioElement_1.RadioGroupElement);
 page.document.addElementClass("slider", SliderElement_1.SliderElement);
 page.document.addElementClass("switch", SwitchElement_1.SwitchElement);
 page.document.addElementClass("textarea", TextareaElement_1.TextareaElement);
@@ -1230,11 +1474,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
 const IPC_1 = require("./IPC");
 const once_1 = require("./once");
-var _autoId = 0;
+var _elements = {};
+function add(element) {
+    _elements[element.id] = element;
+}
+function remove(element) {
+    delete _elements[element.id];
+}
+setInterval(function () {
+    for (var id in _elements) {
+        let e = _elements[id];
+        if (e.needsDisplay) {
+            e.display();
+        }
+    }
+}, 1000 / 30);
 class NViewElement extends ViewElement_1.ViewElement {
-    constructor() {
-        super(...arguments);
+    constructor(document, name, id) {
+        super(document, name, id);
         this._displaying = false;
+        this._displayFrame = { x: 0, y: 0, width: 0, height: 0 };
+        add(this);
     }
     createView() {
         var v = document.createElement("wx-" + this._name);
@@ -1245,6 +1505,25 @@ class NViewElement extends ViewElement_1.ViewElement {
         });
         return v;
     }
+    get displaying() {
+        return this._displaying;
+    }
+    get needsDisplay() {
+        if (this._displaying) {
+            return false;
+        }
+        var p = this._view;
+        var x = 0;
+        var y = 0;
+        while (p !== undefined && p != document.body) {
+            x += p.offsetLeft;
+            y += p.offsetTop;
+            p = p.offsetParent;
+        }
+        return (x != this._displayFrame.x || y != this._displayFrame.y
+            || this._view.clientWidth != this._displayFrame.width
+            || this._view.clientHeight != this._displayFrame.height);
+    }
     display() {
         var p = this._view;
         var x = 0;
@@ -1254,13 +1533,17 @@ class NViewElement extends ViewElement_1.ViewElement {
             y += p.offsetTop;
             p = p.offsetParent;
         }
+        this._displayFrame.x = x;
+        this._displayFrame.y = y;
+        this._displayFrame.width = this._view.clientWidth;
+        this._displayFrame.height = this._view.clientHeight;
         IPC_1.postMessage({
             view: 'setFrame',
             id: this._id,
             x: x,
             y: y,
-            width: this._view.clientWidth,
-            height: this._view.clientHeight
+            width: this._displayFrame.width,
+            height: this._displayFrame.height
         });
         this._displaying = false;
     }
@@ -1310,6 +1593,7 @@ class NViewElement extends ViewElement_1.ViewElement {
         });
     }
     recycle() {
+        remove(this);
         IPC_1.postMessage({
             view: 'remove',
             id: this._id
@@ -1409,19 +1693,179 @@ exports.PickerViewElement = PickerViewElement;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
+const V_1 = require("./V");
 class ProgressElement extends ViewElement_1.ViewElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+        this._percent = 0;
+    }
+    createView() {
+        let v = super.createView();
+        v.progressView = document.createElement('div');
+        v.progressView.className = 'bar';
+        v.appendChild(v.progressView);
+        v.progressBar = document.createElement('div');
+        v.progressView.appendChild(v.progressBar);
+        v.infoView = document.createElement('div');
+        v.infoView.className = 'info';
+        v.appendChild(v.infoView);
+        return v;
+    }
+    updatePercentView() {
+        this._view.progressBar.style.width = this._percent + '%';
+        this._view.infoView.innerText = this._percent + '%';
+    }
+    set(key, value) {
+        super.set(key, value);
+        if (key == 'percent') {
+            this._percent = parseFloat(value || '0');
+            this.updatePercentView();
+        }
+        else if (key == 'show-info') {
+            if (V_1.booleanValue(value)) {
+                this._view.infoView.style.display = 'block';
+            }
+            else {
+                this._view.infoView.style.display = 'none';
+            }
+        }
+        else if (key == 'border-radius') {
+            this._view.style.borderRadius = V_1.pixelStringValue(value);
+        }
+        else if (key == 'font-size') {
+            this._view.infoView.style.fontSize = V_1.pixelStringValue(value);
+        }
+        else if (key == 'stroke-width') {
+            this._view.progressBar.style.height = V_1.pixelStringValue(value);
+        }
+        else if (key == 'color' || key == 'activeColor') {
+            this._view.progressBar.style.backgroundColor = value;
+        }
+        else if (key == 'backgroundColor') {
+            this._view.style.backgroundColor = value;
+        }
+    }
 }
 exports.ProgressElement = ProgressElement;
 
-},{"./ViewElement":36}],25:[function(require,module,exports){
+},{"./V":35,"./ViewElement":36}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
+const V_1 = require("./V");
+const Element_1 = require("./Element");
+class RadioGroupElement extends ViewElement_1.ViewElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+    }
+    findCheckbox(element, cur) {
+        if (element instanceof RadioElement) {
+            if (element != cur) {
+                element.set("checked", undefined);
+            }
+        }
+        else {
+            let p = element.firstChild;
+            while (p) {
+                this.findCheckbox(p, cur);
+                p = p.nextSibling;
+            }
+        }
+    }
+    doChange(element) {
+        this.findCheckbox(this, element);
+        this.doElementEvent("change", { value: element.get("value") });
+    }
+    getValue() {
+        let v;
+        Element_1.Each(this, (element) => {
+            if (element instanceof RadioElement) {
+                if (V_1.booleanValue(element.get("checked"))) {
+                    v = element.get("value");
+                }
+                return false;
+            }
+            return v === undefined;
+        });
+        return v;
+    }
+    setValue(value) {
+        Element_1.Each(this, (element) => {
+            if (element instanceof RadioElement) {
+                if (element.get("value") == value) {
+                    element.set("checked", "true");
+                }
+                else {
+                    element.set("checked", undefined);
+                }
+                return false;
+            }
+            return true;
+        });
+    }
+}
+exports.RadioGroupElement = RadioGroupElement;
 class RadioElement extends ViewElement_1.ViewElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+    }
+    createView() {
+        let v = super.createView();
+        v.checkedView = document.createElement('div');
+        v.appendChild(v.checkedView);
+        return v;
+    }
+    set(key, value) {
+        super.set(key, value);
+        if (key == 'value') {
+            if (value === undefined) {
+                this._view.removeAttribute("value");
+            }
+            else {
+                this._view.setAttribute("value", value);
+            }
+        }
+        else if (key == 'disabled') {
+            if (V_1.booleanValue(value)) {
+                this._view.setAttribute("disabled", "disabled");
+            }
+            else {
+                this._view.removeAttribute("disabled");
+            }
+        }
+        else if (key == 'checked') {
+            if (V_1.booleanValue(value)) {
+                this._view.setAttribute("checked", "checked");
+            }
+            else {
+                this._view.removeAttribute("checked");
+            }
+        }
+        else if (key == 'color') {
+            this._view.checkedView.style.backgroundColor = value || '';
+        }
+    }
+    doEvent(event, name, detail) {
+        super.doEvent(event, name, detail);
+        if (name == 'tap') {
+            if (!this._view.getAttribute("disabled")) {
+                this.set("checked", "true");
+                let p = this.parent;
+                while (p) {
+                    if (p instanceof RadioGroupElement) {
+                        p.doChange(this);
+                        break;
+                    }
+                    p = p.parent;
+                }
+                event.stopPropagation();
+            }
+        }
+    }
 }
 exports.RadioElement = RadioElement;
 
-},{"./ViewElement":36}],26:[function(require,module,exports){
+},{"./Element":8,"./V":35,"./ViewElement":36}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1604,11 +2048,145 @@ exports.ScrollViewElement = ScrollViewElement;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
+const V_1 = require("./V");
+const once_1 = require("./once");
 class SliderElement extends ViewElement_1.ViewElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+        this._updatePercentViewing = false;
+        this._touchPageX = 0;
+        this._touchCurX = 0;
+        this._changing = false;
+        this._min = 0;
+        this._max = 100;
+        this._step = 1;
+        this._value = 0;
+    }
+    createView() {
+        let v = super.createView();
+        v.progressView = document.createElement('div');
+        v.progressView.className = 'bar';
+        v.appendChild(v.progressView);
+        v.progressBar = document.createElement('div');
+        v.progressView.appendChild(v.progressBar);
+        v.infoView = document.createElement('div');
+        v.infoView.className = 'info';
+        v.appendChild(v.infoView);
+        v.curView = document.createElement('div');
+        v.curView.className = 'cur';
+        v.progressView.appendChild(v.curView);
+        return v;
+    }
+    updatePercentView() {
+        let v = (this._value - this._min) * 100 / (this._max - this._min);
+        this._view.progressBar.style.width = v + '%';
+        this._view.infoView.innerText = this._value + '';
+        this._view.curView.style.left = v + '%';
+        this._updatePercentViewing = false;
+    }
+    setUpdatePercentView() {
+        if (this._updatePercentViewing) {
+            return;
+        }
+        this._updatePercentViewing = true;
+        let v = this;
+        once_1.once(() => {
+            v.updatePercentView();
+        });
+    }
+    set(key, value) {
+        super.set(key, value);
+        if (key == 'value') {
+            this._value = parseFloat(value || '0');
+            this.setUpdatePercentView();
+        }
+        else if (key == 'min') {
+            this._min = parseFloat(value || '0');
+            this.setUpdatePercentView();
+        }
+        else if (key == 'max') {
+            this._max = parseFloat(value || '0');
+            this.setUpdatePercentView();
+        }
+        else if (key == 'step') {
+            this._step = parseFloat(value || '0');
+            this.setUpdatePercentView();
+        }
+        else if (key == 'show-value') {
+            if (V_1.booleanValue(value)) {
+                this._view.infoView.style.display = 'block';
+                this.setUpdatePercentView();
+            }
+            else {
+                this._view.infoView.style.display = 'none';
+            }
+        }
+        else if (key == 'block-color') {
+            this._view.curView.style.backgroundColor = value;
+        }
+        else if (key == 'block-size') {
+            let v = parseFloat(value || '28');
+            this._view.curView.style.width = v + 'px';
+            this._view.curView.style.height = v + 'px';
+            this._view.curView.style.borderRadius = (v * 0.5) + 'px';
+            this._view.curView.style.marginLeft = -(v * 0.5) + 'px';
+            this._view.curView.style.marginTop = -(v * 0.5) + 'px';
+        }
+        else if (key == 'selected-color' || key == 'activeColor') {
+            this._view.progressBar.style.backgroundColor = value;
+        }
+        else if (key == 'color' || key == 'backgroundColor') {
+            this._view.progressView.style.backgroundColor = value;
+        }
+        else if (key == 'backgroundColor') {
+            this._view.style.backgroundColor = value;
+        }
+    }
+    doEvent(event, name, detail) {
+        super.doEvent(event, name, detail);
+        if (name == "touchstart") {
+            let width = this._view.progressView.clientWidth;
+            let x = event.touches[0].pageX;
+            let curX = (this._value - this._min) * width / (this._max - this._min);
+            if (Math.abs(x - curX) <= this._view.progressView.clientWidth * 0.5) {
+                this._changing = true;
+                this._touchPageX = x;
+                this._touchCurX = curX;
+            }
+        }
+        else if (name == "touchmove" && this._changing) {
+            let width = this._view.progressView.clientWidth;
+            let x = event.touches[0].pageX;
+            var curX = this._touchCurX + (x - this._touchPageX);
+            if (curX < 0) {
+                curX = 0;
+            }
+            if (curX > width) {
+                curX = width;
+            }
+            let v = (curX * (this._max - this._min)) / width;
+            v = Math.floor(v / this._step) * this._step + this._min;
+            if (this._value != v) {
+                this._value = v;
+                this.updatePercentView();
+                this.doElementEvent("changing", { value: v });
+            }
+        }
+        else if ((name == "touchend" || name == "touchcancel") && this._changing) {
+            this.doElementEvent("change", { value: this._value });
+            this._changing = false;
+        }
+    }
+    getValue() {
+        return this.get("value") || 0;
+    }
+    setValue(value) {
+        this.set("value", value || 0);
+    }
 }
 exports.SliderElement = SliderElement;
 
-},{"./ViewElement":36}],29:[function(require,module,exports){
+},{"./V":35,"./ViewElement":36,"./once":37}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -1981,11 +2559,70 @@ exports.SwiperElement = SwiperElement;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
+const V_1 = require("./V");
 class SwitchElement extends ViewElement_1.ViewElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+    }
+    createView() {
+        let v = super.createView();
+        v.checkedView = document.createElement('div');
+        v.checkedView.className = "cur";
+        v.appendChild(v.checkedView);
+        return v;
+    }
+    set(key, value) {
+        super.set(key, value);
+        if (key == 'disabled') {
+            if (V_1.booleanValue(value)) {
+                this._view.setAttribute("disabled", "disabled");
+            }
+            else {
+                this._view.removeAttribute("disabled");
+            }
+        }
+        else if (key == 'checked') {
+            if (V_1.booleanValue(value)) {
+                this._view.setAttribute("checked", "checked");
+            }
+            else {
+                this._view.removeAttribute("checked");
+            }
+        }
+    }
+    doEvent(event, name, detail) {
+        super.doEvent(event, name, detail);
+        if (name == 'tap') {
+            if (!this._view.getAttribute("disabled")) {
+                let v = V_1.booleanValue(this.get("checked"));
+                if (v) {
+                    this.set("checked", undefined);
+                    v = false;
+                }
+                else {
+                    this.set("checked", "true");
+                    v = true;
+                }
+                this.doElementEvent("change", { value: v });
+                event.stopPropagation();
+            }
+        }
+    }
+    getValue() {
+        return V_1.booleanValue(this.get("checked"));
+    }
+    setValue(value) {
+        if (V_1.booleanValue(value)) {
+            this.set("checked", "true");
+        }
+        else {
+            this.set("checked", undefined);
+        }
+    }
 }
 exports.SwitchElement = SwitchElement;
 
-},{"./ViewElement":36}],32:[function(require,module,exports){
+},{"./V":35,"./ViewElement":36}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2019,7 +2656,7 @@ exports.resolveURI = resolveURI;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function booleanValue(v) {
-    return v == 'true';
+    return v !== undefined && v != 'false' && v != '0';
 }
 exports.booleanValue = booleanValue;
 function pixelValue(v) {
@@ -2033,6 +2670,13 @@ function pixelValue(v) {
     return 0;
 }
 exports.pixelValue = pixelValue;
+function pixelStringValue(v) {
+    if (v && v.endsWith("rpx")) {
+        return (parseFloat(v) * 0.05) + 'rem';
+    }
+    return v;
+}
+exports.pixelStringValue = pixelStringValue;
 
 },{}],36:[function(require,module,exports){
 "use strict";

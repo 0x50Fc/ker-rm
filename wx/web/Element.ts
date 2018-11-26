@@ -289,3 +289,19 @@ export class Element extends EventEmitter {
 
 }
 
+export function Each(element:Element,func:(element:Element)=>boolean):void {
+
+    if(func(element)) {
+
+        let p = element.firstChild;
+
+        while(p) {
+
+            Each(p,func);
+
+            p = p.nextSibling;
+        }
+
+    }
+
+}

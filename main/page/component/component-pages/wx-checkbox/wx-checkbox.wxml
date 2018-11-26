@@ -6,7 +6,7 @@
     <view class="page__bd">
         <view class="section section_gap">
             <checkbox-group bindchange="checkboxChange">
-                <label class="checkbox" wx:for-items="{{items}}">
+                <label class="checkbox" wx:for="{{items}}">
                     <checkbox value="{{item.name}}" checked="{{item.checked}}"/>{{item.value}}
                 </label>
             </checkbox-group>

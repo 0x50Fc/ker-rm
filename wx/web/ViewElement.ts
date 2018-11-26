@@ -80,7 +80,7 @@ export class ViewElement extends KKElement {
         this._hover = hover;
     }
 
-    protected doElementEvent(name: string, detail: any): void {
+    public doElementEvent(name: string, detail: any): void {
 
         let e = new ElementEvent(this);
         let target = {
@@ -96,7 +96,7 @@ export class ViewElement extends KKElement {
         this.emit(name, e);
     }
 
-    protected doEvent(event: Event, name: string, detail: any): void {
+    public doEvent(event: Event, name: string, detail: any): void {
         let e = new ElementEvent(this);
         e.data = {
             type: name,

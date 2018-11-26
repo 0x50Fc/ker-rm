@@ -1,6 +1,6 @@
 <style type="text/css">
 .checkbox{
-    display: block;
+    display: flex;
     margin-bottom: 10px;
 }</style></head><body><script type="text/javascript">
 (function(){
@@ -16,7 +16,7 @@ kk.Page(function(element,data,context){
 		View(element,data,"view",{"class":"page__bd"},context,function(element,data,context){
 			View(element,data,"view",{"class":"section section_gap"},context,function(element,data,context){
 				View(element,data,"checkbox-group",{"bindchange":"checkboxChange"},context,function(element,data,context){
-					View(element,data,"label",{"class":"checkbox","wx:for-items":"{{items}}"},context,function(element,data,context){
+					View(element,data,"label",{"class":"checkbox","wx:for":"{{items}}"},context,function(element,data,context){
 						View(element,data,"checkbox",{"value":"{{item.name}}","checked":"{{item.checked}}"},context,function(element,data,context){
 						});
 						View(element,data,"text",{"#text":"{{item.value}}"},context,function(element,data,context){
