@@ -19,7 +19,7 @@ namespace kk {
         class App : public Context {
         public:
             
-            App(kk::CString basePath,kk::CString platform);
+            App(kk::CString basePath,kk::CString platform,kk::CString userAgent);
             
             virtual ~App();
             

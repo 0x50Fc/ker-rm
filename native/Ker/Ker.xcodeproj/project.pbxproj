@@ -73,6 +73,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1A53C63B21AF99F400170AB7 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		1AF06588219D516000F8F7A8 /* Ker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF0658B219D516000F8F7A8 /* Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ker.h; sourceTree = "<group>"; };
 		1AF0658C219D516000F8F7A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -268,6 +269,7 @@
 		1AF065D8219D53CC00F8F7A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1A53C63B21AF99F400170AB7 /* Security.framework */,
 				1AF06605219D567400F8F7A8 /* WebKit.framework */,
 				1AF065DB219D53DA00F8F7A8 /* CoreGraphics.framework */,
 				1AF065D9219D53CC00F8F7A8 /* UIKit.framework */,
@@ -550,6 +552,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../lib/duktape/src,
 					../../,
+					../../lib/minizip,
 				);
 				INFOPLIST_FILE = Ker/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -580,6 +583,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../lib/duktape/src,
 					../../,
+					../../lib/minizip,
 				);
 				INFOPLIST_FILE = Ker/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

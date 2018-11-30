@@ -21,3 +21,13 @@ export function pixelStringValue(v:string|undefined):string {
     } 
     return v as string;
 }
+
+export function parseStyleValue(v:string|undefined):string {
+    if(v) {
+        return v.replace(/([0-9\.\+\-]+)rpx/g,(text,v):string=>{
+            return (parseFloat(v) * 0.05) + 'rem';
+        });
+    } 
+    return '';
+}
+

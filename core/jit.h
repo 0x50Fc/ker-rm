@@ -26,6 +26,7 @@ namespace kk {
         virtual void weak(duk_context * ctx, void * heapptr, Object * object);
         virtual void remove(void * heapptr);
         virtual void remove(Object * object);
+        virtual void remove(duk_context * ctx);
         virtual Object * get(void * heapptr);
         virtual void * get(Object * object,duk_context * ctx);
         virtual void forEach(Object * object,std::function<void(duk_context * ,void *)> && func);
@@ -663,34 +664,37 @@ namespace kk {
         template<typename T,typename ... TArgs>
         T invoke(JSObject * object,TArgs ... args,typename std::enable_if<std::is_void<T>::value>::type* = 0) {
             
-            if(_ctx && _heapptr) {
+            duk_context * ctx = this->jsContext();
+            void * heapptr = this->heapptr();
+            
+            if(ctx && heapptr) {
                 
-                duk_push_heapptr(_ctx, _heapptr);
+                duk_push_heapptr(ctx, heapptr);
                 
-                if(duk_is_function(_ctx, -1)) {
+                if(duk_is_function(ctx, -1)) {
                     
-                    if(object != nullptr && object->jsContext() == _ctx) {
-                        duk_push_heapptr(_ctx, object->heapptr());
+                    if(object != nullptr && object->jsContext() == ctx) {
+                        duk_push_heapptr(ctx, object->heapptr());
                     }
                     
-                    details::Arguments<sizeof...(TArgs)>::template Set(_ctx,args...);
+                    details::Arguments<sizeof...(TArgs)>::template Set(ctx,args...);
                     
-                    if(object != nullptr && object->jsContext() == _ctx) {
-                        if(duk_pcall_method(_ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
+                    if(object != nullptr && object->jsContext() == ctx) {
+                        if(duk_pcall_method(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
                             
                         } else {
-                            Error(_ctx, -1, "[JSObject]");
+                            Error(ctx, -1, "[JSObject]");
                         }
                     } else {
-                        if(duk_pcall(_ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
+                        if(duk_pcall(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
                             
                         } else {
-                            Error(_ctx, -1, "[JSObject]");
+                            Error(ctx, -1, "[JSObject]");
                         }
                     }
                 }
                 
-                duk_pop(_ctx);
+                duk_pop(ctx);
                 
             }
         }
@@ -700,34 +704,37 @@ namespace kk {
             
             Any r;
             
-            if(_ctx && _heapptr) {
+            duk_context * ctx = this->jsContext();
+            void * heapptr = this->heapptr();
+            
+            if(ctx && heapptr) {
                 
-                duk_push_heapptr(_ctx, _heapptr);
+                duk_push_heapptr(ctx, heapptr);
                 
-                if(duk_is_function(_ctx, -1)) {
+                if(duk_is_function(ctx, -1)) {
                     
-                    if(object != nullptr && object->jsContext() == _ctx) {
-                        duk_push_heapptr(_ctx, object->heapptr());
+                    if(object != nullptr && object->jsContext() == ctx) {
+                        duk_push_heapptr(ctx, object->heapptr());
                     }
                     
-                    details::Arguments<sizeof...(TArgs)>::template Set(_ctx,args...);
+                    details::Arguments<sizeof...(TArgs)>::template Set(ctx,args...);
                     
-                    if(object != nullptr && object->jsContext() == _ctx) {
-                        if(duk_pcall_method(_ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
-                            GetAny(_ctx, -1, r);
+                    if(object != nullptr && object->jsContext() == ctx) {
+                        if(duk_pcall_method(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
+                            GetAny(ctx, -1, r);
                         } else {
-                            Error(_ctx, -1, "[JSObject]");
+                            Error(ctx, -1, "[JSObject]");
                         }
                     } else {
-                        if(duk_pcall(_ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
-                            GetAny(_ctx, -1, r);
+                        if(duk_pcall(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
+                            GetAny(ctx, -1, r);
                         } else {
-                            Error(_ctx, -1, "[JSObject]");
+                            Error(ctx, -1, "[JSObject]");
                         }
                     }
                 }
                 
-                duk_pop(_ctx);
+                duk_pop(ctx);
                 
             }
             
@@ -794,7 +801,6 @@ namespace kk {
         
     protected:
         duk_context * _ctx;
-        void * _heapptr;
     };
     
     

@@ -23,15 +23,6 @@
         kk::objc::PushInterface(ctx, [KerWXObject class]);
         kk::objc::PushProtocol(ctx, @protocol(KerWXRequestTask));
         
-//        kk::objc::PushInterface(ctx, class_getName([KerWXObject class]),nullptr,[](duk_context * ctx)->void{
-//            kk::objc::PutMethod<void, kk::Native *>(ctx, -1, [KerWXObject class], "getLocation", @selector(getLocation:));
-//            kk::objc::PutMethod<kk::Native *, kk::Native *>(ctx, -1, [KerWXObject class], "request", @selector(request:));
-//        });
-//
-//        kk::objc::PushInterface(ctx, protocol_getName(@protocol(KerWXRequestTask)),nullptr,[](duk_context * ctx)->void{
-//            kk::objc::PutMethod<void>(ctx, -1, "abort", @selector(abort));
-//        });
-        
     });
     
     kk::ui::addPageOpenlib([](duk_context * ctx,kk::ui::Page * page)->void{

@@ -129,6 +129,22 @@ static const kk::Class * Class() { \
         kk::Uint _size;
     };
     
+    class Buffer {
+    public:
+        Buffer();
+        virtual ~Buffer();
+        virtual kk::Uint byteLength();
+        virtual void setByteLength(kk::Uint length);
+        virtual kk::Uint size();
+        virtual kk::Ubyte * data();
+        virtual void capacity(kk::Uint size);
+    protected:
+        kk::Ubyte _buf[2048];
+        Ubyte * _data;
+        kk::Uint _size;
+        kk::Uint _length;
+    };
+    
     class Ref {
     public:
         Ref();

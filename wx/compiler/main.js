@@ -4,31 +4,30 @@ var fs = require('fs');
 var Page = require("./page.js");
 var App = require("./app.js");
 
-var app = new App(process.argv[process.argv.length - 1]);
+var basePath = process.argv[2];
+var outPath = process.argv[3];
+
+var app = new App(basePath, outPath);
 
 app.compile();
 
-walk(process.argv[process.argv.length - 1]);
+walk(basePath);
 
-function walk(p,basePath) {
+function walk(p) {
 
-    if(basePath === undefined) {
-        basePath = p;
-    }
+    if (p.endsWith(".wxml")) {
 
-    if(p.endsWith(".wxml")) {
+        console.info("[PAGE]", p);
 
-        console.info(path.relative(basePath,p));
+        var page = new Page(p, basePath, outPath);
 
-        var page = new Page(p,basePath);
-        
         page.compile();
 
     } else {
         var st = fs.statSync(p);
-        if(st && st.isDirectory()) {
-            for(var item of fs.readdirSync(p)) {
-                walk(path.join(p,item),basePath);
+        if (st && st.isDirectory()) {
+            for (var item of fs.readdirSync(p)) {
+                walk(path.join(p, item), basePath);
             }
         }
     }

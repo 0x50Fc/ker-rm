@@ -14,7 +14,7 @@ namespace kk {
     
     namespace ui {
     
-        App::App(kk::CString basePath,kk::CString platform):Context(basePath,kk::mainDispatchQueue()) {
+        App::App(kk::CString basePath,kk::CString platform,kk::CString userAgent):Context(basePath,kk::mainDispatchQueue()) {
 
             duk_context * ctx = jsContext();
             
@@ -23,6 +23,9 @@ namespace kk {
             
             duk_push_string(ctx, platform);
             duk_put_global_string(ctx, "platform");
+            
+            duk_push_string(ctx, userAgent);
+            duk_put_global_string(ctx, "userAgent");
             
             kk::Openlib<App *>::openlib(ctx, this);
         }

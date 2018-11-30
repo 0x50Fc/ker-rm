@@ -1,5 +1,41 @@
 import { int } from "./declare";
 
+export type EvaluateScript = any;
+
+interface KeySet {
+    [key:string]:boolean
+}
+
+export class Evaluate {
+    evaluateScript:EvaluateScript;
+    keys:string[][];
+    keySet:string[];
+
+    constructor(evaluateScript:EvaluateScript,keys:string[][]){
+        this.evaluateScript = evaluateScript;
+        this.keys = keys;
+        this.keySet = [];
+        let m:KeySet = {};
+        for(let key of keys) {
+            if(!m[key[0]]) {
+                m[key[0]] = true;
+                this.keySet.push(key[0]);
+            }
+        }
+    }
+    exec(object: any): any {
+        var vs = [];
+        for (let key of this.keySet) {
+            let v = object[key];
+            if (v === undefined) {
+                v = (window as TObject)[key];
+            }
+            vs.push(v);
+        }
+        return this.evaluateScript.apply(undefined, vs);
+    }
+}
+
 export class IObject {
 
     [key: string]: any;
@@ -76,33 +112,10 @@ export function set(object: any, keys: string[], value: any, index: number = 0):
 
 export type DataFunction = (value: any, changedKeys: string[]) => void;
 
-type EvaluateScript = any;
-
 
 interface TObject {
-    [key:string]:any
+    [key: string]: any
 }
-
-export class Evaluate {
-    evaluateScript: EvaluateScript;
-    keys: string[][];
-    constructor(keys: string[][], evaluateScript: EvaluateScript) {
-        this.keys = keys;
-        this.evaluateScript = evaluateScript;
-    }
-    exec(object: any): any {
-        var vs = [];
-        for (let key of this.keys) {
-            let v = object[key[0]];
-            if(v === undefined) {
-                v = (window as TObject)[key[0]];
-            }
-            vs.push(v);
-        }
-        return this.evaluateScript.apply(undefined, vs);
-    }
-}
-
 
 class KeyCallback {
 
@@ -305,74 +318,4 @@ export class Data {
         }
     }
 
-    public static evaluateKeys(evaluate: string, keys: string[][]): void {
-
-        var v = evaluate.replace(/(\\\')|(\\\")/g, '');
-
-        v = v.replace(/(\'.*?\')|(\".*?\")/g, '');
-
-        v = v.replace(/\".*?\"/g, '');
-
-        v.replace(/[a-zA-Z_][0-9a-zA-Z\\._]*/g, (name: string): string => {
-
-            if (!/(true)|(false)|(null)|(undefined)|(NaN)/i.test(name)) {
-                keys.push(name.split("."));
-            }
-
-            return '';
-        });
-
-    }
-
-    public static evaluateScript(evaluateScript: string): Evaluate | undefined {
-
-        let keys: string[][] = [];
-        let code: string[] = [];
-
-        var idx = 0;
-        var count = 0;
-
-        evaluateScript.replace(/\{\{(.*?)\}\}/g, (text, exaluate, index): string => {
-
-            if (index > idx) {
-                if (count != 0) {
-                    code.push("+");
-                }
-                code.push(JSON.stringify(evaluateScript.substr(idx, index - idx)));
-                count++;
-            }
-
-            Data.evaluateKeys(exaluate, keys);
-
-            if (count != 0) {
-                code.push("+");
-            }
-
-            code.push("(");
-            code.push(exaluate);
-            code.push(")");
-            count++;
-
-            idx = index + text.length;
-
-            return '';
-        });
-
-        if (evaluateScript.length > idx && count != 0) {
-            code.push("+");
-            code.push(JSON.stringify(evaluateScript.substr(idx)));
-        }
-
-        if (count == 0) {
-            return undefined;
-        }
-
-        let args: string[] = [];
-
-        for (let key of keys) {
-            args.push(key[0]);
-        }
-
-        return new Evaluate(keys, eval('(function(' + args.join(',') + '){ return ' + code.join('') + '; })'));
-    }
 }

@@ -1,6 +1,7 @@
 import { Element as KKElement, ElementEvent as ElementEvent } from './Element';
 import { Document as KKDocument } from './Document';
 import { BlockElement } from './BlockElement';
+import { parseStyleValue } from './V';
 
 interface DataSet {
     [key: string]: string
@@ -185,10 +186,10 @@ export class ViewElement extends KKElement {
             if (value === undefined) {
                 this._view.removeAttribute(key);
             } else {
-                this._view.setAttribute('style', value as string);
+                this._view.setAttribute('style', parseStyleValue(value));
             }
         } else if (key == '#text') {
-            this._view.innerText = value === undefined ? '' : value as string;
+            this._view.innerText = value === undefined ? '' : (value as string).replace('\\n', '\n');
         } else if (key == 'id') {
             if (value === undefined) {
                 this._view.removeAttribute("id");
@@ -215,12 +216,24 @@ export class ViewElement extends KKElement {
         if (element instanceof ViewElement) {
             element.contentView.appendChild(this._view);
         } else if (element instanceof BlockElement) {
-            debugger;
             if (element.parent instanceof ViewElement) {
                 element.parent.contentView.appendChild(this._view);
             }
         } else {
             document.body.appendChild(this._view);
+        }
+    }
+
+    protected onDidAddChildren(element: KKElement): void {
+        super.onDidAddChildren(element);
+        if (element instanceof BlockElement) {
+            let p = element.firstChild;
+            while (p) {
+                if (p instanceof ViewElement) {
+                    this.contentView.appendChild(p.view);
+                }
+                p = p.nextSibling;
+            }
         }
     }
 

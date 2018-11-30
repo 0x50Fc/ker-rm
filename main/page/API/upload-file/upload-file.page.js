@@ -1,1 +1,0 @@
-require("wx/wx.page.js")({path: path,query: query}, "page/API/upload-file/upload-file", page);

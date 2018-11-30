@@ -324,6 +324,7 @@ namespace kk {
         }
         
         Context::~Context() {
+            JITContext::current()->remove(_jsContext);
             duk_destroy_heap(_jsContext);
         }
         

@@ -1,4 +1,4 @@
 #!/bin/bash
 
 tsc
-browserify wx.js > ../../main/wx/wx.web.js
+browserify wx.js > ../compiler/wxlib/wx/wx.web.js

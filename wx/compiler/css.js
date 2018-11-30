@@ -22,6 +22,7 @@ function Source(p, basePath) {
     } else {
         this.basePath = basePath;
     }
+    console.info("[CSS]", this.path, this.basePath);
     this.source = fs.readFileSync(p, { encoding: 'utf8' });
     this.tokens = [];
 };
@@ -80,16 +81,29 @@ Source.prototype = Object.create(Object.prototype, {
                     if (name == "@import") {
                         var basePath = this.basePath;
                         this.source.substr(token.end).replace(/([^\;]+)\;/i, function (text, p) {
-                            token.source = new Source(path.join(basePath, p.trim()), basePath);
+                            p = JSON.parse(p);
+                            token.source = new Source(path.join(basePath, p), basePath);
+                            token.source.compile();
+                            token.source.exec();
                         });
                         if (token.source === undefined) {
                             token.text = '';
                         }
+                        var p = token.end;
+                        while(p < this.source.length) {
+                            if(this.source.charAt(p) == ';') {
+                                break;
+                            }
+                            p ++;
+                        }
+                        token.end = p + 1;
                     }
                 } else if (token.type == Token.TYPE_VALUE) {
+                    // console.info("[CSS] [RPX]", this.source.substr(token.start, token.end - token.start), ">");
                     token.text = this.source.substr(token.start, token.end - token.start).replace(/([0-9\.\-]+)rpx/g, function (text, v) {
                         return (v * 0.05) + 'rem';
                     });
+                    // console.info("[CSS] [RPX]", token.text, "<");
                 } else if (token.type == Token.TYPE_SYMBOL) {
 
                     var name = this.source.substr(token.start, token.end - token.start);

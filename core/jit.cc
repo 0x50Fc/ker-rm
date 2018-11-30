@@ -90,13 +90,43 @@ namespace kk {
         }
     }
     
+    void JITContext::remove(duk_context * ctx) {
+        
+        auto i = _objectsWithObject.begin();
+        
+        while(i != _objectsWithObject.end()) {
+            
+            auto & m = i->second;
+            auto n = m.find(ctx);
+            if (n != m.end()) {
+                void * v = n->second;
+                {
+                    auto j = _weakObjects.find(v);
+                    if(j != _weakObjects.end()) {
+                        _weakObjects.erase(j);
+                    }
+                }
+                {
+                    auto j = _strongObjects.find(v);
+                    if(j != _strongObjects.end()) {
+                        _strongObjects.erase(j);
+                    }
+                }
+                m.erase(n);
+            }
+            
+            i ++;
+        }
+        
+    }
+    
     void JITContext::remove(Object * object) {
         
         auto i = _objectsWithObject.find(object);
         
         if(i != _objectsWithObject.end()) {
             
-            auto m = i->second;
+            auto & m = i->second;
             auto n = m.begin();
             while (n != m.end()) {
                 void * v = n->second;
@@ -144,7 +174,7 @@ namespace kk {
         auto i = _objectsWithObject.find(object);
         
         if(i != _objectsWithObject.end()) {
-            auto m = i->second;
+            auto & m = i->second;
             auto n = m.find(ctx);
             if(n != m.end()) {
                 return n->second;
@@ -157,7 +187,7 @@ namespace kk {
     void JITContext::forEach(Object * object,std::function<void(duk_context * ,void *)> && func) {
         auto i = _objectsWithObject.find(object);
         if(i != _objectsWithObject.end()) {
-            auto m = i->second;
+            auto & m = i->second;
             auto j = m.begin();
             while(j != m.end()) {
                 func(j->first,j->second);
@@ -165,7 +195,6 @@ namespace kk {
             }
         }
     }
-    
     
     JITContext * JITContext::current(){
         thread_local kk::Strong<JITContext> v;
@@ -400,7 +429,7 @@ namespace kk {
         
         if(duk_is_pointer(ctx, -1)) {
             JSObject * v = (JSObject *) duk_to_pointer(ctx, -1);
-            if(v) {
+            if(v && JITContext::current()->get(v, ctx) != nullptr) {
                 v->recycle();
             }
         }
@@ -410,12 +439,12 @@ namespace kk {
         return 0;
     }
     
-    JSObject::JSObject(duk_context * ctx, void * heapptr):_ctx(ctx),_heapptr(heapptr) {
+    JSObject::JSObject(duk_context * ctx, void * heapptr):_ctx(ctx) {
         
         duk_push_heap_stash(ctx);
         
         duk_push_sprintf(ctx, "0x%x",(long) heapptr);
-        duk_push_heapptr(ctx, _heapptr);
+        duk_push_heapptr(ctx, heapptr);
         {
             duk_push_c_function(ctx, JSObject_dealloc, 1);
             {
@@ -452,20 +481,30 @@ namespace kk {
     
     JSObject::~JSObject() {
         
-        if(_ctx && _heapptr) {
+        if(_ctx) {
+            
+            void * heapptr = JITContext::current()->get(this, _ctx);
+            
+            if(heapptr) {
+                
+                duk_context * ctx = _ctx;
+                
+                duk_push_heapptr(ctx, heapptr);
+                duk_push_undefined(ctx);
+                duk_set_finalizer(ctx, -2);
+                duk_pop(ctx);
+                
+                duk_push_heap_stash(ctx);
+                duk_push_sprintf(ctx, "0x%x",(long) heapptr);
+                duk_del_prop(ctx, -2);
+                duk_pop(ctx);
+                
+            }
+            
             JITContext::current()->remove(this);
-            duk_context * ctx = _ctx;
-            void * heapptr = _heapptr;
-            duk_push_heapptr(ctx, heapptr);
-            duk_push_undefined(ctx);
-            duk_set_finalizer(ctx, -2);
-            duk_pop(ctx);
-            duk_push_global_stash(ctx);
-            duk_push_sprintf(ctx, "0x%x",(long) heapptr);
-            duk_del_prop(ctx, -2);
-            duk_pop(ctx);
+            
         }
-        
+
     }
     
     duk_context * JSObject::jsContext() {
@@ -473,45 +512,49 @@ namespace kk {
     }
     
     void * JSObject::heapptr() {
-        return _heapptr;
+        return JITContext::current()->get(this, _ctx);
     }
     
     void JSObject::recycle() {
-        if(_ctx && _heapptr) {
-            JITContext::current()->remove(this);
-            _ctx = nullptr;
-            _heapptr = nullptr;
-        }
+        
+        JITContext::current()->remove(this);
+        _ctx = nullptr;
     }
     
     JSObject::operator kk::Strong<TObject<kk::String,kk::Any>>() {
+        
         kk::Strong<TObject<kk::String,kk::Any>> v = new TObject<kk::String,kk::Any>();
         
-        if(_ctx && _heapptr) {
+        if(_ctx) {
             
-            duk_push_heapptr(_ctx, _heapptr);
+            void * heapptr = JITContext::current()->get(this, _ctx);
             
-            if(duk_is_object(_ctx, -1)) {
+            if(heapptr) {
                 
-                duk_enum(_ctx, -1, DUK_ENUM_INCLUDE_SYMBOLS);
+                duk_push_heapptr(_ctx, heapptr);
                 
-                kk::Any key;
-                kk::Any value;
-                
-                while(duk_next(_ctx, -1, 1)) {
+                if(duk_is_object(_ctx, -1)) {
                     
-                    GetAny(_ctx, -2, key);
-                    GetAny(_ctx, -1, value);
+                    duk_enum(_ctx, -1, DUK_ENUM_INCLUDE_SYMBOLS);
                     
-                    (*v)[key] = value;
+                    kk::Any key;
+                    kk::Any value;
+                    
+                    while(duk_next(_ctx, -1, 1)) {
+                        
+                        GetAny(_ctx, -2, key);
+                        GetAny(_ctx, -1, value);
+                        
+                        (*v)[key] = value;
+                        
+                    }
+                    
+                    duk_pop(_ctx);
                     
                 }
                 
                 duk_pop(_ctx);
-                
             }
-            
-            duk_pop(_ctx);
         }
         
         return v;
@@ -520,29 +563,34 @@ namespace kk {
     JSObject::operator kk::Strong<Array<kk::Any>>() {
         kk::Strong<Array<kk::Any>> v = new Array<kk::Any>();
         
-        if(_ctx && _heapptr) {
+        if(_ctx) {
             
-            duk_push_heapptr(_ctx, _heapptr);
+            void * heapptr = JITContext::current()->get(this, _ctx);
             
-            if(duk_is_array(_ctx, -1)) {
+            if(heapptr) {
+            
+                duk_push_heapptr(_ctx, heapptr);
                 
-                duk_enum(_ctx, -1, DUK_ENUM_ARRAY_INDICES_ONLY);
-                
-                kk::Any value;
-                
-                while(duk_next(_ctx, -1, 1)) {
+                if(duk_is_array(_ctx, -1)) {
                     
-                    GetAny(_ctx, -1, value);
+                    duk_enum(_ctx, -1, DUK_ENUM_ARRAY_INDICES_ONLY);
                     
-                    v->push(value);
+                    kk::Any value;
+                    
+                    while(duk_next(_ctx, -1, 1)) {
+                        
+                        GetAny(_ctx, -1, value);
+                        
+                        v->push(value);
+                        
+                    }
+                    
+                    duk_pop(_ctx);
                     
                 }
                 
                 duk_pop(_ctx);
-                
             }
-            
-            duk_pop(_ctx);
         }
         
         return v;
@@ -964,6 +1012,7 @@ namespace kk {
         while(i != arguments.end() && n > 0) {
             duk_get_Signature(ctx, - n, * i);
             i ++;
+            n --;
         }
     }
     

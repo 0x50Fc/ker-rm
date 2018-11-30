@@ -1,17 +1,8 @@
-## webApp-demo
+# miniprogram-demo
 
-![](./demo.png)
+微信小程序示例源码
+> 请使用微信开发者工具或微信客户端 6.7.2 及以上版本运行。
 
-微信小程序 demo / 开发工具 / 文档资源
+![扫码体验](https://developers.weixin.qq.com/miniprogram/dev/image/demo.jpg?t=18091218)
 
-为了方便更新, 后续资源全部更新到 [wiki](https://github.com/xwartz/wechatApp-demo/wiki)
-
-
-### 资源
-
-*官方已经提供了，无需破解了，具体看以下链接。*
-
-官方文档: https://mp.weixin.qq.com/debug/wxadoc/dev/?t=1474643026176
-
-开发工具: https://mp.weixin.qq.com/debug/wxadoc/dev/devtools/download.html?t=1474644089359
-
+![截图](https://developers.weixin.qq.com/miniprogram/dev/image/demo.png?t=18091218)

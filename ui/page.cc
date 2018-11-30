@@ -27,9 +27,6 @@ namespace kk {
             duk_put_prop(ctx, -3);
             duk_pop_2(ctx);
             
-            PushWeakObject(_jsContext, this);
-            duk_put_global_string(_jsContext, "page");
-            
             kk::Openlib<kk::Container *>::openlib(_jsContext, this);
             kk::Openlib<kk::ui::Page *>::openlib(_jsContext, this);
         }
@@ -38,12 +35,16 @@ namespace kk {
           
             {
                 duk_context * ctx = _app->jsContext();
+                
+                JITContext::current()->remove(_jsContext);
+ 
                 duk_push_heap_stash(ctx);
                 duk_push_sprintf(ctx, "0x%x",_jsContext);
                 duk_del_prop(ctx, -2);
                 duk_pop(ctx);
                 
                 duk_gc(ctx, DUK_GC_COMPACT);
+        
             }
             
             kk::Log("[Page] [dealloc]");
@@ -120,8 +121,7 @@ namespace kk {
         
         void Page::run(kk::CString path , kk::TObject<kk::String,kk::String> * query) {
 
-            
-            kk::String code("(function(path,query");
+            kk::String code("(function(page,path,query");
             
             std::vector<kk::Any> vs;
             
@@ -146,6 +146,7 @@ namespace kk {
                 
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
+                    PushWeakObject(_jsContext, this);
                     duk_push_string(ctx, path);
                     PushObject(ctx, query);
                     
@@ -156,7 +157,7 @@ namespace kk {
                         i ++;
                     }
                     
-                    if(duk_pcall(ctx, 2 + vs.size()) != DUK_EXEC_SUCCESS) {
+                    if(duk_pcall(ctx, 3 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
                         Error(ctx, -1, "[Page::run] ");
                     }
                     

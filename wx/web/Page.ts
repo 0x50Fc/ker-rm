@@ -1,6 +1,11 @@
 import { Data, DataFunction, Evaluate } from './Data';
-import { Element, AttributeMap } from './Element';
+import { Element } from './Element';
 import { Document} from './Document';
+
+export interface AttributeMap {
+    [key:string]:string|Evaluate
+}
+
 
 export interface PageElement {
     element?:Element;

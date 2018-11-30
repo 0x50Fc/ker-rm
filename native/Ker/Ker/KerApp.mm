@@ -12,6 +12,7 @@
 #include <ui/view.h>
 #include <ui/page.h>
 #import "KerPageViewController.h"
+#import "KerObject.h"
 
 @interface KerApp() {
     kk::ui::App * _app;
@@ -26,10 +27,24 @@
     kk::ui::App::Openlib();
 }
 
+static NSString * gKerAppUserAgent = nil;
+
++(void) setUserAgent:(NSString *)v {
+    gKerAppUserAgent = v;
+}
+
++(NSString *) userAgent {
+    if(gKerAppUserAgent == nil) {
+        UIWebView * view = [[UIWebView alloc] init];
+        gKerAppUserAgent = [view stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+    }
+    return gKerAppUserAgent;
+}
+
 -(instancetype) initWithBasePath:(NSString *) basePath {
     if((self = [super init])) {
         _basePath = basePath;
-        _app = new kk::ui::App([basePath UTF8String],"iOS");
+        _app = new kk::ui::App([basePath UTF8String],"iOS",[[KerApp userAgent] UTF8String]);
         _app->retain();
         
         CFTypeRef app = (__bridge CFTypeRef) self;
@@ -208,6 +223,7 @@
         _app = nullptr;
     }
 }
+
 
 +(NSString *) encodeURL:(NSString *) url {
     

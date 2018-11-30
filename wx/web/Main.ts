@@ -1,8 +1,8 @@
-import { Data, Evaluate } from './Data';
-import { Element, AttributeMap, ElementEvent } from './Element';
+import { Data, Evaluate, EvaluateScript } from './Data';
+import { Element, ElementEvent } from './Element';
 import { Event } from './Event';
 import { StyleSheet } from "./Style";
-import { PageOptions, PageData, PageView, PageViewContext, IfBlock, PageElement, Page as PageObject } from "./Page";
+import { PageOptions, PageData, PageView, PageViewContext, IfBlock, PageElement, Page as PageObject,AttributeMap } from "./Page";
 import { ViewElement } from './ViewElement';
 import { ImageElement } from './ImageElement';
 import { postMessage } from './IPC';
@@ -29,6 +29,7 @@ import { CanvasElement } from './CanvasElement';
 import { once } from './once';
 import { BlockElement } from './BlockElement';
 
+
 function ElementOnEvent(element: Element, prefix: string, name: string, value: string): void {
 
     element.on(name, (event: Event): void => {
@@ -54,37 +55,36 @@ function ElementSetAttributes(element: Element, data: Data, attributes: Attribut
     for (let key in attributes) {
         if (key.startsWith("wx:")) {
         } else if (key.startsWith("bind:")) {
-            ElementOnEvent(element, key.substr(0, 4), key.substr(5), attributes[key]);
+            ElementOnEvent(element, key.substr(0, 4), key.substr(5), attributes[key] as string);
         } else if (key.startsWith("bind")) {
-            ElementOnEvent(element, key.substr(0, 4), key.substr(4), attributes[key]);
+            ElementOnEvent(element, key.substr(0, 4), key.substr(4), attributes[key] as string);
         } else if (key.startsWith("catch:")) {
-            ElementOnEvent(element, key.substr(0, 5), key.substr(6), attributes[key]);
+            ElementOnEvent(element, key.substr(0, 5), key.substr(6), attributes[key] as string);
         } else if (key.startsWith("catch")) {
-            ElementOnEvent(element, key.substr(0, 5), key.substr(6), attributes[key]);
+            ElementOnEvent(element, key.substr(0, 5), key.substr(6), attributes[key] as string);
         } else if (key.startsWith("capture-bind:")) {
-            ElementOnEvent(element, key.substr(0, 12), key.substr(13), attributes[key]);
+            ElementOnEvent(element, key.substr(0, 12), key.substr(13), attributes[key] as string);
         } else if (key.startsWith("capture-bind")) {
-            ElementOnEvent(element, key.substr(0, 12), key.substr(12), attributes[key]);
+            ElementOnEvent(element, key.substr(0, 12), key.substr(12), attributes[key] as string);
         } else if (key.startsWith("capture-catch:")) {
-            ElementOnEvent(element, key.substr(0, 13), key.substr(14), attributes[key]);
+            ElementOnEvent(element, key.substr(0, 13), key.substr(14), attributes[key] as string);
         } else if (key.startsWith("capture-catch")) {
-            ElementOnEvent(element, key.substr(0, 13), key.substr(13), attributes[key]);
+            ElementOnEvent(element, key.substr(0, 13), key.substr(13), attributes[key] as string);
         } else {
             let v = attributes[key];
-            let evaluate = Data.evaluateScript(v);
-            if (evaluate === undefined) {
+            if(typeof v == 'string') {
                 element.set(key, v);
-            } else {
+            } else if(v instanceof Evaluate) {
                 let fn = (key: string, element: Element, evaluate: Evaluate): void => {
                     data.on(evaluate, (value: any, changdKeys: string[]): void => {
-                        if(value === undefined) {
-                            element.set(key,undefined);
+                        if (value === undefined) {
+                            element.set(key, undefined);
                         } else {
                             element.set(key, value + '');
                         }
                     });
                 };
-                fn(key, element, evaluate);
+                fn(key, element, v);
             }
         }
     }
@@ -95,21 +95,25 @@ interface ForItem {
     data: Data
 }
 
-function CreateForElement(element: Element, data: Data, name: string, attributes: AttributeMap, context: PageViewContext, children: PageView): void {
+function CreateForElement(forKey: string, element: Element, data: Data, name: string, attributes: AttributeMap, context: PageViewContext, children: PageView): void {
 
-    let evaluate = Data.evaluateScript(attributes["wx:for"]);
+    let evaluate = attributes[forKey];
 
     if (evaluate === undefined) {
         return;
     }
 
-    delete attributes["wx:for"];
+    if(!(evaluate instanceof Evaluate)) {
+        return;
+    }
+
+    delete attributes[forKey];
 
     let before = context.page.document.createElement("element");
     before.appendTo(element);
 
-    let index = attributes["wx:for-index"] || "index";
-    let item = attributes["wx:for-item"] || "item";
+    let index = attributes["wx:for-index"] as string || "index";
+    let item = attributes["wx:for-item"] as string || "item";
     let items: ForItem[] = [];
 
     data.on(evaluate, (object: any, changedKeys: string[]): void => {
@@ -158,9 +162,13 @@ function CreateForElement(element: Element, data: Data, name: string, attributes
 
 function CreateIfElement(element: Element, data: Data, name: string, attributes: AttributeMap, context: PageViewContext, children: PageView): void {
 
-    let evaluate = Data.evaluateScript(attributes["wx:if"]);
+    let evaluate = attributes["wx:if"];
 
     if (evaluate === undefined) {
+        return;
+    }
+
+    if(!(evaluate instanceof Evaluate)) {
         return;
     }
 
@@ -187,7 +195,7 @@ function CreateIfElement(element: Element, data: Data, name: string, attributes:
 
             if (e === undefined) {
                 if (item.evaluate !== undefined) {
-                    let v = item.evaluate.evaluateScript(item.data.object);
+                    let v = item.evaluate.exec(item.data.object);
                     if (v) {
                         e = item;
                     }
@@ -235,9 +243,13 @@ function CreateElifElement(element: Element, data: Data, name: string, attribute
 
     if (scope.ifblock !== undefined) {
 
-        let evaluate = Data.evaluateScript(attributes["wx:elif"]);
+        let evaluate = attributes["wx:elif"];
 
         if (evaluate === undefined) {
+            return;
+        }
+
+        if(!(evaluate instanceof Evaluate)) {
             return;
         }
 
@@ -279,7 +291,9 @@ function CreateElseElement(element: Element, data: Data, name: string, attribute
 export function CreateElement(element: Element, data: Data, name: string, attributes: AttributeMap, context: PageViewContext, children: PageView): void {
 
     if (attributes["wx:for"] !== undefined) {
-        CreateForElement(element, data, name, attributes, context, children);
+        CreateForElement("wx:for", element, data, name, attributes, context, children);
+    } else if (attributes["wx:for-items"] !== undefined) {
+        CreateForElement("wx:for-items", element, data, name, attributes, context, children);
     } else if (attributes["wx:if"] !== undefined) {
         CreateIfElement(element, data, name, attributes, context, children);
     } else if (attributes["wx:elif"] !== undefined) {
@@ -295,6 +309,37 @@ export function CreateElement(element: Element, data: Data, name: string, attrib
         context.end();
     }
 
+}
+
+export function CreateTElement(element: Element, data: Data, attributes: AttributeMap, func: (element: Element, data: Data, context: PageViewContext) => void, context: PageViewContext): void {
+
+    let v = new Data();
+
+    func(element, v, context);
+
+    let evaluate = attributes['data'];
+
+    if (evaluate !== undefined && evaluate instanceof Evaluate) {
+
+        data.on(evaluate, (object: any, changedKeys: string[]): void => {
+
+            context.begin();
+
+            if (typeof object == 'object') {
+                for (let key in object) {
+                    v.set([key], object[key]);
+                }
+            }
+
+            context.end();
+
+        });
+    } 
+
+}
+
+export function CreateEvaluate(evaluateScript:EvaluateScript,keys:string[][]):Evaluate {
+    return new Evaluate(evaluateScript,keys);
 }
 
 var page = new PageObject();

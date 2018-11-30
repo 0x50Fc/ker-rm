@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A53C66C21AFD94D00170AB7 /* KerWXObject+Analytics.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C66A21AFD94D00170AB7 /* KerWXObject+Analytics.h */; };
+		1A53C66D21AFD94D00170AB7 /* KerWXObject+Analytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C66B21AFD94D00170AB7 /* KerWXObject+Analytics.m */; };
 		1AF06616219D56E500F8F7A8 /* KerWX.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06614219D56E500F8F7A8 /* KerWX.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF06625219D570A00F8F7A8 /* Ker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06621219D56FB00F8F7A8 /* Ker.framework */; };
 		1AF06628219D574100F8F7A8 /* KerWXObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06626219D574100F8F7A8 /* KerWXObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -23,7 +25,7 @@
 		1AF4CE10219E7BB800AE1249 /* Ker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06621219D56FB00F8F7A8 /* Ker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AF4CE13219E7BB800AE1249 /* KerWX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06611219D56E500F8F7A8 /* KerWX.framework */; };
 		1AF4CE14219E7BB800AE1249 /* KerWX.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06611219D56E500F8F7A8 /* KerWX.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1AF4CE1A219E7C1300AE1249 /* main in Resources */ = {isa = PBXBuildFile; fileRef = 1AF4CE19219E7C1300AE1249 /* main */; };
+		1AF4CE1A219E7C1300AE1249 /* bin in Resources */ = {isa = PBXBuildFile; fileRef = 1AF4CE19219E7C1300AE1249 /* bin */; };
 		1AF4CE1E219ECB2A00AE1249 /* KerWXObject+Http.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */; };
 /* End PBXBuildFile section */
@@ -75,6 +77,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A53C66A21AFD94D00170AB7 /* KerWXObject+Analytics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+Analytics.h"; sourceTree = "<group>"; };
+		1A53C66B21AFD94D00170AB7 /* KerWXObject+Analytics.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+Analytics.m"; sourceTree = "<group>"; };
 		1AF06611219D56E500F8F7A8 /* KerWX.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KerWX.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF06614219D56E500F8F7A8 /* KerWX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerWX.h; sourceTree = "<group>"; };
 		1AF06615219D56E500F8F7A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -93,7 +97,7 @@
 		1AF4CE07219E7B9400AE1249 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1AF4CE09219E7B9400AE1249 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1AF4CE0A219E7B9400AE1249 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		1AF4CE19219E7C1300AE1249 /* main */ = {isa = PBXFileReference; lastKnownFileType = folder; name = main; path = ../../../main; sourceTree = "<group>"; };
+		1AF4CE19219E7C1300AE1249 /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; name = bin; path = ../../../bin; sourceTree = "<group>"; };
 		1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+Http.h"; sourceTree = "<group>"; };
 		1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+Http.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -150,6 +154,8 @@
 				1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */,
 				1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */,
 				1AF06615219D56E500F8F7A8 /* Info.plist */,
+				1A53C66A21AFD94D00170AB7 /* KerWXObject+Analytics.h */,
+				1A53C66B21AFD94D00170AB7 /* KerWXObject+Analytics.m */,
 			);
 			path = KerWX;
 			sourceTree = "<group>";
@@ -172,7 +178,7 @@
 		1AF4CDFA219E7B9400AE1249 /* demo */ = {
 			isa = PBXGroup;
 			children = (
-				1AF4CE19219E7C1300AE1249 /* main */,
+				1AF4CE19219E7C1300AE1249 /* bin */,
 				1AF4CDFB219E7B9400AE1249 /* AppDelegate.h */,
 				1AF4CDFC219E7B9400AE1249 /* AppDelegate.m */,
 				1AF4CDFE219E7B9400AE1249 /* ViewController.h */,
@@ -193,6 +199,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A53C66C21AFD94D00170AB7 /* KerWXObject+Analytics.h in Headers */,
 				1AF06616219D56E500F8F7A8 /* KerWX.h in Headers */,
 				1AF0662C219D57C800F8F7A8 /* KerWXObject+Location.h in Headers */,
 				1AF06628219D574100F8F7A8 /* KerWXObject.h in Headers */,
@@ -307,7 +314,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1AF4CE08219E7B9400AE1249 /* LaunchScreen.storyboard in Resources */,
-				1AF4CE1A219E7C1300AE1249 /* main in Resources */,
+				1AF4CE1A219E7C1300AE1249 /* bin in Resources */,
 				1AF4CE05219E7B9400AE1249 /* Assets.xcassets in Resources */,
 				1AF4CE03219E7B9400AE1249 /* Main.storyboard in Resources */,
 			);
@@ -321,6 +328,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1AF06629219D574100F8F7A8 /* KerWXObject.mm in Sources */,
+				1A53C66D21AFD94D00170AB7 /* KerWXObject+Analytics.m in Sources */,
 				1AF0662D219D57C800F8F7A8 /* KerWXObject+Location.m in Sources */,
 				1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */,
 			);

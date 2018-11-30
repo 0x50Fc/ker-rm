@@ -1,5 +1,5 @@
 {
-  "name": "kk.wx.compiler",
+  "name": "ker.wx.compiler",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -7,6 +7,14 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@babel/parser": "^7.1.6",
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2016": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
     "htmlparser2": "^3.10.0",
     "xml-js": "^1.6.8"
   }

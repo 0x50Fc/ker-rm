@@ -154,14 +154,13 @@ namespace kk {
         return a;
     }
     
-    ArrayBuffer::ArrayBuffer(void * data,kk::Uint size):_data(nullptr),_size(0) {
-        if(size > 0) {
-            _size = size;
-            _data = malloc(size);
-            memcpy(_data, data, size);
-        }
+    ArrayBuffer::ArrayBuffer(void * data,kk::Uint size) {
+        _size = size;
+        _data = malloc(size);
+        memcpy(_data,data, size);
     }
     
+
     ArrayBuffer::ArrayBuffer(kk::Uint size):_data(nullptr),_size(0) {
         if(size > 0) {
             _size = size;
@@ -182,6 +181,46 @@ namespace kk {
     
     void * ArrayBuffer::data() {
         return _data;
+    }
+    
+    Buffer::Buffer():_data(nullptr),_size(sizeof(_buf)),_length(0) {
+        
+    }
+    
+    Buffer::~Buffer() {
+        if(_data) {
+            free(_data);
+        }
+    }
+    
+    kk::Uint Buffer::byteLength() {
+        return _length;
+    }
+    
+    kk::Uint Buffer::size() {
+        return _size;
+    }
+    
+    void Buffer::setByteLength(kk::Uint length) {
+        _length = length;
+    }
+    
+    kk::Ubyte * Buffer::data() {
+        if(_data) {
+            return _data;
+        }
+        return _buf;
+    }
+    
+    void Buffer::capacity(kk::Uint size) {
+        if(_size < size) {
+            if(_data) {
+                _data = (kk::Ubyte *) realloc(_data, size);
+            } else {
+                _data = (kk::Ubyte *) malloc(size);
+            }
+            _size = size;
+        }
     }
     
     Ref::Ref():_object(nullptr) {

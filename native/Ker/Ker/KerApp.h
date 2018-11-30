@@ -59,4 +59,8 @@ typedef void * KerAppCPointer;
 
 +(NSString *) decodeURL:(NSString *) url;
 
++(NSString *) userAgent;
+
++(void) setUserAgent:(NSString *)v;
+
 @end
