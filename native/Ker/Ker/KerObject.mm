@@ -499,8 +499,22 @@ void duk_push_NSObject(duk_context * ctx, id object) {
         return;
     }
     
+    if([object isKindOfClass:[NSData class]]) {
+        void * data = duk_push_fixed_buffer(ctx, [object length]);
+        memcpy(data, [object bytes], [object length]);
+        duk_push_buffer_object(ctx, -1, 0, [object length], DUK_BUFOBJ_ARRAYBUFFER);
+        duk_remove(ctx, -2);
+        return;
+    }
+    
     if([object isKindOfClass:[KerJSObject class]]) {
         kk::PushObject(ctx, (kk::Object *) [(KerJSObject *) object JSObject]);
+        return;
+    }
+    
+    if([object isKindOfClass:[KerJSONDataObject class]]) {
+        NSData * data = [object data];
+        kk::duk_json_decode(ctx,(void *) [data bytes],[data length]);
         return;
     }
     
@@ -815,30 +829,6 @@ id KerObjectFromAny(kk::Any & v) {
 }
 
 
-/*
- enum _NSObjCValueType {
- NSObjCNoType = 0,
- NSObjCVoidType = 'v',
- NSObjCCharType = 'c',
- NSObjCShortType = 's',
- NSObjCLongType = 'l',
- NSObjCLonglongType = 'q',
- NSObjCFloatType = 'f',
- NSObjCDoubleType = 'd',
- NSObjCBoolType = 'B',
- NSObjCSelectorType = ':',
- NSObjCObjectType = '@',
- NSObjCStructType = '{',
- NSObjCPointerType = '^',
- NSObjCStringType = '*',
- NSObjCArrayType = '[',
- NSObjCUnionType = '(',
- NSObjCBitfield = 'b'
- } API_DEPRECATED("Not supported", macos(10.0,10.5), ios(2.0,2.0), watchos(2.0,2.0), tvos(9.0,9.0));
- 
- */
-
-
 static void KerJSObjectDynamicObjectSetReturnValue(duk_context * ctx, duk_idx_t idx,NSInvocation * anInvocation) {
     
     switch (* [[anInvocation methodSignature] methodReturnType]) {
@@ -1027,6 +1017,10 @@ static void KerJSObjectDynamicObjectGetProperty(KerJSObject * object,NSInvocatio
         if(ctx && heapptr) {
             
             duk_push_heapptr(ctx, heapptr);
+            
+            kk::CString s = duk_json_encode(ctx, -1);
+            
+            kk::Log("[JSON] %s",s);
             
             duk_get_prop_string(ctx, -1, [name UTF8String]);
             
@@ -1266,6 +1260,19 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
 
 -(id) implementProtocol:(Protocol *) protocol {
     return [[KerJSObjectDynamicObject alloc] initWithProtocol:protocol object:self];
+}
+
+@end
+
+@implementation KerJSONDataObject
+
+@synthesize data = _data;
+
+-(instancetype) initWithData:(NSData *) data {
+    if((self = [super init])) {
+        _data = data;
+    }
+    return self;
 }
 
 @end

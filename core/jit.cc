@@ -1052,4 +1052,13 @@ namespace kk {
         
     }
     
+    static duk_ret_t duk_json_decode_func(duk_context *ctx, void *udata) {
+        duk_json_decode(ctx, -1);
+        return 1;
+    }
+    
+    duk_ret_t duk_json_decode(duk_context * ctx,void * data,size_t size) {
+        duk_push_lstring(ctx, (const char *) data, size);
+        return duk_safe_call(ctx, duk_json_decode_func, nullptr, 1, 1);
+    }
 }

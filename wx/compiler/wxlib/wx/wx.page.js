@@ -1,10 +1,20 @@
 
-function diranme(path) {
+function dirname(path) {
     var i = path.lastIndexOf("/");
     if (i >= 0) {
         return path.substr(0, i);
     }
     return path;
+}
+
+function relativePath(path,basePath) {
+    var vs = path.split('/');
+    var bs = basePath.split('/');
+
+    //todo
+
+    bs.concat(vs);
+    return bs.join('/');
 }
 
 var V = require("wx/wx.view.js");
@@ -31,7 +41,7 @@ module.exports = function (options, path, page, padding) {
 
     var config = new UIWebViewConfiguration();
 
-    var basePath = diranme(path);
+    var basePath = dirname(path);
 
     console.info("[PAGE] [basePath]", basePath);
 
@@ -57,7 +67,7 @@ module.exports = function (options, path, page, padding) {
 
             console.info("[PAGE] [READYING]");
 
-            var fn = compile("(function(Page, getApp, app, page, wx,setInterval,setTimeout){" + app.getTextContent(path + ".js") + "})", path + ".wx.js")();
+            var fn = compile("(function(Page, getApp, app, page, wx,setInterval,setTimeout,require){" + app.getTextContent(path + ".js") + "})", path + ".wx.js")();
 
             fn(
                 function (object) {
@@ -78,6 +88,9 @@ module.exports = function (options, path, page, padding) {
                     setTimeout(function () {
                         fn.call(pageObject);
                     }, v);
+                },
+                function (path) {
+
                 }
             );
             pageObject.setData = function (data) {

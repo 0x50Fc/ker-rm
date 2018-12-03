@@ -859,6 +859,8 @@ namespace kk {
     
     void duk_pcall_method(duk_context * ctx,Signature returnSignature,std::vector<Signature> & arguments);
     
+    
+    duk_ret_t duk_json_decode(duk_context * ctx,void * data,size_t size);
 }
 
 #endif /* jit_h */

@@ -42,6 +42,14 @@ typedef void * KerJSObjectRef;
 
 #endif
 
+@interface KerJSONDataObject : NSObject
+
+-(instancetype) initWithData:(NSData *) data;
+
+@property(nonatomic,strong,readonly) NSData * data;
+
+@end
+
 @interface KerJSObject : NSObject
 
 @property(nonatomic,readonly,assign) KerJSObjectRef JSObject;

@@ -18,6 +18,10 @@
 
 @protocol KerWXRequestTask <NSObject,KerJSExport>
 
+-(void) onHeadersReceived:(KerJSObject *) callback;
+
+-(void) offHeadersReceived:(KerJSObject *) callback;
+
 -(void) abort;
 
 @end
@@ -39,6 +43,10 @@
 
 @interface KerWXObject (Http)
 
--(id<KerWXRequestTask>) request:(id<KerWXRequestObject>) object;
++(NSURLSession *) defaultSession;
+
++(void) setDefaultSession:(NSURLSession *) session;
+
+-(id<KerWXRequestTask>) request:(KerJSObject *) object;
 
 @end
