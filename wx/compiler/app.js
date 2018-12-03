@@ -9,6 +9,21 @@ function App(basePath, outPath) {
     this.outPath = outPath === undefined ? basePath : outPath;
 };
 
+function mkdirs(p) {
+
+    if (!p) {
+        return;
+    }
+
+    if (fs.existsSync(p)) {
+        return;
+    }
+
+    mkdirs(path.dirname(p));
+
+    fs.mkdirSync(p);
+};
+
 function copy(from, to, filter) {
 
     var f = fs.statSync(from);
@@ -22,6 +37,8 @@ function copy(from, to, filter) {
         }
     } else if (f) {
         if (filter === undefined || filter(from, to)) {
+            mkdirs(path.dirname(to));
+            console.info(from, ">>", to,typeof fs,typeof fs.copyFileSync);
             fs.copyFileSync(from, to);
         }
     }
@@ -43,7 +60,7 @@ App.prototype = Object.create(Object.prototype, {
                         fs.writeFileSync(to, v);
                         return false;
                     }
-                    if(from.endsWith(".wxml") || from.endsWith(".wxss")) {
+                    if (from.endsWith(".wxml") || from.endsWith(".wxss")) {
                         return false;
                     }
                     return true;

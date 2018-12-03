@@ -7,14 +7,22 @@ function dirname(path) {
     return path;
 }
 
-function relativePath(path,basePath) {
+function relativePath(path, basePath) {
     var vs = path.split('/');
     var bs = basePath.split('/');
 
-    //todo
+    while (vs.length) {
+        if (vs[0] == '..') {
+            bs.pop();
+            vs.shift();
+        } else if (vs[0] == '.') {
+            vs.shift();
+        } else {
+            break;
+        }
+    }
 
-    bs.concat(vs);
-    return bs.join('/');
+    return bs.concat(vs).join('/');
 }
 
 var V = require("wx/wx.view.js");
@@ -90,7 +98,7 @@ module.exports = function (options, path, page, padding) {
                     }, v);
                 },
                 function (path) {
-
+                    return require(relativePath(path, basePath) + '.js');
                 }
             );
             pageObject.setData = function (data) {

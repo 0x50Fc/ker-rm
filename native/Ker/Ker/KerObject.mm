@@ -1017,11 +1017,7 @@ static void KerJSObjectDynamicObjectGetProperty(KerJSObject * object,NSInvocatio
         if(ctx && heapptr) {
             
             duk_push_heapptr(ctx, heapptr);
-            
-            kk::CString s = duk_json_encode(ctx, -1);
-            
-            kk::Log("[JSON] %s",s);
-            
+             
             duk_get_prop_string(ctx, -1, [name UTF8String]);
             
             KerJSObjectDynamicObjectSetReturnValue(ctx,-1,anInvocation);

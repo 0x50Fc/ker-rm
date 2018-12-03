@@ -971,7 +971,7 @@ namespace kk {
         
         struct tm * p = localtime(&now);
         
-        size_t n = snprintf(data,sizeof(data), "[KK] [%04d-%02d-%02d %02d:%02d:%02d] ",1900 + p->tm_year,p->tm_mon + 1,p->tm_mday,p->tm_hour,p->tm_min,p->tm_sec);
+        size_t n = snprintf(data,sizeof(data), "[Ker] [%04d-%02d-%02d %02d:%02d:%02d] ",1900 + p->tm_year,p->tm_mon + 1,p->tm_mday,p->tm_hour,p->tm_min,p->tm_sec);
         
         n += vsnprintf(data + n, sizeof(data) - n ,format, va);
         
