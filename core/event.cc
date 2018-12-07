@@ -52,7 +52,7 @@ namespace kk {
         }
     }
     
-    void EventEmitter::on(kk::CString name,kk::TFunction<void,Event *> * func) {
+    void EventEmitter::on(kk::CString name,kk::TFunction<void,kk::CString,Event *> * func) {
         on(name,(Object *) func);
     }
     
@@ -78,7 +78,7 @@ namespace kk {
                 if(func == nullptr) {
                     _prefixs.erase(i);
                 } else {
-                    auto vs = i->second;
+                    auto & vs = i->second;
                     auto n = vs.begin();
                     while(n != vs.end()) {
                         if((*n).get() == func) {
@@ -95,7 +95,7 @@ namespace kk {
                 if(func == nullptr) {
                     _events.erase(i);
                 } else {
-                    auto vs = i->second;
+                    auto & vs = i->second;
                     auto n = vs.begin();
                     while(n != vs.end()) {
                         if((*n).get() == func) {
@@ -110,7 +110,7 @@ namespace kk {
         
     }
     
-    void EventEmitter::off(kk::CString name,kk::TFunction<void,Event *> * func) {
+    void EventEmitter::off(kk::CString name,kk::TFunction<void,kk::CString,Event *> * func) {
         off(name,(Object *) func);
     }
     
@@ -158,15 +158,16 @@ namespace kk {
         i = _prefixs.begin();
         while(i != _prefixs.end()) {
             if(kk::CStringHasPrefix(n.c_str(),i->first.c_str())) {
-                auto vs = i->second;
-                auto k = vs.begin();
-                while(k != vs.end()) {
+                auto &m = i->second;
+                auto k = m.begin();
+                while(k != m.end()) {
                     vs.push_back(*k);
                     k ++;
                 }
             }
             i ++;
         }
+        
         
         auto k = vs.begin();
         
@@ -183,11 +184,11 @@ namespace kk {
                 }
             }
             {
-                kk::TFunction<void,Event *> * fn = dynamic_cast<kk::TFunction<void,Event *> *>((*k).get());
+                kk::TFunction<void,kk::CString,Event *> * fn = dynamic_cast<kk::TFunction<void,kk::CString,Event *> *>((*k).get());
                 
                 if(fn != nullptr) {
                     
-                    (*fn)(event);
+                    (*fn)(name,event);
                     
                     k ++ ;
                     continue;

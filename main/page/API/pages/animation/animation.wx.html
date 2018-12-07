@@ -1,0 +1,95 @@
+<style type="text/css">
+.animation-element-wrapper {
+  display: flex;
+  width: 100%;
+  padding-top: 7.5rem;
+  padding-bottom: 7.5rem;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+.animation-element {
+  width: 10rem;
+  height: 10rem;
+  background-color: #1AAD19;
+}
+.animation-buttons {
+  padding: 1.5rem 2.5rem 0.5rem;
+  width: 100%;
+  height: 18rem;
+  box-sizing: border-box;
+}
+.animation-button {
+  float: left;
+  line-height: 2;
+  width: 15rem;
+  margin: 0.75rem 0.6000000000000001rem;
+}
+
+.animation-button-reset {
+  width: 31rem;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"createAnimation"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"animation-element-wrapper"},context,function(element,data,context){
+					__V(element,data,"view",{"class":"animation-element","animation":__E(function(animation){ return (animation); },[["animation"]])},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"scroll-view",{"class":"animation-buttons","scroll-y":"true"},context,function(element,data,context){
+					__V(element,data,"button",{"class":"animation-button","bindtap":"rotate","#text":"旋转"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"class":"animation-button","bindtap":"scale","#text":"缩放"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"class":"animation-button","bindtap":"translate","#text":"移动"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"class":"animation-button","bindtap":"skew","#text":"倾斜"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"class":"animation-button","bindtap":"rotateAndScale","#text":"旋转并缩放"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"class":"animation-button","bindtap":"rotateThenScale","#text":"旋转后缩放"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"class":"animation-button","bindtap":"all","#text":"同时展示全部"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"class":"animation-button","bindtap":"allInQueue","#text":"顺序展示全部"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"class":"animation-button animation-button-reset","bindtap":"reset","#text":"还原"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/animation");
+});})();
+</script></body>

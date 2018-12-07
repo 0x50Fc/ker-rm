@@ -1,0 +1,1 @@
+require("wx/wx.page.js")({path: path,query: query}, "page/component/pages/movable-view/movable-view", page, app);

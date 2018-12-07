@@ -1,0 +1,110 @@
+<style type="text/css">
+wx-image {
+  width: 7.5rem;
+  height: 7.5rem;
+}
+
+.page-body-wrapper {
+  margin-top: 0;
+}
+.page-body-info {
+  padding-bottom: 2.5rem;
+}
+.time-big {
+  font-size: 3rem;
+  margin: 1rem;
+}
+.slider {
+  width: 32.5rem;
+}
+.play-time {
+  font-size: 1.4000000000000001rem;
+  width: 35rem;
+  padding: 1rem 0;
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+.page-body-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 5rem;
+}
+.page-body-button {
+  width: 12.5rem;
+  text-align: center;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"backgroundAudio"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-body-info"},context,function(element,data,context){
+				__V(element,data,"text",{"class":"time-big","#text":__E(function(formatedPlayTime){ return (formatedPlayTime); },[["formatedPlayTime"]])},context,function(element,data,context){
+				});
+				__V(element,data,"slider",{"class":"slider","min":"0","max":"269","step":"1","value":__E(function(playTime){ return (playTime); },[["playTime"]]),"bindchange":"seek"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"play-time"},context,function(element,data,context){
+					__V(element,data,"text",{"#text":"00:00"},context,function(element,data,context){
+					});
+					__V(element,data,"text",{"#text":"04:29"},context,function(element,data,context){
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-body-text tc","#text":"注意：离开当前页面后背景音乐将保持播放，但退出小程序将停止"},context,function(element,data,context){
+			});
+			__V(element,data,"view",{"class":"page-body-buttons"},context,function(element,data,context){
+				__V(element,data,"block",{"wx:if":__E(function(playing){ return (playing===true); },[["playing"]])},context,function(element,data,context){
+					__V(element,data,"view",{"class":"page-body-button","bindtap":"stop"},context,function(element,data,context){
+						__V(element,data,"image",{"src":"/image/stop.png"},context,function(element,data,context){
+						});
+					});
+					__V(element,data,"view",{"class":"page-body-button","bindtap":"pause"},context,function(element,data,context){
+						__V(element,data,"image",{"src":"/image/pause.png"},context,function(element,data,context){
+						});
+					});
+				});
+				__V(element,data,"block",{"wx:if":__E(function(playing){ return (playing===false); },[["playing"]])},context,function(element,data,context){
+					__V(element,data,"view",{"class":"page-body-button"},context,function(element,data,context){
+					});
+					__V(element,data,"view",{"class":"page-body-button","bindtap":"play"},context,function(element,data,context){
+						__V(element,data,"image",{"src":"/image/play.png"},context,function(element,data,context){
+						});
+					});
+				});
+				__V(element,data,"view",{"class":"page-body-button"},context,function(element,data,context){
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/background-audio");
+});})();
+</script></body>

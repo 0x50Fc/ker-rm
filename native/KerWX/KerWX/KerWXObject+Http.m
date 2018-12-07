@@ -36,7 +36,7 @@
 }
 
 -(void) offHeadersReceived:(KerJSObject *) callback {
-    if(callback== nil || _callback == callback) {
+    if(callback== nil || [_callback isEqual: callback] ) {
         _callback = nil;
     }
 }
@@ -58,18 +58,6 @@ static NSURLSession * gKerWXObjectNSURLSession = nil;
 
 @implementation KerWXObject (Http)
 
-+(NSURLSession *) defaultSession {
-    if(gKerWXObjectNSURLSession == nil) {
-        gKerWXObjectNSURLSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-    }
-    return gKerWXObjectNSURLSession;
-}
-
-+(void) setDefaultSession:(NSURLSession *) session {
-    gKerWXObjectNSURLSession = session;
-}
-
-
 -(id<KerWXRequestTask>) request:(KerJSObject *) jsObject {
     
     id<KerWXRequestObject> object = [jsObject implementProtocol:@protocol(KerWXRequestObject)];
@@ -80,6 +68,7 @@ static NSURLSession * gKerWXObjectNSURLSession = nil;
     
     if(URI == nil) {
         [object fail:@"Not Found URL"];
+        [object complete];
         return nil;
     }
     
@@ -121,11 +110,13 @@ static NSURLSession * gKerWXObjectNSURLSession = nil;
     }
     @catch(NSException * ex) {
         [object fail:[ex description]];
+        [object complete];
         return nil;
     }
     
     if(u == nil) {
         [object fail:@"Not Found URL"];
+        [object complete];
         return nil;
     }
     
@@ -175,7 +166,7 @@ static NSURLSession * gKerWXObjectNSURLSession = nil;
     
     __weak KerWXRequestTask * reqTask = task;
     
-    [task setSessionTask:[[KerWXObject defaultSession] dataTaskWithRequest:r completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    [task setSessionTask:[[NSURLSession sharedSession] dataTaskWithRequest:r completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         dispatch_async(dispatch_get_main_queue(), ^{
             
@@ -184,6 +175,7 @@ static NSURLSession * gKerWXObjectNSURLSession = nil;
             if(error != nil) {
                 
                 [object fail:[error localizedDescription]];
+                [object complete];
                 
             } else {
                 
@@ -214,7 +206,7 @@ static NSURLSession * gKerWXObjectNSURLSession = nil;
                 }
                 
                 [object success:res];
-                
+                [object complete];
             }
             
         });

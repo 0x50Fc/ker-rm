@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */; };
+		1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6E721B8EA2D00170AB7 /* KerURLProtocol.m */; };
 		1AF0658D219D516000F8F7A8 /* Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0658B219D516000F8F7A8 /* Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */; };
 		1AF065A4219D518200F8F7A8 /* bio.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06595219D518200F8F7A8 /* bio.h */; };
@@ -74,6 +78,10 @@
 
 /* Begin PBXFileReference section */
 		1A53C63B21AF99F400170AB7 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerPageWindowController.h; sourceTree = "<group>"; };
+		1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerPageWindowController.m; sourceTree = "<group>"; };
+		1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerURLProtocol.h; sourceTree = "<group>"; };
+		1A53C6E721B8EA2D00170AB7 /* KerURLProtocol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerURLProtocol.m; sourceTree = "<group>"; };
 		1AF06588219D516000F8F7A8 /* Ker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF0658B219D516000F8F7A8 /* Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ker.h; sourceTree = "<group>"; };
 		1AF0658C219D516000F8F7A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -192,6 +200,8 @@
 				1AF065E5219D54AC00F8F7A8 /* KerPage.mm */,
 				1AF065EA219D54E600F8F7A8 /* KerPageViewController.h */,
 				1AF065E9219D54E600F8F7A8 /* KerPageViewController.m */,
+				1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */,
+				1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */,
 				1AF065F7219D555E00F8F7A8 /* KerCanvas.h */,
 				1AF065EE219D555C00F8F7A8 /* KerCanvas.m */,
 				1AF065ED219D555C00F8F7A8 /* UIScrollView+KerViewProtocol.h */,
@@ -212,6 +222,8 @@
 				1AF4CE3421A56B5A00AE1249 /* UIColor+Ker.mm */,
 				1AF4CE3B21A5719800AE1249 /* KerButton.h */,
 				1AF4CE3C21A5719800AE1249 /* KerButton.mm */,
+				1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */,
+				1A53C6E721B8EA2D00170AB7 /* KerURLProtocol.m */,
 				1AF0658C219D516000F8F7A8 /* Info.plist */,
 			);
 			path = Ker;
@@ -294,6 +306,7 @@
 				1AF065E4219D547000F8F7A8 /* KerApp.h in Headers */,
 				1AF06601219D555E00F8F7A8 /* WKWebView+KerViewProtocol.h in Headers */,
 				1AF065C8219D52AC00F8F7A8 /* app.h in Headers */,
+				1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */,
 				1AF065A7219D518200F8F7A8 /* container.h in Headers */,
 				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
@@ -312,6 +325,7 @@
 				1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */,
 				1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */,
 				1AF065FB219D555E00F8F7A8 /* UITextField+KerViewProtocol.h in Headers */,
+				1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */,
 				1AF065B6219D51C000F8F7A8 /* duktape.h in Headers */,
 				1AF065CD219D52AC00F8F7A8 /* CGContext.h in Headers */,
 				1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */,
@@ -398,6 +412,7 @@
 				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
 				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
 				1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */,
+				1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */,
 				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
 				1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */,
 				1AF065EB219D54E600F8F7A8 /* KerPageViewController.m in Sources */,
@@ -414,6 +429,7 @@
 				1AF065D7219D537600F8F7A8 /* View.mm in Sources */,
 				1AF065CB219D52AC00F8F7A8 /* CGContext.cc in Sources */,
 				1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */,
+				1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

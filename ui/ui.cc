@@ -679,10 +679,6 @@ namespace kk {
                 
                 kk::PushInterface<Context>(ctx, [](duk_context * ctx)->void{
                     
-                    kk::PutProperty<Context,kk::CString>(ctx, -1, "basePath", &Context::basePath);
-                    
-                    kk::PutProperty<Context,kk::DispatchQueue *>(ctx, -1, "queue", &Context::queue);
-                
                     kk::PutMethod<Context,void,kk::CString,JSObject *>(ctx, -1, "exec", &Context::exec);
                     
                     kk::PutMethod<Context,void,Object *>(ctx, -1, "set", &Context::set);
@@ -690,8 +686,6 @@ namespace kk {
                     kk::PutMethod<Context,void,Object *>(ctx, -1, "remove", &Context::remove);
                     
                     kk::PutMethod<Context,kk::String,kk::CString>(ctx, -1, "getTextContent", &Context::getTextContent);
-                    
-                    kk::PutMethod<Context,kk::String,kk::CString>(ctx, -1, "absolutePath", &Context::absolutePath);
                     
                     kk::PutStrongMethod<Context,Worker,kk::CString>(ctx, -1, "createWorker", &Context::createWorker);
                     

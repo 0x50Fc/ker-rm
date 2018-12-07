@@ -1,13 +1,15 @@
 
 interface TWindow {
-    __basePath?:string
+    __basePath?: string
 }
 
-export function resolveURI(uri:string):string {
-    if(uri.indexOf('://') < 0) {
-        let v = (window as TWindow).__basePath;
-        if(v !== undefined) {
-            return v + '/' + uri;
+export function resolveURI(uri: string, basePath: string | undefined): string {
+    if (uri.indexOf('://') < 0) {
+        if (uri.startsWith("/")) {
+            return 'file://' + uri;
+        }
+        if (basePath !== undefined) {
+            return basePath + '/' + uri;
         }
     }
     return uri;

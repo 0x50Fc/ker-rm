@@ -1,0 +1,61 @@
+<style type="text/css">
+.page-body-text-screen-brightness {
+  font-size: 4rem;
+  font-family: -apple-system-font, Helvetica Neue,Helvetica,sans-serif;
+}
+
+.page-section-gap {
+  padding: 1.5rem;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"get/set/ScreenBrightness"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-body-info"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-body-title","#text":"当前屏幕亮度"},context,function(element,data,context){
+				});
+				__V(element,data,"text",{"class":"page-body-text-screen-brightness","#text":__E(function(screenBrightness){ return (screenBrightness); },[["screenBrightness"]])},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"page-section page-section-gap"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"设置屏幕亮度"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"body-view"},context,function(element,data,context){
+					__V(element,data,"slider",{"bindchange":"changeBrightness","value":__E(function(screenBrightness){ return (screenBrightness); },[["screenBrightness"]]),"min":"0","max":"1","step":"0.1"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/screen-brightness");
+});})();
+</script></body>

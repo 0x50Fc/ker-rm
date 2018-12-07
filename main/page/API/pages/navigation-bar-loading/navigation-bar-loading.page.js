@@ -1,0 +1,1 @@
+require("wx/wx.page.js")({path: path,query: query}, "page/API/pages/navigation-bar-loading/navigation-bar-loading", page, app);

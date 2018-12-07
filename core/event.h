@@ -26,9 +26,9 @@ namespace kk {
     
     class EventEmitter : public Object {
     public:
-        virtual void on(kk::CString name,kk::TFunction<void,Event *> * func);
+        virtual void on(kk::CString name,kk::TFunction<void,kk::CString,Event *> * func);
         virtual void on(kk::CString name,JSObject * func);
-        virtual void off(kk::CString name,kk::TFunction<void,Event *> * func);
+        virtual void off(kk::CString name,kk::TFunction<void,kk::CString,Event *> * func);
         virtual void off(kk::CString name,JSObject * func);
         virtual void off(kk::CString name);
         virtual void off();

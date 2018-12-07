@@ -137,5 +137,19 @@ namespace kk {
         return new GCDDispatchSource(fd, type, (GCDDispatchQueue *) queue);
     }
     
+    DispatchQueue * IODispatchQueue() {
+        static DispatchQueue * v = nullptr;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            v = new kk::GCDDispatchQueue("kk::IODispatchQueue",DispatchQueueTypeSerial);
+            v->retain();
+        });
+        return v;
+    }
+    
+    ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue) {
+        return ((GCDDispatchQueue *) queue)->queue();
+    }
+    
 }
 

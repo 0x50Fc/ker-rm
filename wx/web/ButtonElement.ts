@@ -19,6 +19,12 @@ export class ButtonElement extends ViewElement {
             super.doEvent(event, name, detail);
             if(name == "tap") {
                 let v = this.get("formType");
+                if(v === undefined) {
+                    v = this.get("formtype");
+                }
+                if(v === undefined) {
+                    v = this.get("form-type");
+                }
                 if(v) {
                     let p = this.parent;
                     while(p) {

@@ -1,0 +1,43 @@
+<style type="text/css">
+/* page/component/pages/audio/audio.wxss */</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"audio"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section page-section-gap","style":"text-align: center;"},context,function(element,data,context){
+				__V(element,data,"audio",{"style":"text-align: left","src":__E(function(current){ return (current.src); },[["current"]]),"poster":__E(function(current){ return (current.poster); },[["current"]]),"name":__E(function(current){ return (current.name); },[["current"]]),"author":__E(function(current){ return (current.author); },[["current"]]),"action":__E(function(audioAction){ return (audioAction); },[["audioAction"]]),"controls":""},context,function(element,data,context){
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/audio");
+});})();
+</script></body>

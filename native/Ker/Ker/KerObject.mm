@@ -1258,6 +1258,25 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
     return [[KerJSObjectDynamicObject alloc] initWithProtocol:protocol object:self];
 }
 
+-(BOOL) isEqual:(id)object {
+    
+    if(self == object) {
+        return true;
+    }
+    
+    kk::JSObject * v = [object JSObject];
+    
+    if(_JSObject == v) {
+        return true;
+    }
+    
+    if(_JSObject && v && _JSObject->jsContext() == v->jsContext() && _JSObject->heapptr() == v->heapptr()) {
+        return true;
+    }
+    
+    return false;
+}
+
 @end
 
 @implementation KerJSONDataObject

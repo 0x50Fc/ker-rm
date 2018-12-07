@@ -1,0 +1,72 @@
+<style type="text/css">
+.canvas-element-wrapper {
+  display: block;
+  margin-bottom: 5rem;
+}
+.canvas-element {
+  width: 100%;
+  height: 25rem;
+  background-color: #ffffff;
+}
+.canvas-buttons {
+  padding: 1.5rem 2.5rem 0.5rem;
+  width: 100%;
+  height: 18rem;
+  box-sizing: border-box;
+}
+.canvas-button {
+  float: left;
+  line-height: 2;
+  width: 15rem;
+  margin: 0.75rem 0.6000000000000001rem;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"createContext"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"canvas",{"class":"canvas-element","canvas-id":"canvas"},context,function(element,data,context){
+				});
+				__V(element,data,"scroll-view",{"class":"canvas-buttons","scroll-y":"true"},context,function(element,data,context){
+					__V(element,data,"block",{"wx:for":__E(function(methods){ return (methods); },[["methods"]]),"wx:for-item":"method"},context,function(element,data,context){
+						__V(element,data,"button",{"class":"canvas-button","bindtap":__E(function(method){ return (method); },[["method"]]),"#text":__E(function(method){ return (method); },[["method"]])},context,function(element,data,context){
+						});
+					});
+					__V(element,data,"button",{"class":"canvas-button","bindtap":"toTempFilePath","type":"primary","#text":"toTempFilePath"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/canvas");
+});})();
+</script></body>

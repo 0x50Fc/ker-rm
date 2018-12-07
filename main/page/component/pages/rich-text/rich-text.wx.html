@@ -1,0 +1,101 @@
+<style type="text/css">
+.page-content {
+  width: auto;
+  margin: 1.5rem 0;
+  padding: 0 2.5rem;
+}
+
+.code-fragment {
+  height: 17.5rem;
+}
+
+.code-textarea {
+  width: auto;
+  height: 17.5rem;
+  border: 0.05rem solid #1AAD19;
+}
+
+.p {
+  color: #1AAD19;
+  margin-top: 1.5rem;
+}
+
+.space {
+  display: inline-block;
+  background: red;
+  width: 0.5rem;
+}
+
+wx-scroll-view {
+  height: 17.5rem;
+  border: 0.05rem solid #1AAD19;
+  white-space: pre;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"rich-text"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"通过HTML String渲染"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-content"},context,function(element,data,context){
+					__V(element,data,"scroll-view",{"scroll-y":"","#text":__E(function(htmlSnip){ return (htmlSnip); },[["htmlSnip"]])},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"type":"primary","bindtap":"renderHtml","#text":"渲染HTML"},context,function(element,data,context){
+					});
+					__V(element,data,"block",{"wx:if":__E(function(renderedByHtml){ return (renderedByHtml); },[["renderedByHtml"]])},context,function(element,data,context){
+						__V(element,data,"rich-text",{"nodes":__E(function(htmlSnip){ return (htmlSnip); },[["htmlSnip"]])},context,function(element,data,context){
+						});
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"通过节点渲染"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-content"},context,function(element,data,context){
+					__V(element,data,"scroll-view",{"scroll-y":"","#text":__E(function(nodeSnip){ return (nodeSnip); },[["nodeSnip"]])},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"type":"primary","bindtap":"renderNode","#text":"渲染Node"},context,function(element,data,context){
+					});
+					__V(element,data,"block",{"wx:if":__E(function(renderedByNode){ return (renderedByNode); },[["renderedByNode"]])},context,function(element,data,context){
+						__V(element,data,"rich-text",{"nodes":__E(function(nodes){ return (nodes); },[["nodes"]])},context,function(element,data,context){
+						});
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/rich-text");
+});})();
+</script></body>

@@ -1,0 +1,82 @@
+<style type="text/css">
+.cover-view {
+  position: absolute;
+  top: calc(50% - 7.5rem);
+  left: calc(50% - 15rem);
+  /* opacity: .7; */
+}
+
+.flex-wrp{
+  display:flex;
+}
+
+.flex-item{
+  width: 10rem;
+  height: 15rem;
+  font-size: 1.3rem;
+}
+
+.demo-text-1 {
+  background: rgba(26, 173, 25, 0.7);
+}
+
+.demo-text-2 {
+  background: rgba(39, 130, 215, 0.7);
+}
+
+.demo-text-3 {
+  background: rgba(255, 255, 255, 0.7);
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"cover-view"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section page-section-gap"},context,function(element,data,context){
+				__V(element,data,"map",{"style":"width: 100%; height: 300px;","latitude":__E(function(latitude){ return (latitude); },[["latitude"]]),"longitude":__E(function(longitude){ return (longitude); },[["longitude"]])},context,function(element,data,context){
+					__V(element,data,"cover-view",{"class":"cover-view"},context,function(element,data,context){
+						__V(element,data,"cover-view",{"class":"container"},context,function(element,data,context){
+							__V(element,data,"cover-view",{"class":"flex-wrp","style":"flex-direction:row;"},context,function(element,data,context){
+								__V(element,data,"cover-view",{"class":"flex-item demo-text-1"},context,function(element,data,context){
+								});
+								__V(element,data,"cover-view",{"class":"flex-item demo-text-2"},context,function(element,data,context){
+								});
+								__V(element,data,"cover-view",{"class":"flex-item demo-text-3"},context,function(element,data,context){
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/cover-view");
+});})();
+</script></body>

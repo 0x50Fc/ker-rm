@@ -43,10 +43,6 @@
 
 @interface KerWXObject (Http)
 
-+(NSURLSession *) defaultSession;
-
-+(void) setDefaultSession:(NSURLSession *) session;
-
 -(id<KerWXRequestTask>) request:(KerJSObject *) object;
 
 @end

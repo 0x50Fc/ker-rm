@@ -37,6 +37,14 @@ function Page(p, basePath, outPath) {
         mkdirs(path.dirname(this.base));
     }
 
+    if (fs.existsSync(this.path.json)) {
+        this.object = JSON.parse(fs.readFileSync(this.path.json, { encoding: 'utf-8' })) || {};
+    } else {
+        this.object = {};
+    }
+
+    this.cssImports = {};
+
 };
 
 function compileCode(node, keys, keySet, keyMap, ofnode) {
@@ -117,8 +125,16 @@ function compileCode(node, keys, keySet, keyMap, ofnode) {
                 }
             }
             vs.push(compileCode(node.object, keys, keySet, keyMap, ofnode || node));
-            vs.push('.');
-            vs.push(compileCode(node.property, keys, keySet, keyMap, ofnode || node));
+
+            if (node.computed) {
+                vs.push('[');
+                vs.push(compileCode(node.property, keys, keySet, keyMap));
+                vs.push(']');
+            } else {
+                vs.push('.');
+                vs.push(compileCode(node.property, keys, keySet, keyMap, ofnode || node));
+            }
+
             break;
         case 'BinaryExpression':
         case 'LogicalExpression':
@@ -167,7 +183,7 @@ function compileAttributeValue(source, vs) {
 
         source.replace(/{{([^\{\}]*?)}}/g, function (text, v, index) {
 
-            console.info("[CODE]", v);
+            // console.info("[CODE]", v);
 
             var e;
 
@@ -185,7 +201,7 @@ function compileAttributeValue(source, vs) {
 
             v = compileCode(e, keys, keySet, keyMap);
 
-            console.info("[E]", v);
+            // console.info("[E]", v);
 
             code.push('(' + v + ')');
 
@@ -236,15 +252,21 @@ Page.prototype = Object.create(Object.prototype, {
     compile: {
         value: function () {
 
-            fs.writeFileSync(this.path.page, 'require("wx/wx.page.js")({path: path,query: query}, ' + JSON.stringify(path.relative(this.basePath, this.base)) + ', page);');
+            fs.writeFileSync(this.path.page, 'require("wx/wx.page.js")({path: path,query: query}, ' + JSON.stringify(path.relative(this.basePath, this.base)) + ', page, app);');
             var vs = [];
             vs.push('<style type="text/css">\n');
+            this.compileUsingComponentsCSS(vs);
             this.compilePageCSS(vs);
             vs.push('</style></head><body><script type="text/javascript">\n');
             vs.push("(function(){\n");
+            vs.push("var __CC = {};\n");
             vs.push("var __V = kk.CreateElement;\n");
             vs.push("var __T = kk.CreateTElement;\n");
             vs.push("var __E = kk.CreateEvaluate;\n");
+            vs.push("var __C = kk.CreateCElement;\n");
+
+            this.compileUsingComponents(vs);
+
             vs.push("kk.Page(");
 
             this.compilePageView(vs);
@@ -256,8 +278,43 @@ Page.prototype = Object.create(Object.prototype, {
         },
         writable: false
     },
-    compilePageView: {
+    compileUsingComponentsCSS: {
         value: function (vs) {
+            var usingComponents = this.object.usingComponents;
+            if (usingComponents) {
+                for (var key in usingComponents) {
+                    var src = usingComponents[key];
+                    this.compilePageCSS(vs, path.join(this.dirname, src) + '.wxss');
+                }
+            }
+        },
+        writable: false
+    },
+    compileUsingComponents: {
+        value: function (vs) {
+            var usingComponents = this.object.usingComponents;
+            if (usingComponents) {
+                for (var key in usingComponents) {
+                    var src = usingComponents[key];
+                    vs.push("__CC[");
+                    vs.push(JSON.stringify(key));
+                    vs.push("] = ");
+                    this.compilePageView(vs, path.join(this.dirname, src) + '.wxml');
+                    vs.push(";\n");
+                }
+            }
+        },
+        writable: false
+    },
+    compilePageView: {
+        value: function (vs, wxmlPath) {
+
+            if (wxmlPath === undefined) {
+                wxmlPath = this.path.wxml;
+            }
+
+            var dir = path.dirname(wxmlPath);
+            var object = this.object || {};
 
             var element = {
                 name: 'document',
@@ -265,6 +322,10 @@ Page.prototype = Object.create(Object.prototype, {
                 children: [],
                 text: ''
             };
+
+            var onopentag, ontext, onclosetag, onerror;
+            var basePaths = [dir];
+            var relativePath = this.basePath;
 
             var done = function () {
                 var v = element.text.trim();
@@ -274,7 +335,8 @@ Page.prototype = Object.create(Object.prototype, {
                         attrs: {
                             '#text': v
                         },
-                        parent: element
+                        parent: element,
+                        basePath: basePaths[basePaths.length - 1]
                     });
                 }
                 element.text = '';
@@ -291,15 +353,13 @@ Page.prototype = Object.create(Object.prototype, {
                             attrs: {
                                 '#text': v
                             },
-                            parent: element
+                            parent: element,
+                            basePath: basePaths[basePaths.length - 1]
                         });
                     }
                 }
                 element.text = '';
             };
-
-            var onopentag, ontext, onclosetag, onerror;
-            var basePaths = [this.dirname];
 
             onopentag = function (tagname, attrs) {
 
@@ -310,7 +370,8 @@ Page.prototype = Object.create(Object.prototype, {
                     attrs: attrs,
                     text: '',
                     children: [],
-                    parent: element
+                    parent: element,
+                    basePath: basePaths[basePaths.length - 1]
                 };
 
                 element.children.push(e);
@@ -389,7 +450,7 @@ Page.prototype = Object.create(Object.prototype, {
                 onerror: onerror
             }, { decodeEntities: true, recognizeSelfClosing: true });
 
-            parse.write(fs.readFileSync(this.path.wxml, { encoding: 'utf8' }));
+            parse.write(fs.readFileSync(wxmlPath, { encoding: 'utf8' }));
             parse.end();
             end();
 
@@ -400,7 +461,7 @@ Page.prototype = Object.create(Object.prototype, {
             level++;
 
             for (var element of element.children) {
-                View(element);
+                View(element, path.relative(relativePath, basePaths[basePaths.length - 1]));
             }
 
             level--;
@@ -408,7 +469,7 @@ Page.prototype = Object.create(Object.prototype, {
             vs.push("}");
 
 
-            function View(element) {
+            function View(element, basePath) {
 
                 if (element.name == 'template') {
 
@@ -479,6 +540,20 @@ Page.prototype = Object.create(Object.prototype, {
                         vs.push("})();\n")
                     }
 
+                } else if (object.usingComponents && object.usingComponents[element.name]) {
+
+                    var src = object.usingComponents[element.name];
+
+                    vs.push("\t".repeat(level));
+                    vs.push("__C(element,data,");
+                    vs.push(JSON.stringify(element.name));
+                    vs.push(",")
+                    compileAttributes(element.attrs, vs)
+                    vs.push(",__CC[");
+                    vs.push(JSON.stringify(element.name));
+                    vs.push("],context,");
+                    vs.push(JSON.stringify(path.relative(relativePath, path.join(basePaths[0], src))));
+                    vs.push(");\n");
 
                 } else {
                     vs.push("\t".repeat(level));
@@ -501,7 +576,14 @@ Page.prototype = Object.create(Object.prototype, {
                     level--;
 
                     vs.push("\t".repeat(level));
-                    vs.push("});\n");
+
+                    if (basePath !== undefined) {
+                        vs.push("},");
+                        vs.push(JSON.stringify(basePath));
+                        vs.push(");\n");
+                    } else {
+                        vs.push("});\n");
+                    }
                 }
             }
 
@@ -509,15 +591,37 @@ Page.prototype = Object.create(Object.prototype, {
         writable: false
     },
     compilePageCSS: {
-        value: function (vs) {
+        value: function (vs, p) {
 
-            vs.push(Parse(this.path.wxss));
+            var imports = this.cssImports;
+
+            vs.push(Parse(p || this.path.wxss));
 
             function Parse(p) {
                 if (fs.existsSync(p)) {
                     var s = new css.Source(p);
                     s.compile();
                     s.exec();
+
+                    for (var i = 0; i < s.tokens.length; i++) {
+
+                        var token = s.tokens[i];
+
+                        if (token.type == css.Token.TYPE_AT) {
+                            if (token.source) {
+                                var p = path.normalize(token.path);
+                                if (p) {
+                                    if (imports[p]) {
+                                        delete token.source;
+                                        token.text = '';
+                                    } else {
+                                        imports[p] = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     return s.toString();
                 }
                 return '';
@@ -525,7 +629,7 @@ Page.prototype = Object.create(Object.prototype, {
 
         },
         writable: false
-    },
+    }
 });
 
 module.exports = Page;

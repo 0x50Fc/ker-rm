@@ -74,6 +74,14 @@ namespace kk {
         self.hidden = value && strcmp(value, "true") == 0;
     } else if(strcmp(key, "enabled") == 0) {
         self.userInteractionEnabled = value && strcmp(value, "true") == 0;
+    } else if(strcmp(key, "border-radius") == 0) {
+        self.layer.cornerRadius = value ? atof(value) : 0;
+    } else if(strcmp(key, "border-width") == 0) {
+        self.layer.borderWidth = value ? atof(value) : 0;
+    } else if(strcmp(key, "border-color") == 0) {
+        self.layer.borderColor = [UIColor colorWithKerCString:value].CGColor;
+    } else if(strcmp(key, "opacity") == 0) {
+        self.layer.opacity = value ? atof(value) : 0;
     }
     
 }

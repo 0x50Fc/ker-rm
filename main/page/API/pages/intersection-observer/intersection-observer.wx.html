@@ -1,0 +1,95 @@
+<style type="text/css">
+.scroll-view {
+  height: 20rem;
+  background: #fff;
+}
+
+.scroll-area {
+  height: 65rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: .5s;
+}
+
+.notice {
+  margin-top: 7.5rem;
+}
+
+.ball {
+  width: 10rem;
+  height: 10rem;
+  background: #1AAD19;
+  border-radius: 50%;
+}
+
+.filling {
+  height: 20rem;
+}
+
+.message {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.message wx-text {
+  font-size: 2rem;
+  font-family: -apple-system-font, Helvetica Neue,Helvetica,sans-serif;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"intersectionObserver"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section message"},context,function(element,data,context){
+				__V(element,data,"text",{"wx:if":__E(function(appear){ return (appear); },[["appear"]]),"#text":"小球出现"},context,function(element,data,context){
+				});
+				__V(element,data,"text",{"wx:else":"","#text":"小球消失"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"scroll-view",{"class":"scroll-view","scroll-y":""},context,function(element,data,context){
+					__V(element,data,"view",{"class":"scroll-area","style":__E(function(appear){ return (appear?"background: #ccc":""); },[["appear"]])},context,function(element,data,context){
+						__V(element,data,"text",{"class":"notice","#text":"向下滚动让小球出现"},context,function(element,data,context){
+						});
+						__V(element,data,"view",{"class":"filling"},context,function(element,data,context){
+						});
+						__V(element,data,"view",{"class":"ball"},context,function(element,data,context){
+						});
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/intersection-observer");
+});})();
+</script></body>

@@ -1,0 +1,69 @@
+<style type="text/css">
+wx-progress{
+  width: 100%;
+}
+.progress-box{
+  display: flex;
+  height: 2.5rem;
+  margin-bottom: 3rem;
+}
+.progress-cancel{
+  margin-left: 2rem;
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"progress"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section page-section-gap"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"progress-box"},context,function(element,data,context){
+					__V(element,data,"progress",{"percent":"20","show-info":"","stroke-width":"3"},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"view",{"class":"progress-box"},context,function(element,data,context){
+					__V(element,data,"progress",{"percent":"40","active":"","stroke-width":"3"},context,function(element,data,context){
+					});
+					__V(element,data,"icon",{"class":"progress-cancel","type":"cancel"},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"view",{"class":"progress-box"},context,function(element,data,context){
+					__V(element,data,"progress",{"percent":"60","active":"","stroke-width":"3"},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"view",{"class":"progress-box"},context,function(element,data,context){
+					__V(element,data,"progress",{"percent":"80","color":"#10AEFF","active":"","stroke-width":"3"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/progress");
+});})();
+</script></body>

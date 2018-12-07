@@ -3,21 +3,21 @@ import { int } from "./declare";
 export type EvaluateScript = any;
 
 interface KeySet {
-    [key:string]:boolean
+    [key: string]: boolean
 }
 
 export class Evaluate {
-    evaluateScript:EvaluateScript;
-    keys:string[][];
-    keySet:string[];
+    evaluateScript: EvaluateScript;
+    keys: string[][];
+    keySet: string[];
 
-    constructor(evaluateScript:EvaluateScript,keys:string[][]){
+    constructor(evaluateScript: EvaluateScript, keys: string[][]) {
         this.evaluateScript = evaluateScript;
         this.keys = keys;
         this.keySet = [];
-        let m:KeySet = {};
-        for(let key of keys) {
-            if(!m[key[0]]) {
+        let m: KeySet = {};
+        for (let key of keys) {
+            if (!m[key[0]]) {
                 m[key[0]] = true;
                 this.keySet.push(key[0]);
             }
@@ -32,7 +32,12 @@ export class Evaluate {
             }
             vs.push(v);
         }
-        return this.evaluateScript.apply(undefined, vs);
+        try {
+            return this.evaluateScript.apply(undefined, vs);
+        } catch (e) {
+            console.error("[Evaluate]", e);
+        }
+
     }
 }
 

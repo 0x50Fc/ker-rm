@@ -13,4 +13,9 @@
 
 +(void) openlib;
 
+@property(nonatomic,strong,readonly) NSString * basePath;
+@property(nonatomic,strong,readonly) NSString * dataPath;
+
+-(instancetype) initWithBasePath:(NSString *) basePath dataPath:(NSString *) dataPath;
+
 @end

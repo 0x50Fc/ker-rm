@@ -82,7 +82,8 @@ Source.prototype = Object.create(Object.prototype, {
                         var basePath = this.basePath;
                         this.source.substr(token.end).replace(/([^\;]+)\;/i, function (text, p) {
                             p = JSON.parse(p);
-                            token.source = new Source(path.join(basePath, p), basePath);
+                            token.path = path.join(basePath, p);
+                            token.source = new Source(token.path, basePath);
                             token.source.compile();
                             token.source.exec();
                         });
@@ -90,11 +91,11 @@ Source.prototype = Object.create(Object.prototype, {
                             token.text = '';
                         }
                         var p = token.end;
-                        while(p < this.source.length) {
-                            if(this.source.charAt(p) == ';') {
+                        while (p < this.source.length) {
+                            if (this.source.charAt(p) == ';') {
                                 break;
                             }
-                            p ++;
+                            p++;
                         }
                         token.end = p + 1;
                     }

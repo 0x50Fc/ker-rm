@@ -27,12 +27,27 @@ namespace kk {
             duk_put_prop(ctx, -3);
             duk_pop_2(ctx);
             
+            Page * page = this;
+            
+            _func = new kk::TFunction<void, kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
+                kk::String v("app.");
+                v.append(name);
+                page->emit(v.c_str(), event);
+            });
+            
+            app->on("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
+            
             kk::Openlib<kk::Container *>::openlib(_jsContext, this);
             kk::Openlib<kk::ui::Page *>::openlib(_jsContext, this);
         }
         
         Page::~Page() {
           
+            _app->off("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
+            
+            _view->removeRecycleViews();
+            _view->removeAllSubviews();
+            
             {
                 duk_context * ctx = _app->jsContext();
                 
@@ -119,9 +134,16 @@ namespace kk {
             (*_librarys)[name] = value;
         }
         
+        void Page::close(kk::Boolean animated) {
+            kk::Strong<Event> e = new Event();
+            kk::Strong<kk::TObject<kk::String, kk::Any>> data = new kk::TObject<kk::String, kk::Any>({{"animated",kk::Any(animated)}});
+            e->setData((kk::TObject<kk::String, kk::Any> *) data);
+            emit("close", e);
+        }
+        
         void Page::run(kk::CString path , kk::TObject<kk::String,kk::String> * query) {
 
-            kk::String code("(function(page,path,query");
+            kk::String code("(function(app,page,path,query");
             
             std::vector<kk::Any> vs;
             
@@ -146,6 +168,7 @@ namespace kk {
                 
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
+                    PushWeakObject(_jsContext, _app.get());
                     PushWeakObject(_jsContext, this);
                     duk_push_string(ctx, path);
                     PushObject(ctx, query);
@@ -157,7 +180,7 @@ namespace kk {
                         i ++;
                     }
                     
-                    if(duk_pcall(ctx, 3 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
+                    if(duk_pcall(ctx, 4 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
                         Error(ctx, -1, "[Page::run] ");
                     }
                     
@@ -190,6 +213,8 @@ namespace kk {
                     kk::PutProperty<Page,Float>(ctx, -1, "height", &Page::height);
                     
                     kk::PutMethod<Page,void,Object *>(ctx, -1, "setOptions", &Page::setOptions);
+                    
+                    kk::PutMethod<Page,void,kk::Boolean>(ctx, -1, "close", &Page::close);
                     
                 });
                 

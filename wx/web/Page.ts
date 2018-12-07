@@ -77,8 +77,8 @@ export class Page {
     private _document:Document;
     private _data:Data;
 
-    constructor() {
-        this._document = new Document();
+    constructor(basePath:string) {
+        this._document = new Document(basePath);
         this._data = new Data();
     }
 

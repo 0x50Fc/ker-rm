@@ -1,0 +1,1 @@
+require("wx/wx.page.js")({path: path,query: query}, "page/API/pages/get-location/get-location", page, app);

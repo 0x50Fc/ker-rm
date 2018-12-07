@@ -1,0 +1,1 @@
+require("wx/wx.page.js")({path: path,query: query}, "page/API/pages/canvas/canvas", page, app);

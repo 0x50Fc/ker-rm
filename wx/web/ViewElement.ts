@@ -2,22 +2,7 @@ import { Element as KKElement, ElementEvent as ElementEvent } from './Element';
 import { Document as KKDocument } from './Document';
 import { BlockElement } from './BlockElement';
 import { parseStyleValue } from './V';
-
-interface DataSet {
-    [key: string]: string
-}
-
-function getDataSet(element: Element): DataSet {
-    let v: DataSet = {};
-    let length = element.attributes.length;
-    for (var i = 0; i < length; i++) {
-        var attr = element.attributes.item(i)!;
-        if (attr.localName.startsWith("data-")) {
-            v[attr.localName.substr(5)] = attr.value;
-        }
-    }
-    return v;
-}
+import { ComponentElement } from './ComponentElement';
 
 interface Touch {
     identifier: number
@@ -25,6 +10,26 @@ interface Touch {
     pageY: number
     clientX: number
     clientY: number
+}
+
+interface DataSet {
+    [key: string]: any
+}
+
+interface DataSetElement extends Element {
+    __kk_dataSet?: DataSet
+}
+
+function getDataSet(element: Element): DataSet | undefined {
+    let v = (element as DataSetElement);
+    if(v.__kk_dataSet === undefined) {
+        if(element.parentElement !== undefined) {
+            return getDataSet(element.parentElement!);
+        }
+    } else {
+        return v.__kk_dataSet;
+    }
+    return undefined;
 }
 
 function getTouches(touches: TouchList): Touch[] {
@@ -73,11 +78,11 @@ export class ViewElement extends KKElement {
         if (hover) {
             var v = this.get("hover-class");
             if (v && v != 'none') {
-                this._view.className = (this.get("class") || '') + ' ' + v;
+                this._view.className = this.resolveClassName((this.get("class") || '') + ' ' + v);
                 return;
             }
         }
-        this._view.className = this.get("class") || '';
+        this._view.className = this.resolveClassName(this.get("class"));
         this._hover = hover;
     }
 
@@ -104,11 +109,11 @@ export class ViewElement extends KKElement {
             timeStamp: event.timeStamp,
             target: event.target ? {
                 id: (event.target as Element).id,
-                dataset: getDataSet(event.target as Element)
+                dataset: getDataSet(event.target as HTMLElement)
             } : undefined,
             currentTarget: event.currentTarget ? {
                 id: (event.currentTarget as Element).id,
-                dataset: getDataSet(event.target as Element)
+                dataset: getDataSet(event.currentTarget as HTMLElement)
             } : undefined,
             detail: detail,
             touches: event instanceof TouchEvent ? getTouches(event.touches) : undefined,
@@ -149,6 +154,7 @@ export class ViewElement extends KKElement {
         let element: ViewElement = this;
 
         this._view = this.createView();
+        (this._view as DataSetElement).__kk_dataSet = {};
         this._view.addEventListener("touchstart", (event: Event): void => {
             timeStamp = event.timeStamp;
             element.doEvent(event, "touchstart", {});
@@ -177,11 +183,28 @@ export class ViewElement extends KKElement {
         });
     }
 
+    public resolveClassName(v: string | undefined): string {
+        return v || '';
+    }
+
+    public setData(key: string, value: any): void {
+        let e = (this._view as DataSetElement);
+        let dataSet = e.__kk_dataSet;
+        if (dataSet === undefined) {
+            e.__kk_dataSet = dataSet = {};
+        }
+        if (value === undefined) {
+            delete dataSet[key];
+        } else {
+            dataSet[key] = value;
+        }
+    }
+
     public set(key: string, value: string | undefined) {
         super.set(key, value);
 
         if (key == 'class') {
-            this._view.className = value === undefined ? '' : value as string;
+            this._view.className = this.resolveClassName(value);
         } else if (key == 'style') {
             if (value === undefined) {
                 this._view.removeAttribute(key);
@@ -195,12 +218,6 @@ export class ViewElement extends KKElement {
                 this._view.removeAttribute("id");
             } else {
                 this._view.setAttribute("id", value);
-            }
-        } else if (key.startsWith("data-")) {
-            if (value === undefined) {
-                this._view.removeAttribute(key);
-            } else {
-                this._view.setAttribute(key, value);
             }
         } else if (key == 'hover-stop-propagation') {
             this._hoverStopPropagation = value == 'true';

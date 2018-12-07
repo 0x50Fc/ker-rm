@@ -1,0 +1,82 @@
+<style type="text/css">
+.flex-wrp{
+  margin-top: 3rem;
+  display:flex;
+}
+.flex-item{
+  width: 10rem;
+  height: 15rem;
+  font-size: 1.3rem;
+}
+.flex-item-V{
+  margin: 0 auto;
+  width: 15rem;
+  height: 10rem;
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"view"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title"},context,function(element,data,context){
+					__V(element,data,"text",{"#text":"flex-direction: row\\n横向布局"},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"view",{"class":"page-section-spacing"},context,function(element,data,context){
+					__V(element,data,"view",{"class":"flex-wrp","style":"flex-direction:row;"},context,function(element,data,context){
+						__V(element,data,"view",{"class":"flex-item demo-text-1"},context,function(element,data,context){
+						});
+						__V(element,data,"view",{"class":"flex-item demo-text-2"},context,function(element,data,context){
+						});
+						__V(element,data,"view",{"class":"flex-item demo-text-3"},context,function(element,data,context){
+						});
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title"},context,function(element,data,context){
+					__V(element,data,"text",{"#text":"flex-direction: column\\n纵向布局"},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"view",{"class":"flex-wrp","style":"flex-direction:column;"},context,function(element,data,context){
+					__V(element,data,"view",{"class":"flex-item flex-item-V demo-text-1"},context,function(element,data,context){
+					});
+					__V(element,data,"view",{"class":"flex-item flex-item-V demo-text-2"},context,function(element,data,context){
+					});
+					__V(element,data,"view",{"class":"flex-item flex-item-V demo-text-3"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/view");
+});})();
+</script></body>

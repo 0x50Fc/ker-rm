@@ -1,16 +1,17 @@
 
 var Page = require("wx/wx.page.js");
-var tabBar = app.options.tabBar;
+var changedSelectedIndex, resize;
+var options = __appOptions;
+var tabBar = options.tabBar;
 var items = tabBar.list || [];
-var changedSelectedIndex,resize;
 
-print(app.options.window.navigationBarTitleText);
+print(options.window.navigationBarTitleText);
 
 page.setOptions({
-    title: app.options.window.navigationBarTitleText
+    title: options.window.navigationBarTitleText
 });
 
-page.view.set("background-color", app.options.window.backgroundColor || "#fff");
+page.view.set("background-color", options.window.backgroundColor || "#fff");
 
 var view = app.createView("UIView");
 
@@ -78,7 +79,7 @@ if (/iPhone/i.test(userAgent)) {
     }
 }
 
-changedSelectedIndex = function() {
+changedSelectedIndex = function () {
     for (var i = 0; i < buttons.length; i++) {
         var button = buttons[i];
         var p = pages[i];
@@ -88,7 +89,7 @@ changedSelectedIndex = function() {
             button.textView.set("color", tabBar.selectedColor);
 
             if (p.webview === undefined) {
-                p.webview = Page({}, p.path, page, { top: paddingTop, left: 0, bottom: barHeight, right: 0 });
+                p.webview = Page({}, p.path, page, app, { top: paddingTop, left: 0, bottom: barHeight, right: 0 });
             } else {
                 p.webview.set("hidden", "false");
             }
@@ -103,7 +104,7 @@ changedSelectedIndex = function() {
     }
 };
 
-resize = function() {
+resize = function () {
 
     view.setFrame(0, page.height - barHeight, page.width, barHeight);
     topView.setFrame(0, 0, page.width, 1);

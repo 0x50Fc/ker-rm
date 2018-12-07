@@ -1,0 +1,211 @@
+<style type="text/css">
+.icon-box{
+  margin-bottom: 2rem;
+  padding: 0 3.75rem;
+  display: flex;
+  align-items: center;
+}
+.icon-box-img{
+  margin-right: 2.3000000000000003rem;
+}
+.icon-box-ctn{
+  flex-shrink: 100;
+}
+.icon-box-title{
+  font-size: 1.7000000000000002rem;
+}
+.icon-box-desc{
+  margin-top: 0.6000000000000001rem;
+  font-size: 1.3rem;
+  color: #888;
+}
+
+.icon-small-wrp{
+  margin-right: 2.3000000000000003rem;
+  width: 93px;
+  height: 93px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"icon"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"icon",{"class":"icon-box-img","type":"success","size":"93"},context,function(element,data,context){
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"成功"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于表示操作顺利完成"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"icon",{"class":"icon-box-img","type":"info","size":"93"},context,function(element,data,context){
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"提示"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于表示信息提示；也常用于缺乏条件的操作拦截，提示用户所需信息"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"icon",{"class":"icon-box-img","type":"warn","size":"93","color":"#C9C9C9"},context,function(element,data,context){
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"普通警告"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于表示操作后将引起一定后果的情况；也用于表示由于系统原因而造成的负向结果"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"icon",{"class":"icon-box-img","type":"warn","size":"93"},context,function(element,data,context){
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"强烈警告"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于表示由于用户原因造成的负向结果；也用于表示操作后将引起不可挽回的严重后果的情况"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"icon",{"class":"icon-box-img","type":"waiting","size":"93"},context,function(element,data,context){
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"等待"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于表示等待，告知用户结果需等待"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"icon-small-wrp"},context,function(element,data,context){
+				__V(element,data,"icon",{"class":"icon-small","type":"success_no_circle","size":"23"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"多选控件图标_已选择"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于多选控件中，表示已选择该项目"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"icon-small-wrp"},context,function(element,data,context){
+				__V(element,data,"icon",{"class":"icon-small","type":"circle","size":"23"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"多选控件图标_未选择"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于多选控件中，表示该项目可被选择，但还未选择"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"icon-small-wrp"},context,function(element,data,context){
+				__V(element,data,"icon",{"class":"icon-small","type":"warn","size":"23"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"错误提示"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于在表单中表示出现错误"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"icon-small-wrp"},context,function(element,data,context){
+				__V(element,data,"icon",{"class":"icon-small","type":"success","size":"23"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"单选控件图标_已选择"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于单选控件中，表示已选择该项目"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"icon-small-wrp"},context,function(element,data,context){
+				__V(element,data,"icon",{"class":"icon-small","type":"download","size":"23"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"下载"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于表示可下载"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"icon-small-wrp"},context,function(element,data,context){
+				__V(element,data,"icon",{"class":"icon-small","type":"info_circle","size":"23"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"提示"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于在表单中表示有信息提示"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"icon-small-wrp"},context,function(element,data,context){
+				__V(element,data,"icon",{"class":"icon-small","type":"cancel","size":"23"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"停止或关闭"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于在表单中，表示关闭或停止"},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"icon-box"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"icon-small-wrp"},context,function(element,data,context){
+				__V(element,data,"icon",{"class":"icon-small","type":"search","size":"14"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"icon-box-ctn"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"icon-box-title","#text":"搜索"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"icon-box-desc","#text":"用于搜索控件中，表示可搜索"},context,function(element,data,context){
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/icon");
+});})();
+</script></body>

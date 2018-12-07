@@ -42,8 +42,29 @@
 }
 
 -(void) KerPage:(KerPage *) page setOptions:(id) options {
-    self.title = [options ker_getString:@"title"];
+    NSString * v =[options ker_getString:@"title"];
+    if(v != nil) {
+        self.title = v;
+    }
 }
+
+-(void) KerPage:(KerPage *) page close:(BOOL) animated {
     
+    UIViewController * topViewController = self;
+    
+    if(self.navigationController != nil) {
+        if([self.navigationController.viewControllers count] <= 1) {
+            topViewController = self.navigationController;
+        } else {
+            [self.navigationController popViewControllerAnimated:animated];
+            return;
+        }
+    }
+    
+    if([topViewController presentedViewController]) {
+        [topViewController dismissViewControllerAnimated:animated completion:nil];
+    }
+    
+}
 
 @end

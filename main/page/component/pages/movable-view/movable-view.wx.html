@@ -1,0 +1,147 @@
+<style type="text/css">
+wx-movable-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 5rem;
+  width: 5rem;
+  background: #1AAD19;
+  color: #fff;  
+}
+
+wx-movable-area {
+  height: 20rem;
+  width: 20rem;
+  margin: 2.5rem 0rem 0 2.5rem;
+  background-color: #ccc;
+  overflow: hidden;
+}
+
+.max {
+  width: 30rem;
+  height: 30rem;
+}
+
+.page-section {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.page-section-title {
+  margin-top: 2.5rem;
+  font-size: 1.4000000000000001rem;
+  color: #999999;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.page-section-title.first {
+  margin-top: 0;
+}
+
+.btn-area {
+  margin-top: 1rem;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"movable-view"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title first","#text":"movable-view区域小于movable-area"},context,function(element,data,context){
+				});
+				__V(element,data,"movable-area",{},context,function(element,data,context){
+					__V(element,data,"movable-view",{"x":__E(function(x){ return (x); },[["x"]]),"y":__E(function(y){ return (y); },[["y"]]),"direction":"all","#text":"text"},context,function(element,data,context){
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+				__V(element,data,"button",{"bindtap":"tap","class":"page-body-button","type":"primary","#text":"点击移动到 (30px, 30px)"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"movable-view区域大于movable-area"},context,function(element,data,context){
+				});
+				__V(element,data,"movable-area",{},context,function(element,data,context){
+					__V(element,data,"movable-view",{"class":"max","direction":"all","#text":"text"},context,function(element,data,context){
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"只可以横向移动"},context,function(element,data,context){
+				});
+				__V(element,data,"movable-area",{},context,function(element,data,context){
+					__V(element,data,"movable-view",{"direction":"horizontal","#text":"text"},context,function(element,data,context){
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"只可以纵向移动"},context,function(element,data,context){
+				});
+				__V(element,data,"movable-area",{},context,function(element,data,context){
+					__V(element,data,"movable-view",{"direction":"vertical","#text":"text"},context,function(element,data,context){
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"可超出边界"},context,function(element,data,context){
+				});
+				__V(element,data,"movable-area",{},context,function(element,data,context){
+					__V(element,data,"movable-view",{"direction":"all","out-of-bounds":"","#text":"text"},context,function(element,data,context){
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"带有惯性"},context,function(element,data,context){
+				});
+				__V(element,data,"movable-area",{},context,function(element,data,context){
+					__V(element,data,"movable-view",{"direction":"all","inertia":"","#text":"text"},context,function(element,data,context){
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"可放缩"},context,function(element,data,context){
+				});
+				__V(element,data,"movable-area",{"scale-area":""},context,function(element,data,context){
+					__V(element,data,"movable-view",{"direction":"all","bindchange":"onChange","bindscale":"onScale","scale":"","scale-min":"0.5","scale-max":"4","scale-value":__E(function(scale){ return (scale); },[["scale"]]),"#text":"text"},context,function(element,data,context){
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+				__V(element,data,"button",{"bindtap":"tap2","class":"page-body-button","type":"primary","#text":"点击放大3倍"},context,function(element,data,context){
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/movable-view");
+});})();
+</script></body>

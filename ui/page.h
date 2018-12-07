@@ -30,6 +30,7 @@ namespace kk {
             virtual void run(kk::CString path , kk::TObject<kk::String,kk::String> * query);
             virtual void setSize(Size & size);
             virtual void setOptions(kk::Object * data);
+            virtual void close(kk::Boolean animated);
             virtual Size size();
             virtual Float width();
             virtual Float height();
@@ -40,6 +41,7 @@ namespace kk {
             
         protected:
             kk::Strong<App> _app;
+            kk::Strong<kk::TFunction<void,kk::CString,kk::Event *>> _func;
             kk::Strong<View> _view;
             kk::Strong<kk::TObject<kk::String, kk::Any>> _librarys;
             duk_context * _jsContext;

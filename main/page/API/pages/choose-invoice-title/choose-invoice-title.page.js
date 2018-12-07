@@ -1,0 +1,1 @@
+require("wx/wx.page.js")({path: path,query: query}, "page/API/pages/choose-invoice-title/choose-invoice-title", page, app);

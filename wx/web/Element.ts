@@ -32,12 +32,33 @@ export class Element extends EventEmitter {
     private _levelId: int = 0;
     private _depth: int = 0;
     private _autoLevelId: int = 0;
+    private _basePath: string | undefined;
+
+    public get basePath(): string | undefined {
+        if (this._basePath === undefined) {
+            if (this._parent !== undefined) {
+                return this._parent.basePath;
+            }
+            if (this._document !== undefined) {
+                return this._document.basePath;
+            }
+        }
+        return this._basePath;
+    }
+
+    public set basePath(v: string | undefined) {
+        this._basePath = v;
+    }
 
     constructor(document: Document, name: string, id: number) {
         super();
         this._name = name;
         this._id = id;
         this._document = document;
+    }
+
+    public setData(key:string,value:any):void {
+        
     }
 
     public get document(): Document {
@@ -289,15 +310,15 @@ export class Element extends EventEmitter {
 
 }
 
-export function Each(element:Element,func:(element:Element)=>boolean):void {
+export function Each(element: Element, func: (element: Element) => boolean): void {
 
-    if(func(element)) {
+    if (func(element)) {
 
         let p = element.firstChild;
 
-        while(p) {
+        while (p) {
 
-            Each(p,func);
+            Each(p, func);
 
             p = p.nextSibling;
         }

@@ -49,6 +49,7 @@ namespace kk {
     
     DispatchQueue * mainDispatchQueue();
     
+    DispatchQueue * IODispatchQueue();
     
 }
 

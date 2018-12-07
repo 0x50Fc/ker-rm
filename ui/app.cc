@@ -14,7 +14,7 @@ namespace kk {
     
     namespace ui {
     
-        App::App(kk::CString basePath,kk::CString platform,kk::CString userAgent):Context(basePath,kk::mainDispatchQueue()) {
+        App::App(kk::CString basePath,kk::CString platform,kk::CString userAgent,kk::CString appkey):Context(basePath,kk::mainDispatchQueue()),_appkey(appkey) {
 
             duk_context * ctx = jsContext();
             
@@ -34,6 +34,10 @@ namespace kk {
             kk::Log("[App] [dealloc]");
         }
        
+        kk::CString App::appkey() {
+            return _appkey.c_str();
+        }
+        
         void App::open(kk::CString uri,kk::Boolean animated) {
             if(uri == nullptr) {
                 return;
@@ -53,6 +57,11 @@ namespace kk {
         
         kk::Strong<View> App::createView(kk::CString name,ViewConfiguration * configuration) {
             return kk::ui::createView(name, configuration, this);
+        }
+        
+        
+        Size App::getAttributedTextContentSize(AttributedText * text,Float maxWidth) {
+            return ::kk::ui::getAttributedTextContentSize(this, text, maxWidth);
         }
         
         void App::Openlib() {
@@ -76,10 +85,13 @@ namespace kk {
                     
                     kk::PutMethod<App,void,kk::CString,kk::Boolean>(ctx, -1, "open", &App::open);
                     kk::PutMethod<App,void,kk::Uint,kk::Boolean>(ctx, -1, "back", &App::back);
+                    kk::PutMethod<App,Size,AttributedText *,Float>(ctx, -1, "getAttributedTextContentSize", &App::getAttributedTextContentSize);
                 
                     kk::PutStrongMethod<App,View,kk::CString,ViewConfiguration *>(ctx,-1,"createView",&App::createView);
+                    kk::PutProperty<App,kk::CString>(ctx, -1, "appkey", &App::appkey);
                     
                 });
+                
                 
             });
             

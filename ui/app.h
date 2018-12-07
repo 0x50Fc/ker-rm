@@ -19,7 +19,7 @@ namespace kk {
         class App : public Context {
         public:
             
-            App(kk::CString basePath,kk::CString platform,kk::CString userAgent);
+            App(kk::CString basePath,kk::CString platform,kk::CString userAgent,kk::CString appkey);
             
             virtual ~App();
             
@@ -29,13 +29,18 @@ namespace kk {
             
             virtual kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration);
             
+            virtual Size getAttributedTextContentSize(AttributedText * text,Float maxWidth);
+            
+            virtual kk::CString appkey();
+            
             static void Openlib();
             
             Ker_CLASS(App,Context,"UIApp")
     
         protected:
-
+            kk::String _appkey;
         };
+        
         
         void addAppOpenlib(std::function<void(duk_context *,App *)> && func);
         

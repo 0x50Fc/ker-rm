@@ -12,7 +12,21 @@
 #include <ui/view.h>
 #include <ui/page.h>
 #import "KerPageViewController.h"
+#import "KerPageWindowController.h"
 #import "KerObject.h"
+#import <CommonCrypto/CommonCrypto.h>
+#import "KerURLProtocol.h"
+#import <MobileCoreServices/MobileCoreServices.h>
+
+@protocol KerAppWKBrowsingContextController  <NSObject>
+
+-(void) registerSchemeForCustomProtocol:(NSString *) scheme;
+
+@end
+
+namespace kk {
+    extern ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue);
+}
 
 @interface KerApp() {
     kk::ui::App * _app;
@@ -24,6 +38,18 @@
 @implementation KerApp
 
 +(void) openlib {
+    
+    [NSURLProtocol registerClass:[KerURLProtocol class]];
+    
+    {
+        Class cls = NSClassFromString(@"WKBrowsingContextController");
+        SEL sel = @selector(registerSchemeForCustomProtocol:);
+        if([cls respondsToSelector:sel]) {
+            [(id<KerAppWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-tmp"];
+            [(id<KerAppWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-data"];
+        }
+    }
+    
     kk::ui::App::Openlib();
 }
 
@@ -41,15 +67,19 @@ static NSString * gKerAppUserAgent = nil;
     return gKerAppUserAgent;
 }
 
--(instancetype) initWithBasePath:(NSString *) basePath {
+-(instancetype) initWithBasePath:(NSString *) basePath appkey:(NSString *) appkey {
     if((self = [super init])) {
+        _appkey = appkey;
         _basePath = basePath;
-        _app = new kk::ui::App([basePath UTF8String],"iOS",[[KerApp userAgent] UTF8String]);
+        _dataPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker/"] stringByAppendingString:appkey];
+        [[NSFileManager defaultManager] createDirectoryAtPath:_dataPath withIntermediateDirectories:YES attributes:nil error:nil];
+        
+        _app = new kk::ui::App([basePath UTF8String],"iOS",[[KerApp userAgent] UTF8String],[appkey UTF8String]);
         _app->retain();
         
         CFTypeRef app = (__bridge CFTypeRef) self;
         
-        _app->on("open", new kk::TFunction<void,kk::Event *>([app](kk::Event * event)->void{
+        _app->on("open", new kk::TFunction<void,kk::CString,kk::Event *>([app](kk::CString name,kk::Event * event)->void{
             
             @autoreleasepool {
                 KerApp * a = (__bridge KerApp *) app;
@@ -66,7 +96,7 @@ static NSString * gKerAppUserAgent = nil;
             
         }));
         
-        _app->on("back", new kk::TFunction<void,kk::Event *>([app](kk::Event * event)->void{
+        _app->on("back", new kk::TFunction<void,kk::CString,kk::Event *>([app](kk::CString name,kk::Event * event)->void{
             
             @autoreleasepool {
                 KerApp * a = (__bridge KerApp *) app;
@@ -106,6 +136,7 @@ static NSString * gKerAppUserAgent = nil;
 }
 
 -(void) run:(NSDictionary<NSString *,NSString *> *) query {
+    
     if(_app == nullptr) {
         return;
     }
@@ -118,7 +149,9 @@ static NSString * gKerAppUserAgent = nil;
         NSString * value = [query valueForKey:key];
         (*librarys)[[key UTF8String]] = (kk::Any) [value UTF8String];
     }
+    
     app->exec("main.js", (kk::TObject<kk::String, kk::Any> *) librarys);
+    
 }
 
 -(void) back:(NSUInteger)delta animated:(BOOL) animated {
@@ -152,31 +185,112 @@ static NSString * gKerAppUserAgent = nil;
     
 }
 
++(NSDictionary *) queryWithURI:(NSString *) uri {
+    
+    NSMutableDictionary *query = [NSMutableDictionary dictionaryWithCapacity:4];
+    
+    NSRange i = [uri rangeOfString:@"?"];
+    
+    if(i.location != NSNotFound) {
+        NSArray * vs = [[uri substringFromIndex:i.location + i.length] componentsSeparatedByString:@"&"];
+        for(NSString * v in vs) {
+            NSArray * kv = [v componentsSeparatedByString:@"="];
+            if([kv count] > 0) {
+                query[kv[0]] = [KerApp decodeURL:kv[1]];
+            } else {
+                query[kv[0]] = @"";
+            }
+        }
+    }
+    
+    return query;
+}
+
++(NSString *) pathWithURI:(NSString *) uri {
+    
+    if(uri == nil) {
+        return nil;
+    }
+    
+    NSRange i = [uri rangeOfString:@"://"];
+    
+    NSString * scheme = nil;
+    
+    if(i.location != NSNotFound) {
+        scheme = [uri substringToIndex:i.location];
+        uri = [uri substringFromIndex:i.location + i.length];
+    }
+
+    i = [uri rangeOfString:@"?"];
+    
+    if(i.location != NSNotFound) {
+        uri = [uri substringToIndex:i.location];
+    }
+    
+    if([scheme isEqualToString:@"ker-tmp"]) {
+        return [NSTemporaryDirectory() stringByAppendingPathComponent:uri];
+    }
+    
+    if([scheme isEqualToString:@"ker-data"]) {
+        return [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker"] stringByAppendingPathComponent:uri];
+    }
+    
+    return uri;
+}
+
++(NSString *) filePathWithURI:(NSString *) uri basePath:(NSString *) basePath {
+    
+    if(uri == nil) {
+        return nil;
+    }
+    
+    NSRange i = [uri rangeOfString:@"://"];
+    
+    NSString * scheme = nil;
+    
+    if(i.location != NSNotFound) {
+        scheme = [uri substringToIndex:i.location];
+        uri = [uri substringFromIndex:i.location + i.length];
+    }
+    
+    i = [uri rangeOfString:@"?"];
+    
+    if(i.location != NSNotFound) {
+        uri = [uri substringToIndex:i.location];
+    }
+    
+    if([scheme isEqualToString:@"ker-tmp"]) {
+        return [NSTemporaryDirectory() stringByAppendingPathComponent:uri];
+    }
+    
+    if([scheme isEqualToString:@"ker-data"]) {
+        return [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker"] stringByAppendingPathComponent:uri];
+    }
+    
+    if(basePath != nil) {
+        return [basePath stringByAppendingPathComponent:uri];
+    }
+    
+    return uri;
+    
+}
+
 -(void) open:(NSString *) uri animated:(BOOL) animated {
     
     if([uri containsString:@"://"]) {
         
+        if([uri hasPrefix:@"window://"]) {
+            
+            NSString * path = [KerApp pathWithURI:uri];
+            NSDictionary * query = [KerApp queryWithURI:uri];
+            
+            [self openPageWindow:path animated:[[query ker_getValue:@"animated"] boolValue] query:query];
+        }
         
     } else {
         
-        NSMutableDictionary<NSString *,NSString *> *query = [[NSMutableDictionary<NSString *,NSString *> alloc] initWithCapacity:4];
-        
-        NSRange i = [uri rangeOfString:@"?"];
-        
-        NSString * path = uri;
-        
-        if(i.location != NSNotFound) {
-            NSArray * vs = [[uri substringFromIndex:i.location + i.length] componentsSeparatedByString:@"&"];
-            for(NSString * v in vs) {
-                NSArray * kv = [v componentsSeparatedByString:@"="];
-                if([kv count] > 0) {
-                    query[kv[0]] = [KerApp decodeURL:kv[1]];
-                } else {
-                    query[kv[0]] = @"";
-                }
-            }
-            path = [uri substringToIndex:i.location];
-        }
+        NSString * path = [KerApp pathWithURI:uri];
+        NSDictionary * query = [KerApp queryWithURI:uri];
         
         [self openPageViewController:path animated:animated query:query];
         
@@ -184,7 +298,13 @@ static NSString * gKerAppUserAgent = nil;
     
 }
 
+
 -(void) openPageViewController:(NSString *) path animated:(BOOL) animated query:(NSDictionary<NSString *,NSString *> *) query {
+    
+    if([_delegate respondsToSelector:@selector(KerApp:openPageViewController:animated:query:)]
+       && [_delegate KerApp:self openPageViewController:path animated:animated query:query]){
+        return;
+    }
     
     KerPageViewController * viewController = [[KerPageViewController alloc] initWithNibName:nil bundle:nil];
     
@@ -198,13 +318,31 @@ static NSString * gKerAppUserAgent = nil;
 
 -(void) openPageWindow:(NSString *) path animated:(BOOL) animated query:(NSDictionary<NSString *,NSString *> *) query {
     
+    if([_delegate respondsToSelector:@selector(KerApp:openPageWindow:animated:query:)]
+       && [_delegate KerApp:self openPageWindow:path animated:animated query:query]) {
+        return;
+    }
+    
+    KerPageWindowController * viewController = [[KerPageWindowController alloc] init];
+    
+    viewController.app = self;
+    viewController.path = path;
+    viewController.query = query;
+    
+    [viewController showAnimated:animated];
+
 }
 
 -(void) openApp:(NSString *) url animated:(BOOL) animated query:(NSDictionary<NSString *,NSString *> *) query {
-    
+ 
 }
 
 -(void) openViewController:(UIViewController *) viewController animated:(BOOL) animated {
+    
+    if([_delegate respondsToSelector:@selector(KerApp:openViewController:animated:)]
+       && [_delegate KerApp:self openViewController:viewController animated:animated]) {
+        return;
+    }
     
     UIViewController * topViewController = [self rootViewController];
     
@@ -240,6 +378,93 @@ static NSString * gKerAppUserAgent = nil;
         return nil;
     }
     return [url stringByRemovingPercentEncoding];
+}
+
++(NSString *) keyWithURI:(NSString *) uri {
+    
+    CC_MD5_CTX ctx;
+    
+    CC_MD5_Init(&ctx);
+    
+    CC_MD5_Update(&ctx, [uri UTF8String], (CC_LONG) [uri length]);
+    
+    unsigned char md[16];
+    
+    CC_MD5_Final(md, &ctx);
+    
+    return [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x"
+         ,md[0],md[1],md[2],md[3],md[4],md[5],md[6],md[7]
+         ,md[8],md[9],md[10],md[11],md[12],md[13],md[14],md[15]];
+    
+}
+
++(dispatch_queue_t) IOQueue {
+    return kk::DispatchQueueGCD(kk::IODispatchQueue());
+}
+
++(NSString *) relativeURI:(NSString *) filePath {
+    {
+        NSString * basePath = [NSHomeDirectory() stringByAppendingString:@"/Documents/ker/"];
+        if([filePath hasPrefix:basePath]) {
+            return [NSString stringWithFormat:@"ker-data:///%@",[filePath substringFromIndex:[basePath length]]];
+        }
+    }
+    {
+        NSString * basePath = NSTemporaryDirectory();
+        if([filePath hasPrefix:basePath]) {
+            return [NSString stringWithFormat:@"ker-tmp:///%@",[filePath substringFromIndex:[basePath length]]];
+        }
+    }
+    return [NSString stringWithFormat:@"file://%@",filePath];
+}
+
+
++(NSString *) mimeType:(NSString *) filePath data:(NSData *) data defaultType:(NSString *) defaultType {
+    
+    NSString * mimeType = nil;
+    
+    if(mimeType == nil) {
+        
+        CFStringRef uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef) filePath.pathExtension, nil);
+        
+        CFStringRef v = UTTypeCopyPreferredTagWithClass(uti,kUTTagClassMIMEType);
+        
+        mimeType = (__bridge NSString *) v ;
+        
+        CFRelease(uti);
+        CFRelease(v);
+        
+    }
+    
+    if(mimeType == nil && data) {
+        
+        uint8_t c;
+        
+        [data getBytes:&c length:1];
+        
+        switch (c) {
+            case 0xFF:
+                mimeType = @"image/jpeg";
+                break;
+            case 0x89:
+                mimeType = @"image/png";
+                break;
+            case 0x47:
+                mimeType = @"image/gif";
+                break;
+            case 0x49:
+            case 0x4D:
+                mimeType = @"image/tiff";
+                break;
+        }
+    }
+    
+    if(mimeType == nil) {
+        mimeType = defaultType;
+    }
+    
+    return mimeType;
+    
 }
 
 @end

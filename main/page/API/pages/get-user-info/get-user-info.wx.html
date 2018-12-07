@@ -1,0 +1,75 @@
+<style type="text/css">
+.page-body-info {
+  padding-bottom: 0;
+  height: 230px;
+}
+.userinfo-avatar {
+  border-radius: 6.4rem;
+  width: 6.4rem;
+  height: 6.4rem;
+}
+.userinfo-nickname {
+  margin-top: 1rem;
+  font-size: 1.9000000000000001rem;
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"getUserInfo"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-body-info"},context,function(element,data,context){
+					__V(element,data,"view",{"class":"page-body-title","#text":"用户信息"},context,function(element,data,context){
+					});
+					__V(element,data,"block",{"wx:if":__E(function(hasUserInfo){ return (hasUserInfo===false); },[["hasUserInfo"]])},context,function(element,data,context){
+						__V(element,data,"text",{"class":"page-body-text","#text":"未获取"},context,function(element,data,context){
+						});
+						__V(element,data,"text",{"class":"page-body-text","#text":"点击绿色按钮可获取用户头像及昵称"},context,function(element,data,context){
+						});
+					});
+					__V(element,data,"block",{"wx:if":__E(function(hasUserInfo){ return (hasUserInfo===true); },[["hasUserInfo"]])},context,function(element,data,context){
+						__V(element,data,"image",{"class":"userinfo-avatar","src":__E(function(userInfo){ return (userInfo.avatarUrl); },[["userInfo"]])},context,function(element,data,context){
+						});
+						__V(element,data,"text",{"class":"userinfo-nickname","#text":__E(function(userInfo){ return (userInfo.nickName); },[["userInfo"]])},context,function(element,data,context){
+						});
+					});
+				});
+				__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+					__V(element,data,"button",{"type":"primary","open-type":"getUserInfo","bindgetuserinfo":"getUserInfo","#text":"获取用户信息"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"bindtap":"clear","#text":"清空"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/get-user-info");
+});})();
+</script></body>

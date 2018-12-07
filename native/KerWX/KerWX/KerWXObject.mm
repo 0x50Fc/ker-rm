@@ -16,6 +16,14 @@
 
 @implementation KerWXObject
 
+-(instancetype) initWithBasePath:(NSString *) basePath dataPath:(NSString *) dataPath {
+    if((self = [super init])) {
+        _basePath = basePath;
+        _dataPath = dataPath;
+    }
+    return self;
+}
+
 +(void) openlib {
 
     kk::addOpenlib([](duk_context * ctx)->void{
@@ -30,7 +38,11 @@
         
         @autoreleasepool {
             
-            KerWXObject * object = [[KerWXObject alloc] init];
+            NSString * dir = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker/"];
+            
+            [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
+            
+            KerWXObject * object = [[KerWXObject alloc] initWithBasePath:[NSString stringWithCString:page->app()->basePath() encoding:NSUTF8StringEncoding]  dataPath:[dir stringByAppendingFormat:@"%s/",page->app()->appkey()]];
             
             kk::Any native((__bridge kk::Native *)object);
             
@@ -46,7 +58,11 @@
         
         @autoreleasepool {
             
-            KerWXObject * object = [[KerWXObject alloc] init];
+            NSString * dir = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker/"];
+            
+            [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
+            
+            KerWXObject * object = [[KerWXObject alloc] initWithBasePath:[NSString stringWithCString:app->basePath() encoding:NSUTF8StringEncoding]  dataPath:[dir stringByAppendingFormat:@"%s/",app->appkey()]];
             
             kk::Strong<kk::NativeObject> native = new kk::NativeObject((__bridge kk::Native *)object);
             

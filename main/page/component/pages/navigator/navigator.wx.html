@@ -1,0 +1,59 @@
+<style type="text/css">
+.navigator-hover wx-button{
+  background-color: #DEDEDE;
+}
+.other-navigator-hover wx-button{
+  background-color: #DEDEDE;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"navigator"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+				__V(element,data,"navigator",{"url":"navigate?title=navigate","hover-class":"navigator-hover"},context,function(element,data,context){
+					__V(element,data,"button",{"type":"default","#text":"跳转到新页面"},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"navigator",{"url":"redirect?title=redirect","redirect":"","hover-class":"other-navigator-hover"},context,function(element,data,context){
+					__V(element,data,"button",{"type":"default","#text":"在当前页打开"},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"navigator",{"target":"miniProgram","open-type":"navigate","app-id":"wx4f1b24bdc99fa23b","version":"release"},context,function(element,data,context){
+					__V(element,data,"button",{"type":"default","#text":"打开小程序"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/navigator");
+});})();
+</script></body>

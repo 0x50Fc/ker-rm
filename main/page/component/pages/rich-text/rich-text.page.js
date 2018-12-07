@@ -1,0 +1,1 @@
+require("wx/wx.page.js")({path: path,query: query}, "page/component/pages/rich-text/rich-text", page, app);

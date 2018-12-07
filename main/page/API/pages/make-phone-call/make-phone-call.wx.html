@@ -1,0 +1,68 @@
+<style type="text/css">
+.page-section{
+  width: auto;
+  margin: 1.5rem;
+  padding: 2.2rem 3rem 3rem;
+  background-color: #fff;
+  font-size: 1.4000000000000001rem;
+}
+.desc{
+  margin-bottom: 1rem;
+}
+.input{
+  height: 5.95rem;
+  line-height: 5.95rem;
+  font-size: 3.9000000000000004rem;
+  border-bottom: 0.05rem solid #E2E2E2;
+}
+.btn-area{
+  padding: 0;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"makePhoneCall"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"desc","#text":"请在下方输入电话号码"},context,function(element,data,context){
+				});
+				__V(element,data,"input",{"class":"input","type":"number","name":"input","bindinput":"bindInput"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+					__V(element,data,"button",{"type":"primary","bindtap":"makePhoneCall","disabled":__E(function(disabled){ return (disabled); },[["disabled"]]),"#text":"拨打"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/make-phone-call");
+});})();
+</script></body>

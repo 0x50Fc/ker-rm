@@ -53,6 +53,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Element_1 = require("./Element");
 const ViewElement_1 = require("./ViewElement");
 class BlockElement extends Element_1.Element {
+    onDidAddChildren(element) {
+        super.onDidAddChildren(element);
+        if (element instanceof ViewElement_1.ViewElement) {
+            let p = this.parent;
+            if (p instanceof ViewElement_1.ViewElement) {
+                p.view.appendChild(element.view);
+            }
+            else if (p) {
+                document.body.appendChild(element.view);
+            }
+        }
+    }
     onWillRemoveFromParent(element) {
         super.onWillRemoveFromParent(element);
         let p = this.firstChild;
@@ -70,7 +82,7 @@ class BlockElement extends Element_1.Element {
 }
 exports.BlockElement = BlockElement;
 
-},{"./Element":8,"./ViewElement":36}],3:[function(require,module,exports){
+},{"./Element":9,"./ViewElement":37}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -88,6 +100,12 @@ class ButtonElement extends ViewElement_1.ViewElement {
             super.doEvent(event, name, detail);
             if (name == "tap") {
                 let v = this.get("formType");
+                if (v === undefined) {
+                    v = this.get("formtype");
+                }
+                if (v === undefined) {
+                    v = this.get("form-type");
+                }
                 if (v) {
                     let p = this.parent;
                     while (p) {
@@ -141,7 +159,7 @@ class ButtonElement extends ViewElement_1.ViewElement {
 }
 exports.ButtonElement = ButtonElement;
 
-},{"./FormElement":11,"./ViewElement":36}],4:[function(require,module,exports){
+},{"./FormElement":12,"./ViewElement":37}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const NViewElement_1 = require("./NViewElement");
@@ -149,7 +167,7 @@ class CanvasElement extends NViewElement_1.NViewElement {
 }
 exports.CanvasElement = CanvasElement;
 
-},{"./NViewElement":19}],5:[function(require,module,exports){
+},{"./NViewElement":20}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -268,7 +286,73 @@ class CheckboxElement extends ViewElement_1.ViewElement {
 }
 exports.CheckboxElement = CheckboxElement;
 
-},{"./Element":8,"./V":35,"./ViewElement":36}],6:[function(require,module,exports){
+},{"./Element":9,"./V":36,"./ViewElement":37}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const BlockElement_1 = require("./BlockElement");
+const Data_1 = require("./Data");
+const Element_1 = require("./Element");
+const IPC_1 = require("./IPC");
+class ComponentElement extends BlockElement_1.BlockElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+        this._data = new Data_1.Data();
+    }
+    get data() {
+        return this._data;
+    }
+    get componentName() {
+        return this._componentName;
+    }
+    set componentName(v) {
+        this._componentName = v;
+    }
+    postAddMessage(path) {
+        IPC_1.postMessage({
+            component: 'add',
+            path: path,
+            id: this._id
+        });
+    }
+    onWillRemoveFromParent(element) {
+        super.onWillRemoveFromParent(element);
+        IPC_1.postMessage({
+            component: 'remove',
+            id: this._id
+        });
+    }
+    set(key, value) {
+        super.set(key, value);
+        IPC_1.postMessage({
+            component: 'set',
+            id: this._id,
+            name: key,
+            value: value
+        });
+    }
+    emit(name, event) {
+        super.emit(name, event);
+        if (event instanceof Element_1.ElementEvent) {
+            event.cancelBubble = true;
+        }
+    }
+    onEvent(name, data) {
+        let event = new Element_1.ElementEvent(this);
+        event.data = data;
+        super.emit(name, event);
+        if (!event.cancelBubble) {
+            if (this.parent) {
+                this.parent.emitBubble(name, event);
+            }
+            else if (this.document) {
+                this.document.emit(name, event);
+            }
+        }
+    }
+}
+exports.ComponentElement = ComponentElement;
+
+},{"./BlockElement":2,"./Data":7,"./Element":9,"./IPC":13}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Evaluate {
@@ -293,7 +377,12 @@ class Evaluate {
             }
             vs.push(v);
         }
-        return this.evaluateScript.apply(undefined, vs);
+        try {
+            return this.evaluateScript.apply(undefined, vs);
+        }
+        catch (e) {
+            console.error("[Evaluate]", e);
+        }
     }
 }
 exports.Evaluate = Evaluate;
@@ -542,18 +631,22 @@ class Data {
 }
 exports.Data = Data;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Element_1 = require("./Element");
 const events_1 = require("events");
 class Document extends events_1.EventEmitter {
-    constructor() {
-        super(...arguments);
+    constructor(basePath) {
+        super();
         this._autoId = 0;
         this._elementClass = {};
         this._elements = {};
         this._documentElement = new Element_1.Element(this, "document", 0);
+        this._basePath = basePath;
+    }
+    get basePath() {
+        return this._basePath;
     }
     createElement(name) {
         let id = ++this._autoId;
@@ -583,7 +676,7 @@ class Document extends events_1.EventEmitter {
 }
 exports.Document = Document;
 
-},{"./Element":8,"events":39}],8:[function(require,module,exports){
+},{"./Element":9,"events":40}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Event_1 = require("./Event");
@@ -606,6 +699,22 @@ class Element extends EventEmitter_1.EventEmitter {
         this._name = name;
         this._id = id;
         this._document = document;
+    }
+    get basePath() {
+        if (this._basePath === undefined) {
+            if (this._parent !== undefined) {
+                return this._parent.basePath;
+            }
+            if (this._document !== undefined) {
+                return this._document.basePath;
+            }
+        }
+        return this._basePath;
+    }
+    set basePath(v) {
+        this._basePath = v;
+    }
+    setData(key, value) {
     }
     get document() {
         return this._document;
@@ -818,14 +927,14 @@ function Each(element, func) {
 }
 exports.Each = Each;
 
-},{"./Event":9,"./EventEmitter":10}],9:[function(require,module,exports){
+},{"./Event":10,"./EventEmitter":11}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Event {
 }
 exports.Event = Event;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class EventEmitter {
@@ -875,7 +984,7 @@ class EventEmitter {
 }
 exports.EventEmitter = EventEmitter;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -957,7 +1066,7 @@ class FormElement extends ViewElement_1.ViewElement {
 }
 exports.FormElement = FormElement;
 
-},{"./CheckboxElement":5,"./InputElement":15,"./PickerElement":22,"./RadioElement":25,"./SliderElement":28,"./SwitchElement":31,"./ViewElement":36,"./once":37}],12:[function(require,module,exports){
+},{"./CheckboxElement":5,"./InputElement":16,"./PickerElement":23,"./RadioElement":26,"./SliderElement":29,"./SwitchElement":32,"./ViewElement":37,"./once":38}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function postMessage(data) {
@@ -968,7 +1077,7 @@ function postMessage(data) {
 }
 exports.postMessage = postMessage;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -976,7 +1085,7 @@ class IconElement extends ViewElement_1.ViewElement {
 }
 exports.IconElement = IconElement;
 
-},{"./ViewElement":36}],14:[function(require,module,exports){
+},{"./ViewElement":37}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -998,14 +1107,14 @@ class ImageElement extends ViewElement_1.ViewElement {
                 this.imageView.removeAttribute("src");
             }
             else {
-                this.imageView.setAttribute("src", URI_1.resolveURI(value));
+                this.imageView.setAttribute("src", URI_1.resolveURI(value, this.basePath));
             }
         }
     }
 }
 exports.ImageElement = ImageElement;
 
-},{"./URI":34,"./ViewElement":36}],15:[function(require,module,exports){
+},{"./URI":35,"./ViewElement":37}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const NViewElement_1 = require("./NViewElement");
@@ -1089,7 +1198,7 @@ class InputElement extends NViewElement_1.NViewElement {
 }
 exports.InputElement = InputElement;
 
-},{"./IPC":12,"./NViewElement":19}],16:[function(require,module,exports){
+},{"./IPC":13,"./NViewElement":20}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1114,7 +1223,7 @@ class LabelElement extends ViewElement_1.ViewElement {
 }
 exports.LabelElement = LabelElement;
 
-},{"./ButtonElement":3,"./CheckboxElement":5,"./RadioElement":25,"./SwitchElement":31,"./ViewElement":36}],17:[function(require,module,exports){
+},{"./ButtonElement":3,"./CheckboxElement":5,"./RadioElement":26,"./SwitchElement":32,"./ViewElement":37}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Data_1 = require("./Data");
@@ -1145,12 +1254,23 @@ const NavigatorElement_1 = require("./NavigatorElement");
 const CanvasElement_1 = require("./CanvasElement");
 const once_1 = require("./once");
 const BlockElement_1 = require("./BlockElement");
+const ComponentElement_1 = require("./ComponentElement");
+function getComponentId(element) {
+    if (element === undefined) {
+        return undefined;
+    }
+    if (element instanceof ComponentElement_1.ComponentElement) {
+        return element.id;
+    }
+    return getComponentId(element.parent);
+}
 function ElementOnEvent(element, prefix, name, value) {
     element.on(name, (event) => {
         if (event instanceof Element_1.ElementEvent) {
             IPC_1.postMessage({
                 event: value,
-                data: event.data
+                data: event.data,
+                componentId: getComponentId(element.parent)
             });
             if (prefix.endsWith("catch")) {
                 event.cancelBubble = true;
@@ -1186,6 +1306,21 @@ function ElementSetAttributes(element, data, attributes) {
         else if (key.startsWith("capture-catch")) {
             ElementOnEvent(element, key.substr(0, 13), key.substr(13), attributes[key]);
         }
+        else if (key.startsWith("data-")) {
+            let name = key.substr(5);
+            let v = attributes[key];
+            if (typeof v == 'string') {
+                element.setData(name, v);
+            }
+            else if (v instanceof Data_1.Evaluate) {
+                let fn = (name, element, evaluate) => {
+                    data.on(evaluate, (value, changdKeys) => {
+                        element.setData(name, value);
+                    });
+                };
+                fn(name, element, v);
+            }
+        }
         else {
             let v = attributes[key];
             if (typeof v == 'string') {
@@ -1197,6 +1332,9 @@ function ElementSetAttributes(element, data, attributes) {
                         if (value === undefined) {
                             element.set(key, undefined);
                         }
+                        else if (typeof value == 'object') {
+                            element.set(key, JSON.stringify(value));
+                        }
                         else {
                             element.set(key, value + '');
                         }
@@ -1207,7 +1345,7 @@ function ElementSetAttributes(element, data, attributes) {
         }
     }
 }
-function CreateForElement(forKey, element, data, name, attributes, context, children) {
+function CreateForElement(forKey, element, data, name, attributes, context, children, basePath) {
     let evaluate = attributes[forKey];
     if (evaluate === undefined) {
         return;
@@ -1235,6 +1373,7 @@ function CreateForElement(forKey, element, data, name, attributes, context, chil
                         data: new Data_1.Data(),
                         element: context.page.document.createElement(name)
                     };
+                    v.element.basePath = basePath;
                     ElementSetAttributes(v.element, v.data, attributes);
                     before.before(v.element);
                     context.begin();
@@ -1258,7 +1397,7 @@ function CreateForElement(forKey, element, data, name, attributes, context, chil
         context.end();
     });
 }
-function CreateIfElement(element, data, name, attributes, context, children) {
+function CreateIfElement(element, data, name, attributes, context, children, basePath) {
     let evaluate = attributes["wx:if"];
     if (evaluate === undefined) {
         return;
@@ -1268,6 +1407,7 @@ function CreateIfElement(element, data, name, attributes, context, children) {
     }
     let before = context.page.document.createElement("element");
     before.appendTo(element);
+    delete attributes["wx:if"];
     let scope = context.scope();
     let block;
     block = new Page_1.IfBlock({
@@ -1296,11 +1436,13 @@ function CreateIfElement(element, data, name, attributes, context, children) {
                 if (item.element === undefined) {
                     item.element = context.page.document.createElement(item.name);
                     item.elementData = new Data_1.Data();
-                    ElementSetAttributes(item.element, item.data, item.attributes);
+                    ElementSetAttributes(item.element, item.elementData, item.attributes);
+                    before.before(item.element);
                     context.begin();
                     item.children(item.element, item.elementData, context);
                     context.end();
                     item.elementData.setParent(item.data);
+                    item.elementData.changedKeys([]);
                 }
                 else {
                     before.before(item.element);
@@ -1319,7 +1461,7 @@ function CreateIfElement(element, data, name, attributes, context, children) {
     scope.ifblock = block;
     data.on(evaluate, block.func);
 }
-function CreateElifElement(element, data, name, attributes, context, children) {
+function CreateElifElement(element, data, name, attributes, context, children, basePath) {
     let scope = context.scope();
     if (scope.ifblock !== undefined) {
         let evaluate = attributes["wx:elif"];
@@ -1329,6 +1471,7 @@ function CreateElifElement(element, data, name, attributes, context, children) {
         if (!(evaluate instanceof Data_1.Evaluate)) {
             return;
         }
+        delete attributes["wx:elif"];
         scope.ifblock.elements.push({
             element: undefined,
             name: name,
@@ -1341,9 +1484,10 @@ function CreateElifElement(element, data, name, attributes, context, children) {
         data.on(evaluate, scope.ifblock.func);
     }
 }
-function CreateElseElement(element, data, name, attributes, context, children) {
+function CreateElseElement(element, data, name, attributes, context, children, basePath) {
     let scope = context.scope();
     if (scope.ifblock !== undefined) {
+        delete attributes["wx:else"];
         scope.ifblock.elements.push({
             element: undefined,
             name: name,
@@ -1356,24 +1500,25 @@ function CreateElseElement(element, data, name, attributes, context, children) {
         scope.ifblock = undefined;
     }
 }
-function CreateElement(element, data, name, attributes, context, children) {
+function CreateElement(element, data, name, attributes, context, children, basePath) {
     if (attributes["wx:for"] !== undefined) {
-        CreateForElement("wx:for", element, data, name, attributes, context, children);
+        CreateForElement("wx:for", element, data, name, attributes, context, children, basePath);
     }
     else if (attributes["wx:for-items"] !== undefined) {
-        CreateForElement("wx:for-items", element, data, name, attributes, context, children);
+        CreateForElement("wx:for-items", element, data, name, attributes, context, children, basePath);
     }
     else if (attributes["wx:if"] !== undefined) {
-        CreateIfElement(element, data, name, attributes, context, children);
+        CreateIfElement(element, data, name, attributes, context, children, basePath);
     }
     else if (attributes["wx:elif"] !== undefined) {
-        CreateElifElement(element, data, name, attributes, context, children);
+        CreateElifElement(element, data, name, attributes, context, children, basePath);
     }
     else if (attributes["wx:else"] !== undefined) {
-        CreateElseElement(element, data, name, attributes, context, children);
+        CreateElseElement(element, data, name, attributes, context, children, basePath);
     }
     else {
         let e = context.page.document.createElement(name);
+        e.basePath = basePath;
         ElementSetAttributes(e, data, attributes);
         element.append(e);
         context.begin();
@@ -1382,9 +1527,9 @@ function CreateElement(element, data, name, attributes, context, children) {
     }
 }
 exports.CreateElement = CreateElement;
-function CreateTElement(element, data, attributes, func, context) {
+function CreateTElement(element, data, attributes, func, context, basePath) {
     let v = new Data_1.Data();
-    func(element, v, context);
+    func(element, v, context, basePath);
     let evaluate = attributes['data'];
     if (evaluate !== undefined && evaluate instanceof Data_1.Evaluate) {
         data.on(evaluate, (object, changedKeys) => {
@@ -1399,11 +1544,28 @@ function CreateTElement(element, data, attributes, func, context) {
     }
 }
 exports.CreateTElement = CreateTElement;
+function CreateCElement(element, data, name, attributes, children, context, path) {
+    let basePath = path;
+    if (basePath !== undefined) {
+        let i = basePath.lastIndexOf("/");
+        if (i >= 0) {
+            basePath = basePath.substr(0, i);
+        }
+    }
+    CreateElement(element, data, "component", attributes, context, (element, data, context) => {
+        if (element instanceof ComponentElement_1.ComponentElement) {
+            element.componentName = name;
+            element.postAddMessage(path);
+            children(element, element.data, context);
+        }
+    }, basePath);
+}
+exports.CreateCElement = CreateCElement;
 function CreateEvaluate(evaluateScript, keys) {
     return new Data_1.Evaluate(evaluateScript, keys);
 }
 exports.CreateEvaluate = CreateEvaluate;
-var page = new Page_1.Page();
+var page = new Page_1.Page(window.__basePath || '');
 page.document.addElementClass("view", ViewElement_1.ViewElement);
 page.document.addElementClass("input", InputElement_1.InputElement);
 page.document.addElementClass("image", ImageElement_1.ImageElement);
@@ -1430,6 +1592,7 @@ page.document.addElementClass("textarea", TextareaElement_1.TextareaElement);
 page.document.addElementClass("navigator", NavigatorElement_1.NavigatorElement);
 page.document.addElementClass("canvas", CanvasElement_1.CanvasElement);
 page.document.addElementClass("block", BlockElement_1.BlockElement);
+page.document.addElementClass("component", ComponentElement_1.ComponentElement);
 function Page(view, styleSheet, options) {
     IPC_1.postMessage({ page: 'readying' });
     view(page.document.documentElement, page.data, new Page_1.PageViewContext(page));
@@ -1437,11 +1600,23 @@ function Page(view, styleSheet, options) {
     once_1.once(() => { IPC_1.postMessage({ page: 'ready' }); });
 }
 exports.Page = Page;
-function setData(data) {
-    for (var key in data) {
-        page.data.set([key], data[key]);
+function setData(data, componentId) {
+    if (componentId === undefined) {
+        for (var key in data) {
+            page.data.set([key], data[key]);
+        }
+        console.info("[DATA]", data);
     }
-    console.info("[DATA]", data);
+    else {
+        let e = page.document.element(componentId);
+        if (e !== undefined && e instanceof ComponentElement_1.ComponentElement) {
+            let v = e.data;
+            for (var key in data) {
+                v.set([key], data[key]);
+            }
+            console.info("[COMPONENT] [DATA]", data);
+        }
+    }
 }
 exports.setData = setData;
 function sendEvent(id, name, data) {
@@ -1452,7 +1627,7 @@ function sendEvent(id, name, data) {
 }
 exports.sendEvent = sendEvent;
 
-},{"./BlockElement":2,"./ButtonElement":3,"./CanvasElement":4,"./CheckboxElement":5,"./Data":6,"./Element":8,"./FormElement":11,"./IPC":12,"./IconElement":13,"./ImageElement":14,"./InputElement":15,"./LabelElement":16,"./MovableViewElement":18,"./NavigatorElement":20,"./Page":21,"./PickerElement":22,"./PickerViewElement":23,"./ProgressElement":24,"./RadioElement":25,"./RichTextElement":26,"./ScrollViewElement":27,"./SliderElement":28,"./SwiperElement":30,"./SwitchElement":31,"./TextElement":32,"./TextareaElement":33,"./ViewElement":36,"./once":37}],18:[function(require,module,exports){
+},{"./BlockElement":2,"./ButtonElement":3,"./CanvasElement":4,"./CheckboxElement":5,"./ComponentElement":6,"./Data":7,"./Element":9,"./FormElement":12,"./IPC":13,"./IconElement":14,"./ImageElement":15,"./InputElement":16,"./LabelElement":17,"./MovableViewElement":19,"./NavigatorElement":21,"./Page":22,"./PickerElement":23,"./PickerViewElement":24,"./ProgressElement":25,"./RadioElement":26,"./RichTextElement":27,"./ScrollViewElement":28,"./SliderElement":29,"./SwiperElement":31,"./SwitchElement":32,"./TextElement":33,"./TextareaElement":34,"./ViewElement":37,"./once":38}],19:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1460,7 +1635,7 @@ class MovableViewElement extends ViewElement_1.ViewElement {
 }
 exports.MovableViewElement = MovableViewElement;
 
-},{"./ViewElement":36}],19:[function(require,module,exports){
+},{"./ViewElement":37}],20:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1595,7 +1770,7 @@ class NViewElement extends ViewElement_1.ViewElement {
 }
 exports.NViewElement = NViewElement;
 
-},{"./IPC":12,"./ViewElement":36,"./once":37}],20:[function(require,module,exports){
+},{"./IPC":13,"./ViewElement":37,"./once":38}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1617,7 +1792,7 @@ class NavigatorElement extends ViewElement_1.ViewElement {
 }
 exports.NavigatorElement = NavigatorElement;
 
-},{"./IPC":12,"./ViewElement":36}],21:[function(require,module,exports){
+},{"./IPC":13,"./ViewElement":37}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Data_1 = require("./Data");
@@ -1652,8 +1827,8 @@ class PageViewContext {
 }
 exports.PageViewContext = PageViewContext;
 class Page {
-    constructor() {
-        this._document = new Document_1.Document();
+    constructor(basePath) {
+        this._document = new Document_1.Document(basePath);
         this._data = new Data_1.Data();
     }
     get document() {
@@ -1665,7 +1840,7 @@ class Page {
 }
 exports.Page = Page;
 
-},{"./Data":6,"./Document":7}],22:[function(require,module,exports){
+},{"./Data":7,"./Document":8}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1673,7 +1848,7 @@ class PickerElement extends ViewElement_1.ViewElement {
 }
 exports.PickerElement = PickerElement;
 
-},{"./ViewElement":36}],23:[function(require,module,exports){
+},{"./ViewElement":37}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1681,7 +1856,7 @@ class PickerViewElement extends ViewElement_1.ViewElement {
 }
 exports.PickerViewElement = PickerViewElement;
 
-},{"./ViewElement":36}],24:[function(require,module,exports){
+},{"./ViewElement":37}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1740,7 +1915,7 @@ class ProgressElement extends ViewElement_1.ViewElement {
 }
 exports.ProgressElement = ProgressElement;
 
-},{"./V":35,"./ViewElement":36}],25:[function(require,module,exports){
+},{"./V":36,"./ViewElement":37}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1857,7 +2032,7 @@ class RadioElement extends ViewElement_1.ViewElement {
 }
 exports.RadioElement = RadioElement;
 
-},{"./Element":8,"./V":35,"./ViewElement":36}],26:[function(require,module,exports){
+},{"./Element":9,"./V":36,"./ViewElement":37}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1865,7 +2040,7 @@ class RichTextElement extends ViewElement_1.ViewElement {
 }
 exports.RichTextElement = RichTextElement;
 
-},{"./ViewElement":36}],27:[function(require,module,exports){
+},{"./ViewElement":37}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2036,7 +2211,7 @@ class ScrollViewElement extends ViewElement_1.ViewElement {
 }
 exports.ScrollViewElement = ScrollViewElement;
 
-},{"./Anim":1,"./V":35,"./ViewElement":36}],28:[function(require,module,exports){
+},{"./Anim":1,"./V":36,"./ViewElement":37}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2178,11 +2353,11 @@ class SliderElement extends ViewElement_1.ViewElement {
 }
 exports.SliderElement = SliderElement;
 
-},{"./V":35,"./ViewElement":36,"./once":37}],29:[function(require,module,exports){
+},{"./V":36,"./ViewElement":37,"./once":38}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2547,7 +2722,7 @@ class SwiperElement extends ViewElement_1.ViewElement {
 }
 exports.SwiperElement = SwiperElement;
 
-},{"./Anim":1,"./BlockElement":2,"./V":35,"./ViewElement":36,"./once":37}],31:[function(require,module,exports){
+},{"./Anim":1,"./BlockElement":2,"./V":36,"./ViewElement":37,"./once":38}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2614,7 +2789,7 @@ class SwitchElement extends ViewElement_1.ViewElement {
 }
 exports.SwitchElement = SwitchElement;
 
-},{"./V":35,"./ViewElement":36}],32:[function(require,module,exports){
+},{"./V":36,"./ViewElement":37}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2622,7 +2797,7 @@ class TextElement extends ViewElement_1.ViewElement {
 }
 exports.TextElement = TextElement;
 
-},{"./ViewElement":36}],33:[function(require,module,exports){
+},{"./ViewElement":37}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const InputElement_1 = require("./InputElement");
@@ -2630,21 +2805,23 @@ class TextareaElement extends InputElement_1.InputElement {
 }
 exports.TextareaElement = TextareaElement;
 
-},{"./InputElement":15}],34:[function(require,module,exports){
+},{"./InputElement":16}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function resolveURI(uri) {
+function resolveURI(uri, basePath) {
     if (uri.indexOf('://') < 0) {
-        let v = window.__basePath;
-        if (v !== undefined) {
-            return v + '/' + uri;
+        if (uri.startsWith("/")) {
+            return 'file://' + uri;
+        }
+        if (basePath !== undefined) {
+            return basePath + '/' + uri;
         }
     }
     return uri;
 }
 exports.resolveURI = resolveURI;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function booleanValue(v) {
@@ -2679,22 +2856,23 @@ function parseStyleValue(v) {
 }
 exports.parseStyleValue = parseStyleValue;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Element_1 = require("./Element");
 const BlockElement_1 = require("./BlockElement");
 const V_1 = require("./V");
 function getDataSet(element) {
-    let v = {};
-    let length = element.attributes.length;
-    for (var i = 0; i < length; i++) {
-        var attr = element.attributes.item(i);
-        if (attr.localName.startsWith("data-")) {
-            v[attr.localName.substr(5)] = attr.value;
+    let v = element;
+    if (v.__kk_dataSet === undefined) {
+        if (element.parentElement !== undefined) {
+            return getDataSet(element.parentElement);
         }
     }
-    return v;
+    else {
+        return v.__kk_dataSet;
+    }
+    return undefined;
 }
 function getTouches(touches) {
     let vs = [];
@@ -2729,11 +2907,11 @@ class ViewElement extends Element_1.Element {
         if (hover) {
             var v = this.get("hover-class");
             if (v && v != 'none') {
-                this._view.className = (this.get("class") || '') + ' ' + v;
+                this._view.className = this.resolveClassName((this.get("class") || '') + ' ' + v);
                 return;
             }
         }
-        this._view.className = this.get("class") || '';
+        this._view.className = this.resolveClassName(this.get("class"));
         this._hover = hover;
     }
     doElementEvent(name, detail) {
@@ -2761,7 +2939,7 @@ class ViewElement extends Element_1.Element {
             } : undefined,
             currentTarget: event.currentTarget ? {
                 id: event.currentTarget.id,
-                dataset: getDataSet(event.target)
+                dataset: getDataSet(event.currentTarget)
             } : undefined,
             detail: detail,
             touches: event instanceof TouchEvent ? getTouches(event.touches) : undefined,
@@ -2799,6 +2977,7 @@ class ViewElement extends Element_1.Element {
         let timeStamp = 0;
         let element = this;
         this._view = this.createView();
+        this._view.__kk_dataSet = {};
         this._view.addEventListener("touchstart", (event) => {
             timeStamp = event.timeStamp;
             element.doEvent(event, "touchstart", {});
@@ -2826,10 +3005,26 @@ class ViewElement extends Element_1.Element {
             element.doEvent(event, "tap", {});
         });
     }
+    resolveClassName(v) {
+        return v || '';
+    }
+    setData(key, value) {
+        let e = this._view;
+        let dataSet = e.__kk_dataSet;
+        if (dataSet === undefined) {
+            e.__kk_dataSet = dataSet = {};
+        }
+        if (value === undefined) {
+            delete dataSet[key];
+        }
+        else {
+            dataSet[key] = value;
+        }
+    }
     set(key, value) {
         super.set(key, value);
         if (key == 'class') {
-            this._view.className = value === undefined ? '' : value;
+            this._view.className = this.resolveClassName(value);
         }
         else if (key == 'style') {
             if (value === undefined) {
@@ -2848,14 +3043,6 @@ class ViewElement extends Element_1.Element {
             }
             else {
                 this._view.setAttribute("id", value);
-            }
-        }
-        else if (key.startsWith("data-")) {
-            if (value === undefined) {
-                this._view.removeAttribute(key);
-            }
-            else {
-                this._view.setAttribute(key, value);
             }
         }
         else if (key == 'hover-stop-propagation') {
@@ -2907,7 +3094,7 @@ class ViewElement extends Element_1.Element {
 }
 exports.ViewElement = ViewElement;
 
-},{"./BlockElement":2,"./Element":8,"./V":35}],37:[function(require,module,exports){
+},{"./BlockElement":2,"./Element":9,"./V":36}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var _running = false;
@@ -2930,7 +3117,7 @@ function once(func) {
 }
 exports.once = once;
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 
 require('./bin/Data.js');
 require('./bin/V.js');
@@ -2966,6 +3153,7 @@ require('./bin/TextareaElement.js');
 require('./bin/NavigatorElement.js');
 require('./bin/CanvasElement.js');
 require('./bin/BlockElement.js');
+require('./bin/ComponentElement.js');
 
 require('./bin/Document.js');
 require('./bin/Page.js');
@@ -2973,7 +3161,7 @@ require('./bin/Page.js');
 kk = require('./bin/Main.js');
 
 
-},{"./bin/Anim.js":1,"./bin/BlockElement.js":2,"./bin/ButtonElement.js":3,"./bin/CanvasElement.js":4,"./bin/CheckboxElement.js":5,"./bin/Data.js":6,"./bin/Document.js":7,"./bin/Element.js":8,"./bin/Event.js":9,"./bin/EventEmitter.js":10,"./bin/FormElement.js":11,"./bin/IPC.js":12,"./bin/IconElement.js":13,"./bin/ImageElement.js":14,"./bin/InputElement.js":15,"./bin/LabelElement.js":16,"./bin/Main.js":17,"./bin/MovableViewElement.js":18,"./bin/NViewElement.js":19,"./bin/NavigatorElement.js":20,"./bin/Page.js":21,"./bin/PickerElement.js":22,"./bin/PickerViewElement.js":23,"./bin/ProgressElement.js":24,"./bin/RadioElement.js":25,"./bin/RichTextElement.js":26,"./bin/ScrollViewElement.js":27,"./bin/SliderElement.js":28,"./bin/Style.js":29,"./bin/SwiperElement.js":30,"./bin/SwitchElement.js":31,"./bin/TextElement.js":32,"./bin/TextareaElement.js":33,"./bin/URI.js":34,"./bin/V.js":35,"./bin/ViewElement.js":36,"./bin/once.js":37}],39:[function(require,module,exports){
+},{"./bin/Anim.js":1,"./bin/BlockElement.js":2,"./bin/ButtonElement.js":3,"./bin/CanvasElement.js":4,"./bin/CheckboxElement.js":5,"./bin/ComponentElement.js":6,"./bin/Data.js":7,"./bin/Document.js":8,"./bin/Element.js":9,"./bin/Event.js":10,"./bin/EventEmitter.js":11,"./bin/FormElement.js":12,"./bin/IPC.js":13,"./bin/IconElement.js":14,"./bin/ImageElement.js":15,"./bin/InputElement.js":16,"./bin/LabelElement.js":17,"./bin/Main.js":18,"./bin/MovableViewElement.js":19,"./bin/NViewElement.js":20,"./bin/NavigatorElement.js":21,"./bin/Page.js":22,"./bin/PickerElement.js":23,"./bin/PickerViewElement.js":24,"./bin/ProgressElement.js":25,"./bin/RadioElement.js":26,"./bin/RichTextElement.js":27,"./bin/ScrollViewElement.js":28,"./bin/SliderElement.js":29,"./bin/Style.js":30,"./bin/SwiperElement.js":31,"./bin/SwitchElement.js":32,"./bin/TextElement.js":33,"./bin/TextareaElement.js":34,"./bin/URI.js":35,"./bin/V.js":36,"./bin/ViewElement.js":37,"./bin/once.js":38}],40:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3494,4 +3682,4 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}]},{},[38]);
+},{}]},{},[39]);

@@ -48,6 +48,7 @@ namespace kk {
             return _spans;
         }
         
+
         void AttributedText::Openlib() {
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
@@ -57,7 +58,6 @@ namespace kk {
                     kk::PutMethod<AttributedText,void>(ctx, -1, "clear", &AttributedText::clear);
                     kk::PutMethod<AttributedText,void,kk::CString,kk::ui::Font,kk::ui::Color>(ctx, -1, "appendText", &AttributedText::append);
                     kk::PutMethod<AttributedText,void,kk::ui::Image *,kk::Uint,kk::Uint,kk::ui::Float,kk::ui::Float,kk::ui::Float,kk::ui::Float>(ctx, -1, "appendImage", &AttributedText::appendImage);
-                    
                 });
                 
             });
@@ -123,6 +123,10 @@ namespace kk {
                 }
                 _parent = nullptr;
             }
+        }
+        
+        void View::removeAllSubviews() {
+            _subviews.clear();
         }
         
         void View::setFrame(Float x,Float y,Float width,Float height) {
@@ -192,6 +196,11 @@ namespace kk {
             return _configuration;
         }
         
+        void View::setContentOffset(Float x,Float y,kk::Boolean animated) {
+            Point p = {x,y};
+            setContentOffset(p, animated);
+        }
+        
         void View::Openlib() {
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
@@ -201,6 +210,7 @@ namespace kk {
                     kk::PutMethod<View,void,kk::CString,kk::CString>(ctx, -1, "set", &View::set);
                     kk::PutMethod<View,void,kk::ui::Float,kk::ui::Float,kk::ui::Float,kk::ui::Float>(ctx, -1, "setFrame", &View::setFrame);
                     kk::PutMethod<View,void,kk::ui::Float,kk::ui::Float>(ctx, -1, "setContentSize", &View::setContentSize);
+                    kk::PutMethod<View,void,kk::ui::Float,kk::ui::Float,kk::Boolean>(ctx, -1, "setContentOffset", &View::setContentOffset);
                     kk::PutMethod<View,void,View *,SubviewPosition>(ctx, -1, "addSubview", &View::addSubview);
                     kk::PutMethod<View,void>(ctx, -1, "removeView", &View::removeView);
                     kk::PutMethod<View,void,CString>(ctx, -1, "evaluateJavaScript", &View::evaluateJavaScript);

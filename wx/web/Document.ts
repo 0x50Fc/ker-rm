@@ -17,6 +17,16 @@ export class Document extends EventEmitter {
     private _elementClass:ElemnetClassMap = {};
     private _elements:ElemnetMap = {};
     private _documentElement:Element = new Element(this,"document",0);
+    private _basePath:string;
+
+    public get basePath():string {
+        return this._basePath;
+    }
+
+    constructor(basePath:string) {
+        super();
+        this._basePath = basePath;
+    }
 
     createElement(name:string):Element {
         let id = ++ this._autoId;

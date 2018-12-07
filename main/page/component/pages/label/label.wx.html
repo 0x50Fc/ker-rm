@@ -1,0 +1,89 @@
+<style type="text/css">
+.label-1, .label-2{
+  margin: 1.5rem 0;
+}
+.label-3-text{
+  color: #576B95;
+  font-size: 1.4000000000000001rem;
+}
+.checkbox-3{
+  display: block;
+  margin: 1.5rem 0;
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"label"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section page-section-gap"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"表单组件在label内"},context,function(element,data,context){
+				});
+				__V(element,data,"checkbox-group",{"class":"group","bindchange":"checkboxChange"},context,function(element,data,context){
+					__V(element,data,"view",{"class":"label-1","wx:for":__E(function(checkboxItems){ return (checkboxItems); },[["checkboxItems"]])},context,function(element,data,context){
+						__V(element,data,"label",{},context,function(element,data,context){
+							__V(element,data,"checkbox",{"value":__E(function(item){ return (item.name); },[["item"]]),"checked":__E(function(item){ return (item.checked); },[["item"]])},context,function(element,data,context){
+							});
+							__V(element,data,"text",{"class":"label-1-text","#text":__E(function(item){ return (item.value); },[["item"]])},context,function(element,data,context){
+							});
+						});
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-section page-section-gap"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"label用for标识表单组件"},context,function(element,data,context){
+				});
+				__V(element,data,"radio-group",{"class":"group","bindchange":"radioChange"},context,function(element,data,context){
+					__V(element,data,"view",{"class":"label-2","wx:for":__E(function(radioItems){ return (radioItems); },[["radioItems"]])},context,function(element,data,context){
+						__V(element,data,"radio",{"id":__E(function(item){ return (item.name); },[["item"]]),"value":__E(function(item){ return (item.name); },[["item"]]),"checked":__E(function(item){ return (item.checked); },[["item"]])},context,function(element,data,context){
+						});
+						__V(element,data,"label",{"class":"label-2-text","for":__E(function(item){ return (item.name); },[["item"]])},context,function(element,data,context){
+							__V(element,data,"text",{"#text":__E(function(item){ return (item.name); },[["item"]])},context,function(element,data,context){
+							});
+						});
+					});
+				});
+			});
+			__V(element,data,"view",{"class":"page-section page-section-gap"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-section-title","#text":"label内有多个时选中第一个"},context,function(element,data,context){
+				});
+				__V(element,data,"label",{"class":"label-3"},context,function(element,data,context){
+					__V(element,data,"checkbox",{"class":"checkbox-3","#text":"选项一"},context,function(element,data,context){
+					});
+					__V(element,data,"checkbox",{"class":"checkbox-3","#text":"选项二"},context,function(element,data,context){
+					});
+					__V(element,data,"view",{"class":"label-3-text","#text":"点击该label下的文字默认选中第一个checkbox"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/label");
+});})();
+</script></body>

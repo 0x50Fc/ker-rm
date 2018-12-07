@@ -1,0 +1,64 @@
+<style type="text/css">
+wx-button{
+  margin: 2rem 0;
+}
+.text-box{
+  margin-bottom: 3.5rem;
+  padding: 2rem 0;
+  display: flex;
+  min-height: 15rem;
+  background-color: #FFFFFF;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 1.5rem;
+  color: #353535;
+  line-height: 2em;
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"text"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section page-section-spacing"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"text-box","scroll-y":"true","scroll-top":__E(function(scrollTop){ return (scrollTop); },[["scrollTop"]])},context,function(element,data,context){
+					__V(element,data,"text",{"#text":__E(function(text){ return (text); },[["text"]])},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"button",{"disabled":__E(function(canAdd){ return (!canAdd); },[["canAdd"]]),"bindtap":"add","#text":"add line"},context,function(element,data,context){
+				});
+				__V(element,data,"button",{"disabled":__E(function(canRemove){ return (!canRemove); },[["canRemove"]]),"bindtap":"remove","#text":"remove line"},context,function(element,data,context){
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/text");
+});})();
+</script></body>

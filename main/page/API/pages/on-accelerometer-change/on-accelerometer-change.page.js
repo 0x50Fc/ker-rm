@@ -1,0 +1,1 @@
+require("wx/wx.page.js")({path: path,query: query}, "page/API/pages/on-accelerometer-change/on-accelerometer-change", page, app);

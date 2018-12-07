@@ -22,7 +22,7 @@
 
 - (IBAction)doTapAction:(id)sender {
     
-    KerApp * app = [[KerApp alloc] initWithBasePath:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"bin"]];
+    KerApp * app = [[KerApp alloc] initWithBasePath:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"1.0"] appkey:@"main"];
     
     [app run:@{}];
     

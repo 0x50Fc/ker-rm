@@ -201,7 +201,7 @@ namespace kk {
                 }
             }
             
-            virtual void setContentOffset(Point & offset) {
+            virtual void setContentOffset(Point & offset,kk::Boolean animated) {
                 @autoreleasepool {
                     
                     UIView * v = (__bridge UIView *) _view;
@@ -211,7 +211,7 @@ namespace kk {
                     }
                     
                     if([v isKindOfClass:[UIScrollView class]]) {
-                        [(UIScrollView *) v setContentOffset:CGPointMake(offset.x, offset.y)];
+                        [(UIScrollView *) v setContentOffset:CGPointMake(offset.x, offset.y) animated:animated];
                     }
                 }
             }
@@ -307,6 +307,21 @@ namespace kk {
                 View::removeView();
             }
             
+            virtual void removeAllSubviews() {
+                auto i = _subviews.begin();
+                while(i != _subviews.end()) {
+                    
+                    OSView * v = i->second;
+                    
+                    @autoreleasepool {
+                        UIView * view = (__bridge UIView *) v->_view;
+                        [view removeFromSuperview];
+                    }
+                    
+                    i ++;
+                }
+            }
+            
             virtual void evaluateJavaScript(kk::CString code) {
                 if(code == nullptr) {
                     return;
@@ -339,7 +354,7 @@ namespace kk {
             
             virtual void setImage(Image * image) {
                 if(_image != nullptr && _onImageLoadFunc != nullptr) {
-                    _image->off("load", (kk::TFunction<void, Event *> *) _onImageLoadFunc);
+                    _image->off("load", (kk::TFunction<void,kk::CString, Event *> *) _onImageLoadFunc);
                 }
                 View::setImage(image);
                 if(image == nullptr) {
@@ -355,14 +370,14 @@ namespace kk {
                 } else if(image->state() != ImageStateError) {
                     if(_onImageLoadFunc == nullptr) {
                         kk::Weak<OSView> v = this;
-                        _onImageLoadFunc = new kk::TFunction<void, Event *>([v,image](Event *event)->void{
+                        _onImageLoadFunc = new kk::TFunction<void, kk::CString,Event *>([v,image](kk::CString name,Event *event)->void{
                             kk::Strong<OSView> vv = v.operator->();
                             if(vv != nullptr && vv->_image == image) {
                                 vv->doLoadImage();
                             }
                         });
                     }
-                    _image->on("load", (kk::TFunction<void, Event *> *) _onImageLoadFunc);
+                    _image->on("load", (kk::TFunction<void, kk::CString,Event *> *) _onImageLoadFunc);
                 }
             }
             
@@ -375,7 +390,7 @@ namespace kk {
             
         protected:
             CFTypeRef _view;
-            kk::Strong<kk::TFunction<void, Event *>> _onImageLoadFunc;
+            kk::Strong<kk::TFunction<void, kk::CString, Event *>> _onImageLoadFunc;
         };
         
         kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration,Context * context) {
@@ -449,6 +464,14 @@ namespace kk {
             
             return string;
         }
+        
+        Size getAttributedTextContentSize(Context * context,AttributedText * text,kk::Float maxWidth) {
+            NSAttributedString * string = GetAttributedText(text, context);
+            CGRect bounds = [string boundingRectWithSize:CGSizeMake(maxWidth == 0 ? MAXFLOAT : maxWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin context:nil];
+            Size v = { (Float) bounds.size.width, (Float) bounds.size.height};
+            return v;
+        }
+        
         
     }
     

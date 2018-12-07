@@ -184,7 +184,9 @@
     
     [configuration.preferences setJavaScriptCanOpenWindowsAutomatically:YES];
     [configuration.preferences setJavaScriptEnabled:YES];
+    [configuration.preferences setMinimumFontSize:0];
     [configuration.preferences setValue:@YES forKey:@"allowFileAccessFromFileURLs"];
+    [configuration setApplicationNameForUserAgent:@"Ker/1.0"];
     
     WKWebView * view = [[self alloc] initWithFrame:CGRectZero configuration:configuration];
     
@@ -275,6 +277,7 @@
     }
     
 }
+
 
 @end
 

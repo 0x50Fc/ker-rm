@@ -23,6 +23,8 @@ namespace kk {
 
 -(void) setOptions:(id) options;
 
+-(void) close:(BOOL) animated;
+
 @end
 
 @implementation KerPage
@@ -41,13 +43,26 @@ namespace kk {
         
         CFTypeRef page = (__bridge CFTypeRef) self;
         
-        _page->on("options", new kk::TFunction<void,kk::Event *>([page](kk::Event * event)->void{
+        _page->on("options", new kk::TFunction<void,kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
             
             @autoreleasepool {
                 KerPage * p = (__bridge KerPage *) page;
                 kk::Any v = event->data();
                 id object = KerObjectFromAny(v);
                 [p setOptions:object];
+            }
+            
+        }));
+        
+        _page->on("close", new kk::TFunction<void,kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
+            
+            @autoreleasepool {
+                __weak KerPage * p = (__bridge KerPage *) page;
+                kk::Any v = event->data();
+                id object = KerObjectFromAny(v);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [p close:[[object ker_getValue:@"animated"] boolValue]];
+                });
             }
             
         }));
@@ -64,6 +79,7 @@ namespace kk {
 }
 
 -(void) recycle {
+    self.delegate = nil;
     if(_page) {
         _page->off();
         _page->release();
@@ -100,6 +116,12 @@ namespace kk {
 -(void) setOptions:(id) options {
     if([(id)_delegate respondsToSelector:@selector(KerPage:setOptions:)]) {
         [_delegate KerPage:self setOptions:options];
+    }
+}
+
+-(void) close:(BOOL) animated {
+    if([(id)_delegate respondsToSelector:@selector(KerPage:close:)]) {
+        [_delegate KerPage:self close:animated];
     }
 }
 

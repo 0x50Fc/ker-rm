@@ -1,0 +1,124 @@
+<style type="text/css">
+body {
+  color: #333;
+}
+.devices_summary {
+  padding: 0.5rem;
+  font-size: 1.5rem;
+}
+.device_list {
+  height: 15rem;
+  border-radius: 0.25rem;
+  flex: 1;
+}
+.device_item {
+  border-bottom: 0.05rem solid #EEE;
+  padding: 0.5rem;
+  color: #666;
+}
+.device_item_hover {
+  background-color: rgba(0, 0, 0, .1);
+}
+.connected_info {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #F0F0F0;
+  padding: 0.5rem;
+  padding-bottom: 1rem;
+  margin-bottom: env(safe-area-inset-bottom);
+  font-size: 1.4000000000000001rem;
+  min-height: 5rem;
+  box-shadow: 0rem 0rem 0.15000000000000002rem 0rem;
+}
+.connected_info .operation {
+  position: absolute;
+  display: inline-block;
+  right: 1.5rem;
+}
+.page-body-info {
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"wxs",{"module":"utils","#text":"module.exports.max = function(n1, n2) {\n  return Math.max(n1, n2)\n}\nmodule.exports.len = function(arr) {\n  arr = arr || []\n  return arr.length\n}"},context,function(element,data,context){
+	},"page/API/pages/bluetooth");
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"bluetooth"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-body-info"},context,function(element,data,context){
+					__V(element,data,"view",{"class":"devices_summary","#text":__E(function(devices){ return "已发现 "+(devices.length)+" 个外围设备："; },[["devices"]])},context,function(element,data,context){
+					});
+					__V(element,data,"scroll-view",{"class":"device_list","scroll-y":"","scroll-with-animation":""},context,function(element,data,context){
+						__V(element,data,"view",{"wx:for":__E(function(devices){ return (devices); },[["devices"]]),"wx:key":"index","data-device-id":__E(function(item){ return (item.deviceId); },[["item"]]),"data-name":__E(function(item){ return (item.name||item.localName); },[["item"]]),"bindtap":"createBLEConnection","class":"device_item","hover-class":"device_item_hover"},context,function(element,data,context){
+							__V(element,data,"view",{"style":"font-size: 16px; color: #333;","#text":__E(function(item){ return (item.name); },[["item"]])},context,function(element,data,context){
+							});
+							__V(element,data,"view",{"style":"font-size: 10px","#text":__E(function(item){ return "信号强度: "+(item.RSSI)+"dBm ("+(utils.max(0,item.RSSI+100))+"%)"; },[["item"]])},context,function(element,data,context){
+							});
+							__V(element,data,"view",{"style":"font-size: 10px","#text":__E(function(item){ return "UUID: "+(item.deviceId); },[["item"]])},context,function(element,data,context){
+							});
+							__V(element,data,"view",{"style":"font-size: 10px","#text":__E(function(item){ return "Service数量: "+(utils.len(item.advertisServiceUUIDs)); },[["item"]])},context,function(element,data,context){
+							});
+						});
+					});
+				});
+				__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+					__V(element,data,"button",{"type":"primary","bindtap":"openBluetoothAdapter","#text":"开始扫描"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"bindtap":"stopBluetoothDevicesDiscovery","#text":"停止扫描"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"connected_info","wx:if":__E(function(connected){ return (connected); },[["connected"]])},context,function(element,data,context){
+			__V(element,data,"view",{},context,function(element,data,context){
+				__V(element,data,"text",{"#text":__E(function(name){ return "已连接到 "+(name); },[["name"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"operation"},context,function(element,data,context){
+					__V(element,data,"button",{"wx:if":__E(function(canWrite){ return (canWrite); },[["canWrite"]]),"size":"mini","bindtap":"writeBLECharacteristicValue","#text":"写数据"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"size":"mini","bindtap":"closeBLEConnection","#text":"断开连接"},context,function(element,data,context){
+					});
+				});
+			});
+			__V(element,data,"view",{"wx:for":__E(function(chs){ return (chs); },[["chs"]]),"wx:key":"index","style":"font-size: 12px; margin-top: 10px;"},context,function(element,data,context){
+				__V(element,data,"view",{"#text":__E(function(item){ return "特性UUID: "+(item.uuid); },[["item"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"#text":__E(function(item){ return "特性值: "+(item.value); },[["item"]])},context,function(element,data,context){
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/bluetooth");
+});})();
+</script></body>

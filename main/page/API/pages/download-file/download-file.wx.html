@@ -1,0 +1,56 @@
+<style type="text/css">
+.page-body wx-image {
+  width: 30rem;
+  height: 30rem;
+
+  margin: 0 3.75rem;
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"downloadFile"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"image",{"wx:if":__E(function(imageSrc){ return (imageSrc); },[["imageSrc"]]),"src":__E(function(imageSrc){ return (imageSrc); },[["imageSrc"]]),"mode":"center"},context,function(element,data,context){
+			});
+			__V(element,data,"block",{"wx:else":""},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-body-wording"},context,function(element,data,context){
+					__V(element,data,"text",{"class":"page-body-text","#text":"点击按钮下载服务端示例图片"},context,function(element,data,context){
+					});
+				});
+				__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+					__V(element,data,"button",{"bindtap":"downloadImage","type":"primary","#text":"下载"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/download-file");
+});})();
+</script></body>

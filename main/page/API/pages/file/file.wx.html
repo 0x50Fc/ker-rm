@@ -1,0 +1,83 @@
+<style type="text/css">
+.image {
+  width: 100%;
+  height: 18rem;
+}
+.page-body-info {
+  display: flex;
+  box-sizing: border-box;
+  padding: 1.5rem;
+  height: 21rem;
+  border-top: 0.05rem solid #D9D9D9;
+  border-bottom: 0.05rem solid #D9D9D9;
+  align-items: center;
+  justify-content: center;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"saveFile"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-body-info"},context,function(element,data,context){
+					__V(element,data,"block",{"wx:if":__E(function(tempFilePath){ return (tempFilePath!=""); },[["tempFilePath"]])},context,function(element,data,context){
+						__V(element,data,"image",{"src":__E(function(tempFilePath){ return (tempFilePath); },[["tempFilePath"]]),"class":"image","mode":"aspectFit"},context,function(element,data,context){
+						});
+					});
+					__V(element,data,"block",{"wx:if":__E(function(tempFilePath,savedFilePath){ return (tempFilePath===""&&savedFilePath!=""); },[["tempFilePath"],["savedFilePath"]])},context,function(element,data,context){
+						__V(element,data,"image",{"src":__E(function(savedFilePath){ return (savedFilePath); },[["savedFilePath"]]),"class":"image","mode":"aspectFit"},context,function(element,data,context){
+						});
+					});
+					__V(element,data,"block",{"wx:if":__E(function(tempFilePath,savedFilePath){ return (tempFilePath===""&&savedFilePath===""); },[["tempFilePath"],["savedFilePath"]])},context,function(element,data,context){
+						__V(element,data,"view",{"class":"image-plus image-plus-nb","bindtap":"chooseImage"},context,function(element,data,context){
+							__V(element,data,"view",{"class":"image-plus-horizontal"},context,function(element,data,context){
+							});
+							__V(element,data,"view",{"class":"image-plus-vertical"},context,function(element,data,context){
+							});
+						});
+						__V(element,data,"view",{"class":"image-plus-text","#text":"请选择文件"},context,function(element,data,context){
+						});
+					});
+				});
+				__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+					__V(element,data,"button",{"type":"primary","bindtap":"saveFile","#text":"保存文件"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"bindtap":"clear","#text":"删除文件"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__V(element,data,"modal",{"title":__E(function(dialog){ return (dialog.title); },[["dialog"]]),"hidden":__E(function(dialog){ return (dialog.hidden); },[["dialog"]]),"no-cancel":"","bindconfirm":"confirm","#text":__E(function(dialog){ return (dialog.content); },[["dialog"]])},context,function(element,data,context){
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/file");
+});})();
+</script></body>

@@ -1,0 +1,77 @@
+<style type="text/css">
+.page-section{
+  width: auto;
+  margin: 1.5rem;
+  padding: 3.2rem 1.5rem;
+  background-color: #fff;
+  text-align: center;
+  font-size: 1.4000000000000001rem;
+}
+.desc{
+  color: #B2B2B2;
+}
+.price{
+  margin-top: 1.5rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+  display: inline-block;
+  font-size: 3.9000000000000004rem;
+  line-height: 1;
+}
+.price:before{
+  content: "¥";
+  position: absolute;
+  font-size: 2rem;
+  top: 0.4rem;
+  left: -2rem;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"requestPayment"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"#text":"支付金额"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"price","#text":"0.01"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"desc","#text":"实际接口应用中可自定义金额"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+					__V(element,data,"button",{"type":"primary","bindtap":"requestPayment","loading":__E(function(loading){ return (loading); },[["loading"]]),"#text":"支付"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/request-payment");
+});})();
+</script></body>

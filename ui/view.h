@@ -43,7 +43,7 @@ namespace kk {
             virtual void append(kk::ui::Image * image,kk::Uint width,kk::Uint height,kk::ui::Edge margin);
             virtual void appendImage(kk::ui::Image * image,kk::Uint width,kk::Uint height,kk::ui::Float top,kk::ui::Float left,kk::ui::Float bottom,kk::ui::Float right);
             virtual std::vector<AttributedTextSpan> & spans();
-            
+ 
             Ker_CLASS(AttributedText, Object, "UIAttributedText");
             
             
@@ -52,6 +52,8 @@ namespace kk {
         protected:
             std::vector<AttributedTextSpan> _spans;
         };
+        
+        extern Size getAttributedTextContentSize(Context * context,AttributedText * text,kk::Float maxWidth);
         
         extern kk::CString kCanvasCGContext;
         extern kk::CString kCanvasWebGLContext;
@@ -96,11 +98,13 @@ namespace kk {
             virtual void setFrame(Float x,Float y,Float width,Float height);
             virtual void setContentSize(Size & size) = 0;
             virtual void setContentSize(Float width,Float height);
-            virtual void setContentOffset(Point & offset) = 0;
+            virtual void setContentOffset(Point & offset,kk::Boolean animated) = 0;
+            virtual void setContentOffset(Float x,Float y,kk::Boolean animated);
             virtual Point contentOffset() = 0;
             virtual kk::Strong<Canvas> createCanvas(Worker * worker) = 0;
             virtual void addSubview(View * view,SubviewPosition position);
             virtual void removeView();
+            virtual void removeAllSubviews();
             virtual kk::Strong<View> obtainView(kk::CString reuse);
             virtual void recycleView(View * view,kk::CString reuse);
             virtual void removeRecycleViews();

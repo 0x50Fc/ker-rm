@@ -32,12 +32,14 @@ typedef void * KerAppCPointer;
 
 +(void) openlib;
 
+@property(nonatomic,strong,readonly) NSString * appkey;
 @property(nonatomic,strong) UIViewController * rootViewController;
 @property(nonatomic,strong,readonly) NSString * basePath;
+@property(nonatomic,strong,readonly) NSString * dataPath;
 @property(nonatomic,assign,readonly) KerAppCPointer CPointer;
 @property(nonatomic,weak) id<KerAppDelegate> delegate;
 
--(instancetype) initWithBasePath:(NSString *) basePath;
+-(instancetype) initWithBasePath:(NSString *) basePath appkey:(NSString *) appkey;
 
 -(void) run:(NSDictionary<NSString *,NSString *> *) query;
 
@@ -63,5 +65,18 @@ typedef void * KerAppCPointer;
 
 +(void) setUserAgent:(NSString *)v;
 
++(NSDictionary *) queryWithURI:(NSString *) uri;
+
++(NSString *) pathWithURI:(NSString *) uri;
+
++(NSString *) filePathWithURI:(NSString *) uri basePath:(NSString *) basePath;
+
++(NSString *) keyWithURI:(NSString *) uri;
+
++(dispatch_queue_t) IOQueue;
+
++(NSString *) relativeURI:(NSString *) filePath;
+
++(NSString *) mimeType:(NSString *) filePath data:(NSData *) data defaultType:(NSString *) defaultType;
 
 @end

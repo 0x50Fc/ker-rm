@@ -38,7 +38,7 @@ function copy(from, to, filter) {
     } else if (f) {
         if (filter === undefined || filter(from, to)) {
             mkdirs(path.dirname(to));
-            console.info(from, ">>", to,typeof fs,typeof fs.copyFileSync);
+            console.info('[COPY]',from, ">>", to);
             fs.copyFileSync(from, to);
         }
     }

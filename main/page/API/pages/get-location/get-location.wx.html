@@ -1,0 +1,78 @@
+<style type="text/css">
+.page-body-info {
+  height: 12.5rem;
+}
+.page-body-text-small {
+  font-size: 1.2000000000000002rem;
+  color: #000;
+  margin-bottom: 5rem;
+}
+.page-body-text-location {
+  display: flex;
+  font-size: 2.5rem;
+}
+.page-body-text-location wx-text {
+  margin: 0.5rem;
+}
+</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"getLocation"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-body-info"},context,function(element,data,context){
+					__V(element,data,"text",{"class":"page-body-text-small","#text":"当前位置经纬度"},context,function(element,data,context){
+					});
+					__V(element,data,"block",{"wx:if":__E(function(hasLocation){ return (hasLocation===false); },[["hasLocation"]])},context,function(element,data,context){
+						__V(element,data,"text",{"class":"page-body-text","#text":"未获取"},context,function(element,data,context){
+						});
+					});
+					__V(element,data,"block",{"wx:if":__E(function(hasLocation){ return (hasLocation===true); },[["hasLocation"]])},context,function(element,data,context){
+						__V(element,data,"view",{"class":"page-body-text-location"},context,function(element,data,context){
+							__V(element,data,"text",{"#text":__E(function(location){ return "E: "+(location.longitude[0])+"°"+(location.longitude[1])+"′"; },[["location"]])},context,function(element,data,context){
+							});
+							__V(element,data,"text",{"#text":__E(function(location){ return "N: "+(location.latitude[0])+"°"+(location.latitude[1])+"′"; },[["location"]])},context,function(element,data,context){
+							});
+						});
+					});
+				});
+				__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+					__V(element,data,"button",{"type":"primary","bindtap":"getLocation","#text":"获取位置"},context,function(element,data,context){
+					});
+					__V(element,data,"button",{"bindtap":"clear","#text":"清空"},context,function(element,data,context){
+					});
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/API/pages/get-location");
+});})();
+</script></body>

@@ -19,6 +19,8 @@ typedef void * KerPageCPointer;
 
 -(void) KerPage:(KerPage *) page setOptions:(id) options;
 
+-(void) KerPage:(KerPage *) page close:(BOOL) animated;
+
 @end
 
 @interface KerPage : NSObject

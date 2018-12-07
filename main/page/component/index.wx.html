@@ -1,0 +1,155 @@
+<style type="text/css">
+.index-hd {
+  padding: 4rem;
+  text-align: center;
+}
+.index-bd {
+  padding: 0 1.5rem 2rem;
+}
+.index-ft {
+  padding-bottom: 1rem;
+  text-align: center;
+}
+.index-logo {
+  width: 4.3rem;
+  height: 4.3rem;
+}
+.index-desc {
+  margin-top: 1rem;
+  color: #888888;
+  font-size: 1.4000000000000001rem;
+}
+
+
+.navigator-box {
+  opacity: 0;
+  position: relative;
+  background-color: #FFFFFF;
+  line-height: 1.41176471;
+  font-size: 1.7000000000000002rem;
+
+  transform: translateY(-50%);
+  transition: .3s;
+}
+.navigator-box-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.navigator {
+  padding: 1rem 1.5rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.navigator:before {
+  content: " ";
+  position: absolute;
+  left: 1.5rem;
+  top: 0;
+  right: 1.5rem;
+  height: 1px;
+  border-top: 0.05rem solid #D8D8D8;
+  color: #D8D8D8;
+}
+.navigator:first-child:before {
+  display: none;
+}
+.navigator-text {
+  flex: 1;
+}
+.navigator-arrow {
+  padding-right: 1.3rem;
+  position: relative;
+}
+.navigator-arrow:after {
+  content: " ";
+  display: inline-block;
+  height: 0.9rem;
+  width: 0.9rem;
+  border-width: 0.1rem 0.1rem 0 0;
+  border-color: #888888;
+  border-style: solid;
+  transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
+  position: absolute;
+  top: 50%;
+  margin-top: -0.4rem;
+  right: 1.4000000000000001rem;
+}
+
+
+.kind-list-item {
+  margin: 1rem 0;
+  background-color: #FFFFFF;
+  border-radius: 0.2rem;
+  overflow: hidden;
+}
+.kind-list-item:first-child {
+  margin-top: 0;
+}
+.kind-list-text{
+  flex: 1;
+}
+.kind-list-img {
+  width: 3rem;
+  height: 3rem;
+}
+.kind-list-item-hd {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+
+  transition: opacity .3s;
+}
+.kind-list-item-hd-show {
+  opacity: .2;
+}
+.kind-list-item-bd {
+  height: 0;
+  overflow: hidden;
+}
+.kind-list-item-bd-show {
+  height: auto;
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	__V(element,data,"view",{"class":"index"},context,function(element,data,context){
+		__V(element,data,"view",{"class":"index-hd"},context,function(element,data,context){
+			__V(element,data,"image",{"class":"index-logo","src":"resources/kind/logo.png"},context,function(element,data,context){
+			});
+			__V(element,data,"view",{"class":"index-desc","#text":"以下将展示小程序官方组件能力，组件样式仅供参考，开发者可根据自身需求自定义组件样式，具体属性参数详见小程序开发文档。"},context,function(element,data,context){
+			});
+		});
+		__V(element,data,"view",{"class":"index-bd"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"kind-list"},context,function(element,data,context){
+				__V(element,data,"block",{"wx:for-items":__E(function(list){ return (list); },[["list"]]),"wx:key":__E(function(item){ return (item.id); },[["item"]])},context,function(element,data,context){
+					__V(element,data,"view",{"class":"kind-list-item"},context,function(element,data,context){
+						__V(element,data,"view",{"id":__E(function(item){ return (item.id); },[["item"]]),"class":__E(function(item){ return "kind-list-item-hd "+(item.open?"kind-list-item-hd-show":""); },[["item"]]),"bindtap":"kindToggle"},context,function(element,data,context){
+							__V(element,data,"view",{"class":"kind-list-text","#text":__E(function(item){ return (item.name); },[["item"]])},context,function(element,data,context){
+							});
+							__V(element,data,"image",{"class":"kind-list-img","src":__E(function(item){ return "resources/kind/"+(item.id)+".png"; },[["item"]])},context,function(element,data,context){
+							});
+						});
+						__V(element,data,"view",{"class":__E(function(item){ return "kind-list-item-bd "+(item.open?"kind-list-item-bd-show":""); },[["item"]])},context,function(element,data,context){
+							__V(element,data,"view",{"class":__E(function(item){ return "navigator-box "+(item.open?"navigator-box-show":""); },[["item"]])},context,function(element,data,context){
+								__V(element,data,"block",{"wx:for-items":__E(function(item){ return (item.pages); },[["item"]]),"wx:for-item":"page","wx:key":"*item"},context,function(element,data,context){
+									__V(element,data,"navigator",{"url":__E(function(page){ return "pages/"+(page)+"/"+(page); },[["page"]]),"class":"navigator"},context,function(element,data,context){
+										__V(element,data,"view",{"class":"navigator-text","#text":__E(function(page){ return (page); },[["page"]])},context,function(element,data,context){
+										});
+										__V(element,data,"view",{"class":"navigator-arrow"},context,function(element,data,context){
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+	},"page/component");
+});})();
+</script></body>

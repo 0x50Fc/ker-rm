@@ -1,0 +1,76 @@
+<style type="text/css">
+.page-section-title {
+  margin-bottom: 1.5rem;
+}
+
+.navigator {
+  color: #1AAD19;
+  display: inline-block;
+}</style></head><body><script type="text/javascript">
+(function(){
+var __CC = {};
+var __V = kk.CreateElement;
+var __T = kk.CreateTElement;
+var __E = kk.CreateEvaluate;
+var __C = kk.CreateCElement;
+kk.Page(function(element,data,context){
+	var T_head;
+	(function(){
+		T_head = function(element,data,context){ 
+			__V(element,data,"view",{"class":"page-head"},context,function(element,data,context){
+				__V(element,data,"view",{"class":"page-head-title","#text":__E(function(title){ return (title); },[["title"]])},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"class":"page-head-line"},context,function(element,data,context){
+				});
+				__V(element,data,"view",{"wx:if":__E(function(desc){ return (desc); },[["desc"]]),"class":"page-head-desc","#text":__E(function(desc){ return (desc); },[["desc"]])},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	var T_foot;
+	(function(){
+		T_foot = function(element,data,context){ 
+			__V(element,data,"navigator",{"class":"page-foot","opentype":"switchTab","url":"/page/component/index","hover-class":"none"},context,function(element,data,context){
+				__V(element,data,"image",{"class":"icon-foot","src":"../../../../image/icon_foot.png"},context,function(element,data,context){
+				});
+			});
+		};
+	})();
+	__V(element,data,"view",{"class":"container"},context,function(element,data,context){
+		__T(element,data,{"data":__E(function(){ return ({title:"map"}); },[])},T_head,context);
+		__V(element,data,"view",{"class":"page-body"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"page-section-title"},context,function(element,data,context){
+				__V(element,data,"text",{"#text":"当前组件使用了墨渊底图样式，查看"},context,function(element,data,context){
+				});
+				__V(element,data,"navigator",{"class":"navigator","url":"/page/component/pages/map-styles/map-styles","#text":"更多样式"},context,function(element,data,context){
+				});
+				__V(element,data,"text",{"#text":"。"},context,function(element,data,context){
+				});
+			});
+			__V(element,data,"view",{"class":"page-section page-section-gap"},context,function(element,data,context){
+				__V(element,data,"map",{"subkey":__E(function(subKey){ return (subKey); },[["subKey"]]),"style":"width: 100%; height: 300px;","latitude":__E(function(latitude){ return (latitude); },[["latitude"]]),"longitude":__E(function(longitude){ return (longitude); },[["longitude"]]),"scale":__E(function(){ return (18); },[]),"markers":__E(function(markers){ return (markers); },[["markers"]]),"covers":__E(function(covers){ return (covers); },[["covers"]]),"enable-3d":__E(function(enable3d){ return (enable3d); },[["enable3d"]]),"show-compass":__E(function(showCompass){ return (showCompass); },[["showCompass"]]),"enable-zoom":__E(function(enableZoom){ return (enableZoom); },[["enableZoom"]]),"enable-rotate":__E(function(enableRotate){ return (enableRotate); },[["enableRotate"]]),"enable-overlooking":__E(function(enableOverlooking){ return (enableOverlooking); },[["enableOverlooking"]]),"enable-scroll":__E(function(enableScroll){ return (enableScroll); },[["enableScroll"]]),"polygons":__E(function(drawPolygon,polygons){ return (drawPolygon?polygons:[]); },[["drawPolygon"],["polygons"]])},context,function(element,data,context){
+				});
+			});
+		});
+		__V(element,data,"view",{"class":"page-section"},context,function(element,data,context){
+			__V(element,data,"view",{"class":"btn-area"},context,function(element,data,context){
+				__V(element,data,"button",{"bindtap":"toggle3d","#text":__E(function(enable3d){ return (!enable3d?"启用":"关闭")+"3D效果"; },[["enable3d"]])},context,function(element,data,context){
+				});
+				__V(element,data,"button",{"bindtap":"toggleShowCompass","#text":__E(function(showCompass){ return (!showCompass?"显示":"关闭")+"指南针"; },[["showCompass"]])},context,function(element,data,context){
+				});
+				__V(element,data,"button",{"bindtap":"toggleOverlooking","#text":__E(function(enableOverlooking){ return (!enableOverlooking?"开启":"关闭")+"俯视支持"; },[["enableOverlooking"]])},context,function(element,data,context){
+				});
+				__V(element,data,"button",{"bindtap":"toggleRotate","#text":__E(function(enableRotate){ return (!enableRotate?"开启":"关闭")+"旋转支持"; },[["enableRotate"]])},context,function(element,data,context){
+				});
+				__V(element,data,"button",{"bindtap":"togglePolygon","#text":__E(function(drawPolygon){ return (!drawPolygon?"绘制":"清除")+"多边形"; },[["drawPolygon"]])},context,function(element,data,context){
+				});
+				__V(element,data,"button",{"bindtap":"toggleZoom","#text":__E(function(enableZoom){ return (!enableZoom?"开启":"关闭")+"缩放支持"; },[["enableZoom"]])},context,function(element,data,context){
+				});
+				__V(element,data,"button",{"bindtap":"toggleScroll","#text":__E(function(enableScroll){ return (!enableScroll?"开启":"关闭")+"拖动支持"; },[["enableScroll"]])},context,function(element,data,context){
+				});
+			});
+		});
+		__T(element,data,{},T_foot,context);
+	},"page/component/pages/map");
+});})();
+</script></body>
