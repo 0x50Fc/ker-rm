@@ -4,9 +4,10 @@ var fs = require('fs');
 var css = require('./css');
 var babel = require('babel-core');
 
-function App(basePath, outPath) {
+function App(basePath, outPath,shPath) {
     this.basePath = basePath;
     this.outPath = outPath === undefined ? basePath : outPath;
+    this.shPath = shPath === undefined ? __dirname : shPath;
 };
 
 function mkdirs(p) {
@@ -25,6 +26,10 @@ function mkdirs(p) {
 };
 
 function copy(from, to, filter) {
+
+    if(path.basename(from).startsWith(".")) {
+        return;
+    }
 
     var f = fs.statSync(from);
 
@@ -49,7 +54,8 @@ App.prototype = Object.create(Object.prototype, {
     compile: {
         value: function () {
 
-            copy("wxlib", this.outPath);
+            copy(path.join(this.shPath,"wxlib"), this.outPath);
+
             if (this.basePath != this.outPath) {
                 copy(this.basePath, this.outPath, function (from, to) {
                     if (from.endsWith(".js")) {
@@ -68,7 +74,7 @@ App.prototype = Object.create(Object.prototype, {
             }
 
             var vs = [];
-            var s = new css.Source("app.css");
+            var s = new css.Source(path.join(this.shPath,"app.css"));
             s.compile();
             for (var i = 0; i < s.tokens.length; i++) {
                 var token = s.tokens[i];
