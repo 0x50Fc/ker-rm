@@ -312,6 +312,11 @@ static const kk::Class * Class() { \
     protected:
         Native * _native;
     };
+    
+    class NativeValue : public NativeObject {
+    public:
+        NativeValue(Native * native);
+    };
 
     class Any {
     public:

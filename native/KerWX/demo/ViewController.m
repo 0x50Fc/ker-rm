@@ -22,9 +22,9 @@
 
 - (IBAction)doTapAction:(id)sender {
     
-    KerApp * app = [[KerApp alloc] initWithBasePath:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"1.0"] appkey:@"main"];
+//    [KerApp run:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"1.0"] query:@{}];
     
-    [app run:@{}];
+    [KerApp run:@"http://10.222.96.92:8080/1.0.ker" query:@{}];
     
 }
 

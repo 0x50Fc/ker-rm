@@ -388,6 +388,17 @@ namespace kk {
                 }
             }
             
+            virtual void setContent(kk::CString content,kk::CString contentType,kk::CString basePath) {
+                
+                @autoreleasepool {
+                    UIView * v = (__bridge UIView *) _view;
+                    if([v respondsToSelector:@selector(KerView:setContent:contentType:basePath:)]) {
+                        [(id<KerViewProtocol>) v KerView:this setContent:content contentType:contentType basePath:basePath];
+                    }
+                }
+                
+            }
+            
         protected:
             CFTypeRef _view;
             kk::Strong<kk::TFunction<void, kk::CString, Event *>> _onImageLoadFunc;

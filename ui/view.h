@@ -111,6 +111,8 @@ namespace kk {
             
             virtual void evaluateJavaScript(kk::CString code) = 0;
             virtual ViewConfiguration * configuration();
+            virtual void setContent(kk::CString content,kk::CString contentType,kk::CString basePath) = 0;
+            
             virtual void setAttributedText(AttributedText * text) = 0;
             virtual void setImage(Image * image);
             virtual void setGravity(kk::CString gravity) = 0;

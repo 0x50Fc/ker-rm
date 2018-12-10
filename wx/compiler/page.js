@@ -325,7 +325,7 @@ Page.prototype = Object.create(Object.prototype, {
 
             var onopentag, ontext, onclosetag, onerror;
             var basePaths = [dir];
-            var relativePath = this.basePath;
+            var relativePath = dir;
 
             var done = function () {
                 var v = element.text.trim();

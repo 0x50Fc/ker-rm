@@ -6,11 +6,40 @@
 	objectVersion = 50;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		1AA4AB6F21BE4DF600C636F5 /* Ker.framework */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 1AA4AB7021BE4DF600C636F5 /* Build configuration list for PBXAggregateTarget "Ker.framework" */;
+			buildPhases = (
+				1AA4AB7521BE4DFE00C636F5 /* ShellScript */,
+			);
+			dependencies = (
+				1AA4AB7421BE4DFB00C636F5 /* PBXTargetDependency */,
+			);
+			name = Ker.framework;
+			productName = Ker.framework;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */; };
 		1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6E721B8EA2D00170AB7 /* KerURLProtocol.m */; };
+		1A53C6F821BE154300170AB7 /* UIImage+Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6F621BE154300170AB7 /* UIImage+Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A53C6F921BE154300170AB7 /* UIImage+Ker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6F721BE154300170AB7 /* UIImage+Ker.mm */; };
+		1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB4421BE30BC00C636F5 /* package.cc */; };
+		1AA4AB6221BE31AB00C636F5 /* mztools.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5621BE31AA00C636F5 /* mztools.c */; };
+		1AA4AB6421BE31AB00C636F5 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5821BE31AA00C636F5 /* unzip.c */; };
+		1AA4AB6521BE31AB00C636F5 /* unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB5921BE31AA00C636F5 /* unzip.h */; };
+		1AA4AB6621BE31AB00C636F5 /* zip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5A21BE31AA00C636F5 /* zip.c */; };
+		1AA4AB6721BE31AB00C636F5 /* zip.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB5B21BE31AA00C636F5 /* zip.h */; };
+		1AA4AB6821BE31AB00C636F5 /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5C21BE31AA00C636F5 /* ioapi.c */; };
+		1AA4AB6921BE31AB00C636F5 /* minizip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5D21BE31AA00C636F5 /* minizip.c */; };
+		1AA4AB6A21BE31AB00C636F5 /* mztools.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB5E21BE31AA00C636F5 /* mztools.h */; };
+		1AA4AB6B21BE31AB00C636F5 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB5F21BE31AB00C636F5 /* ioapi.h */; };
+		1AA4AB6C21BE31AB00C636F5 /* crypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB6021BE31AB00C636F5 /* crypt.h */; };
+		1AA4AB6E21BE344700C636F5 /* Package.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB6D21BE344700C636F5 /* Package.mm */; };
 		1AF0658D219D516000F8F7A8 /* Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0658B219D516000F8F7A8 /* Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */; };
 		1AF065A4219D518200F8F7A8 /* bio.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06595219D518200F8F7A8 /* bio.h */; };
@@ -76,12 +105,37 @@
 		1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3C21A5719800AE1249 /* KerButton.mm */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1AA4AB7321BE4DFB00C636F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1AF0657F219D516000F8F7A8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AF06587219D516000F8F7A8;
+			remoteInfo = Ker;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		1A53C63B21AF99F400170AB7 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerPageWindowController.h; sourceTree = "<group>"; };
 		1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerPageWindowController.m; sourceTree = "<group>"; };
 		1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerURLProtocol.h; sourceTree = "<group>"; };
 		1A53C6E721B8EA2D00170AB7 /* KerURLProtocol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerURLProtocol.m; sourceTree = "<group>"; };
+		1A53C6F621BE154300170AB7 /* UIImage+Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Ker.h"; sourceTree = "<group>"; };
+		1A53C6F721BE154300170AB7 /* UIImage+Ker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIImage+Ker.mm"; sourceTree = "<group>"; };
+		1AA4AB4321BE30A400C636F5 /* package.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = package.h; sourceTree = "<group>"; };
+		1AA4AB4421BE30BC00C636F5 /* package.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = package.cc; sourceTree = "<group>"; };
+		1AA4AB5621BE31AA00C636F5 /* mztools.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mztools.c; path = ../../../../lib/minizip/mztools.c; sourceTree = "<group>"; };
+		1AA4AB5821BE31AA00C636F5 /* unzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unzip.c; path = ../../../../lib/minizip/unzip.c; sourceTree = "<group>"; };
+		1AA4AB5921BE31AA00C636F5 /* unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unzip.h; path = ../../../../lib/minizip/unzip.h; sourceTree = "<group>"; };
+		1AA4AB5A21BE31AA00C636F5 /* zip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zip.c; path = ../../../../lib/minizip/zip.c; sourceTree = "<group>"; };
+		1AA4AB5B21BE31AA00C636F5 /* zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zip.h; path = ../../../../lib/minizip/zip.h; sourceTree = "<group>"; };
+		1AA4AB5C21BE31AA00C636F5 /* ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ioapi.c; path = ../../../../lib/minizip/ioapi.c; sourceTree = "<group>"; };
+		1AA4AB5D21BE31AA00C636F5 /* minizip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip.c; path = ../../../../lib/minizip/minizip.c; sourceTree = "<group>"; };
+		1AA4AB5E21BE31AA00C636F5 /* mztools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mztools.h; path = ../../../../lib/minizip/mztools.h; sourceTree = "<group>"; };
+		1AA4AB5F21BE31AB00C636F5 /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ioapi.h; path = ../../../../lib/minizip/ioapi.h; sourceTree = "<group>"; };
+		1AA4AB6021BE31AB00C636F5 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crypt.h; path = ../../../../lib/minizip/crypt.h; sourceTree = "<group>"; };
+		1AA4AB6D21BE344700C636F5 /* Package.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Package.mm; sourceTree = "<group>"; };
 		1AF06588219D516000F8F7A8 /* Ker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF0658B219D516000F8F7A8 /* Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ker.h; sourceTree = "<group>"; };
 		1AF0658C219D516000F8F7A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -163,6 +217,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1AA4AB4621BE311F00C636F5 /* minizip */ = {
+			isa = PBXGroup;
+			children = (
+				1AA4AB6021BE31AB00C636F5 /* crypt.h */,
+				1AA4AB5C21BE31AA00C636F5 /* ioapi.c */,
+				1AA4AB5F21BE31AB00C636F5 /* ioapi.h */,
+				1AA4AB5D21BE31AA00C636F5 /* minizip.c */,
+				1AA4AB5621BE31AA00C636F5 /* mztools.c */,
+				1AA4AB5E21BE31AA00C636F5 /* mztools.h */,
+				1AA4AB5821BE31AA00C636F5 /* unzip.c */,
+				1AA4AB5921BE31AA00C636F5 /* unzip.h */,
+				1AA4AB5A21BE31AA00C636F5 /* zip.c */,
+				1AA4AB5B21BE31AA00C636F5 /* zip.h */,
+			);
+			path = minizip;
+			sourceTree = "<group>";
+		};
 		1AF0657E219D516000F8F7A8 = {
 			isa = PBXGroup;
 			children = (
@@ -183,6 +254,7 @@
 		1AF0658A219D516000F8F7A8 /* Ker */ = {
 			isa = PBXGroup;
 			children = (
+				1AA4AB4621BE311F00C636F5 /* minizip */,
 				1AF065B9219D52AC00F8F7A8 /* ui */,
 				1AF065B2219D51A000F8F7A8 /* duktape */,
 				1AF06593219D518200F8F7A8 /* core */,
@@ -192,6 +264,7 @@
 				1AF065D0219D535A00F8F7A8 /* CGContext.mm */,
 				1AF065D4219D536D00F8F7A8 /* Image.mm */,
 				1AF065D6219D537600F8F7A8 /* View.mm */,
+				1AA4AB6D21BE344700C636F5 /* Package.mm */,
 				1AF065DE219D53EA00F8F7A8 /* KerObject.h */,
 				1AF065DD219D53EA00F8F7A8 /* KerObject.mm */,
 				1AF065E2219D547000F8F7A8 /* KerApp.h */,
@@ -225,6 +298,8 @@
 				1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */,
 				1A53C6E721B8EA2D00170AB7 /* KerURLProtocol.m */,
 				1AF0658C219D516000F8F7A8 /* Info.plist */,
+				1A53C6F621BE154300170AB7 /* UIImage+Ker.h */,
+				1A53C6F721BE154300170AB7 /* UIImage+Ker.mm */,
 			);
 			path = Ker;
 			sourceTree = "<group>";
@@ -273,6 +348,8 @@
 				1AF065C2219D52AC00F8F7A8 /* page.cc */,
 				1AF065C3219D52AC00F8F7A8 /* CGContext.h */,
 				1AF065C1219D52AC00F8F7A8 /* CGContext.cc */,
+				1AA4AB4321BE30A400C636F5 /* package.h */,
+				1AA4AB4421BE30BC00C636F5 /* package.cc */,
 			);
 			name = ui;
 			path = ../../../ui;
@@ -299,11 +376,13 @@
 				1AF065D3219D536700F8F7A8 /* UI.h in Headers */,
 				1AF065B8219D51C000F8F7A8 /* duk_config.h in Headers */,
 				1AF4CE3121A56A2000AE1249 /* UIFont+Ker.h in Headers */,
+				1AA4AB6A21BE31AB00C636F5 /* mztools.h in Headers */,
 				1AF065FE219D555E00F8F7A8 /* UITextView+KerViewProtocol.h in Headers */,
 				1AF065AE219D518200F8F7A8 /* dispatch.h in Headers */,
 				1AF065AB219D518200F8F7A8 /* timer.h in Headers */,
 				1AF065A8219D518200F8F7A8 /* kk.h in Headers */,
 				1AF065E4219D547000F8F7A8 /* KerApp.h in Headers */,
+				1AA4AB6B21BE31AB00C636F5 /* ioapi.h in Headers */,
 				1AF06601219D555E00F8F7A8 /* WKWebView+KerViewProtocol.h in Headers */,
 				1AF065C8219D52AC00F8F7A8 /* app.h in Headers */,
 				1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */,
@@ -311,6 +390,7 @@
 				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
 				1AF4CE3521A56B5A00AE1249 /* UIColor+Ker.h in Headers */,
+				1AA4AB6521BE31AB00C636F5 /* unzip.h in Headers */,
 				1AF0658D219D516000F8F7A8 /* Ker.h in Headers */,
 				1AF065CF219D52E200F8F7A8 /* KerViewProtocol.h in Headers */,
 				1AF4CE3921A56DF600AE1249 /* UILabel+KerViewProtocol.h in Headers */,
@@ -324,11 +404,14 @@
 				1AF065A4219D518200F8F7A8 /* bio.h in Headers */,
 				1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */,
 				1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */,
+				1AA4AB6721BE31AB00C636F5 /* zip.h in Headers */,
 				1AF065FB219D555E00F8F7A8 /* UITextField+KerViewProtocol.h in Headers */,
 				1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */,
 				1AF065B6219D51C000F8F7A8 /* duktape.h in Headers */,
 				1AF065CD219D52AC00F8F7A8 /* CGContext.h in Headers */,
 				1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */,
+				1A53C6F821BE154300170AB7 /* UIImage+Ker.h in Headers */,
+				1AA4AB6C21BE31AB00C636F5 /* crypt.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,6 +445,9 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = kkmofang.cn;
 				TargetAttributes = {
+					1AA4AB6F21BE4DF600C636F5 = {
+						CreatedOnToolsVersion = 10.1;
+					};
 					1AF06587219D516000F8F7A8 = {
 						CreatedOnToolsVersion = 10.1;
 					};
@@ -380,6 +466,7 @@
 			projectRoot = "";
 			targets = (
 				1AF06587219D516000F8F7A8 /* Ker */,
+				1AA4AB6F21BE4DF600C636F5 /* Ker.framework */,
 			);
 		};
 /* End PBXProject section */
@@ -394,6 +481,26 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		1AA4AB7521BE4DFE00C636F5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\nFMK_NAME=${PROJECT_NAME}\n\nINSTALL_DIR=${SRCROOT}/../${FMK_NAME}.framework\n\nWRK_DIR=build\n\nDEVICE_DIR=${WRK_DIR}/Release-iphoneos/${FMK_NAME}.framework\n\nSIMULATOR_DIR=${WRK_DIR}/Release-iphonesimulator/${FMK_NAME}.framework\n\nxcodebuild -configuration \"Release\" -target \"${FMK_NAME}\" -sdk iphoneos clean build\n\nxcodebuild -configuration \"Release\" -target \"${FMK_NAME}\" -sdk iphonesimulator build\n\nif [ -d \"${INSTALL_DIR}\" ]\n\nthen\n\nrm -rf \"${INSTALL_DIR}\"\n\nfi\n\nmkdir -p \"${INSTALL_DIR}\"\n\ncp -R \"${DEVICE_DIR}/\" \"${INSTALL_DIR}/\"\n\nlipo -create \"${DEVICE_DIR}/${FMK_NAME}\" \"${SIMULATOR_DIR}/${FMK_NAME}\" -output \"${INSTALL_DIR}/${FMK_NAME}\"\n\nrm -r \"${WRK_DIR}\"\n\nopen \"${INSTALL_DIR}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		1AF06584219D516000F8F7A8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -403,6 +510,7 @@
 				1AF065DF219D53EB00F8F7A8 /* KerObject.mm in Sources */,
 				1AF06600219D555E00F8F7A8 /* UIScrollView+KKViewProtocol.mm in Sources */,
 				1AF065CC219D52AC00F8F7A8 /* page.cc in Sources */,
+				1AA4AB6221BE31AB00C636F5 /* mztools.c in Sources */,
 				1AF4CE3A21A56DF600AE1249 /* UILabel+KerViewProtocol.mm in Sources */,
 				1AF06602219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm in Sources */,
 				1AF065FA219D555E00F8F7A8 /* KerCanvas.m in Sources */,
@@ -410,17 +518,23 @@
 				1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */,
 				1AF065B7219D51C000F8F7A8 /* duktape.c in Sources */,
 				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
+				1AA4AB6621BE31AB00C636F5 /* zip.c in Sources */,
+				1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */,
 				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
 				1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */,
 				1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */,
 				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
+				1AA4AB6E21BE344700C636F5 /* Package.mm in Sources */,
 				1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */,
+				1AA4AB6421BE31AB00C636F5 /* unzip.c in Sources */,
+				1AA4AB6821BE31AB00C636F5 /* ioapi.c in Sources */,
 				1AF065EB219D54E600F8F7A8 /* KerPageViewController.m in Sources */,
 				1AF065B0219D518200F8F7A8 /* jit.cc in Sources */,
 				1AF065C7219D52AC00F8F7A8 /* app.cc in Sources */,
 				1AF065AF219D518200F8F7A8 /* event.cc in Sources */,
 				1AF065FF219D555E00F8F7A8 /* UIView+KerViewProtocol.mm in Sources */,
 				1AF065E3219D547000F8F7A8 /* KerApp.mm in Sources */,
+				1A53C6F921BE154300170AB7 /* UIImage+Ker.mm in Sources */,
 				1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */,
 				1AF4CE3221A56A2000AE1249 /* UIFont+Ker.mm in Sources */,
 				1AF065AA219D518200F8F7A8 /* kk.cc in Sources */,
@@ -428,6 +542,7 @@
 				1AF065AD219D518200F8F7A8 /* timer.cc in Sources */,
 				1AF065D7219D537600F8F7A8 /* View.mm in Sources */,
 				1AF065CB219D52AC00F8F7A8 /* CGContext.cc in Sources */,
+				1AA4AB6921BE31AB00C636F5 /* minizip.c in Sources */,
 				1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */,
 				1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */,
 			);
@@ -435,7 +550,35 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		1AA4AB7421BE4DFB00C636F5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1AF06587219D516000F8F7A8 /* Ker */;
+			targetProxy = 1AA4AB7321BE4DFB00C636F5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		1AA4AB7121BE4DF600C636F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8V7A9F9SCJ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1AA4AB7221BE4DF600C636F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8V7A9F9SCJ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		1AF0658E219D516000F8F7A8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -578,6 +721,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.Ker;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -619,6 +763,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1AA4AB7021BE4DF600C636F5 /* Build configuration list for PBXAggregateTarget "Ker.framework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AA4AB7121BE4DF600C636F5 /* Debug */,
+				1AA4AB7221BE4DF600C636F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		1AF06582219D516000F8F7A8 /* Build configuration list for PBXProject "Ker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

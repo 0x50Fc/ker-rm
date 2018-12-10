@@ -37,6 +37,8 @@ typedef void * KerViewConfigurationCPointer;
 
 -(void) KerView:(KerViewCPointer) view setAttribute:(const char *) key value:(const char *) value;
 
+-(void) KerView:(KerViewCPointer) view setContent:(const char *) content contentType:(const char *) contentType basePath:(const char *) basePath;
+
 -(void) KerViewRecycle:(KerViewCPointer) view;
 
 -(UIView *) KerViewContentView;

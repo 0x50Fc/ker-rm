@@ -11,6 +11,11 @@
 #include <ui/ui.h>
 #include <core/dispatch.h>
 #import "UI.h"
+#import "UIImage+Ker.h"
+
+namespace kk {
+    extern ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue);
+}
 
 
 namespace kk {
@@ -24,16 +29,16 @@ namespace kk {
                 
             }
             
-            OSImage(CGImageRef image):_state(ImageStateLoaded) {
+            OSImage(CFTypeRef image):_state(ImageStateLoaded) {
                 _image = image;
                 if(_image) {
-                    CGImageRetain(_image);
+                    CFRetain(_image);
                 }
             }
             
             virtual ~OSImage() {
                 if(_image) {
-                    CGImageRelease(_image);
+                    CFRelease(_image);
                 }
             }
             
@@ -43,14 +48,14 @@ namespace kk {
             
             virtual kk::Uint width() {
                 if(_image) {
-                    return (kk::Uint) CGImageGetWidth(_image);
+                    return (kk::Uint) [(__bridge UIImage *) _image size].width;
                 }
                 return 0;
             }
             
             virtual kk::Uint height() {
                 if(_image) {
-                    return (kk::Uint) CGImageGetHeight(_image);
+                    return (kk::Uint) [(__bridge UIImage *) _image size].height;
                 }
                 return 0;
             }
@@ -67,8 +72,10 @@ namespace kk {
                 
                 if(_image != nullptr) {
                     
-                    size_t width = CGImageGetWidth(_image);
-                    size_t height = CGImageGetHeight(_image);
+                    CGImageRef image = CGImage();
+                    
+                    size_t width = CGImageGetWidth(image);
+                    size_t height = CGImageGetHeight(image);
                     
                     CGColorSpaceRef rgbSpace = CGColorSpaceCreateDeviceRGB();
                     CGContextRef ctx = CGBitmapContextCreate(data, width, height, 8, width * 4, rgbSpace, kCGImageAlphaPremultipliedLast);
@@ -76,7 +83,7 @@ namespace kk {
                     CGContextScaleCTM(ctx, 1, -1);
                     CGColorSpaceRelease(rgbSpace);
                     
-                    CGContextDrawImage(ctx, CGRectMake(0, 0, width, height), _image);
+                    CGContextDrawImage(ctx, CGRectMake(0, 0, width, height), image);
                     
                     CGContextRelease(ctx);
                     
@@ -88,12 +95,12 @@ namespace kk {
                 return _image != nullptr;
             }
             
-            virtual void setImage(CGImageRef image) {
+            virtual void setImage(CFTypeRef image) {
                 if(image) {
-                    CGImageRetain(image);
+                    CFRetain(image);
                 }
                 if(_image) {
-                    CGImageRelease(_image);
+                    CFRelease(_image);
                 }
                 _image = image;
             }
@@ -112,11 +119,11 @@ namespace kk {
             }
             
             virtual CGImageRef CGImage() {
-                return _image;
+                return [(__bridge UIImage *) _image CGImage];
             }
             
         protected:
-            CGImageRef _image;
+            CFTypeRef _image;
             ImageState _state;
             kk::String _src;
         };
@@ -127,81 +134,41 @@ namespace kk {
                 return nullptr;
             }
             
-            kk::Strong<Image> v = new OSImage(src);
+            OSImage * i = new OSImage(src);
             
-            getImageLoader()(context,v);
+            kk::Strong<Image> v = i;
             
-            return v;
-        }
-    
-        
-        static std::function<void(Context * ,Image *)> _ImageLoader = [](Context * context,Image * image)->void{
-            
-            static kk::Strong<kk::DispatchQueue> _queue = nullptr;
-            
-            if(_queue == nullptr) {
-                _queue = kk::createDispatchQueue("kk::ui::Image",kk::DispatchQueueTypeSerial);
-            }
-            
-            kk::Weak<kk::DispatchQueue> current = context->queue();
-            
-            kk::Weak<Image> v(image);
-            kk::Weak<Context> ctx(context);
-            
-            _queue->async([v,current,ctx]()->void{
+            @autoreleasepool {
                 
-                @autoreleasepool{
+                NSString * basePath = [NSString stringWithCString:context->basePath() encoding:NSUTF8StringEncoding];
+                NSString * URI = [NSString stringWithCString:src encoding:NSUTF8StringEncoding];
+                
+                UIImage * image = [UIImage ker_imageByCacheWithURI:URI basePath:basePath];
+                
+                if(image != nil) {
+                    i->setImage((__bridge CFTypeRef) image);
+                    i->setState(ImageStateLoaded);
+                } else {
                     
-                    kk::Strong<OSImage> image = dynamic_cast<OSImage *>(v.operator->());
-                    kk::Strong<kk::DispatchQueue> queue = current.operator->();
-                    kk::Strong<Context> context = ctx.operator->();
+                    i->retain();
                     
-                    if(image != nullptr && queue != nullptr && context != nullptr) {
-                    
-                        NSString * basePath = [NSString stringWithCString:context->basePath() encoding:NSUTF8StringEncoding];
-                        NSString * path = [NSString stringWithCString:image->src() encoding:NSUTF8StringEncoding];
+                    [UIImage ker_imageWithURI:URI basePath:basePath callback:^(UIImage *image, NSError *err) {
                         
-                        if([path hasPrefix:@"http://"] || [path hasPrefix:@"https://"]) {
-                            queue->async([v]()->void{
-                                kk::Strong<OSImage> image = dynamic_cast<OSImage *>( v.operator->() );
-                                if(image != nullptr) {
-                                    image->setState(ImageStateError);
-                                }
-                            });
+                        if(image) {
+                            i->setImage((__bridge CFTypeRef) image);
+                            i->setState(ImageStateLoaded);
                         } else {
-                            path = [basePath stringByAppendingPathComponent:path];
-                            UIImage * i = [UIImage imageWithContentsOfFile:path];
-                            if(i != nil) {
-                                image->setImage(i.CGImage);
-                                queue->async([v]()->void{
-                                    kk::Strong<OSImage> image = dynamic_cast<OSImage *>( v.operator->() );
-                                    if(image != nullptr) {
-                                        image->setState(ImageStateLoaded);
-                                    }
-                                });
-                            } else {
-                                queue->async([v]()->void{
-                                    kk::Strong<OSImage> image = dynamic_cast<OSImage *>( v.operator->() );
-                                    if(image != nullptr) {
-                                        image->setState(ImageStateError);
-                                    }
-                                });
-                            }
+                            i->setState(ImageStateError);
                         }
-                    }
+                        
+                        i->release();
+                        
+                    } queue:kk::DispatchQueueGCD(context->queue())];
                     
                 }
-                
-            });
+            }
             
-        };
-        
-        std::function<void(Context * ,Image *)> & getImageLoader() {
-            return _ImageLoader;
-        }
-        
-        void setImageLoader(std::function<void(Context * ,Image *)> && func) {
-            _ImageLoader = func;
+            return v;
         }
         
         CGImageRef GetCGImage(Image * image) {

@@ -15,8 +15,8 @@
 
 #include <objc/runtime.h>
 
-void duk_push_NSObject(duk_context * ctx, id object);
-id duk_to_NSObject(duk_context * ctx,duk_idx_t idx);
+void ker_push_NSObject(duk_context * ctx, id object);
+id ker_to_NSObject(duk_context * ctx,duk_idx_t idx);
 
 kk::Any KerObjectToAny(id object);
 id KerObjectFromAny(kk::Any & v);

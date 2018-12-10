@@ -963,6 +963,12 @@ namespace kk {
         return v;
     }
     
+#if defined(__APPLE__)
+    
+#elif defined(__ANDROID__)
+    
+#else
+    
     void LogV(const char * format, va_list va) {
         
         time_t now = time(NULL);
@@ -978,6 +984,9 @@ namespace kk {
         printf("%s\n",data);
         
     }
+    
+#endif
+    
     
     void Log(const char * format, ...) {
         va_list va;
@@ -1193,6 +1202,10 @@ namespace kk {
         }
         
         return v.substr(0,n);
+    }
+    
+    NativeValue::NativeValue(Native * native):NativeObject(native) {
+        
     }
     
 }

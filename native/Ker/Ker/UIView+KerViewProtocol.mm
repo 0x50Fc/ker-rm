@@ -90,5 +90,9 @@ namespace kk {
     
 }
 
+-(void) KerView:(KerViewCPointer) view setContent:(const char *) content contentType:(const char *) contentType basePath:(const char *) basePath {
+    
+}
+
 @end
 

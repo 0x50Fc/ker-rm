@@ -196,10 +196,22 @@ namespace kk {
         }
     }
     
+    static pthread_key_t gJITContextKey = 0;
+    
+    static void gJITContextKeyDealloc(void * p) {
+        JITContext * v = (JITContext *) p;
+        v->release();
+    }
+    
     JITContext * JITContext::current(){
-        thread_local kk::Strong<JITContext> v;
+        if(gJITContextKey == 0) {
+            pthread_key_create(&gJITContextKey, gJITContextKeyDealloc);
+        }
+        JITContext * v = (JITContext *) pthread_getspecific(gJITContextKey);
         if(v == nullptr) {
             v = new JITContext();
+            v->retain();
+            pthread_setspecific(gJITContextKey, v);
         }
         return v;
     }
@@ -333,6 +345,14 @@ namespace kk {
             }
         }
         
+        {
+            NativeValue * v = dynamic_cast<NativeValue *>(object);
+            if(v != nullptr) {
+                PushNative(ctx, v->native());
+                return;
+            }
+        }
+        
         void * heapptr = JITContext::current()->get(object, ctx);
         
         if(heapptr != nullptr) {
@@ -387,6 +407,14 @@ namespace kk {
                         duk_put_prop_string(ctx, -2, sKey);
                     }
                 });
+                return;
+            }
+        }
+        
+        {
+            NativeValue * v = dynamic_cast<NativeValue *>(object);
+            if(v != nullptr) {
+                PushNative(ctx, v->native());
                 return;
             }
         }

@@ -2,7 +2,6 @@
 require('./bin/Data.js');
 require('./bin/V.js');
 require('./bin/Anim.js');
-require('./bin/URI.js');
 require('./bin/IPC.js');
 require('./bin/once.js');
 require('./bin/Event.js');

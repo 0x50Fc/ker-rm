@@ -9,6 +9,7 @@
 #include <ui/app.h>
 #include <ui/page.h>
 #include <ui/CGContext.h>
+#include <ui/package.h>
 
 namespace kk {
     
@@ -64,6 +65,10 @@ namespace kk {
             return ::kk::ui::getAttributedTextContentSize(this, text, maxWidth);
         }
         
+        kk::Strong<Package> App::createPackage(kk::CString URI) {
+            return ::kk::ui::createPackage(this,URI);
+        }
+        
         void App::Openlib() {
             
             kk::OpenBaselib();
@@ -78,6 +83,7 @@ namespace kk {
             kk::ui::Context::Openlib();
             kk::ui::Page::Openlib();
             kk::ui::CG::Context::Openlib();
+            kk::ui::Package::Openlib();
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
                 
@@ -86,6 +92,7 @@ namespace kk {
                     kk::PutMethod<App,void,kk::CString,kk::Boolean>(ctx, -1, "open", &App::open);
                     kk::PutMethod<App,void,kk::Uint,kk::Boolean>(ctx, -1, "back", &App::back);
                     kk::PutMethod<App,Size,AttributedText *,Float>(ctx, -1, "getAttributedTextContentSize", &App::getAttributedTextContentSize);
+                    kk::PutStrongMethod<App,Package,kk::CString>(ctx,-1,"createPackage",&App::createPackage);
                 
                     kk::PutStrongMethod<App,View,kk::CString,ViewConfiguration *>(ctx,-1,"createView",&App::createView);
                     kk::PutProperty<App,kk::CString>(ctx, -1, "appkey", &App::appkey);

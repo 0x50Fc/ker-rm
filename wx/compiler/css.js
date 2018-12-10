@@ -104,6 +104,16 @@ Source.prototype = Object.create(Object.prototype, {
                     token.text = this.source.substr(token.start, token.end - token.start).replace(/([0-9\.\-]+)rpx/g, function (text, v) {
                         return (v * 0.05) + 'rem';
                     });
+                    var dirname = path.dirname(this.path);
+                    var basePath = this.basePath;
+
+                    token.text = token.text.replace(/url\((.*?)\)/i, function (text, url) {
+                        if(/https?:\/\//.i.test(url)) {
+                            return text;
+                        }
+                        return 'url(' + path.relative(basePath, path.join(dirname, url)) + ')';
+                    });
+
                     // console.info("[CSS] [RPX]", token.text, "<");
                 } else if (token.type == Token.TYPE_SYMBOL) {
 

@@ -7,8 +7,9 @@
 //
 
 #import "WKWebView+KerViewProtocol.h"
-
+#import "KerURLProtocol.h"
 #import "KerObject.h"
+#import "KerApp.h"
 #include <ui/ui.h>
 #include <ui/view.h>
 #include <objc/runtime.h>
@@ -21,15 +22,13 @@
 
 - (void) userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(message.webView, "__WKWebViewKKViewProtocol");
+    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(message.webView, "__WKWebViewKerViewProtocol");
     
     if(view != nullptr) {
         
         kk::Strong<kk::Event> e = new kk::Event();
         
-        kk::Any v = KerObjectToAny(message.body);
-        
-        e->setData(v.objectValue);
+        e->setData(new kk::NativeValue((__bridge kk::Native *) message.body));
         
         view->emit("data", e);
         
@@ -39,7 +38,7 @@
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKKViewProtocol");
+    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKerViewProtocol");
     
     if(view != nullptr) {
         
@@ -100,7 +99,7 @@
 
 - (void)webView:(WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
     
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKKViewProtocol");
+    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKerViewProtocol");
     
     if(view != nullptr) {
         kk::Strong<kk::Event> e = new kk::Event();
@@ -110,7 +109,7 @@
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKKViewProtocol");
+    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKerViewProtocol");
     if(view != nullptr) {
         kk::Strong<kk::Event> e = new kk::Event();
         view->emit("load", e);
@@ -118,7 +117,7 @@
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error {
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKKViewProtocol");
+    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKerViewProtocol");
     if(view != nullptr) {
         kk::Strong<kk::Event> e = new kk::Event();
         e->setData(new kk::TObject<kk::String,kk::String>({{"errmsg",[[error localizedDescription] UTF8String]}}));
@@ -131,7 +130,7 @@
     if([object isKindOfClass:[WKWebView class]]) {
         if([keyPath isEqualToString:@"estimatedProgress"]) {
             
-            kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(object, "__WKWebViewKKViewProtocol");
+            kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(object, "__WKWebViewKerViewProtocol");
             
             if(view != nullptr) {
                 kk::Strong<kk::Event> e = new kk::Event();
@@ -185,9 +184,19 @@
     [configuration.preferences setJavaScriptCanOpenWindowsAutomatically:YES];
     [configuration.preferences setJavaScriptEnabled:YES];
     [configuration.preferences setMinimumFontSize:0];
-    [configuration.preferences setValue:@YES forKey:@"allowFileAccessFromFileURLs"];
-    [configuration setApplicationNameForUserAgent:@"Ker/1.0"];
     
+    @try {
+        [configuration.preferences setValue:@TRUE forKey:@"allowFileAccessFromFileURLs"];
+    }
+    @catch (NSException *exception) {}
+    
+    @try {
+        [configuration setValue:@TRUE forKey:@"allowUniversalAccessFromFileURLs"];
+    }
+    @catch (NSException *exception) {}
+
+    [KerURLProtocol installWKWebViewConfiguration:configuration];
+
     WKWebView * view = [[self alloc] initWithFrame:CGRectZero configuration:configuration];
     
     [view setNavigationDelegate:object];
@@ -198,13 +207,13 @@
 
 -(void) KerViewObtain:(KerViewCPointer) view {
     [super KerViewObtain:view];
-    objc_setAssociatedObject(self, "__WKWebViewKKViewProtocol", (__bridge id) view, OBJC_ASSOCIATION_ASSIGN);
+    objc_setAssociatedObject(self, "__WKWebViewKerViewProtocol", (__bridge id) view, OBJC_ASSOCIATION_ASSIGN);
     [self.scrollView KerViewObtain:view];
 }
 
 -(void) KerViewRecycle:(KerViewCPointer) view {
     [super KerViewRecycle:view];
-    objc_setAssociatedObject(self, "__WKWebViewKKViewProtocol", nil, OBJC_ASSOCIATION_ASSIGN);
+    objc_setAssociatedObject(self, "__WKWebViewKerViewProtocol", nil, OBJC_ASSOCIATION_ASSIGN);
     [self.scrollView KerViewRecycle:view];
 }
 
@@ -228,7 +237,7 @@
             
             if([v rangeOfString:@"://"].location == NSNotFound) {
                 
-                kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(self, "__WKWebViewKKViewProtocol");
+                kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(self, "__WKWebViewKerViewProtocol");
                 
                 if(view) {
                     
@@ -259,7 +268,7 @@
             
             NSURL * baseURL = nil;
             
-            kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(self, "__WKWebViewKKViewProtocol");
+            kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(self, "__WKWebViewKerViewProtocol");
             
             if(view) {
                 
@@ -276,6 +285,45 @@
         }
     }
     
+}
+
+-(void) KerView:(KerViewCPointer) view setContent:(const char *) content contentType:(const char *) contentType basePath:(const char *) basePath {
+    
+    if(content != nullptr) {
+        
+        NSURL * baseURL = nil;
+        
+        kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(self, "__WKWebViewKerViewProtocol");
+        
+        if(view) {
+            
+            kk::ui::Context * ctx = view->context();
+            
+            if(ctx != nullptr) {
+                
+                kk::String path ;
+                
+                if(basePath == nullptr) {
+                    path.append(ctx->basePath());
+                } else {
+                    path = ctx->absolutePath(basePath);
+                }
+                
+                if(!kk::CStringHasSuffix(path.c_str(), "/")) {
+                    path.append("/");
+                }
+  
+                baseURL = [NSURL URLWithString:[KerApp relativeURI:[NSString stringWithCString:path.c_str() encoding:NSUTF8StringEncoding]]];
+            }
+        }
+        
+        if(contentType != nullptr) {
+            [self loadData:[NSData dataWithBytes:content length:strlen(content)] MIMEType:[NSString stringWithCString:contentType encoding:NSUTF8StringEncoding] characterEncodingName:@"utf-8" baseURL:baseURL];
+        } else {
+            [self loadHTMLString:[NSString stringWithCString:content encoding:NSUTF8StringEncoding] baseURL:baseURL];
+        }
+        
+    }
 }
 
 

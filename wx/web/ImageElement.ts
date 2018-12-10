@@ -1,5 +1,4 @@
 import { ViewElement } from './ViewElement';
-import { resolveURI } from './URI';
 
 export class ImageElement extends ViewElement {
 
@@ -21,7 +20,7 @@ export class ImageElement extends ViewElement {
             if (value === undefined) {
                 this.imageView.removeAttribute("src");
             } else {
-                this.imageView.setAttribute("src", resolveURI(value, this.basePath));
+                this.imageView.setAttribute("src", this.resolveURI(value));
             }
         }
     }

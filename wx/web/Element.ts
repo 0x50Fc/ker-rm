@@ -57,8 +57,8 @@ export class Element extends EventEmitter {
         this._document = document;
     }
 
-    public setData(key:string,value:any):void {
-        
+    public setData(key: string, value: any): void {
+
     }
 
     public get document(): Document {
@@ -302,6 +302,19 @@ export class Element extends EventEmitter {
         this._prevSibling = undefined;
         this._nextSibling = undefined;
 
+    }
+
+    public resolveURI(uri: string): string {
+        if (uri.indexOf("://") > 0) {
+            return uri;
+        }
+        var basePath = this.basePath!;
+        if (basePath.endsWith("/")) {
+            return basePath + uri;
+        } else if(basePath) {
+            return basePath + '/' + uri;
+        }
+        return uri;
     }
 
     public onEvent(name: string, data: any): void {

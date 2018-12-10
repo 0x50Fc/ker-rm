@@ -17,12 +17,8 @@
 #import <CommonCrypto/CommonCrypto.h>
 #import "KerURLProtocol.h"
 #import <MobileCoreServices/MobileCoreServices.h>
+#include "unzip.h"
 
-@protocol KerAppWKBrowsingContextController  <NSObject>
-
--(void) registerSchemeForCustomProtocol:(NSString *) scheme;
-
-@end
 
 namespace kk {
     extern ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue);
@@ -39,16 +35,7 @@ namespace kk {
 
 +(void) openlib {
     
-    [NSURLProtocol registerClass:[KerURLProtocol class]];
-    
-    {
-        Class cls = NSClassFromString(@"WKBrowsingContextController");
-        SEL sel = @selector(registerSchemeForCustomProtocol:);
-        if([cls respondsToSelector:sel]) {
-            [(id<KerAppWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-tmp"];
-            [(id<KerAppWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-data"];
-        }
-    }
+    [KerURLProtocol openlibs];
     
     kk::ui::App::Openlib();
 }
@@ -142,15 +129,9 @@ static NSString * gKerAppUserAgent = nil;
     }
     
     kk::ui::App * app = (kk::ui::App *) _app;
-    kk::Strong<kk::TObject<kk::String, kk::Any>> librarys = new kk::TObject<kk::String, kk::Any>();
-    NSEnumerator * keyEnum = [query keyEnumerator];
-    NSString * key;
-    while((key = [keyEnum nextObject])) {
-        NSString * value = [query valueForKey:key];
-        (*librarys)[[key UTF8String]] = (kk::Any) [value UTF8String];
-    }
+    kk::Any v = KerObjectToAny(query);
     
-    app->exec("main.js", (kk::TObject<kk::String, kk::Any> *) librarys);
+    app->exec("main.js", new kk::TObject<kk::String, kk::Any>({{"query",v}}));
     
 }
 
@@ -235,6 +216,10 @@ static NSString * gKerAppUserAgent = nil;
         return [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker"] stringByAppendingPathComponent:uri];
     }
     
+    if([scheme isEqualToString:@"ker-app"]) {
+        return [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker-app"] stringByAppendingPathComponent:uri];
+    }
+    
     return uri;
 }
 
@@ -265,6 +250,10 @@ static NSString * gKerAppUserAgent = nil;
     
     if([scheme isEqualToString:@"ker-data"]) {
         return [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker"] stringByAppendingPathComponent:uri];
+    }
+    
+    if([scheme isEqualToString:@"ker-app"]) {
+        return [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker-app"] stringByAppendingPathComponent:uri];
     }
     
     if(basePath != nil) {
@@ -415,6 +404,12 @@ static NSString * gKerAppUserAgent = nil;
             return [NSString stringWithFormat:@"ker-tmp:///%@",[filePath substringFromIndex:[basePath length]]];
         }
     }
+    {
+        NSString * basePath = [NSHomeDirectory() stringByAppendingString:@"/Documents/ker-app/"];
+        if([filePath hasPrefix:basePath]) {
+            return [NSString stringWithFormat:@"ker-app:///%@",[filePath substringFromIndex:[basePath length]]];
+        }
+    }
     return [NSString stringWithFormat:@"file://%@",filePath];
 }
 
@@ -464,6 +459,280 @@ static NSString * gKerAppUserAgent = nil;
     }
     
     return mimeType;
+    
+}
+
++(NSMutableDictionary *) getPackageCache {
+    static NSMutableDictionary * v = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        v = [[NSMutableDictionary alloc] initWithCapacity:4];
+    });
+    return v;
+}
+
++(BOOL) addPackageCallback:(KerAppGetPackageCallback) callback URI:(NSString *) URI {
+    
+    BOOL r = YES;
+    
+    NSMutableDictionary * v = [self getPackageCache];
+    
+    @synchronized (v) {
+        
+        NSMutableSet * items = [v valueForKey:URI];
+        
+        if(items == nil) {
+            items = [[NSMutableSet alloc] initWithCapacity:4];
+            [v setValue:items forKey:URI];
+            r = NO;
+        }
+        
+        [items addObject:callback];
+        
+    }
+    
+    return r;
+}
+
++(NSSet *) clearPackageCallbackWithURI:(NSString *) URI {
+    
+    NSMutableDictionary * v = [self getPackageCache];
+    
+    @synchronized (v) {
+        
+        NSMutableSet * items = [v valueForKey:URI];
+        
+        if(items != nil) {
+            [v removeObjectForKey:URI];
+            return items;
+        }
+    
+    }
+    
+    return nil;
+}
+
++(void) getPackage:(NSString *) URI basePath:(NSString **) basePath appkey:(NSString **) appkey {
+    
+    if(URI == nil) {
+        * basePath = nil;
+        * appkey = nil;
+        return;
+    }
+    
+    if([URI hasPrefix:@"ker-tmp://"]) {
+        * basePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[URI substringFromIndex:10]];
+        * appkey = [self keyWithURI: * basePath];
+    } else if([URI hasPrefix:@"ker-data://"]) {
+        * basePath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker"] stringByAppendingPathComponent:[URI substringFromIndex:11]];
+        * appkey = [self keyWithURI: * basePath];
+    } else if([URI hasPrefix:@"http://"] || [URI hasPrefix:@"https://"]) {
+        * appkey = [self keyWithURI:URI];
+        * basePath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker-app"] stringByAppendingPathComponent:* appkey];
+    } else if([URI containsString:@"://"]) {
+        * basePath = nil;
+        * appkey = nil;
+        return;
+    } else {
+        * basePath = URI;
+        * appkey = [self keyWithURI: * basePath];
+    }
+    
+}
+
++(void) getPackage:(NSString *) URI callback:(KerAppGetPackageCallback) callback queue:(dispatch_queue_t) queue {
+    
+    NSString * basePath = nil;
+    NSString * appkey = nil;
+    
+    [self getPackage:URI basePath:& basePath appkey:& appkey];
+    
+    if(appkey == nil) {
+        
+        dispatch_async(queue, ^{
+            callback(basePath,appkey,@"错误的URI");
+        });
+        
+    } else {
+        
+        NSFileManager * fm = [NSFileManager defaultManager];
+        
+        if([fm fileExistsAtPath:basePath]) {
+            
+            dispatch_async(queue, ^{
+                callback(basePath,appkey,nil);
+            });
+            
+        } else if([URI hasPrefix:@"http://"] || [URI hasPrefix:@"https://"]) {
+            
+            if(![self addPackageCallback:callback URI:URI]) {
+                
+                NSString * errmsg = nil;
+                NSURL * u = nil;
+                
+                @try {
+                    u = [NSURL URLWithString:URI];
+                }
+                @catch(NSException * ex) {
+                    @try {
+                        u = [NSURL URLWithString:[URI stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
+                    }
+                    @catch(NSException * ex) {
+                        errmsg = @"错误的URL";
+                    }
+                }
+                
+                if(u == nil) {
+                    dispatch_async(queue, ^{
+                        callback(basePath,appkey,errmsg);
+                    });
+                } else {
+                    
+                    NSMutableURLRequest * req = [NSMutableURLRequest requestWithURL:u];
+                    
+                    NSURLSessionDownloadTask * task = [[NSURLSession sharedSession] downloadTaskWithRequest:req completionHandler:^(NSURL * location, NSURLResponse * response, NSError * error) {
+                        
+                        if(error != nil) {
+                            
+                            dispatch_async(queue, ^{
+                                callback(basePath,appkey,[error localizedDescription]);
+                            });
+                            
+                        } else {
+                            
+                            NSString * tBasePath = [basePath stringByAppendingString:@"_unpkg"];
+                            
+                            unzFile zf = unzOpen([[location path] UTF8String]);
+                            
+                            if(zf) {
+                                
+                                [fm createDirectoryAtPath:tBasePath withIntermediateDirectories:YES attributes:nil error:nil];
+                                
+                                unz_file_info fi;
+                                char szFileName[1024];
+                                char data[204800];
+                                ssize_t n;
+                                NSString * errmsg = nil;
+                                
+                                int err = unzGoToFirstFile(zf);
+                                
+                                while(err == UNZ_OK) {
+                                    
+                                    unzGetCurrentFileInfo(zf, &fi, szFileName, sizeof(szFileName), nullptr, 0, nullptr, 0);
+                                    
+                                    if(kk::CStringHasSuffix(szFileName, "/")) {
+                                        NSString * path = [tBasePath stringByAppendingPathComponent:[NSString stringWithCString:szFileName encoding:NSUTF8StringEncoding]];
+                                        [fm createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:nil];
+                                    } else {
+                                        
+                                        FILE * fd = fopen([[tBasePath stringByAppendingPathComponent:[NSString stringWithCString:szFileName encoding:NSUTF8StringEncoding]] UTF8String], "wb");
+                                        
+                                        if(fd) {
+                                            
+                                            if(unzOpenCurrentFile(zf) == UNZ_OK) {
+                                                
+                                                while((n = unzReadCurrentFile(zf, data, sizeof(data))) > 0) {
+                                                    fwrite(data, 1, n, fd);
+                                                }
+                                                
+                                                unzCloseCurrentFile(zf);
+                                            } else {
+                                                errmsg = @"解压文件出错";
+                                            }
+                                            
+                                            fclose(fd);
+                                        } else {
+                                            errmsg = @"无法创建文件";
+                                        }
+                                        
+                                    }
+                                    
+                                    err = unzGoToNextFile(zf);
+                                }
+                                
+                                unzClose(zf);
+                                
+                                if(errmsg) {
+                                    [fm removeItemAtPath:tBasePath error:nil];
+                                    dispatch_async(queue, ^{
+                                        callback(basePath,appkey,errmsg);
+                                    });
+                                } else {
+                                    
+                                    [fm moveItemAtPath:tBasePath toPath:basePath error:nil];
+                                    
+                                    dispatch_async(queue, ^{
+                                        
+                                        for(KerAppGetPackageCallback cb in [KerApp clearPackageCallbackWithURI:URI]) {
+                                            cb(basePath,appkey,nil);
+                                        }
+                                        
+                                    });
+                                    
+                                }
+                            } else {
+                                
+                                dispatch_async(queue, ^{
+                                    callback(basePath,appkey,@"错误的程序包");
+                                });
+                                
+                            }
+                            
+                        }
+                        
+                    }];
+                    
+                    [task resume];
+                }
+                
+            }
+            
+        } else {
+            
+            dispatch_async(queue, ^{
+                callback(basePath,appkey,@"未找到应用");
+            });
+            
+        }
+    }
+    
+}
+
++(BOOL) isLoadingPackage:(NSString *) URI {
+    
+    NSMutableDictionary * v = [self getPackageCache];
+    
+    @synchronized (v) {
+        return [v valueForKey:URI] != nil;
+    }
+
+    return NO;
+}
+
++(BOOL) hasPackage:(NSString *) URI basePath:(NSString *) basePath appkey:(NSString *) appkey {
+    
+    if([self isLoadingPackage:URI]) {
+        return NO;
+    }
+    
+    
+    if(basePath) {
+        return [[NSFileManager defaultManager] fileExistsAtPath:basePath];
+    }
+    return NO;
+}
+
++(void) run:(NSString *) URI query:(NSDictionary<NSString *,NSString *> *) query {
+    
+    [self getPackage:URI callback:^(NSString *basePath, NSString *appkey, NSString *errmsg) {
+    
+        if(errmsg != nil) {
+            NSLog(@"[Ker] [ERROR] %@: %@",URI,errmsg);
+        } else {
+            KerApp * app = [[KerApp alloc] initWithBasePath:basePath appkey:appkey];
+            [app run:query];
+        }
+    } queue:dispatch_get_main_queue()];
     
 }
 

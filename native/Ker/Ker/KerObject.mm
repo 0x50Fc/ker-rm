@@ -17,6 +17,14 @@
 
 namespace kk {
 
+    void LogV(const char * format, va_list va) {
+        NSLogv([NSString stringWithFormat:@"[Ker] %s",format], va);
+        while(0){};
+    }
+    
+    void PushNative(duk_context * ctx, kk::Native * native) {
+        ::ker_push_NSObject(ctx, (__bridge id) native);
+    }
     
     NativeObject::NativeObject(Native * native):_native(native) {
         if(_native){
@@ -370,11 +378,11 @@ namespace kk {
                     return ;
                 }
             }
-            s->nativeValue = (__bridge kk::Native *) duk_to_NSObject(ctx, idx);
+            s->nativeValue = (__bridge kk::Native *) ker_to_NSObject(ctx, idx);
         }
         
         void SignatureObjectToFunc(Signature * s,duk_context * ctx) {
-            duk_push_NSObject(ctx, (__bridge id) s->nativeValue);
+            ker_push_NSObject(ctx, (__bridge id) s->nativeValue);
         }
         
         static void SignatureSetType(Signature & s, const char * type) {
@@ -449,7 +457,7 @@ namespace kk {
 }
 
 
-void duk_push_NSObject(duk_context * ctx, id object) {
+void ker_push_NSObject(duk_context * ctx, id object) {
     
     if(object == nil) {
         duk_push_undefined(ctx);
@@ -479,7 +487,7 @@ void duk_push_NSObject(duk_context * ctx, id object) {
         duk_push_array(ctx);
         duk_uarridx_t i = 0;
         for(id v in object) {
-            duk_push_NSObject(ctx, v);
+            ker_push_NSObject(ctx, v);
             duk_put_prop_index(ctx, -2, i);
             i++;
         }
@@ -493,7 +501,7 @@ void duk_push_NSObject(duk_context * ctx, id object) {
         while((key = [keyEnum nextObject])) {
             id v = [object objectForKey:key];
             duk_push_string(ctx, [key UTF8String]);
-            duk_push_NSObject(ctx, v);
+            ker_push_NSObject(ctx, v);
             duk_put_prop(ctx, -3);
         }
         return;
@@ -546,7 +554,7 @@ void duk_push_NSObject(duk_context * ctx, id object) {
             
             if(v != nil) {
                 duk_push_string(ctx,[name UTF8String]);
-                duk_push_NSObject(ctx, v);
+                ker_push_NSObject(ctx, v);
                 duk_put_prop(ctx, -3);
             }
             
@@ -561,7 +569,7 @@ void duk_push_NSObject(duk_context * ctx, id object) {
     
 }
 
-id duk_to_NSObject(duk_context * ctx,duk_idx_t idx) {
+id ker_to_NSObject(duk_context * ctx,duk_idx_t idx) {
     
     duk_int_t type = duk_get_type(ctx, idx);
     
@@ -577,7 +585,7 @@ id duk_to_NSObject(duk_context * ctx,duk_idx_t idx) {
             NSMutableArray * vs = [NSMutableArray arrayWithCapacity:4];
             duk_enum(ctx, idx, DUK_ENUM_ARRAY_INDICES_ONLY);
             while(duk_next(ctx, -1, 1)) {
-                id v = duk_to_NSObject(ctx, -1);
+                id v = ker_to_NSObject(ctx, -1);
                 if(v) {
                     [vs addObject:v];
                 }
@@ -625,8 +633,8 @@ id duk_to_NSObject(duk_context * ctx,duk_idx_t idx) {
             NSMutableDictionary * data = [NSMutableDictionary dictionaryWithCapacity:4];
             duk_enum(ctx, idx, DUK_ENUM_INCLUDE_SYMBOLS);
             while(duk_next(ctx, -1, 1)) {
-                id key = duk_to_NSObject(ctx, -2);
-                id v = duk_to_NSObject(ctx, -1);
+                id key = ker_to_NSObject(ctx, -2);
+                id v = ker_to_NSObject(ctx, -1);
                 if(key && v) {
                     [data setObject:v forKey:key];
                 }
@@ -914,7 +922,7 @@ static void KerJSObjectDynamicObjectSetReturnValue(duk_context * ctx, duk_idx_t 
             break;
         case '@':
         {
-            id v = duk_to_NSObject(ctx, idx);
+            id v = ker_to_NSObject(ctx, idx);
             [anInvocation setReturnValue:&v];
         }
             break;
@@ -992,7 +1000,7 @@ static void KerJSObjectDynamicObjectPushValue(duk_context * ctx, NSInvocation * 
             {
                 __unsafe_unretained id v = nil;
                 [anInvocation getArgument:&v atIndex:idx];
-                duk_push_NSObject(ctx, v);
+                ker_push_NSObject(ctx, v);
             }
                 break;
             default:
@@ -1143,7 +1151,7 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
     if(_JSObject) {
         _JSObject->release();
     }
-    NSLog(@"[KerJSObject] [dealloc]");
+    NSLog(@"[Ker] [KerJSObject] [dealloc]");
 }
 
 
@@ -1154,7 +1162,7 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
         if(ctx && heapptr) {
             duk_push_heapptr(ctx, heapptr);
             duk_get_prop_string(ctx, -1, [key UTF8String]);
-            id v = duk_to_NSObject(ctx, -1);
+            id v = ker_to_NSObject(ctx, -1);
             duk_pop_2(ctx);
             return v;
         }
@@ -1173,7 +1181,7 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
         if(ctx && heapptr) {
             duk_push_heapptr(ctx, heapptr);
             duk_push_string(ctx, [key UTF8String]);
-            duk_push_NSObject(ctx, value);
+            ker_push_NSObject(ctx, value);
             duk_put_prop(ctx, -3);
             duk_pop(ctx);
         }
@@ -1198,13 +1206,13 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
                 duk_push_heapptr(ctx, heapptr);
                 
                 for(id v in arguments) {
-                    duk_push_NSObject(ctx, v);
+                    ker_push_NSObject(ctx, v);
                 }
                 
                 if(duk_pcall_method(ctx, (duk_idx_t) [arguments count]) != DUK_EXEC_SUCCESS) {
                     kk::Error(ctx, -1, "[KerJSObject] [invoke]");
                 } else {
-                    v = duk_to_NSObject(ctx, -1);
+                    v = ker_to_NSObject(ctx, -1);
                 }
                 
             }
@@ -1232,13 +1240,13 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
             if(duk_is_function(ctx, -1)) {
                 
                 for(id v in arguments) {
-                    duk_push_NSObject(ctx, v);
+                    ker_push_NSObject(ctx, v);
                 }
                 
                 if(duk_pcall(ctx, (duk_idx_t) [arguments count]) != DUK_EXEC_SUCCESS) {
                     kk::Error(ctx, -1, "[KerJSObject] [callWithArguments]");
                 } else {
-                    v = duk_to_NSObject(ctx, -1);
+                    v = ker_to_NSObject(ctx, -1);
                 }
                 
             }

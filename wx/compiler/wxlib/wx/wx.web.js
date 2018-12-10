@@ -82,7 +82,7 @@ class BlockElement extends Element_1.Element {
 }
 exports.BlockElement = BlockElement;
 
-},{"./Element":9,"./ViewElement":37}],3:[function(require,module,exports){
+},{"./Element":9,"./ViewElement":36}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -159,7 +159,7 @@ class ButtonElement extends ViewElement_1.ViewElement {
 }
 exports.ButtonElement = ButtonElement;
 
-},{"./FormElement":12,"./ViewElement":37}],4:[function(require,module,exports){
+},{"./FormElement":12,"./ViewElement":36}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const NViewElement_1 = require("./NViewElement");
@@ -286,7 +286,7 @@ class CheckboxElement extends ViewElement_1.ViewElement {
 }
 exports.CheckboxElement = CheckboxElement;
 
-},{"./Element":9,"./V":36,"./ViewElement":37}],6:[function(require,module,exports){
+},{"./Element":9,"./V":35,"./ViewElement":36}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const BlockElement_1 = require("./BlockElement");
@@ -676,7 +676,7 @@ class Document extends events_1.EventEmitter {
 }
 exports.Document = Document;
 
-},{"./Element":9,"events":40}],9:[function(require,module,exports){
+},{"./Element":9,"events":39}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Event_1 = require("./Event");
@@ -912,6 +912,19 @@ class Element extends EventEmitter_1.EventEmitter {
         this._prevSibling = undefined;
         this._nextSibling = undefined;
     }
+    resolveURI(uri) {
+        if (uri.indexOf("://") > 0) {
+            return uri;
+        }
+        var basePath = this.basePath;
+        if (basePath.endsWith("/")) {
+            return basePath + uri;
+        }
+        else if (basePath) {
+            return basePath + '/' + uri;
+        }
+        return uri;
+    }
     onEvent(name, data) {
     }
 }
@@ -1066,7 +1079,7 @@ class FormElement extends ViewElement_1.ViewElement {
 }
 exports.FormElement = FormElement;
 
-},{"./CheckboxElement":5,"./InputElement":16,"./PickerElement":23,"./RadioElement":26,"./SliderElement":29,"./SwitchElement":32,"./ViewElement":37,"./once":38}],13:[function(require,module,exports){
+},{"./CheckboxElement":5,"./InputElement":16,"./PickerElement":23,"./RadioElement":26,"./SliderElement":29,"./SwitchElement":32,"./ViewElement":36,"./once":37}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function postMessage(data) {
@@ -1085,11 +1098,10 @@ class IconElement extends ViewElement_1.ViewElement {
 }
 exports.IconElement = IconElement;
 
-},{"./ViewElement":37}],15:[function(require,module,exports){
+},{"./ViewElement":36}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
-const URI_1 = require("./URI");
 class ImageElement extends ViewElement_1.ViewElement {
     get imageView() {
         return this._view.firstElementChild;
@@ -1107,14 +1119,14 @@ class ImageElement extends ViewElement_1.ViewElement {
                 this.imageView.removeAttribute("src");
             }
             else {
-                this.imageView.setAttribute("src", URI_1.resolveURI(value, this.basePath));
+                this.imageView.setAttribute("src", this.resolveURI(value));
             }
         }
     }
 }
 exports.ImageElement = ImageElement;
 
-},{"./URI":35,"./ViewElement":37}],16:[function(require,module,exports){
+},{"./ViewElement":36}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const NViewElement_1 = require("./NViewElement");
@@ -1223,7 +1235,7 @@ class LabelElement extends ViewElement_1.ViewElement {
 }
 exports.LabelElement = LabelElement;
 
-},{"./ButtonElement":3,"./CheckboxElement":5,"./RadioElement":26,"./SwitchElement":32,"./ViewElement":37}],18:[function(require,module,exports){
+},{"./ButtonElement":3,"./CheckboxElement":5,"./RadioElement":26,"./SwitchElement":32,"./ViewElement":36}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Data_1 = require("./Data");
@@ -1627,7 +1639,7 @@ function sendEvent(id, name, data) {
 }
 exports.sendEvent = sendEvent;
 
-},{"./BlockElement":2,"./ButtonElement":3,"./CanvasElement":4,"./CheckboxElement":5,"./ComponentElement":6,"./Data":7,"./Element":9,"./FormElement":12,"./IPC":13,"./IconElement":14,"./ImageElement":15,"./InputElement":16,"./LabelElement":17,"./MovableViewElement":19,"./NavigatorElement":21,"./Page":22,"./PickerElement":23,"./PickerViewElement":24,"./ProgressElement":25,"./RadioElement":26,"./RichTextElement":27,"./ScrollViewElement":28,"./SliderElement":29,"./SwiperElement":31,"./SwitchElement":32,"./TextElement":33,"./TextareaElement":34,"./ViewElement":37,"./once":38}],19:[function(require,module,exports){
+},{"./BlockElement":2,"./ButtonElement":3,"./CanvasElement":4,"./CheckboxElement":5,"./ComponentElement":6,"./Data":7,"./Element":9,"./FormElement":12,"./IPC":13,"./IconElement":14,"./ImageElement":15,"./InputElement":16,"./LabelElement":17,"./MovableViewElement":19,"./NavigatorElement":21,"./Page":22,"./PickerElement":23,"./PickerViewElement":24,"./ProgressElement":25,"./RadioElement":26,"./RichTextElement":27,"./ScrollViewElement":28,"./SliderElement":29,"./SwiperElement":31,"./SwitchElement":32,"./TextElement":33,"./TextareaElement":34,"./ViewElement":36,"./once":37}],19:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1635,7 +1647,7 @@ class MovableViewElement extends ViewElement_1.ViewElement {
 }
 exports.MovableViewElement = MovableViewElement;
 
-},{"./ViewElement":37}],20:[function(require,module,exports){
+},{"./ViewElement":36}],20:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1770,7 +1782,7 @@ class NViewElement extends ViewElement_1.ViewElement {
 }
 exports.NViewElement = NViewElement;
 
-},{"./IPC":13,"./ViewElement":37,"./once":38}],21:[function(require,module,exports){
+},{"./IPC":13,"./ViewElement":36,"./once":37}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1792,7 +1804,7 @@ class NavigatorElement extends ViewElement_1.ViewElement {
 }
 exports.NavigatorElement = NavigatorElement;
 
-},{"./IPC":13,"./ViewElement":37}],22:[function(require,module,exports){
+},{"./IPC":13,"./ViewElement":36}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Data_1 = require("./Data");
@@ -1848,7 +1860,7 @@ class PickerElement extends ViewElement_1.ViewElement {
 }
 exports.PickerElement = PickerElement;
 
-},{"./ViewElement":37}],24:[function(require,module,exports){
+},{"./ViewElement":36}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1856,7 +1868,7 @@ class PickerViewElement extends ViewElement_1.ViewElement {
 }
 exports.PickerViewElement = PickerViewElement;
 
-},{"./ViewElement":37}],25:[function(require,module,exports){
+},{"./ViewElement":36}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1915,7 +1927,7 @@ class ProgressElement extends ViewElement_1.ViewElement {
 }
 exports.ProgressElement = ProgressElement;
 
-},{"./V":36,"./ViewElement":37}],26:[function(require,module,exports){
+},{"./V":35,"./ViewElement":36}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2032,7 +2044,7 @@ class RadioElement extends ViewElement_1.ViewElement {
 }
 exports.RadioElement = RadioElement;
 
-},{"./Element":9,"./V":36,"./ViewElement":37}],27:[function(require,module,exports){
+},{"./Element":9,"./V":35,"./ViewElement":36}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2040,7 +2052,7 @@ class RichTextElement extends ViewElement_1.ViewElement {
 }
 exports.RichTextElement = RichTextElement;
 
-},{"./ViewElement":37}],28:[function(require,module,exports){
+},{"./ViewElement":36}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2211,7 +2223,7 @@ class ScrollViewElement extends ViewElement_1.ViewElement {
 }
 exports.ScrollViewElement = ScrollViewElement;
 
-},{"./Anim":1,"./V":36,"./ViewElement":37}],29:[function(require,module,exports){
+},{"./Anim":1,"./V":35,"./ViewElement":36}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2353,7 +2365,7 @@ class SliderElement extends ViewElement_1.ViewElement {
 }
 exports.SliderElement = SliderElement;
 
-},{"./V":36,"./ViewElement":37,"./once":38}],30:[function(require,module,exports){
+},{"./V":35,"./ViewElement":36,"./once":37}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
@@ -2722,7 +2734,7 @@ class SwiperElement extends ViewElement_1.ViewElement {
 }
 exports.SwiperElement = SwiperElement;
 
-},{"./Anim":1,"./BlockElement":2,"./V":36,"./ViewElement":37,"./once":38}],32:[function(require,module,exports){
+},{"./Anim":1,"./BlockElement":2,"./V":35,"./ViewElement":36,"./once":37}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2789,7 +2801,7 @@ class SwitchElement extends ViewElement_1.ViewElement {
 }
 exports.SwitchElement = SwitchElement;
 
-},{"./V":36,"./ViewElement":37}],33:[function(require,module,exports){
+},{"./V":35,"./ViewElement":36}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2797,7 +2809,7 @@ class TextElement extends ViewElement_1.ViewElement {
 }
 exports.TextElement = TextElement;
 
-},{"./ViewElement":37}],34:[function(require,module,exports){
+},{"./ViewElement":36}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const InputElement_1 = require("./InputElement");
@@ -2806,22 +2818,6 @@ class TextareaElement extends InputElement_1.InputElement {
 exports.TextareaElement = TextareaElement;
 
 },{"./InputElement":16}],35:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-function resolveURI(uri, basePath) {
-    if (uri.indexOf('://') < 0) {
-        if (uri.startsWith("/")) {
-            return 'file://' + uri;
-        }
-        if (basePath !== undefined) {
-            return basePath + '/' + uri;
-        }
-    }
-    return uri;
-}
-exports.resolveURI = resolveURI;
-
-},{}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function booleanValue(v) {
@@ -2856,7 +2852,7 @@ function parseStyleValue(v) {
 }
 exports.parseStyleValue = parseStyleValue;
 
-},{}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Element_1 = require("./Element");
@@ -3094,7 +3090,7 @@ class ViewElement extends Element_1.Element {
 }
 exports.ViewElement = ViewElement;
 
-},{"./BlockElement":2,"./Element":9,"./V":36}],38:[function(require,module,exports){
+},{"./BlockElement":2,"./Element":9,"./V":35}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var _running = false;
@@ -3117,12 +3113,11 @@ function once(func) {
 }
 exports.once = once;
 
-},{}],39:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 
 require('./bin/Data.js');
 require('./bin/V.js');
 require('./bin/Anim.js');
-require('./bin/URI.js');
 require('./bin/IPC.js');
 require('./bin/once.js');
 require('./bin/Event.js');
@@ -3161,7 +3156,7 @@ require('./bin/Page.js');
 kk = require('./bin/Main.js');
 
 
-},{"./bin/Anim.js":1,"./bin/BlockElement.js":2,"./bin/ButtonElement.js":3,"./bin/CanvasElement.js":4,"./bin/CheckboxElement.js":5,"./bin/ComponentElement.js":6,"./bin/Data.js":7,"./bin/Document.js":8,"./bin/Element.js":9,"./bin/Event.js":10,"./bin/EventEmitter.js":11,"./bin/FormElement.js":12,"./bin/IPC.js":13,"./bin/IconElement.js":14,"./bin/ImageElement.js":15,"./bin/InputElement.js":16,"./bin/LabelElement.js":17,"./bin/Main.js":18,"./bin/MovableViewElement.js":19,"./bin/NViewElement.js":20,"./bin/NavigatorElement.js":21,"./bin/Page.js":22,"./bin/PickerElement.js":23,"./bin/PickerViewElement.js":24,"./bin/ProgressElement.js":25,"./bin/RadioElement.js":26,"./bin/RichTextElement.js":27,"./bin/ScrollViewElement.js":28,"./bin/SliderElement.js":29,"./bin/Style.js":30,"./bin/SwiperElement.js":31,"./bin/SwitchElement.js":32,"./bin/TextElement.js":33,"./bin/TextareaElement.js":34,"./bin/URI.js":35,"./bin/V.js":36,"./bin/ViewElement.js":37,"./bin/once.js":38}],40:[function(require,module,exports){
+},{"./bin/Anim.js":1,"./bin/BlockElement.js":2,"./bin/ButtonElement.js":3,"./bin/CanvasElement.js":4,"./bin/CheckboxElement.js":5,"./bin/ComponentElement.js":6,"./bin/Data.js":7,"./bin/Document.js":8,"./bin/Element.js":9,"./bin/Event.js":10,"./bin/EventEmitter.js":11,"./bin/FormElement.js":12,"./bin/IPC.js":13,"./bin/IconElement.js":14,"./bin/ImageElement.js":15,"./bin/InputElement.js":16,"./bin/LabelElement.js":17,"./bin/Main.js":18,"./bin/MovableViewElement.js":19,"./bin/NViewElement.js":20,"./bin/NavigatorElement.js":21,"./bin/Page.js":22,"./bin/PickerElement.js":23,"./bin/PickerViewElement.js":24,"./bin/ProgressElement.js":25,"./bin/RadioElement.js":26,"./bin/RichTextElement.js":27,"./bin/ScrollViewElement.js":28,"./bin/SliderElement.js":29,"./bin/Style.js":30,"./bin/SwiperElement.js":31,"./bin/SwitchElement.js":32,"./bin/TextElement.js":33,"./bin/TextareaElement.js":34,"./bin/V.js":35,"./bin/ViewElement.js":36,"./bin/once.js":37}],39:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3682,4 +3677,4 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}]},{},[39]);
+},{}]},{},[38]);

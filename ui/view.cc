@@ -214,6 +214,7 @@ namespace kk {
                     kk::PutMethod<View,void,View *,SubviewPosition>(ctx, -1, "addSubview", &View::addSubview);
                     kk::PutMethod<View,void>(ctx, -1, "removeView", &View::removeView);
                     kk::PutMethod<View,void,CString>(ctx, -1, "evaluateJavaScript", &View::evaluateJavaScript);
+                    kk::PutMethod<View,void,kk::CString,kk::CString,kk::CString>(ctx, -1, "setContent", &View::setContent);
                     kk::PutMethod<View,void,kk::ui::AttributedText *>(ctx, -1, "setAttributedText", &View::setAttributedText);
                     kk::PutMethod<View,void,kk::ui::Image *>(ctx, -1, "setImage", &View::setImage);
                     kk::PutMethod<View,void,kk::CString>(ctx, -1, "setGravity", &View::setGravity);

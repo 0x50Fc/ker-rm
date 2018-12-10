@@ -12,6 +12,8 @@ typedef void * KerAppCPointer;
 
 @class KerApp;
 
+typedef void (^KerAppGetPackageCallback)(NSString * basePath,NSString * appkey,NSString * errmsg);
+
 @protocol KerAppDelegate <NSObject>
 
 @optional
@@ -78,5 +80,16 @@ typedef void * KerAppCPointer;
 +(NSString *) relativeURI:(NSString *) filePath;
 
 +(NSString *) mimeType:(NSString *) filePath data:(NSData *) data defaultType:(NSString *) defaultType;
+
++(void) getPackage:(NSString *) URI basePath:(NSString **) basePath appkey:(NSString **) appkey;
+
++(void) getPackage:(NSString *) URI callback:(KerAppGetPackageCallback) callback queue:(dispatch_queue_t) queue;
+
++(BOOL) isLoadingPackage:(NSString *) URI;
+
++(BOOL) hasPackage:(NSString *) URI basePath:(NSString *) basePath appkey:(NSString *) appkey;
+
++(void) run:(NSString *) URI query:(NSDictionary<NSString *,NSString *> *) query;
+
 
 @end

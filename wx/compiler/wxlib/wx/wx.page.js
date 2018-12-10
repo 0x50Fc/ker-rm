@@ -28,7 +28,7 @@ module.exports = function (options, path, page, app, padding) {
 
     console.info("[PAGE] [basePath]", basePath);
 
-    config.addUserScript("__basePath=" + JSON.stringify(basePath) + ";\n");
+    config.addUserScript("__basePath='';\n");
     config.addUserScript(app.getTextContent("wx/wx.web.js"));
 
     var webview = app.createView("WKWebView", config);
@@ -74,7 +74,7 @@ module.exports = function (options, path, page, app, padding) {
                 },
                 function (path) {
                     var p = func.relativePath(path, basePath);
-                    if(!p.endsWith(".js")) {
+                    if (!p.endsWith(".js")) {
                         p = p + ".js";
                     }
                     return require(p);
@@ -196,9 +196,9 @@ module.exports = function (options, path, page, app, padding) {
     var content = app.getTextContent(path + ".wx.html");
     var rem = page.width * 20 / 750.0;
 
-    webview.set("#text", '<html style="font-size: ' + rem + 'px"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">'
+    webview.setContent('<html style="font-size: ' + rem + 'px"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">'
         + __cssContext + '</style>'
-        + content + '</html>');
+        + content + '</html>', undefined, basePath);
 
     return webview;
 };

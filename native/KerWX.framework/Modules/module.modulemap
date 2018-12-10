@@ -1,0 +1,6 @@
+framework module KerWX {
+  umbrella header "KerWX.h"
+
+  export *
+  module * { export * }
+}

@@ -1,5 +1,4 @@
 import { NViewElement } from './NViewElement';
-import { resolveURI } from './URI';
 import { postMessage } from './IPC';
 
 export class InputElement extends NViewElement {

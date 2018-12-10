@@ -6,6 +6,21 @@
 	objectVersion = 50;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		1AA4AB7621BE53F300C636F5 /* KerWX.framework */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 1AA4AB7A21BE53F300C636F5 /* Build configuration list for PBXAggregateTarget "KerWX.framework" */;
+			buildPhases = (
+				1AA4AB7D21BE53FC00C636F5 /* ShellScript */,
+			);
+			dependencies = (
+				1AA4AB7C21BE53F900C636F5 /* PBXTargetDependency */,
+			);
+			name = KerWX.framework;
+			productName = KerWX.framework;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		1A53C66C21AFD94D00170AB7 /* KerWXObject+Analytics.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C66A21AFD94D00170AB7 /* KerWXObject+Analytics.h */; };
 		1A53C66D21AFD94D00170AB7 /* KerWXObject+Analytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C66B21AFD94D00170AB7 /* KerWXObject+Analytics.m */; };
@@ -39,6 +54,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1AA4AB7B21BE53F900C636F5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1AF06608219D56E500F8F7A8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AF06610219D56E500F8F7A8;
+			remoteInfo = KerWX;
+		};
 		1AF06620219D56FB00F8F7A8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1AF0661C219D56FB00F8F7A8 /* Ker.xcodeproj */;
@@ -113,7 +135,7 @@
 		1AF4CE07219E7B9400AE1249 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1AF4CE09219E7B9400AE1249 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1AF4CE0A219E7B9400AE1249 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		1AF4CE19219E7C1300AE1249 /* 1.0 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 1.0; path = ../../../../../../git.sc.weibo.com/kk/getup/bin/1.0; sourceTree = "<group>"; };
+		1AF4CE19219E7C1300AE1249 /* 1.0 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 1.0; path = ../../../bin/1.0; sourceTree = "<group>"; };
 		1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+Http.h"; sourceTree = "<group>"; };
 		1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+Http.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -286,6 +308,9 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = kkmofang.cn;
 				TargetAttributes = {
+					1AA4AB7621BE53F300C636F5 = {
+						CreatedOnToolsVersion = 10.1;
+					};
 					1AF06610219D56E500F8F7A8 = {
 						CreatedOnToolsVersion = 10.1;
 					};
@@ -315,6 +340,7 @@
 			targets = (
 				1AF06610219D56E500F8F7A8 /* KerWX */,
 				1AF4CDF8219E7B9300AE1249 /* demo */,
+				1AA4AB7621BE53F300C636F5 /* KerWX.framework */,
 			);
 		};
 /* End PBXProject section */
@@ -350,6 +376,26 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		1AA4AB7D21BE53FC00C636F5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\nFMK_NAME=${PROJECT_NAME}\n\nINSTALL_DIR=${SRCROOT}/../${FMK_NAME}.framework\n\nWRK_DIR=build\n\nDEVICE_DIR=${WRK_DIR}/Release-iphoneos/${FMK_NAME}.framework\n\nSIMULATOR_DIR=${WRK_DIR}/Release-iphonesimulator/${FMK_NAME}.framework\n\nxcodebuild -configuration \"Release\" -target \"${FMK_NAME}\" -sdk iphoneos clean build\n\nxcodebuild -configuration \"Release\" -target \"${FMK_NAME}\" -sdk iphonesimulator build\n\nif [ -d \"${INSTALL_DIR}\" ]\n\nthen\n\nrm -rf \"${INSTALL_DIR}\"\n\nfi\n\nmkdir -p \"${INSTALL_DIR}\"\n\ncp -R \"${DEVICE_DIR}/\" \"${INSTALL_DIR}/\"\n\nlipo -create \"${DEVICE_DIR}/${FMK_NAME}\" \"${SIMULATOR_DIR}/${FMK_NAME}\" -output \"${INSTALL_DIR}/${FMK_NAME}\"\n\nrm -r \"${WRK_DIR}\"\n\nopen \"${INSTALL_DIR}\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		1AF0660D219D56E500F8F7A8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -379,6 +425,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1AA4AB7C21BE53F900C636F5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1AF06610219D56E500F8F7A8 /* KerWX */;
+			targetProxy = 1AA4AB7B21BE53F900C636F5 /* PBXContainerItemProxy */;
+		};
 		1AF06623219D570600F8F7A8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = Ker;
@@ -416,6 +467,24 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		1AA4AB7721BE53F300C636F5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8V7A9F9SCJ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1AA4AB7821BE53F300C636F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8V7A9F9SCJ;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		1AF06617219D56E500F8F7A8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -544,6 +613,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = ../;
 				HEADER_SEARCH_PATHS = (
 					../../lib/duktape/src,
 					../..,
@@ -573,6 +643,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = ../;
 				HEADER_SEARCH_PATHS = (
 					../../lib/duktape/src,
 					../..,
@@ -631,6 +702,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1AA4AB7A21BE53F300C636F5 /* Build configuration list for PBXAggregateTarget "KerWX.framework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AA4AB7721BE53F300C636F5 /* Debug */,
+				1AA4AB7821BE53F300C636F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		1AF0660B219D56E500F8F7A8 /* Build configuration list for PBXProject "KerWX" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

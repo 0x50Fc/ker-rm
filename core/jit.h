@@ -73,6 +73,8 @@ namespace kk {
     
     void SetWeakObject(duk_context * ctx, duk_idx_t idx, Object * object);
     
+    extern void PushNative(duk_context * ctx, kk::Native * native);
+    
     void PushObject(duk_context * ctx, Object * object);
     
     void PushWeakObject(duk_context * ctx, Object * object);

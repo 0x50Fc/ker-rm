@@ -16,6 +16,8 @@ namespace kk {
     
     namespace ui {
         
+        class Package;
+        
         class App : public Context {
         public:
             
@@ -30,6 +32,8 @@ namespace kk {
             virtual kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration);
             
             virtual Size getAttributedTextContentSize(AttributedText * text,Float maxWidth);
+            
+            virtual kk::Strong<Package> createPackage(kk::CString URI);
             
             virtual kk::CString appkey();
             
