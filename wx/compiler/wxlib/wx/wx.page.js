@@ -61,7 +61,7 @@ module.exports = function (options, path, page, app, padding) {
                 },
                 undefined,
                 undefined,
-                new WX(content, page, app, wx, webview),
+                new WX(context, page, app, wx, webview),
                 function (fn, v) {
                     setInterval(function () {
                         fn.call(pageObject);
