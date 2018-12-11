@@ -34,6 +34,8 @@ add_library(minizip
 add_library(ker
             SHARED
             src/main/jni/kk.c
+            src/main/jni/KerObject.cc
+            src/main/jni/native.cc
             src/main/jni/core/kk.cc
             src/main/jni/core/jit.cc
             src/main/jni/core/bio.cc
@@ -41,6 +43,7 @@ add_library(ker
             src/main/jni/core/timer.cc
             src/main/jni/core/sqlite.cc
             src/main/jni/core/dispatch-event.cc
+
             )
 
 include_directories(

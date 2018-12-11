@@ -311,7 +311,7 @@ static const kk::Class * Class() { \
         NativeObject(Native * native);
         virtual ~NativeObject();
         virtual Native * native();
-        static kk::CString getPrototype(Native * native);
+        static kk::String getPrototype(Native * native);
     protected:
         Native * _native;
     };

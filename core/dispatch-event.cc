@@ -58,7 +58,7 @@ namespace kk {
 
         }
 
-        virtual ~GCDDispatchSource() {
+        virtual ~LibeventDispatchSource() {
 
         }
 
@@ -101,18 +101,13 @@ namespace kk {
     DispatchQueue * IODispatchQueue() {
         static DispatchQueue * v = nullptr;
         if(v == nullptr) {
-            
+            v = new LibeventDispatchQueue("kk::IODispatchQueue",DispatchQueueTypeSerial);
         }
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            v = new kk::GCDDispatchQueue("kk::IODispatchQueue",DispatchQueueTypeSerial);
-            v->retain();
-        });
         return v;
     }
 
-    ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue) {
-        return ((GCDDispatchQueue *) queue)->queue();
+    struct event_base * GetDispatchQueueEventBase(DispatchQueue * queue) {
+        return ((LibeventDispatchQueue *) queue)->base();
     }
 
 }

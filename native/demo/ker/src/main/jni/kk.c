@@ -10,7 +10,7 @@
 JavaVM * gJavaVm = 0;
 
 void kk_logv(const char * format , va_list va){
-    __android_log_vprint(ANDROID_LOG_DEBUG,"kk",format,va);
+    __android_log_vprint(ANDROID_LOG_DEBUG,"ker",format,va);
 }
 
 void kk_log(const char * format,...) {

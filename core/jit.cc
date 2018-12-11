@@ -366,8 +366,11 @@ namespace kk {
         {
             NativeObject * v = dynamic_cast<NativeObject *>(object);
             if(v != nullptr) {
-                SetPrototype(ctx, -1, NativeObject::getPrototype(v->native()));
-                return;
+                kk::String s = NativeObject::getPrototype(v->native());
+                if(s != "") {
+                    SetPrototype(ctx, -1, s.c_str());
+                    return;
+                }
             }
         }
         

@@ -32,7 +32,7 @@ namespace kk {
         }
     }
     
-    kk::CString NativeObject::getPrototype(Native * native) {
+    kk::String NativeObject::getPrototype(Native * native) {
         
         ::Class isa = object_getClass((__bridge id) native);
         
@@ -61,7 +61,7 @@ namespace kk {
         
         free(p);
         
-        return nullptr;
+        return "";
     }
     
     NativeObject::~NativeObject() {
@@ -528,9 +528,9 @@ void ker_push_NSObject(duk_context * ctx, id object) {
     
     {
 
-        kk::CString name = kk::NativeObject::getPrototype((__bridge kk::Native *) object);
+        kk::String name = kk::NativeObject::getPrototype((__bridge kk::Native *) object);
         
-        if(name != nullptr) {
+        if(name != "") {
             kk::Strong<kk::NativeObject> v = new kk::NativeObject((__bridge kk::Native *) object);
             kk::PushObject(ctx, v.get());
             return;
