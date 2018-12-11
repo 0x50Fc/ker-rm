@@ -75,6 +75,7 @@ namespace kk {
             kk::Event::Openlib();
             kk::EventEmitter::Openlib();
             kk::Timer::Openlib();
+            kk::Sqlite::Openlib();
             kk::ui::Context::Openlib();
             kk::ui::View::Openlib();
             kk::ui::Canvas::Openlib();

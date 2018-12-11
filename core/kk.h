@@ -16,6 +16,9 @@
 #include <set>
 #include <thread>
 #include <queue>
+#include <stdlib.h>
+#include <assert.h>
+#include <pthread.h>
 
 namespace kk {
     
@@ -112,8 +115,8 @@ static const kk::Class * Class() { \
         virtual void addObject(Object * object);
         static Atomic * current();
     protected:
-        std::mutex _lock;
-        std::mutex _objectLock;
+        pthread_mutex_t _lock;
+        pthread_mutex_t _objectLock;
         std::queue<Object *> _objects;
     };
     

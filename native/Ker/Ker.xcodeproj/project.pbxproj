@@ -40,6 +40,8 @@
 		1AA4AB6B21BE31AB00C636F5 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB5F21BE31AB00C636F5 /* ioapi.h */; };
 		1AA4AB6C21BE31AB00C636F5 /* crypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB6021BE31AB00C636F5 /* crypt.h */; };
 		1AA4AB6E21BE344700C636F5 /* Package.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB6D21BE344700C636F5 /* Package.mm */; };
+		1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC0821BF5B3600C636F5 /* sqlite.cc */; };
+		1AA4AC0B21BF65E300C636F5 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AA4AC0A21BF65E300C636F5 /* libsqlite3.tbd */; };
 		1AF0658D219D516000F8F7A8 /* Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0658B219D516000F8F7A8 /* Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */; };
 		1AF065A4219D518200F8F7A8 /* bio.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06595219D518200F8F7A8 /* bio.h */; };
@@ -136,6 +138,9 @@
 		1AA4AB5F21BE31AB00C636F5 /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ioapi.h; path = ../../../../lib/minizip/ioapi.h; sourceTree = "<group>"; };
 		1AA4AB6021BE31AB00C636F5 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crypt.h; path = ../../../../lib/minizip/crypt.h; sourceTree = "<group>"; };
 		1AA4AB6D21BE344700C636F5 /* Package.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Package.mm; sourceTree = "<group>"; };
+		1AA4AC0721BF5AA200C636F5 /* sqlite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sqlite.h; sourceTree = "<group>"; };
+		1AA4AC0821BF5B3600C636F5 /* sqlite.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sqlite.cc; sourceTree = "<group>"; };
+		1AA4AC0A21BF65E300C636F5 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		1AF06588219D516000F8F7A8 /* Ker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF0658B219D516000F8F7A8 /* Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ker.h; sourceTree = "<group>"; };
 		1AF0658C219D516000F8F7A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -208,6 +213,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AA4AC0B21BF65E300C636F5 /* libsqlite3.tbd in Frameworks */,
 				1AF06606219D567400F8F7A8 /* WebKit.framework in Frameworks */,
 				1AF065DC219D53DA00F8F7A8 /* CoreGraphics.framework in Frameworks */,
 				1AF065DA219D53CC00F8F7A8 /* UIKit.framework in Frameworks */,
@@ -320,6 +326,8 @@
 				1AF0659E219D518200F8F7A8 /* timer.cc */,
 				1AF0659F219D518200F8F7A8 /* dispatch.h */,
 				1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */,
+				1AA4AC0721BF5AA200C636F5 /* sqlite.h */,
+				1AA4AC0821BF5B3600C636F5 /* sqlite.cc */,
 			);
 			name = core;
 			path = ../../../core;
@@ -358,6 +366,7 @@
 		1AF065D8219D53CC00F8F7A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1AA4AC0A21BF65E300C636F5 /* libsqlite3.tbd */,
 				1A53C63B21AF99F400170AB7 /* Security.framework */,
 				1AF06605219D567400F8F7A8 /* WebKit.framework */,
 				1AF065DB219D53DA00F8F7A8 /* CoreGraphics.framework */,
@@ -519,6 +528,7 @@
 				1AF065B7219D51C000F8F7A8 /* duktape.c in Sources */,
 				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
 				1AA4AB6621BE31AB00C636F5 /* zip.c in Sources */,
+				1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */,
 				1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */,
 				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
 				1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */,

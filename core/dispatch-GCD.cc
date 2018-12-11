@@ -87,7 +87,7 @@ namespace kk {
                     break;
             }
             
-            _source = ::dispatch_source_create(t, fd, 0, queue->queue());
+            _source = ::dispatch_source_create(t, (uintptr_t) fd, 0, queue->queue());
             
             dispatch_source_set_event_handler(_source, ^{
                 this->onEvent();

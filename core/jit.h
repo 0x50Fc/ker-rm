@@ -200,7 +200,13 @@ namespace kk {
     duk_ret_t Call(std::function<TReturn(TArgs...)> && func,duk_context * ctx,typename std::enable_if<std::is_void<TReturn>::value>::type* = 0) {
         std::vector<std::shared_ptr<Any>> vs;
         std::tuple<TArgs...> args = details::Arguments<sizeof...(TArgs)>::template Get<TArgs...>(ctx, std::move(vs));
-        details::Call<sizeof...(TArgs)>::template T<>::template Apply<TReturn,TArgs...>(std::move(func),args);
+        try {
+            details::Call<sizeof...(TArgs)>::template T<>::template Apply<TReturn,TArgs...>(std::move(func),args);
+        }
+        catch(kk::CString errmsg){
+            duk_push_error_object(ctx, DUK_ERR_ERROR, "%s", errmsg);
+            return duk_throw(ctx);
+        }
         return 0;
     }
     
@@ -208,8 +214,14 @@ namespace kk {
     duk_ret_t Call(std::function<TReturn(TArgs...)> && func,duk_context * ctx,typename std::enable_if<!std::is_void<TReturn>::value>::type* = 0) {
         std::vector<std::shared_ptr<Any>> vs;
         std::tuple<TArgs...> args = details::Arguments<sizeof...(TArgs)>::template Get<TArgs...>(ctx, std::move(vs));
-        Any v = details::Call<sizeof...(TArgs)>::template T<>::template Apply<TReturn,TArgs...>(std::move(func),args);
-        PushAny(ctx, v);
+        try {
+            Any v = details::Call<sizeof...(TArgs)>::template T<>::template Apply<TReturn,TArgs...>(std::move(func),args);
+            PushAny(ctx, v);
+        }
+        catch(kk::CString errmsg){
+            duk_push_error_object(ctx, DUK_ERR_ERROR, "%s", errmsg);
+            return duk_throw(ctx);
+        }
         return 1;
     }
     

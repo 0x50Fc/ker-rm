@@ -526,6 +526,13 @@ namespace kk {
             
         }
         
+        kk::Strong<Sqlite> Context::createSqlite(kk::CString path) {
+            kk::String p = absolutePath(path);
+            kk::Strong<Sqlite> v = new Sqlite();
+            v->open(p.c_str());
+            return v;
+        }
+        
         Worker::Worker(Context * main,kk::CString path):_main(main),_context(nullptr),_queue(nullptr) {
             
             _queue = createDispatchQueue("kk::ui::Worker", DispatchQueueTypeSerial);
@@ -692,6 +699,8 @@ namespace kk {
                     kk::PutStrongMethod<Context,Canvas>(ctx, -1, "createCanvas", &Context::createCanvas);
                     
                     kk::PutStrongMethod<Context,Image,kk::CString>(ctx, -1, "createImage", &Context::createImage);
+                    
+                    kk::PutStrongMethod<Context,Sqlite,kk::CString>(ctx, -1, "createSqlite", &Context::createSqlite);
                     
                 });
                 

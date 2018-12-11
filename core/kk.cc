@@ -101,27 +101,29 @@ namespace kk {
     }
     
     Atomic::Atomic(){
-        
+        pthread_mutex_init(&_lock, NULL);
+        pthread_mutex_init(&_objectLock, NULL);
     }
     
     
     Atomic::~Atomic() {
-        
+        pthread_mutex_destroy(&_lock);
+        pthread_mutex_destroy(&_objectLock);
     }
     
     void Atomic::lock() {
-        _lock.lock();
+        pthread_mutex_lock(&_lock);
     }
     
     void Atomic::unlock() {
         
-        _lock.unlock();
+        pthread_mutex_unlock(&_lock);
         
         Object * v = nullptr;
         
         do {
             
-            _objectLock.lock();
+            pthread_mutex_lock(&_objectLock);
             
             if(_objects.empty()) {
                 v = nullptr;
@@ -130,7 +132,7 @@ namespace kk {
                 _objects.pop();
             }
             
-            _objectLock.unlock();
+            pthread_mutex_unlock(&_objectLock);
             
             if(v != nullptr && v->retainCount() == 0) {
                 delete v;
@@ -140,9 +142,9 @@ namespace kk {
     }
     
     void Atomic::addObject(Object * object) {
-        _objectLock.lock();
+        pthread_mutex_lock(&_objectLock);
         _objects.push(object);
-        _objectLock.unlock();
+        pthread_mutex_unlock(&_objectLock);
     }
    
     

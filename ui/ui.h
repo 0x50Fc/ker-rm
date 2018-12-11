@@ -14,6 +14,7 @@
 #include <core/dispatch.h>
 #include <core/jit.h>
 #include <core/timer.h>
+#include <core/sqlite.h>
 
 namespace kk {
     
@@ -236,6 +237,7 @@ namespace kk {
             virtual kk::Strong<Worker> createWorker(kk::CString path);
             virtual kk::Strong<Canvas> createCanvas();
             virtual kk::Strong<Image> createImage(kk::CString src);
+            virtual kk::Strong<Sqlite> createSqlite(kk::CString path);
             
             static void Openlib();
             

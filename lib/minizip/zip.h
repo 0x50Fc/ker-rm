@@ -85,6 +85,12 @@ typedef voidp zipFile;
 #endif
 /* default memLevel */
 
+#if defined(__ANDROID_NDK__)
+
+typedef unsigned long z_crc_t;
+
+#endif
+
 /* tm_zip contain date/time info */
 typedef struct tm_zip_s
 {
