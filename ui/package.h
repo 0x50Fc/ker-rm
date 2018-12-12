@@ -29,7 +29,7 @@ namespace kk {
         class Package : public EventEmitter {
         public:
             
-            Package(kk::CString URI);
+            Package(Context * context,kk::CString URI);
             
             virtual kk::CString URI();
             virtual PackageState state();
@@ -43,6 +43,7 @@ namespace kk {
         protected:
             PackageState _state;
             kk::String _URI;
+            kk::Strong<Context> _context;
         };
         
         

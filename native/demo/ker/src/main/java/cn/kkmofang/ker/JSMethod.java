@@ -8,9 +8,8 @@ import java.lang.annotation.Target;
 /**
  * Created by zhanghailong on 2018/12/11.
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JSMethod {
     String name() default "";
-    String type();
 }

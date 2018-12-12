@@ -28,7 +28,7 @@ namespace kk {
         class OSPackage : public Package {
         public:
             
-            OSPackage(kk::CString URI,kk::CString basePath,kk::CString appkey):Package(URI),_basePath(basePath),_appkey(appkey) {
+            OSPackage(Context * context,kk::CString URI,kk::CString basePath,kk::CString appkey):Package(context,URI),_basePath(basePath),_appkey(appkey) {
 
             }
             
@@ -75,7 +75,7 @@ namespace kk {
                     return nullptr;
                 }
                 
-                OSPackage * v = new OSPackage(URI,[basePath UTF8String],[appkey UTF8String]);
+                OSPackage * v = new OSPackage(context,URI,[basePath UTF8String],[appkey UTF8String]);
                 
                 dispatch_queue_t queue = kk::DispatchQueueGCD(context->queue());
                 

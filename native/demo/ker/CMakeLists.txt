@@ -35,6 +35,10 @@ add_library(ker
             SHARED
             src/main/jni/kk.c
             src/main/jni/KerObject.cc
+            src/main/jni/KerImage.cc
+            src/main/jni/KerCanvas.cc
+            src/main/jni/KerView.cc
+            src/main/jni/KerPackage.cc
             src/main/jni/native.cc
             src/main/jni/core/kk.cc
             src/main/jni/core/jit.cc
@@ -43,7 +47,12 @@ add_library(ker
             src/main/jni/core/timer.cc
             src/main/jni/core/sqlite.cc
             src/main/jni/core/dispatch-event.cc
-
+            src/main/jni/ui/ui.cc
+            src/main/jni/ui/view.cc
+            src/main/jni/ui/app.cc
+            src/main/jni/ui/page.cc
+            src/main/jni/ui/package.cc
+            src/main/jni/ui/CGContext.cc
             )
 
 include_directories(

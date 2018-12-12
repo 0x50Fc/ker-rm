@@ -7,6 +7,7 @@
 //
 
 #include <ui/page.h>
+#include <typeinfo>
 
 namespace kk {
 

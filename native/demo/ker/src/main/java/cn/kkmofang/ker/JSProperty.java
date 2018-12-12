@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Created by zhanghailong on 2018/12/11.
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JSProperty {
     String name() default "";

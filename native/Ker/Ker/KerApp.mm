@@ -129,9 +129,8 @@ static NSString * gKerAppUserAgent = nil;
     }
     
     kk::ui::App * app = (kk::ui::App *) _app;
-    kk::Any v = KerObjectToAny(query);
-    
-    app->exec("main.js", new kk::TObject<kk::String, kk::Any>({{"query",v}}));
+
+    app->exec("main.js", new kk::TObject<kk::String, kk::Any>({{"query",(__bridge kk::Native *) query}}));
     
 }
 

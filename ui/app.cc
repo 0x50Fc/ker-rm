@@ -34,7 +34,7 @@ namespace kk {
         App::~App() {
             kk::Log("[App] [dealloc]");
         }
-       
+        
         kk::CString App::appkey() {
             return _appkey.c_str();
         }

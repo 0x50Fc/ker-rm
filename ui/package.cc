@@ -13,7 +13,7 @@ namespace kk {
     
     namespace ui {
         
-        Package::Package(kk::CString URI):_URI(URI),_state() {
+        Package::Package(Context * context,kk::CString URI):_context(context),_URI(URI),_state() {
             
         }
         

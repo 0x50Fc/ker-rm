@@ -1,1 +1,1 @@
-include ':app', ':ker'
+include ':app', ':ker', ':wx'
