@@ -79,9 +79,9 @@
     
     if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
         //未开启定位
+        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail auth deny"];
         id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
         dispatch_async(dispatch_get_main_queue(), ^{
-            WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail auth deny"];
             [v fail:res];
             [v complete:res];
         });
@@ -98,9 +98,9 @@
     
     if (self.getLocationObject) {
         //getLocation:fail auth deny
+        WXGetLocationRes * res = [[WXGetLocationRes alloc] initWithCLLocation:locations.lastObject type:v.type errMsg:@"getLocation:ok"];
         id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
         dispatch_async(dispatch_get_main_queue(), ^{
-            WXGetLocationRes * res = [[WXGetLocationRes alloc] initWithCLLocation:locations.lastObject type:v.type errMsg:@"getLocation:ok"];
             [v success:res];
             [v complete:res];
         });
@@ -111,9 +111,9 @@
 
 -(void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status{
     if (status == kCLAuthorizationStatusDenied && self.getLocationObject) {
+        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail auth deny"];
         id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
         dispatch_async(dispatch_get_main_queue(), ^{
-            WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail auth deny"];
             [v fail:res];
             [v complete:res];
         });
@@ -124,8 +124,8 @@
     
     //未知错误
     id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
+    WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail"];
     dispatch_async(dispatch_get_main_queue(), ^{
-        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail"];
         [v fail:res];
         [v complete:res];
     });

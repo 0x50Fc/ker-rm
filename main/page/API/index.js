@@ -114,7 +114,11 @@ Page({
           }, {
             zh: '监听重力感应数据',
             url: 'on-accelerometer-change/on-accelerometer-change'
-          }, {
+          },{
+            zh: "重力感应测试",
+            url: "accelerometer-test/index"
+          }
+          , {
             zh: '监听罗盘数据',
             url: 'on-compass-change/on-compass-change'
           }, {

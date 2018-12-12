@@ -90,16 +90,13 @@
 
 -(void)stopAccelerometer:(KerJSObject *) object{
     
-    
     [self.motionManager stopAccelerometerUpdates];
     
+    WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"stopAccelerometer:ok"];
     id<WXStopAccelerometerObject> v = [object implementProtocol:@protocol(WXStopAccelerometerObject)];
     dispatch_async(dispatch_get_main_queue(), ^{
-        
-        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"stopAccelerometer:ok"];
         [v success:res];
         [v complete:res];
-
     });
 
 }
