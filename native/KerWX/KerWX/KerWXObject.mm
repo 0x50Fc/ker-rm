@@ -14,6 +14,8 @@
 #include <core/jit.h>
 #include <ui/page.h>
 
+
+
 @implementation KerWXObject
 
 -(instancetype) initWithBasePath:(NSString *) basePath dataPath:(NSString *) dataPath {
@@ -81,3 +83,15 @@
 }
 
 @end
+
+
+@implementation WXCallbackRes
+@synthesize errMsg = _errMsg;
+-(instancetype) initWithErrMsg:(NSString *)errMsg {
+    if (self = [super init]){
+        self.errMsg = errMsg;
+    }
+    return self;
+}
+@end
+

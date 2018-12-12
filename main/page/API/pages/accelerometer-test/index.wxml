@@ -1,0 +1,7 @@
+<view class="container">
+  <button open-type='btnStartAccelerometer' bindgetuserinfo="btnStartAccelerometer" bindtap= "btnStartAccelerometer">btnStartAccelerometer</button>
+
+  <button open-type='btnStopAccelerometer' bindgetuserinfo="btnStopAccelerometer" bindtap= "btnStopAccelerometer">btnStopAccelerometer</button>
+
+
+</view>

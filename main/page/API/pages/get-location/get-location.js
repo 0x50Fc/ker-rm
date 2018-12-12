@@ -17,11 +17,18 @@ Page({
     const that = this
     wx.getLocation({
       success(res) {
-        console.log(res)
+        
+        console.log("getLocation success res = ",res);
         that.setData({
           hasLocation: true,
           location: formatLocation(res.longitude, res.latitude)
         })
+      },
+      complete(res){
+        console.log("getLocation complete res = ", res);
+      },
+      fail(res){
+        console.log("getLocation fail res = ", res);
       }
     })
   },

@@ -8,9 +8,10 @@
 
 #import <KerWX/KerWXObject.h>
 #import <Ker/Ker.h>
+#import <CoreLocation/CoreLocation.h>
 
 
-@interface WXGetLocationRes : NSObject
+@interface WXGetLocationRes : WXCallbackRes
 
 @property(nonatomic,assign) double latitude;
 @property(nonatomic,assign) double longitude;
@@ -22,14 +23,15 @@
 
 @end
 
-@protocol WXGetLocationObject <NSObject>
+@protocol WXGetLocationObject <WXCallbackFunction>
 
 @property(nonatomic,strong) NSString * type;
 @property(nonatomic,assign,readonly) BOOL altitude;
 
--(void) success:(WXGetLocationRes *) res errmsg:(NSString *) errmsg;
--(void) fail:(NSString *) errmsg;
--(void) complete;
+@end
+
+
+@interface WXLocation : NSObject <CLLocationManagerDelegate>
 
 @end
 
@@ -38,5 +40,12 @@
 @interface KerWXObject (Location)
 
 -(void) getLocation:(KerJSObject *) object;
+
+@end
+
+
+@interface CLLocation (WXLocation)
+/*CoreLocation 获取的地址为wgs84 这个方法可以生成一个转换成 gcj02 标准的坐标*/
+-(CLLocationCoordinate2D)generateGCJ02Coordinate;
 
 @end

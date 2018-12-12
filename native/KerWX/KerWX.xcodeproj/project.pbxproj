@@ -48,9 +48,11 @@
 		1AF4CE10219E7BB800AE1249 /* Ker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06621219D56FB00F8F7A8 /* Ker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AF4CE13219E7BB800AE1249 /* KerWX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06611219D56E500F8F7A8 /* KerWX.framework */; };
 		1AF4CE14219E7BB800AE1249 /* KerWX.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06611219D56E500F8F7A8 /* KerWX.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1AF4CE1A219E7C1300AE1249 /* 1.0 in Resources */ = {isa = PBXBuildFile; fileRef = 1AF4CE19219E7C1300AE1249 /* 1.0 */; };
 		1AF4CE1E219ECB2A00AE1249 /* KerWXObject+Http.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */; };
+		E990EA1821BFBBB2002439A8 /* 1.0 in Resources */ = {isa = PBXBuildFile; fileRef = E990EA1721BFBBB2002439A8 /* 1.0 */; };
+		E9A5D88A21C10303004FC729 /* KerWXObject+DeviceAccelerometer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A5D88721C10303004FC729 /* KerWXObject+DeviceAccelerometer.h */; };
+		E9A5D88B21C10303004FC729 /* KerWXObject+DeviceAccelerometer.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A5D88921C10303004FC729 /* KerWXObject+DeviceAccelerometer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -135,9 +137,11 @@
 		1AF4CE07219E7B9400AE1249 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1AF4CE09219E7B9400AE1249 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1AF4CE0A219E7B9400AE1249 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		1AF4CE19219E7C1300AE1249 /* 1.0 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 1.0; path = ../../../bin/1.0; sourceTree = "<group>"; };
 		1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+Http.h"; sourceTree = "<group>"; };
 		1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+Http.m"; sourceTree = "<group>"; };
+		E990EA1721BFBBB2002439A8 /* 1.0 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 1.0; path = ../../../bin/1.0; sourceTree = "<group>"; };
+		E9A5D88721C10303004FC729 /* KerWXObject+DeviceAccelerometer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceAccelerometer.h"; sourceTree = "<group>"; };
+		E9A5D88921C10303004FC729 /* KerWXObject+DeviceAccelerometer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceAccelerometer.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,6 +193,8 @@
 				1AF06627219D574100F8F7A8 /* KerWXObject.mm */,
 				1AF0662A219D57C800F8F7A8 /* KerWXObject+Location.h */,
 				1AF0662B219D57C800F8F7A8 /* KerWXObject+Location.m */,
+				E9A5D88721C10303004FC729 /* KerWXObject+DeviceAccelerometer.h */,
+				E9A5D88921C10303004FC729 /* KerWXObject+DeviceAccelerometer.m */,
 				1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */,
 				1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */,
 				1A53C6E221B8DD4800170AB7 /* KerWXObject+downloadFile.h */,
@@ -224,7 +230,7 @@
 		1AF4CDFA219E7B9400AE1249 /* demo */ = {
 			isa = PBXGroup;
 			children = (
-				1AF4CE19219E7C1300AE1249 /* 1.0 */,
+				E990EA1721BFBBB2002439A8 /* 1.0 */,
 				1AF4CDFB219E7B9400AE1249 /* AppDelegate.h */,
 				1AF4CDFC219E7B9400AE1249 /* AppDelegate.m */,
 				1AF4CDFE219E7B9400AE1249 /* ViewController.h */,
@@ -246,6 +252,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A53C6F421B9103A00170AB7 /* KerWXObject+uploadFile.h in Headers */,
+				E9A5D88A21C10303004FC729 /* KerWXObject+DeviceAccelerometer.h in Headers */,
 				1A53C66C21AFD94D00170AB7 /* KerWXObject+Analytics.h in Headers */,
 				1A53C6E421B8DD4800170AB7 /* KerWXObject+downloadFile.h in Headers */,
 				1AF06616219D56E500F8F7A8 /* KerWX.h in Headers */,
@@ -368,8 +375,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				1AF4CE08219E7B9400AE1249 /* LaunchScreen.storyboard in Resources */,
-				1AF4CE1A219E7C1300AE1249 /* 1.0 in Resources */,
 				1AF4CE05219E7B9400AE1249 /* Assets.xcassets in Resources */,
+				E990EA1821BFBBB2002439A8 /* 1.0 in Resources */,
 				1AF4CE03219E7B9400AE1249 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -408,6 +415,7 @@
 				1AF0662D219D57C800F8F7A8 /* KerWXObject+Location.m in Sources */,
 				1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */,
 				1A53C6E521B8DD4800170AB7 /* KerWXObject+downloadFile.m in Sources */,
+				E9A5D88B21C10303004FC729 /* KerWXObject+DeviceAccelerometer.m in Sources */,
 				1A53C6F121B90FA000170AB7 /* KerWXHttpBody.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -668,14 +676,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = BQQ2Y9B27K;
+				DEVELOPMENT_TEAM = JC2EQSWR8C;
 				INFOPLIST_FILE = demo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.demo;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.demo.zuowu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -686,14 +694,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = BQQ2Y9B27K;
+				DEVELOPMENT_TEAM = JC2EQSWR8C;
 				INFOPLIST_FILE = demo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.demo;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.demo.zuowu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

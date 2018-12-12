@@ -19,3 +19,19 @@
 -(instancetype) initWithBasePath:(NSString *) basePath dataPath:(NSString *) dataPath;
 
 @end
+
+@protocol WXCallbackFunction <NSObject>
+-(void) success:(id) res;
+-(void) fail:(id) res;
+-(void) complete:(id)res;
+@end
+
+@interface WXCallbackRes : NSObject
+@property (nonatomic, copy) NSString * errMsg;
+-(instancetype) initWithErrMsg:(NSString *)errMsg;
+@end
+
+
+
+
+
