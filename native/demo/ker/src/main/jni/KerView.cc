@@ -6,6 +6,7 @@
 #include "kk.h"
 #include "KerCanvas.h"
 #include "KerImage.h"
+#include "KerApp.h"
 
 namespace kk {
 
@@ -478,6 +479,12 @@ namespace kk {
                 return nullptr;
             }
 
+            kk::ui::KerApp * app = dynamic_cast<kk::ui::KerApp *>(context);
+
+            if(app == nullptr) {
+                return nullptr;
+            }
+
             kk::Strong<View> v;
 
             jboolean isAttach = false;
@@ -486,11 +493,11 @@ namespace kk {
 
             jclass isa = env->FindClass("cn/kkmofang/ker/Native");
 
-            jmethodID createView = env->GetStaticMethodID(isa,"createView","(Ljava/lang/String;JJ)Ljava/lang/Object;");
+            jmethodID createView = env->GetStaticMethodID(isa,"createView","(Lcn/kkmofang/ker/App;Ljava/lang/String;J)Ljava/lang/Object;");
 
             jstring name_ = env->NewStringUTF(name);
 
-            jobject object = env->CallStaticObjectMethod(isa,createView,name_,(jlong) configuration, (jlong) context);
+            jobject object = env->CallStaticObjectMethod(isa,createView,app->object(), name_,(jlong) configuration);
 
             if(object) {
                 v = new OSView(object,configuration,context);

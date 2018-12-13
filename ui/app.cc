@@ -10,6 +10,7 @@
 #include <ui/page.h>
 #include <ui/CGContext.h>
 #include <ui/package.h>
+#include <core/crypto.h>
 
 namespace kk {
     
@@ -76,6 +77,7 @@ namespace kk {
             kk::EventEmitter::Openlib();
             kk::Timer::Openlib();
             kk::Sqlite::Openlib();
+            kk::Crypto::Openlib();
             kk::ui::Context::Openlib();
             kk::ui::View::Openlib();
             kk::ui::Canvas::Openlib();

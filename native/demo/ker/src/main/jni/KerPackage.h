@@ -16,13 +16,10 @@ namespace kk {
         class OSPackage : public Package {
         public:
 
-            OSPackage(Context * context,kk::CString URI,kk::CString basePath,kk::CString appkey);
+            OSPackage(Context * context,kk::CString URI);
 
             virtual void run(kk::Object * query);
 
-        protected:
-            kk::String _basePath;
-            kk::String _appkey;
         };
 
     }

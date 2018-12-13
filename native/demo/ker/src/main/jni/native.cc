@@ -3,34 +3,14 @@
 #include "kk.h"
 #include "KerImage.h"
 #include "KerObject.h"
+#include "KerApp.h"
+#include <core/dispatch.h>
+#include <event.h>
+#include "KerPackage.h"
 
-class KerApp : public kk::ui::App {
-public:
-
-    KerApp(jweak object,kk::CString basePath,kk::CString userAgent,kk::CString appkey):App(basePath,"Android",userAgent,appkey),_object(object){
-
-    }
-
-    virtual ~KerApp() {
-
-        jboolean isAttach = false;
-
-        JNIEnv *env = kk_env(&isAttach);
-
-        env->DeleteWeakGlobalRef(_object);
-
-        if(isAttach) {
-            gJavaVm->DetachCurrentThread();
-        }
-    }
-
-    virtual jweak object() {
-        return _object;
-    }
-
-protected:
-    jweak _object;
-};
+namespace kk {
+    extern event_base * GetDispatchQueueEventBase(DispatchQueue * queue);
+}
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -235,7 +215,7 @@ Java_cn_kkmofang_ker_JSContext_PutMethod(JNIEnv *env, jclass isa, jlong jsContex
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_cn_kkmofang_ker_ui_App_dealloc(JNIEnv *env, jclass type, jlong ptr) {
+Java_cn_kkmofang_ker_App_dealloc(JNIEnv *env, jclass type, jlong ptr) {
 
     kk::ui::App * app = (kk::ui::App *) ptr;
     app->off();
@@ -245,7 +225,7 @@ Java_cn_kkmofang_ker_ui_App_dealloc(JNIEnv *env, jclass type, jlong ptr) {
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_cn_kkmofang_ker_ui_App_jsContext(JNIEnv *env, jclass type, jlong ptr) {
+Java_cn_kkmofang_ker_App_jsContext(JNIEnv *env, jclass type, jlong ptr) {
 
     kk::ui::App * app = (kk::ui::App *) ptr;
 
@@ -255,13 +235,13 @@ Java_cn_kkmofang_ker_ui_App_jsContext(JNIEnv *env, jclass type, jlong ptr) {
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_cn_kkmofang_ker_ui_App_alloc(JNIEnv *env, jclass type, jobject object, jstring basePath_,
+Java_cn_kkmofang_ker_App_alloc(JNIEnv *env, jclass type, jobject object, jstring basePath_,
                                   jstring appkey_, jstring userAgent_) {
     const char *basePath = env->GetStringUTFChars(basePath_, 0);
     const char *appkey = env->GetStringUTFChars(appkey_, 0);
     const char *userAgent = env->GetStringUTFChars(userAgent_, 0);
 
-    KerApp * app = new KerApp(env->NewWeakGlobalRef(object), basePath,userAgent,appkey);
+    kk::ui::KerApp * app = new kk::ui::KerApp(env->NewWeakGlobalRef(object), basePath,userAgent,appkey);
 
     app->retain();
 
@@ -335,16 +315,6 @@ Java_cn_kkmofang_ker_ui_App_alloc(JNIEnv *env, jclass type, jobject object, jstr
     return (jlong) app;
 }
 
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_cn_kkmofang_ker_ui_App_run__JLjava_util_Map_2(JNIEnv *env, jclass type, jlong ptr,
-                                                   jobject query) {
-
-    kk::ui::App * app = (kk::ui::App *) ptr;
-
-    app->exec("main.js", new kk::TObject<kk::String, kk::Any>({{"query",(kk::Native *) query}}));
-
-}
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -828,4 +798,38 @@ Java_cn_kkmofang_ker_JSContext_ToJSObject(JNIEnv *env, jclass type, jlong jsCont
     }
 
     return nullptr;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_Native_loop(JNIEnv *env, jclass type) {
+
+    event_base * base = kk::GetDispatchQueueEventBase(kk::mainDispatchQueue());
+    event_base_loop(base,EVLOOP_NONBLOCK);
+
+}
+
+extern "C"
+JNIEXPORT jlong JNICALL
+Java_cn_kkmofang_ker_App_run__JLjava_lang_Object_2(JNIEnv *env, jclass type, jlong ptr,
+                                                   jobject query) {
+
+    kk::ui::App * app = (kk::ui::App *) ptr;
+
+    kk::NativeValue * v = nullptr;
+
+    if(query != nullptr) {
+        v = new kk::NativeValue((kk::Native *) query);
+    }
+
+    app->exec("main.js", new kk::TObject<kk::String, kk::Any>({{"query",v}}));
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_App_openlib__(JNIEnv *env, jclass type) {
+
+    kk::ui::App::Openlib();
+
 }

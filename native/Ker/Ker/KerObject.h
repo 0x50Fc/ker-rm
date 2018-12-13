@@ -81,3 +81,22 @@ typedef void * KerJSObjectRef;
 
 @end
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
+    void KerAddOpenlibInterface(Class isa);
+    void KerAddOpenlibProtocol(Protocol * protocol);
+    
+    typedef void (^KerOpenlibSetLibrary)(NSString * name,id object);
+    
+    typedef void (^KerAddOpenlibFunction)(NSString * basePath,NSString * appkey,KerOpenlibSetLibrary setLibrary);
+    
+    void KerAddPageOpenlib(KerAddOpenlibFunction func);
+    
+    void KerAddAppOpenlib(KerAddOpenlibFunction func);
+    
+#ifdef __cplusplus
+}
+#endif
+

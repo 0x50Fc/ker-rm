@@ -1016,6 +1016,45 @@ namespace kk {
         
         return n1 >= n2 && strncmp(string, prefix, n2) == 0;
     }
+
+    Boolean CStringHasSubstring(CString string,CString substr) {
+
+        if(string == substr) {
+            return true;
+        }
+
+        if(substr == nullptr) {
+            return true;
+        }
+
+        if(string == nullptr) {
+            return true;
+        }
+
+        size_t n1 = strlen(string);
+        size_t n2 = strlen(substr);
+
+        if(n1 < n2) {
+            return false;
+        }
+
+        char * p = (char *) string;
+
+        while(p && *p) {
+            char * b = (char *) substr;
+            char * i = p;
+            while(*b && *i && *b == *i) {
+                b ++;
+                i ++;
+            }
+            if(*b == 0) {
+                return true;
+            }
+            p ++;
+        }
+
+        return false;
+    }
     
     Boolean CStringHasSuffix(CString string,CString suffix) {
         

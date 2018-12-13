@@ -1,19 +1,29 @@
 package cn.kkmofang.ker;
 
 import android.app.Activity;
+import android.app.IntentService;
+import android.content.Intent;
 import android.webkit.WebSettings;
+
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by zhanghailong on 2018/12/12.
  */
 
 public class App {
+
+    static {
+        System.loadLibrary("ker");
+        openlib();
+    }
 
     public interface Openlib {
         void open(long jsContext,App app);
@@ -33,13 +43,13 @@ public class App {
 
     private final String _basePath;
     private final String _appkey;
-    private final List<WeakReference<Activity>> _activitys = new LinkedList<>();
+    private final WeakReference<Activity> _activity;
     private final long _jsContext;
     private long _ptr;
 
     public App(Activity activity , String basePath, String appkey) {
         _ptr = alloc(this,basePath,appkey,WebSettings.getDefaultUserAgent(activity));
-        _activitys.add(new WeakReference<>(activity));
+        _activity = new WeakReference<>(activity);
         _basePath = basePath;
         _appkey = appkey;
         _jsContext = jsContext(_ptr);
@@ -53,7 +63,7 @@ public class App {
         super.finalize();
     }
 
-    public void run(Map<String,String> query) {
+    public void run(Object query) {
         if(_ptr != 0) {
             run(_ptr,query);
         }
@@ -74,32 +84,79 @@ public class App {
         }
     }
 
-    public Activity topActivity() {
+    public Activity activity() {
+        return _activity.get();
+    }
 
-        Activity topActivity = null;
-        Iterator<WeakReference<Activity>> i = _activitys.iterator();
 
-        while(i.hasNext()) {
-            Activity v = i.next().get();
-            if(v == null || v.isFinishing()) {
-                i.remove();
-            } else if(v instanceof PageActivity){
-                if(((PageActivity) v).isFrontground()) {
-                    return v;
-                } else if(topActivity == null){
-                    topActivity = v;
-                }
-            } else {
-                return v;
+    public static String stringValue(Object v,String defaultValue) {
+
+        if(v != null) {
+            if(v instanceof String ){
+                return (String) v;
             }
+            return v.toString();
+        }
+        return defaultValue;
+    }
+
+    public static String encodeQuery(Object query){
+        StringBuffer sb = new StringBuffer();
+
+        if(query != null) {
+            String dot = "";
+            if(query instanceof Map) {
+                Map<?,?> m = (Map<?,?>) query;
+                for(Object key : m.keySet()) {
+                    sb.append(dot);
+                    dot = "&";
+                    sb.append(stringValue(key,""));
+                    sb.append("=");
+                    try {
+                        sb.append(URLEncoder.encode(stringValue(m.get(key),""),"UTF-8"));
+                    } catch (UnsupportedEncodingException e) {
+                    }
+                }
+            }
+
         }
 
-        return topActivity;
+        return sb.toString();
+    }
+
+    public static Map<String,String> decodeQuery(String queryString) {
+        Map<String,String> m = new TreeMap<>();
+        if(queryString != null) {
+            String[] vs = queryString.split("&");
+            for(String v : vs) {
+                String[] kv = v.split("=");
+                if(kv.length > 1) {
+                    try {
+                        m.put(kv[0], URLDecoder.decode(kv[1],"UTF-8"));
+                    } catch (UnsupportedEncodingException e) {
+                    }
+                }
+            }
+        }
+        return m;
+    }
+
+    public static Class<?> AppActivityClass = AppActivity.class;
+
+    public static void open(Activity activity,String basePath,String appkey,Object query) {
+
+        Intent i = new Intent(activity,AppActivityClass);
+
+        i.putExtra("basePath",basePath);
+        i.putExtra("appkey",appkey);
+        i.putExtra("query",encodeQuery(query));
+
+        activity.startActivity(i);
     }
 
     private static native long alloc(App object,String basePath,String appkey,String userAgent);
     private static native void dealloc(long ptr);
     private static native long jsContext(long ptr);
-    private static native long run(long ptr,Map<String,String> query);
-
+    private static native long run(long ptr,Object query);
+    private static native void openlib();
 }

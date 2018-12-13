@@ -1,12 +1,21 @@
 package cn.kkmofang.ker;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Handler;
 
+import java.lang.*;
 import java.lang.reflect.Array;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import cn.kkmofang.ker.http.Callback;
+import cn.kkmofang.ker.http.Request;
+import cn.kkmofang.ker.http.Response;
+import cn.kkmofang.ker.http.Session;
 
 /**
  * Created by zhanghailong on 2018/12/11.
@@ -252,22 +261,93 @@ public final class Native {
     }
 
     public static int getViewWidth(Object view) {
+
         return 0;
     }
 
     public static int getViewHeight(Object view) {
+
         return 0;
     }
 
     public static Object createView(App app,String name,long viewConfiguration) {
+
+
+
         return null;
     }
 
-    public static void runPackage(App app,String basePath,String appkey) {
+    public static void runApp(final App app,String URI,final Object query) {
+        Package.getPackage(app.activity(), URI, new Package.Callback() {
+            @Override
+            public void onError(Throwable ex) {
+
+            }
+
+            @Override
+            public void onLoad(Package pkg) {
+                App.open(app.activity(),pkg.basePath,pkg.appkey,query);
+            }
+
+            @Override
+            public void onProgress(long bytes, long total) {
+
+            }
+        });
+    }
+
+    private static Map<String,Class<?>> _viewClasss = new TreeMap<>();
+
+    public static void addViewClass(String name,Class<?> viewClass) {
+        _viewClasss.put(name,viewClass);
+    }
+
+    public static void openlib() {
+
+        final Handler v = new Handler();
+
+        v.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loop();
+                v.postDelayed(this,1000 / 60);
+            }
+        },1000 / 60);
+
+        loop();
+    }
+
+    public static void getPackage(App app, final long ptr, String URI) {
+
+        retain(ptr);
+
+        Package.getPackage(app.activity(), URI, new Package.Callback() {
+
+            @Override
+            public void onError(Throwable ex) {
+                pakcageEmitError(ptr,ex.getLocalizedMessage());
+                release(ptr);
+            }
+
+            @Override
+            public void onLoad(Package pkg) {
+                pakcageEmitLoad(ptr);
+                release(ptr);
+            }
+
+            @Override
+            public void onProgress(long bytes, long total) {
+
+            }
+        });
 
     }
 
     public native static void retain(long kerObject);
     public native static void release(long kerObject);
     public native static void setImage(long imageObject,Object image);
+    public native static void loop();
+    public native static void pakcageEmitError(long ptr,String errmsg);
+    public native static void pakcageEmitLoad(long ptr);
+
 }

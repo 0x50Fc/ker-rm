@@ -472,9 +472,9 @@ void duk_push_JObject(duk_context * ctx, jobject object) {
 
     jclass isa = env->FindClass("cn/kkmofang/ker/Native");
 
-    jmethodID pushObject = env->GetStaticMethodID(isa,"pushObject","(Ljava/lang/Object;)V");
+    jmethodID pushObject = env->GetStaticMethodID(isa,"pushObject","(JLjava/lang/Object;)V");
 
-    env->CallStaticVoidMethod(isa,pushObject,object);
+    env->CallStaticVoidMethod(isa,pushObject,(jlong)ctx, object);
 
     env->DeleteLocalRef(isa);
 

@@ -8,6 +8,71 @@
 
 #import "KerObject.h"
 #include <objc/runtime.h>
+#include <ui/page.h>
+#include <ui/app.h>
+
+void KerAddOpenlibInterface(Class isa) {
+    
+    kk::addOpenlib([isa](duk_context * ctx)->void{
+        kk::objc::PushInterface(ctx, isa);
+    });
+}
+
+void KerAddOpenlibProtocol(Protocol * protocol) {
+    kk::addOpenlib([protocol](duk_context * ctx)->void{
+        kk::objc::PushProtocol(ctx, protocol);
+    });
+}
+
+void KerAddPageOpenlib(KerAddOpenlibFunction func) {
+    
+    CFTypeRef fn = CFBridgingRetain(func);
+    
+    kk::ui::addPageOpenlib([fn](duk_context * ctx,kk::ui::Page * page)->void{
+        
+        @autoreleasepool {
+            
+            KerAddOpenlibFunction func = (__bridge KerAddOpenlibFunction) fn;
+            
+            func(
+                 [NSString stringWithCString:page->app()->basePath() encoding:NSUTF8StringEncoding],
+                 [NSString stringWithCString:page->app()->appkey() encoding:NSUTF8StringEncoding],
+                 ^(NSString * name,id object){
+                kk::Any v((__bridge kk::Native *)object);
+                page->addLibrary([name UTF8String], v);
+            });
+            
+        }
+        
+    });
+    
+}
+
+void KerAddAppOpenlib(KerAddOpenlibFunction func) {
+    
+    CFTypeRef fn = CFBridgingRetain(func);
+    
+    kk::ui::addAppOpenlib([fn](duk_context * ctx,kk::ui::App * app)->void{
+        
+        @autoreleasepool {
+            
+            KerAddOpenlibFunction func = (__bridge KerAddOpenlibFunction) fn;
+            
+            func(
+                 [NSString stringWithCString:app->basePath() encoding:NSUTF8StringEncoding],
+                 [NSString stringWithCString:app->appkey() encoding:NSUTF8StringEncoding],
+                 ^(NSString * name,id object){
+                kk::Any v((__bridge kk::Native *)object);
+                kk::PushAny(ctx, v);
+                duk_put_global_string(ctx, [name UTF8String]);
+            });
+            
+        }
+        
+    });
+    
+}
+
 
 @interface KerJSObject()
 

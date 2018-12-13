@@ -20,15 +20,11 @@ set_target_properties(event
             PROPERTIES IMPORTED_LOCATION
             ${CMAKE_SOURCE_DIR}/src/main/jni/libevent/${ANDROID_ABI}/libevent.a)
 
-add_library(minizip
-        STATIC
-        src/main/jni/minizip/ioapi.c
-        src/main/jni/minizip/minizip.c
-        src/main/jni/minizip/mztools.c
-        src/main/jni/minizip/unzip.c
-        src/main/jni/minizip/zip.c
-        )
 
+add_library(md5
+        STATIC
+        src/main/jni/md5/md5.c
+        )
 
 
 add_library(ker
@@ -39,6 +35,7 @@ add_library(ker
             src/main/jni/KerCanvas.cc
             src/main/jni/KerView.cc
             src/main/jni/KerPackage.cc
+            src/main/jni/KerApp.cc
             src/main/jni/native.cc
             src/main/jni/core/kk.cc
             src/main/jni/core/jit.cc
@@ -46,6 +43,7 @@ add_library(ker
             src/main/jni/core/event.cc
             src/main/jni/core/timer.cc
             src/main/jni/core/sqlite.cc
+            src/main/jni/core/crypto.cc
             src/main/jni/core/dispatch-event.cc
             src/main/jni/ui/ui.cc
             src/main/jni/ui/view.cc
@@ -60,6 +58,7 @@ include_directories(
             src/main/jni/minizip
             src/main/jni/sqlite
             src/main/jni/libevent/include
+            src/main/jni/md5
             src/main/jni/
             )
 
@@ -77,9 +76,9 @@ find_library( # Sets the name of the path variable.
 target_link_libraries(
                     ker
                     duktape
-                    minizip
                     event
                     sqlite
+                    md5
                     z
                     GLESv2
                     EGL

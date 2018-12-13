@@ -526,6 +526,7 @@ static const kk::Class * Class() { \
     String CStringPathAppend(CString basePath,CString path);
     String CStringPathDeleteLast(CString path);
     String CStringPathDeleteExtension(CString path);
+    Boolean CStringHasSubstring(CString string,CString substr);
     
 }
 
