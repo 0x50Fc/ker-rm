@@ -52,6 +52,8 @@
 		1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */; };
 		E94769F321C203870007EEBF /* KerWXObject+DevicePhoneContact.h in Headers */ = {isa = PBXBuildFile; fileRef = E94769F121C203870007EEBF /* KerWXObject+DevicePhoneContact.h */; };
 		E94769F421C203870007EEBF /* KerWXObject+DevicePhoneContact.m in Sources */ = {isa = PBXBuildFile; fileRef = E94769F221C203870007EEBF /* KerWXObject+DevicePhoneContact.m */; };
+		E94769F821C2511C0007EEBF /* KerWXObject+DevicePhoneCall.h in Headers */ = {isa = PBXBuildFile; fileRef = E94769F621C2511C0007EEBF /* KerWXObject+DevicePhoneCall.h */; };
+		E94769F921C2511C0007EEBF /* KerWXObject+DevicePhoneCall.m in Sources */ = {isa = PBXBuildFile; fileRef = E94769F721C2511C0007EEBF /* KerWXObject+DevicePhoneCall.m */; };
 		E990EA1821BFBBB2002439A8 /* 1.0 in Resources */ = {isa = PBXBuildFile; fileRef = E990EA1721BFBBB2002439A8 /* 1.0 */; };
 		E9A5D88A21C10303004FC729 /* KerWXObject+DeviceAccelerometer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A5D88721C10303004FC729 /* KerWXObject+DeviceAccelerometer.h */; };
 		E9A5D88B21C10303004FC729 /* KerWXObject+DeviceAccelerometer.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A5D88921C10303004FC729 /* KerWXObject+DeviceAccelerometer.m */; };
@@ -147,6 +149,8 @@
 		1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+Http.m"; sourceTree = "<group>"; };
 		E94769F121C203870007EEBF /* KerWXObject+DevicePhoneContact.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DevicePhoneContact.h"; sourceTree = "<group>"; };
 		E94769F221C203870007EEBF /* KerWXObject+DevicePhoneContact.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DevicePhoneContact.m"; sourceTree = "<group>"; };
+		E94769F621C2511C0007EEBF /* KerWXObject+DevicePhoneCall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DevicePhoneCall.h"; sourceTree = "<group>"; };
+		E94769F721C2511C0007EEBF /* KerWXObject+DevicePhoneCall.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DevicePhoneCall.m"; sourceTree = "<group>"; };
 		E990EA1721BFBBB2002439A8 /* 1.0 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 1.0; path = ../../../bin/1.0; sourceTree = "<group>"; };
 		E9A5D88721C10303004FC729 /* KerWXObject+DeviceAccelerometer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceAccelerometer.h"; sourceTree = "<group>"; };
 		E9A5D88921C10303004FC729 /* KerWXObject+DeviceAccelerometer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceAccelerometer.m"; sourceTree = "<group>"; };
@@ -213,6 +217,8 @@
 				E9A5D89821C12426004FC729 /* KerWXObject+DeviceClipboard.m */,
 				E94769F121C203870007EEBF /* KerWXObject+DevicePhoneContact.h */,
 				E94769F221C203870007EEBF /* KerWXObject+DevicePhoneContact.m */,
+				E94769F621C2511C0007EEBF /* KerWXObject+DevicePhoneCall.h */,
+				E94769F721C2511C0007EEBF /* KerWXObject+DevicePhoneCall.m */,
 				1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */,
 				1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */,
 				1A53C6E221B8DD4800170AB7 /* KerWXObject+downloadFile.h */,
@@ -273,6 +279,7 @@
 				E9A5D88A21C10303004FC729 /* KerWXObject+DeviceAccelerometer.h in Headers */,
 				E9A5D89921C12426004FC729 /* KerWXObject+DeviceClipboard.h in Headers */,
 				1A53C66C21AFD94D00170AB7 /* KerWXObject+Analytics.h in Headers */,
+				E94769F821C2511C0007EEBF /* KerWXObject+DevicePhoneCall.h in Headers */,
 				1A53C6E421B8DD4800170AB7 /* KerWXObject+downloadFile.h in Headers */,
 				1AF06616219D56E500F8F7A8 /* KerWX.h in Headers */,
 				1AF0662C219D57C800F8F7A8 /* KerWXObject+Location.h in Headers */,
@@ -434,6 +441,7 @@
 				E94769F421C203870007EEBF /* KerWXObject+DevicePhoneContact.m in Sources */,
 				1AF06629219D574100F8F7A8 /* KerWXObject.mm in Sources */,
 				1A53C66D21AFD94D00170AB7 /* KerWXObject+Analytics.m in Sources */,
+				E94769F921C2511C0007EEBF /* KerWXObject+DevicePhoneCall.m in Sources */,
 				1A53C6F521B9103A00170AB7 /* KerWXObject+uploadFile.m in Sources */,
 				1AF0662D219D57C800F8F7A8 /* KerWXObject+Location.m in Sources */,
 				1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */,

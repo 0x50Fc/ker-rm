@@ -60,7 +60,7 @@
 
 @interface KerWXObject (DevicePhoneContact)
 
--(void) addPhoneContact:(KerJSObject *) object;
+-(void) addPhoneContact:(KerJSObject *) kerJSObject;
 
 @end
 
