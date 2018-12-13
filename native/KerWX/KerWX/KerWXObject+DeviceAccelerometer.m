@@ -26,6 +26,10 @@
     return self;
 }
 
+-(void) dealloc {
+    NSLog(@"[WXOnAccelerometerChangeRes] [dealloc]");
+}
+
 @end
 
 

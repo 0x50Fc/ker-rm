@@ -10,15 +10,22 @@ Page({
     const formData = e.detail.value
     wx.addPhoneContact({
       ...formData,
-      success() {
+      success(res) {
         wx.showToast({
           title: '联系人创建成功'
         })
+        console.log("addPhoneContact success res = ", res);
       },
-      fail() {
+      fail(res) {
         wx.showToast({
           title: '联系人创建失败'
         })
+
+        console.log("addPhoneContact fail res = ", res);
+      },
+
+      complete(res){
+        console.log("addPhoneContact complete res = ", res);
       }
     })
   }

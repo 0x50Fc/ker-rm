@@ -23,6 +23,15 @@
 
 @end
 
+
+@interface WXOnCompassChageRes : NSObject
+
+@property (nonatomic, assign) double direction;
+@property (nonatomic, assign) double accuracy;
+
+@end
+
+
 @protocol WXGetLocationObject <WXCallbackFunction>
 
 @property(nonatomic,strong) NSString * type;
@@ -31,21 +40,20 @@
 @end
 
 
-@interface WXLocation : NSObject <CLLocationManagerDelegate>
-
-@end
-
-
-
 @interface KerWXObject (Location)
 
 -(void) getLocation:(KerJSObject *) object;
+
+-(void) startCompass:(KerJSObject *) object;
+-(void) stopCompass:(KerJSObject *) object;
+
+-(void) onCompassChange:(KerJSObject *) object;
 
 @end
 
 
 @interface CLLocation (WXLocation)
 /*CoreLocation 获取的地址为wgs84 这个方法可以生成一个转换成 gcj02 标准的坐标*/
--(CLLocationCoordinate2D)generateGCJ02Coordinate;
+-(CLLocationCoordinate2D)ker_generateGCJ02Coordinate;
 
 @end

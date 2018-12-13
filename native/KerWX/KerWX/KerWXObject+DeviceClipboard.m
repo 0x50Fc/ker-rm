@@ -21,6 +21,10 @@
     return self;
 }
 
+-(void) dealloc {
+    NSLog(@"[WXGetClipboardRes] [dealloc]");
+}
+
 @end
 
 

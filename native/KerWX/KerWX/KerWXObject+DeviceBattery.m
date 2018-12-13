@@ -28,6 +28,10 @@
     return self;
 }
 
+-(void) dealloc {
+    NSLog(@"[WXGetBatteryInfoRes] [dealloc]");
+}
+
 @end
 
 @implementation KerWXObject (DeviceBattery)

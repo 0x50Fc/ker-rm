@@ -27,7 +27,7 @@
         CLLocationCoordinate2D coordinate = location.coordinate;
         //默认为wgs84 如果设置gcj02 则计算相应系统坐标
         if ([type isEqualToString:@"gcj02"]) {
-            coordinate = [location generateGCJ02Coordinate];
+            coordinate = [location ker_generateGCJ02Coordinate];
         }
         self.latitude = coordinate.latitude;
         self.longitude = coordinate.longitude;
@@ -48,10 +48,31 @@
 
 @end
 
-@interface WXLocation ()
+@implementation WXOnCompassChageRes
+
+@synthesize direction = _direction;
+@synthesize accuracy = _accuracy;
+
+-(instancetype)initWithHeading:(CLHeading *)heading{
+    if (self = [super init]) {
+        self.accuracy = heading.headingAccuracy;
+        self.direction = heading.trueHeading;
+    }
+    return self;
+}
+
+-(void) dealloc {
+    NSLog(@"[WXOnCompassChageRes] [dealloc]");
+}
+
+@end
+
+@interface WXLocation : NSObject <CLLocationManagerDelegate>
 
 @property (nonatomic, strong, readonly) CLLocationManager * locationManager;
 @property (nonatomic, strong) KerJSObject * getLocationObject;
+
+@property (nonatomic, strong) KerJSObject * onCompassChange;
 
 @end
 
@@ -59,6 +80,7 @@
 
 @synthesize locationManager = _locationManager;
 @synthesize getLocationObject = _getLocationObject;
+@synthesize onCompassChange = _onCompassChange;
 
 
 -(CLLocationManager *)locationManager{
@@ -92,14 +114,40 @@
     
 }
 
+-(void) startCompass:(KerJSObject *) object{
+    
+    [self.locationManager startUpdatingHeading];
+    
+    WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startCompass:ok"];
+    id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [v success:res];
+        [v complete:res];
+    });
+    
+}
+
+-(void) stopCompass:(KerJSObject *) object{
+    
+    [self.locationManager stopUpdatingHeading];
+    
+    WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"stopCompass:ok"];
+    id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [v success:res];
+        [v complete:res];
+    });
+    
+}
+
 #pragma mark -- CLLocationManager Protocol
 
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations{
     
     if (self.getLocationObject) {
         //getLocation:fail auth deny
-        WXGetLocationRes * res = [[WXGetLocationRes alloc] initWithCLLocation:locations.lastObject type:v.type errMsg:@"getLocation:ok"];
         id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
+        WXGetLocationRes * res = [[WXGetLocationRes alloc] initWithCLLocation:locations.lastObject type:v.type errMsg:@"getLocation:ok"];
         dispatch_async(dispatch_get_main_queue(), ^{
             [v success:res];
             [v complete:res];
@@ -110,6 +158,7 @@
 }
 
 -(void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status{
+    
     if (status == kCLAuthorizationStatusDenied && self.getLocationObject) {
         WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail auth deny"];
         id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
@@ -118,6 +167,7 @@
             [v complete:res];
         });
     }
+    
 }
 
 -(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error{
@@ -133,21 +183,44 @@
     [self.locationManager stopUpdatingLocation];
 }
 
+-(void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading{
+    
+    // 罗盘输出回调
+    if (self.onCompassChange) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.onCompassChange callWithArguments:@[[[WXOnCompassChageRes alloc] initWithHeading:newHeading]]];
+        });
+    }
+}
+
 @end
 
 
 @implementation KerWXObject (Location)
 
-
--(void) getLocation:(KerJSObject *) object {
-
+-(WXLocation *)WXLocation{
     WXLocation * location = objc_getAssociatedObject(self, WXLocationKey);
     if (location == nil) {
         location = [[WXLocation alloc]init];
         objc_setAssociatedObject(self, WXLocationKey, location, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
-    
-    [location getLocation:object];
+    return location;
+}
+
+-(void) getLocation:(KerJSObject *) object {
+    [self.WXLocation getLocation:object];
+}
+
+-(void) startCompass:(KerJSObject *) object{
+    [self.WXLocation startCompass:object];
+}
+
+-(void) stopCompass:(KerJSObject *) object{
+    [self.WXLocation stopCompass:object];
+}
+
+-(void) onCompassChange:(KerJSObject *) object{
+    self.WXLocation.onCompassChange = object;
 }
 
 
@@ -221,7 +294,7 @@
     return resPoint;
 }
 
--(CLLocationCoordinate2D)generateGCJ02Coordinate{
+-(CLLocationCoordinate2D)ker_generateGCJ02Coordinate{
     return [self gcj02Encrypt:self.coordinate.latitude bdLon:self.coordinate.longitude];
 }
 @end
