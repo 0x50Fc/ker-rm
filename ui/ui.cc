@@ -428,17 +428,21 @@ namespace kk {
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
                     duk_idx_t n =0;
-                    
-                    auto i = librarys->begin();
-                    
-                    while(i != librarys->end()) {
-                        
-                        PushAny(ctx, i->second);
-                        
-                        i ++;
-                        n ++;
+
+                    if(librarys != nullptr) {
+
+                        auto i = librarys->begin();
+
+                        while(i != librarys->end()) {
+
+                            PushAny(ctx, i->second);
+
+                            i ++;
+                            n ++;
+                        }
+
                     }
-                    
+
                     if(duk_pcall(ctx, n) != DUK_EXEC_SUCCESS) {
                         Error(ctx, -1, "[Context::exec] ");
                     }

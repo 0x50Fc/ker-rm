@@ -312,6 +312,7 @@ static const kk::Class * Class() { \
         virtual ~NativeObject();
         virtual Native * native();
         static kk::String getPrototype(Native * native);
+
     protected:
         Native * _native;
     };
@@ -439,7 +440,7 @@ static const kk::Class * Class() { \
     class Array : public _Array {
     public:
         Array(){}
-        Array(std::initializer_list<T> v):_items(v){}
+        Array(std::initializer_list<T> && v):_items(std::move(v)){}
         T & operator[](kk::Int i) {
             return _items[i];
         }
@@ -477,7 +478,7 @@ static const kk::Class * Class() { \
     class TObject : public _TObject {
     public:
         TObject(){}
-        TObject(std::initializer_list<std::pair<const TKey,TValue>> &&v):_items(v){}
+        TObject(std::initializer_list<std::pair<const TKey,TValue>> && v):_items(std::move(v)){}
         
         TValue & operator[](TKey key) {
             return _items[key];

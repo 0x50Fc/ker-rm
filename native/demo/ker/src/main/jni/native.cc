@@ -288,7 +288,7 @@ Java_cn_kkmofang_ker_App_alloc(JNIEnv *env, jclass type, jobject object, jstring
 
         jclass isa = env->GetObjectClass(object);
 
-        jmethodID back = env->GetMethodID(isa,"back","(I;Z)V");
+        jmethodID back = env->GetMethodID(isa,"back","(IZ)V");
 
         kk::TObject<kk::String, kk::Any> * data = (kk::TObject<kk::String, kk::Any> *) event->data();
         kk::Uint delta = (*data)["delta"];
@@ -810,26 +810,23 @@ Java_cn_kkmofang_ker_Native_loop(JNIEnv *env, jclass type) {
 }
 
 extern "C"
-JNIEXPORT jlong JNICALL
-Java_cn_kkmofang_ker_App_run__JLjava_lang_Object_2(JNIEnv *env, jclass type, jlong ptr,
-                                                   jobject query) {
-
-    kk::ui::App * app = (kk::ui::App *) ptr;
-
-    kk::NativeValue * v = nullptr;
-
-    if(query != nullptr) {
-        v = new kk::NativeValue((kk::Native *) query);
-    }
-
-    app->exec("main.js", new kk::TObject<kk::String, kk::Any>({{"query",v}}));
-
-}
-
-extern "C"
 JNIEXPORT void JNICALL
 Java_cn_kkmofang_ker_App_openlib__(JNIEnv *env, jclass type) {
 
     kk::ui::App::Openlib();
 
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_App_run__JLjava_lang_Object_2(JNIEnv *env, jclass type, jlong ptr,
+                                                   jobject query) {
+
+    kk::ui::App * app = (kk::ui::App *) ptr;
+
+    kk::Strong<kk::TObject<kk::String, kk::Any>> v = new kk::TObject<kk::String, kk::Any>({{"query",new kk::NativeValue((kk::Native *) query)}});
+
+    app->exec("main.js", (kk::TObject<kk::String, kk::Any> *) v);
+
+}
+

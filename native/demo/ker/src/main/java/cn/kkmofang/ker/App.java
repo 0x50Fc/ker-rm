@@ -47,6 +47,10 @@ public class App {
     private final long _jsContext;
     private long _ptr;
 
+    public long ptr() {
+        return _ptr;
+    }
+
     public App(Activity activity , String basePath, String appkey) {
         _ptr = alloc(this,basePath,appkey,WebSettings.getDefaultUserAgent(activity));
         _activity = new WeakReference<>(activity);
@@ -157,6 +161,6 @@ public class App {
     private static native long alloc(App object,String basePath,String appkey,String userAgent);
     private static native void dealloc(long ptr);
     private static native long jsContext(long ptr);
-    private static native long run(long ptr,Object query);
+    private static native void run(long ptr,Object query);
     private static native void openlib();
 }

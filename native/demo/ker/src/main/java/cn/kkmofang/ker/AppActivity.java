@@ -9,7 +9,7 @@ import java.util.Map;
  * Created by hailong11 on 2018/12/13.
  */
 
-public class AppActivity extends Activity {
+public class AppActivity extends Activity implements IAppActivity {
 
     protected App _app;
 
@@ -59,5 +59,10 @@ public class AppActivity extends Activity {
             _app.run(query);
         }
 
+    }
+
+    @Override
+    public App app() {
+        return _app;
     }
 }

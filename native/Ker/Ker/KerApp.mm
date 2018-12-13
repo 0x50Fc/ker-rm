@@ -130,7 +130,9 @@ static NSString * gKerAppUserAgent = nil;
     
     kk::ui::App * app = (kk::ui::App *) _app;
 
-    app->exec("main.js", new kk::TObject<kk::String, kk::Any>({{"query",(__bridge kk::Native *) query}}));
+    kk::Strong<kk::TObject<kk::String, kk::Any>> v = new kk::TObject<kk::String, kk::Any>({{"query",(__bridge kk::Native *) query}});
+    
+    app->exec("main.js", (kk::TObject<kk::String, kk::Any> *) v);
     
 }
 
