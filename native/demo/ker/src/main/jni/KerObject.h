@@ -12,6 +12,10 @@
 extern "C" {
 #endif
 
+    jobject ker_Object_to_JObject(JNIEnv * env, kk::Object * object);
+
+    jobject ker_to_JObject(JNIEnv * env, kk::Any &v);
+
     void duk_push_JObject(duk_context * ctx, jobject object);
 
     jobject duk_to_JObject(JNIEnv * env, duk_context * ctx, duk_idx_t idx);

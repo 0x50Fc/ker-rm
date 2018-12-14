@@ -291,7 +291,7 @@ namespace kk {
                 i ++;
             }
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();

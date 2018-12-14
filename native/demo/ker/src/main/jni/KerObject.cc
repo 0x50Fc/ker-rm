@@ -7,6 +7,197 @@
 #include <core/kk.h>
 #include <core/jit.h>
 
+jobject ker_to_JObject(JNIEnv * env, kk::Any &v) {
+
+    switch (v.type) {
+        case kk::TypeBoolean:
+        {
+            jclass isa = env->FindClass("java/lang/Boolean");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(Z)V");
+            jobject r = env->NewObject(isa,alloc,(jboolean) v.booleanValue);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeInt8:
+        {
+            jclass isa = env->FindClass("java/lang/Integer");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(I)V");
+            jobject r = env->NewObject(isa,alloc,(jint) v.int8Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeUint8:
+        {
+            jclass isa = env->FindClass("java/lang/Integer");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(I)V");
+            jobject r = env->NewObject(isa,alloc,(jint) v.uint8Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeInt16:
+        {
+            jclass isa = env->FindClass("java/lang/Integer");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(I)V");
+            jobject r = env->NewObject(isa,alloc,(jint) v.int16Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeUint16:
+        {
+            jclass isa = env->FindClass("java/lang/Integer");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(I)V");
+            jobject r = env->NewObject(isa,alloc,(jint) v.uint16Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeInt32:
+        {
+            jclass isa = env->FindClass("java/lang/Integer");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(I)V");
+            jobject r = env->NewObject(isa,alloc,(jint) v.int32Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeUint32:
+        {
+            jclass isa = env->FindClass("java/lang/Integer");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(I)V");
+            jobject r = env->NewObject(isa,alloc,(jint) v.uint32Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeInt64:
+        {
+            jclass isa = env->FindClass("java/lang/Long");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(J)V");
+            jobject r = env->NewObject(isa,alloc,(jlong) v.int64Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeUint64:
+        {
+            jclass isa = env->FindClass("java/lang/Long");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(J)V");
+            jobject r = env->NewObject(isa,alloc,(jlong) v.uint64Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeFloat32:
+        {
+            jclass isa = env->FindClass("java/lang/Float");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(F)V");
+            jobject r = env->NewObject(isa,alloc,(jfloat) v.float32Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeFloat64:
+        {
+            jclass isa = env->FindClass("java/lang/Double");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","(D)V");
+            jobject r = env->NewObject(isa,alloc,(jdouble) v.float64Value);
+            env->DeleteLocalRef(isa);
+            return r;
+        }
+        case kk::TypeString:
+        {
+            return env->NewStringUTF(v.stringValue);
+        }
+        case kk::TypeObject:
+        {
+            return ker_Object_to_JObject(env,v.objectValue.get());
+        }
+    }
+
+    return nullptr;
+}
+
+jobject ker_Object_to_JObject(JNIEnv * env, kk::Object * object) {
+
+    if(object == nullptr) {
+        return nullptr;
+    }
+
+    {
+        kk::JSObject * v = dynamic_cast<kk::JSObject *>(object);
+        if(v != nullptr) {
+            duk_context * ctx = v->jsContext();
+            void * heapptr = v->heapptr();
+            if(heapptr && ctx) {
+                duk_push_heapptr(ctx,heapptr);
+                jobject r = duk_to_JObject(env,ctx,-1);
+                duk_pop(ctx);
+                return r;
+            }
+            return nullptr;
+        }
+    }
+
+    {
+        kk::ArrayBuffer * v = dynamic_cast<kk::ArrayBuffer *>(object);
+        if(v != nullptr) {
+            jbyteArray r = env->NewByteArray(v->byteLength());
+            env->SetByteArrayRegion(r,0,v->byteLength(),(jbyte *) v->data());
+            return r;
+        }
+    }
+
+    {
+        kk::_TObject * v = dynamic_cast<kk::_TObject *>(object);
+        if(v != nullptr) {
+            jclass isa = env->FindClass("java/util/TreeMap");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","()V");
+            jobject r = env->NewObject(isa,alloc);
+            jmethodID put = env->GetMethodID(isa,"put","(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+            v->forEach([&put,&r,&env](kk::Any & value,kk::Any & key)->void{
+                kk::CString sKey = (kk::CString) key;
+                if(sKey != nullptr) {
+                    jobject v = ker_to_JObject(env,value);
+                    if(v != nullptr) {
+                        jstring jKey = env->NewStringUTF(sKey);
+                        jobject rr = env->CallObjectMethod(r,put,jKey,v);
+                        if(rr != nullptr) {
+                            env->DeleteLocalRef(rr);
+                        }
+                        env->DeleteLocalRef(jKey);
+                        env->DeleteLocalRef(v);
+                    }
+                }
+            });
+
+            env->DeleteLocalRef(isa);
+
+            return r;
+        }
+    }
+
+    {
+        kk::_Array * v = dynamic_cast<kk::_Array *>(object);
+
+        if(v != nullptr) {
+
+            jclass isa = env->FindClass("java/util/ArrayList");
+            jmethodID alloc = env->GetMethodID(isa,"<init>","()V");
+            jobject r = env->NewObject(isa,alloc);
+            jmethodID add = env->GetMethodID(isa,"add","(Ljava/lang/Object)Z");
+
+            v->forEach([&add,&r,&env](kk::Any & value)->void{
+                jobject v = ker_to_JObject(env,value);
+                if(v != nullptr) {
+                    env->CallBooleanMethod(r,add,v);
+                    env->DeleteLocalRef(v);
+                }
+            });
+
+            env->DeleteLocalRef(isa);
+
+            return r;
+        }
+    }
+
+    return nullptr;
+}
+
 jboolean duk_to_JBoolean(JNIEnv * env, duk_context * ctx, duk_idx_t idx) {
 
     if(idx >= 0) {

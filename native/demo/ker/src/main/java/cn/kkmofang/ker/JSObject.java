@@ -13,6 +13,25 @@ public final class JSObject {
         Native.retain(kerObject);
     }
 
+    public Object get(String key) {
+
+        return null;
+    }
+
+    public void set(String key,Object value) {
+
+    }
+
+    public Object call(Object ... args) {
+
+        return null;
+    }
+
+    public Object invoke(String name,Object ... args) {
+
+        return null;
+    }
+
     protected void finalize() throws Throwable {
         Native.release(kerObject);
         super.finalize();

@@ -441,7 +441,7 @@ int evdns_base_set_option(struct evdns_base *base, const char *option, const cha
   Parse a resolv.conf file.
 
   The 'flags' parameter determines what information is parsed from the
-  resolv.conf file. See the man page for resolv.conf for the format of this
+  resolv.conf file. See the man app for resolv.conf for the format of this
   file.
 
   The following directives are not parsed from the file: sortlist, rotate,

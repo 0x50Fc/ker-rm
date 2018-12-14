@@ -1245,7 +1245,7 @@ typedef struct sqlite3_api_routines sqlite3_api_routines;
 ** the open of a journal file a no-op.  Writes to this journal would
 ** also be no-ops, and any attempt to read the journal would return
 ** SQLITE_IOERR.  Or the implementation might recognize that a database
-** file will be doing page-aligned sector reads and writes in a random
+** file will be doing app-aligned sector reads and writes in a random
 ** order and set up its I/O subsystem accordingly.
 **
 ** SQLite might also add one of the following flags to the xOpen method:
@@ -1739,16 +1739,16 @@ struct sqlite3_mem_methods {
 **
 ** [[SQLITE_CONFIG_PAGECACHE]] <dt>SQLITE_CONFIG_PAGECACHE</dt>
 ** <dd> ^The SQLITE_CONFIG_PAGECACHE option specifies a memory pool
-** that SQLite can use for the database page cache with the default page
+** that SQLite can use for the database app cache with the default app
 ** cache implementation.  
-** This configuration option is a no-op if an application-define page
+** This configuration option is a no-op if an application-define app
 ** cache implementation is loaded using the [SQLITE_CONFIG_PCACHE2].
 ** ^There are three arguments to SQLITE_CONFIG_PAGECACHE: A pointer to
-** 8-byte aligned memory (pMem), the size of each page cache line (sz),
+** 8-byte aligned memory (pMem), the size of each app cache line (sz),
 ** and the number of cache lines (N).
-** The sz argument should be the size of the largest database page
+** The sz argument should be the size of the largest database app
 ** (a power of two between 512 and 65536) plus some extra bytes for each
-** page header.  ^The number of extra bytes needed by the page header
+** app header.  ^The number of extra bytes needed by the app header
 ** can be determined using [SQLITE_CONFIG_PCACHE_HDRSZ].
 ** ^It is harmless, apart from the wasted memory,
 ** for the sz parameter to be larger than necessary.  The pMem
@@ -1756,14 +1756,14 @@ struct sqlite3_mem_methods {
 ** aligned block of memory of at least sz*N bytes, otherwise
 ** subsequent behavior is undefined.
 ** ^When pMem is not NULL, SQLite will strive to use the memory provided
-** to satisfy page cache needs, falling back to [sqlite3_malloc()] if
-** a page cache line is larger than sz bytes or if all of the pMem buffer
+** to satisfy app cache needs, falling back to [sqlite3_malloc()] if
+** a app cache line is larger than sz bytes or if all of the pMem buffer
 ** is exhausted.
 ** ^If pMem is NULL and N is non-zero, then each database connection
-** does an initial bulk allocation for page cache memory
+** does an initial bulk allocation for app cache memory
 ** from [sqlite3_malloc()] sufficient for N cache lines if N is positive or
 ** of -1024*N bytes if N is negative, . ^If additional
-** page cache memory is needed beyond what is provided by the initial
+** app cache memory is needed beyond what is provided by the initial
 ** allocation, then SQLite goes to [sqlite3_malloc()] separately for each
 ** additional cache line. </dd>
 **
@@ -1825,13 +1825,13 @@ struct sqlite3_mem_methods {
 ** [[SQLITE_CONFIG_PCACHE2]] <dt>SQLITE_CONFIG_PCACHE2</dt>
 ** <dd> ^(The SQLITE_CONFIG_PCACHE2 option takes a single argument which is 
 ** a pointer to an [sqlite3_pcache_methods2] object.  This object specifies
-** the interface to a custom page cache implementation.)^
+** the interface to a custom app cache implementation.)^
 ** ^SQLite makes a copy of the [sqlite3_pcache_methods2] object.</dd>
 **
 ** [[SQLITE_CONFIG_GETPCACHE2]] <dt>SQLITE_CONFIG_GETPCACHE2</dt>
 ** <dd> ^(The SQLITE_CONFIG_GETPCACHE2 option takes a single argument which
 ** is a pointer to an [sqlite3_pcache_methods2] object.  SQLite copies of
-** the current page cache implementation into that object.)^ </dd>
+** the current app cache implementation into that object.)^ </dd>
 **
 ** [[SQLITE_CONFIG_LOG]] <dt>SQLITE_CONFIG_LOG</dt>
 ** <dd> The SQLITE_CONFIG_LOG option is used to configure the SQLite
@@ -1928,7 +1928,7 @@ struct sqlite3_mem_methods {
 ** <dt>SQLITE_CONFIG_PCACHE_HDRSZ
 ** <dd>^The SQLITE_CONFIG_PCACHE_HDRSZ option takes a single parameter which
 ** is a pointer to an integer and writes into that integer the number of extra
-** bytes per page required for each page in [SQLITE_CONFIG_PAGECACHE].
+** bytes per app required for each app in [SQLITE_CONFIG_PAGECACHE].
 ** The amount of extra space required can change depending on the compiler,
 ** target platform, and SQLite version.
 **
@@ -1940,7 +1940,7 @@ struct sqlite3_mem_methods {
 ** [SQLITE_SORTER_PMASZ] compile-time option.  New threads are launched
 ** to help with sort operations when multithreaded sorting
 ** is enabled (using the [PRAGMA threads] command) and the amount of content
-** to be sorted exceeds the page size times the minimum of the
+** to be sorted exceeds the app size times the minimum of the
 ** [PRAGMA cache_size] setting and this value.
 **
 ** [[SQLITE_CONFIG_STMTJRNL_SPILL]]
@@ -5974,7 +5974,7 @@ SQLITE_API int sqlite3_db_release_memory(sqlite3*);
 ** ^The sqlite3_soft_heap_limit64() interface sets and/or queries the
 ** soft limit on the amount of heap memory that may be allocated by SQLite.
 ** ^SQLite strives to keep heap memory utilization below the soft heap
-** limit by reducing the number of pages held in the page cache
+** limit by reducing the number of pages held in the app cache
 ** as heap memory usages approaches the limit.
 ** ^The soft heap limit is "soft" because even though SQLite strives to stay
 ** below the limit, it will exceed the limit rather than generate
@@ -5998,9 +5998,9 @@ SQLITE_API int sqlite3_db_release_memory(sqlite3*);
 ** <li> Memory accounting is disabled using a combination of the
 **      [sqlite3_config]([SQLITE_CONFIG_MEMSTATUS],...) start-time option and
 **      the [SQLITE_DEFAULT_MEMSTATUS] compile-time option.
-** <li> An alternative page cache implementation is specified using
+** <li> An alternative app cache implementation is specified using
 **      [sqlite3_config]([SQLITE_CONFIG_PCACHE2],...).
-** <li> The page cache allocates from its own memory pool supplied
+** <li> The app cache allocates from its own memory pool supplied
 **      by [sqlite3_config]([SQLITE_CONFIG_PAGECACHE],...) rather than
 **      from the heap.
 ** </ul>)^
@@ -6011,8 +6011,8 @@ SQLITE_API int sqlite3_db_release_memory(sqlite3*);
 ** compile-time option is invoked.  With [SQLITE_ENABLE_MEMORY_MANAGEMENT],
 ** the soft heap limit is enforced on every memory allocation.  Without
 ** [SQLITE_ENABLE_MEMORY_MANAGEMENT], the soft heap limit is only enforced
-** when memory is allocated by the page cache.  Testing suggests that because
-** the page cache is the predominate memory user in SQLite, most
+** when memory is allocated by the app cache.  Testing suggests that because
+** the app cache is the predominate memory user in SQLite, most
 ** applications will achieve adequate soft heap limit enforcement without
 ** the use of [SQLITE_ENABLE_MEMORY_MANAGEMENT].
 **
@@ -7132,7 +7132,7 @@ SQLITE_API int sqlite3_mutex_notheld(sqlite3_mutex*);
 #define SQLITE_MUTEX_STATIC_MEM2      4  /* NOT USED */
 #define SQLITE_MUTEX_STATIC_OPEN      4  /* sqlite3BtreeOpen() */
 #define SQLITE_MUTEX_STATIC_PRNG      5  /* sqlite3_randomness() */
-#define SQLITE_MUTEX_STATIC_LRU       6  /* lru page list */
+#define SQLITE_MUTEX_STATIC_LRU       6  /* lru app list */
 #define SQLITE_MUTEX_STATIC_LRU2      7  /* NOT USED */
 #define SQLITE_MUTEX_STATIC_PMEM      7  /* sqlite3PageMalloc() */
 #define SQLITE_MUTEX_STATIC_APP1      8  /* For use by application */
@@ -7484,7 +7484,7 @@ SQLITE_API int sqlite3_status64(
 ** <dd>This parameter is the current amount of memory checked out
 ** using [sqlite3_malloc()], either directly or indirectly.  The
 ** figure includes calls made to [sqlite3_malloc()] by the application
-** and internal memory usage by the SQLite library.  Auxiliary page-cache
+** and internal memory usage by the SQLite library.  Auxiliary app-cache
 ** memory controlled by [SQLITE_CONFIG_PAGECACHE] is not included in
 ** this parameter.  The amount returned is the sum of the allocation
 ** sizes as reported by the xSize method in [sqlite3_mem_methods].</dd>)^
@@ -7508,13 +7508,13 @@ SQLITE_API int sqlite3_status64(
 **
 ** [[SQLITE_STATUS_PAGECACHE_OVERFLOW]] 
 ** ^(<dt>SQLITE_STATUS_PAGECACHE_OVERFLOW</dt>
-** <dd>This parameter returns the number of bytes of page cache
+** <dd>This parameter returns the number of bytes of app cache
 ** allocation which could not be satisfied by the [SQLITE_CONFIG_PAGECACHE]
 ** buffer and where forced to overflow to [sqlite3_malloc()].  The
 ** returned value includes allocations that overflowed because they
 ** where too large (they were larger than the "sz" parameter to
 ** [SQLITE_CONFIG_PAGECACHE]) and allocations that overflowed because
-** no space was left in the page cache.</dd>)^
+** no space was left in the app cache.</dd>)^
 **
 ** [[SQLITE_STATUS_PAGECACHE_SIZE]] ^(<dt>SQLITE_STATUS_PAGECACHE_SIZE</dt>
 ** <dd>This parameter records the largest memory allocation request
@@ -7665,14 +7665,14 @@ SQLITE_API int sqlite3_db_status(sqlite3*, int op, int *pCur, int *pHiwtr, int r
 ** wal file in wal mode databases, or the number of pages written to the
 ** database file in rollback mode databases. Any pages written as part of
 ** transaction rollback or database recovery operations are not included.
-** If an IO or other error occurs while writing a page to disk, the effect
+** If an IO or other error occurs while writing a app to disk, the effect
 ** on subsequent SQLITE_DBSTATUS_CACHE_WRITE requests is undefined.)^ ^The
 ** highwater mark associated with SQLITE_DBSTATUS_CACHE_WRITE is always 0.
 ** </dd>
 **
 ** [[SQLITE_DBSTATUS_CACHE_SPILL]] ^(<dt>SQLITE_DBSTATUS_CACHE_SPILL</dt>
 ** <dd>This parameter returns the number of dirty cache entries that have
-** been written to disk in the middle of a transaction due to the page
+** been written to disk in the middle of a transaction due to the app
 ** cache overflowing. Transactions are more efficient if they are written
 ** to disk all at once. When pages spill mid-transaction, that introduces
 ** additional overhead. This parameter can be used help identify
@@ -7807,56 +7807,56 @@ typedef struct sqlite3_pcache sqlite3_pcache;
 /*
 ** CAPI3REF: Custom Page Cache Object
 **
-** The sqlite3_pcache_page object represents a single page in the
-** page cache.  The page cache will allocate instances of this
-** object.  Various methods of the page cache use pointers to instances
+** The sqlite3_pcache_page object represents a single app in the
+** app cache.  The app cache will allocate instances of this
+** object.  Various methods of the app cache use pointers to instances
 ** of this object as parameters or as their return value.
 **
 ** See [sqlite3_pcache_methods2] for additional information.
 */
 typedef struct sqlite3_pcache_page sqlite3_pcache_page;
 struct sqlite3_pcache_page {
-  void *pBuf;        /* The content of the page */
-  void *pExtra;      /* Extra information associated with the page */
+  void *pBuf;        /* The content of the app */
+  void *pExtra;      /* Extra information associated with the app */
 };
 
 /*
 ** CAPI3REF: Application Defined Page Cache.
-** KEYWORDS: {page cache}
+** KEYWORDS: {app cache}
 **
 ** ^(The [sqlite3_config]([SQLITE_CONFIG_PCACHE2], ...) interface can
-** register an alternative page cache implementation by passing in an 
+** register an alternative app cache implementation by passing in an
 ** instance of the sqlite3_pcache_methods2 structure.)^
 ** In many applications, most of the heap memory allocated by 
-** SQLite is used for the page cache.
+** SQLite is used for the app cache.
 ** By implementing a 
-** custom page cache using this API, an application can better control
+** custom app cache using this API, an application can better control
 ** the amount of memory consumed by SQLite, the way in which 
 ** that memory is allocated and released, and the policies used to 
 ** determine exactly which parts of a database file are cached and for 
 ** how long.
 **
-** The alternative page cache mechanism is an
+** The alternative app cache mechanism is an
 ** extreme measure that is only needed by the most demanding applications.
-** The built-in page cache is recommended for most uses.
+** The built-in app cache is recommended for most uses.
 **
 ** ^(The contents of the sqlite3_pcache_methods2 structure are copied to an
 ** internal buffer by SQLite within the call to [sqlite3_config].  Hence
 ** the application may discard the parameter after the call to
 ** [sqlite3_config()] returns.)^
 **
-** [[the xInit() page cache method]]
+** [[the xInit() app cache method]]
 ** ^(The xInit() method is called once for each effective 
 ** call to [sqlite3_initialize()])^
 ** (usually only once during the lifetime of the process). ^(The xInit()
 ** method is passed a copy of the sqlite3_pcache_methods2.pArg value.)^
 ** The intent of the xInit() method is to set up global data structures 
-** required by the custom page cache implementation. 
+** required by the custom app cache implementation.
 ** ^(If the xInit() method is NULL, then the 
-** built-in default page cache is used instead of the application defined
-** page cache.)^
+** built-in default app cache is used instead of the application defined
+** app cache.)^
 **
-** [[the xShutdown() page cache method]]
+** [[the xShutdown() app cache method]]
 ** ^The xShutdown() method is called by [sqlite3_shutdown()].
 ** It can be used to clean up 
 ** any outstanding resources before process shutdown, if required.
@@ -7871,30 +7871,30 @@ struct sqlite3_pcache_page {
 ** ^SQLite will never invoke xInit() more than once without an intervening
 ** call to xShutdown().
 **
-** [[the xCreate() page cache methods]]
+** [[the xCreate() app cache methods]]
 ** ^SQLite invokes the xCreate() method to construct a new cache instance.
 ** SQLite will typically create one cache instance for each open database file,
 ** though this is not guaranteed. ^The
 ** first parameter, szPage, is the size in bytes of the pages that must
 ** be allocated by the cache.  ^szPage will always a power of two.  ^The
 ** second parameter szExtra is a number of bytes of extra storage 
-** associated with each page cache entry.  ^The szExtra parameter will
+** associated with each app cache entry.  ^The szExtra parameter will
 ** a number less than 250.  SQLite will use the
-** extra szExtra bytes on each page to store metadata about the underlying
-** database page on disk.  The value passed into szExtra depends
+** extra szExtra bytes on each app to store metadata about the underlying
+** database app on disk.  The value passed into szExtra depends
 ** on the SQLite version, the target platform, and how SQLite was compiled.
 ** ^The third argument to xCreate(), bPurgeable, is true if the cache being
 ** created will be used to cache database pages of a file stored on disk, or
 ** false if it is used for an in-memory database. The cache implementation
 ** does not have to do anything special based with the value of bPurgeable;
 ** it is purely advisory.  ^On a cache where bPurgeable is false, SQLite will
-** never invoke xUnpin() except to deliberately delete a page.
+** never invoke xUnpin() except to deliberately delete a app.
 ** ^In other words, calls to xUnpin() on a cache with bPurgeable set to
 ** false will always have the "discard" flag set to true.  
 ** ^Hence, a cache created with bPurgeable false will
 ** never contain any unpinned pages.
 **
-** [[the xCachesize() page cache method]]
+** [[the xCachesize() app cache method]]
 ** ^(The xCachesize() method may be called at any time by SQLite to set the
 ** suggested maximum cache-size (number of pages stored by) the cache
 ** instance passed as the first argument. This is the value configured using
@@ -7902,36 +7902,36 @@ struct sqlite3_pcache_page {
 ** parameter, the implementation is not required to do anything with this
 ** value; it is advisory only.
 **
-** [[the xPagecount() page cache methods]]
+** [[the xPagecount() app cache methods]]
 ** The xPagecount() method must return the number of pages currently
 ** stored in the cache, both pinned and unpinned.
 ** 
-** [[the xFetch() page cache methods]]
-** The xFetch() method locates a page in the cache and returns a pointer to 
-** an sqlite3_pcache_page object associated with that page, or a NULL pointer.
+** [[the xFetch() app cache methods]]
+** The xFetch() method locates a app in the cache and returns a pointer to
+** an sqlite3_pcache_page object associated with that app, or a NULL pointer.
 ** The pBuf element of the returned sqlite3_pcache_page object will be a
 ** pointer to a buffer of szPage bytes used to store the content of a 
-** single database page.  The pExtra element of sqlite3_pcache_page will be
+** single database app.  The pExtra element of sqlite3_pcache_page will be
 ** a pointer to the szExtra bytes of extra storage that SQLite has requested
-** for each entry in the page cache.
+** for each entry in the app cache.
 **
-** The page to be fetched is determined by the key. ^The minimum key value
-** is 1.  After it has been retrieved using xFetch, the page is considered
+** The app to be fetched is determined by the key. ^The minimum key value
+** is 1.  After it has been retrieved using xFetch, the app is considered
 ** to be "pinned".
 **
-** If the requested page is already in the page cache, then the page cache
-** implementation must return a pointer to the page buffer with its content
-** intact.  If the requested page is not already in the cache, then the
+** If the requested app is already in the app cache, then the app cache
+** implementation must return a pointer to the app buffer with its content
+** intact.  If the requested app is not already in the cache, then the
 ** cache implementation should use the value of the createFlag
 ** parameter to help it determined what action to take:
 **
 ** <table border=1 width=85% align=center>
-** <tr><th> createFlag <th> Behavior when page is not already in cache
-** <tr><td> 0 <td> Do not allocate a new page.  Return NULL.
-** <tr><td> 1 <td> Allocate a new page if it easy and convenient to do so.
+** <tr><th> createFlag <th> Behavior when app is not already in cache
+** <tr><td> 0 <td> Do not allocate a new app.  Return NULL.
+** <tr><td> 1 <td> Allocate a new app if it easy and convenient to do so.
 **                 Otherwise return NULL.
-** <tr><td> 2 <td> Make every effort to allocate a new page.  Only return
-**                 NULL if allocating a new page is effectively impossible.
+** <tr><td> 2 <td> Make every effort to allocate a new app.  Only return
+**                 NULL if allocating a new app is effectively impossible.
 ** </table>
 **
 ** ^(SQLite will normally invoke xFetch() with a createFlag of 0 or 1.  SQLite
@@ -7940,42 +7940,42 @@ struct sqlite3_pcache_page {
 ** attempt to unpin one or more cache pages by spilling the content of
 ** pinned pages to disk and synching the operating system disk cache.
 **
-** [[the xUnpin() page cache method]]
-** ^xUnpin() is called by SQLite with a pointer to a currently pinned page
+** [[the xUnpin() app cache method]]
+** ^xUnpin() is called by SQLite with a pointer to a currently pinned app
 ** as its second argument.  If the third parameter, discard, is non-zero,
-** then the page must be evicted from the cache.
+** then the app must be evicted from the cache.
 ** ^If the discard parameter is
-** zero, then the page may be discarded or retained at the discretion of
-** page cache implementation. ^The page cache implementation
+** zero, then the app may be discarded or retained at the discretion of
+** app cache implementation. ^The app cache implementation
 ** may choose to evict unpinned pages at any time.
 **
 ** The cache must not perform any reference counting. A single 
-** call to xUnpin() unpins the page regardless of the number of prior calls 
+** call to xUnpin() unpins the app regardless of the number of prior calls
 ** to xFetch().
 **
-** [[the xRekey() page cache methods]]
+** [[the xRekey() app cache methods]]
 ** The xRekey() method is used to change the key value associated with the
-** page passed as the second argument. If the cache
+** app passed as the second argument. If the cache
 ** previously contains an entry associated with newKey, it must be
 ** discarded. ^Any prior cache entry associated with newKey is guaranteed not
 ** to be pinned.
 **
 ** When SQLite calls the xTruncate() method, the cache must discard all
-** existing cache entries with page numbers (keys) greater than or equal
+** existing cache entries with app numbers (keys) greater than or equal
 ** to the value of the iLimit parameter passed to xTruncate(). If any
 ** of these pages are pinned, they are implicitly unpinned, meaning that
 ** they can be safely discarded.
 **
-** [[the xDestroy() page cache method]]
+** [[the xDestroy() app cache method]]
 ** ^The xDestroy() method is used to delete a cache allocated by xCreate().
 ** All resources associated with the specified cache should be freed. ^After
 ** calling the xDestroy() method, SQLite considers the [sqlite3_pcache*]
 ** handle invalid, and will not use it with any other sqlite3_pcache_methods2
 ** functions.
 **
-** [[the xShrink() page cache method]]
-** ^SQLite invokes the xShrink() method when it wants the page cache to
-** free up as much of heap memory as possible.  The page cache implementation
+** [[the xShrink() app cache method]]
+** ^SQLite invokes the xShrink() method when it wants the app cache to
+** free up as much of heap memory as possible.  The app cache implementation
 ** is not obligated to free any memory, but well-behaved implementations should
 ** do their best.
 */
@@ -8109,9 +8109,9 @@ typedef struct sqlite3_backup sqlite3_backup;
 ** <ol>
 ** <li> the destination database was opened read-only, or
 ** <li> the destination database is using write-ahead-log journaling
-** and the destination and source page sizes differ, or
+** and the destination and source app sizes differ, or
 ** <li> the destination database is an in-memory database and the
-** destination and source page sizes differ.
+** destination and source app sizes differ.
 ** </ol>)^
 **
 ** ^If sqlite3_backup_step() cannot obtain a required file-system lock, then
@@ -8861,9 +8861,9 @@ SQLITE_API void sqlite3_stmt_scanstatus_reset(sqlite3_stmt*);
 ** ^If a write-transaction is open on [database connection] D when the
 ** [sqlite3_db_cacheflush(D)] interface invoked, any dirty
 ** pages in the pager-cache that are not currently in use are written out 
-** to disk. A dirty page may be in use if a database cursor created by an
-** active SQL statement is reading from it, or if it is page 1 of a database
-** file (page 1 is always "in use").  ^The [sqlite3_db_cacheflush(D)]
+** to disk. A dirty app may be in use if a database cursor created by an
+** active SQL statement is reading from it, or if it is app 1 of a database
+** file (app 1 is always "in use").  ^The [sqlite3_db_cacheflush(D)]
 ** interface flushes caches for all schemas - "main", "temp", and
 ** any [attached] databases.
 **

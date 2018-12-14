@@ -3,10 +3,12 @@ package cn.kkmofang.ker;
 import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 import android.webkit.WebSettings;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -75,10 +77,61 @@ public class App {
 
     public void open(String uri,boolean animated) {
 
+        if(uri == null) {
+            return;
+        }
+
+        if(uri.contains("://")) {
+
+            if(uri.startsWith("window://")) {
+
+                URI u = URI.create("app:///" + uri.substring(9));
+
+                openPageFragment(PageFragment.TYPE_WINDOW, u.getPath().substring(1),decodeQuery(u.getQuery()),animated);
+
+            } else if(uri.startsWith("ker://")) {
+                URI u = URI.create(uri);
+                App.open(activity(),"http://" + u.getHost() + u.getPath(),decodeQuery(u.getQuery()));
+            } else if(uri.startsWith("kers://")) {
+                URI u = URI.create(uri);
+                App.open(activity(),"https://" + u.getHost() + u.getPath(),decodeQuery(u.getQuery()));
+            }
+
+        } else {
+
+            URI u = URI.create("app:///" + uri);
+
+            openPageFragment(PageFragment.TYPE_PAGE, u.getPath().substring(1),decodeQuery(u.getQuery()),animated);
+
+        }
+    }
+
+    protected void openPageFragment(String type,String path,Map<String,String> query,boolean animated) {
+
+        PageFragment fragment = new PageFragment();
+
+        fragment.path = path;
+        fragment.type = type;
+        fragment.query = query;
+
+        if(PageFragment.TYPE_WINDOW.equals(type)) {
+            Activity a = activity();
+            if(a != null && a instanceof IAppActivity) {
+                ((IAppActivity) a).open(fragment, animated);
+            }
+        } else {
+            Activity a = activity();
+            if(a != null && a instanceof IAppActivity) {
+                ((IAppActivity) a).show(fragment, animated);
+            }
+        }
     }
 
     public void back(int delta,boolean animated) {
-
+        Activity a = activity();
+        if(a != null && a instanceof IAppActivity) {
+            ((IAppActivity) a).back(delta, animated);
+        }
     }
 
     public void recycle() {
@@ -156,6 +209,27 @@ public class App {
         i.putExtra("query",encodeQuery(query));
 
         activity.startActivity(i);
+    }
+
+    public static void open(final Activity activity, String URI, final Object query) {
+
+        Package.getPackage(activity, URI, new Package.Callback() {
+
+            @Override
+            public void onError(Throwable ex) {
+                Log.e("ker",Log.getStackTraceString(ex));
+            }
+
+            @Override
+            public void onLoad(Package pkg) {
+                App.open(activity,pkg.basePath,pkg.appkey,query);
+            }
+
+            @Override
+            public void onProgress(long bytes, long total) {
+
+            }
+        });
     }
 
     private static native long alloc(App object,String basePath,String appkey,String userAgent);

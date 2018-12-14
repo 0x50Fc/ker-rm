@@ -89,6 +89,21 @@ public class Page {
         return _app;
     }
 
+    public void run(String path,Map<String,String> query) {
+        int n = query == null ? 0 : query.size();
+        String[] keys = new String[n];
+        String[] values = new String[n];
+        if(n >0) {
+            int i = 0;
+            for (Map.Entry<String, String> e : query.entrySet()) {
+                keys[i] = e.getKey();
+                values[i] = e.getValue();
+                i++;
+            }
+        }
+        run(_ptr,path,keys,values);
+    }
+
     protected void finalize() throws Throwable {
         if(_ptr != 0) {
             dealloc(_ptr);
@@ -111,7 +126,9 @@ public class Page {
         void onClose(boolean animated);
     }
 
-    private static native long alloc(View view,long app);
+    private native long alloc(View view,long app);
     private static native void dealloc(long ptr);
     private static native long jsContext(long ptr);
+    private static native void run(long ptr,String path,String[] keys,String[] values);
+
 }

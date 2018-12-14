@@ -1,5 +1,5 @@
 //
-//  page.cc
+//  app.cc
 //  KK
 //
 //  Created by zhanghailong on 2018/10/31.
@@ -144,7 +144,7 @@ namespace kk {
         
         void Page::run(kk::CString path , kk::TObject<kk::String,kk::String> * query) {
 
-            kk::String code("(function(app,page,path,query");
+            kk::String code("(function(app,app,path,query");
             
             std::vector<kk::Any> vs;
             

@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <ui/app.h>
+#include <ui/page.h>
 #include "kk.h"
 #include "KerImage.h"
 #include "KerObject.h"
@@ -7,6 +8,8 @@
 #include <core/dispatch.h>
 #include <event.h>
 #include "KerPackage.h"
+#include "KerView.h"
+#include "KerPage.h"
 
 namespace kk {
     extern event_base * GetDispatchQueueEventBase(DispatchQueue * queue);
@@ -830,3 +833,143 @@ Java_cn_kkmofang_ker_App_run__JLjava_lang_Object_2(JNIEnv *env, jclass type, jlo
 
 }
 
+extern "C"
+JNIEXPORT jlong JNICALL
+Java_cn_kkmofang_ker_Page_alloc(JNIEnv *env, jobject instance, jobject view, jlong app) {
+
+    kk::ui::View * v = new kk::ui::OSView(view, nullptr,(kk::ui::Context *) app);
+    kk::ui::KerPage * page = new kk::ui::KerPage((kk::ui::App *) app,v, env->NewWeakGlobalRef(instance));
+
+    page->retain();
+
+    page->on("options", new kk::TFunction<void,kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
+
+        jboolean isAttach = false;
+
+        JNIEnv *env = kk_env(&isAttach);
+
+        jweak object = page->object();
+
+        jobject v = ker_Object_to_JObject(env, event->data());
+
+        jclass isa = env->GetObjectClass(object);
+
+        jmethodID setOptions = env->GetMethodID(isa,"setOptions","(Ljava/lang/Object;)V");
+
+        env->CallVoidMethod(object,setOptions,v);
+
+        if(v != nullptr) {
+            env->DeleteLocalRef(v);
+        }
+
+        if(isAttach) {
+            gJavaVm->DetachCurrentThread();
+        }
+
+
+    }));
+
+    page->on("close", new kk::TFunction<void,kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
+
+        jboolean isAttach = false;
+
+        JNIEnv *env = kk_env(&isAttach);
+
+        jweak object = page->object();
+
+        jclass isa = env->GetObjectClass(object);
+
+        kk::JSObject * v = dynamic_cast<kk::JSObject *>(event->data());
+
+        jboolean animated = true;
+
+        if(v != nullptr) {
+            duk_context * ctx = v->jsContext();
+            void * heapptr=  v->heapptr();
+            if(ctx && heapptr) {
+                duk_push_heapptr(ctx,heapptr);
+                duk_get_prop_string(ctx,-1,"animated");
+                if(duk_is_boolean(ctx,-1)) {
+                    animated = duk_to_boolean(ctx,-1);
+                }
+                duk_pop_2(ctx);
+            }
+        }
+
+        jmethodID close = env->GetMethodID(isa,"close","(Z)V");
+
+        env->CallVoidMethod(object,close,animated);
+
+        if(isAttach) {
+            gJavaVm->DetachCurrentThread();
+        }
+
+
+    }));
+
+    return (jlong) page;
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_Page_dealloc(JNIEnv *env, jclass type, jlong ptr) {
+
+
+    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
+
+    page->off();
+    page->release();
+
+}
+
+extern "C"
+JNIEXPORT jlong JNICALL
+Java_cn_kkmofang_ker_Page_jsContext(JNIEnv *env, jclass type, jlong ptr) {
+
+    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
+
+    return (jlong) page->jsContext();
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_Page_run(
+        JNIEnv *env, jclass type, jlong ptr, jstring path_, jobjectArray keys,
+        jobjectArray values) {
+    const char *path = env->GetStringUTFChars(path_, 0);
+
+    kk::ui::Page * page = (kk::ui::Page *) ptr;
+
+    kk::Strong<kk::TObject<kk::String,kk::String>> v = new kk::TObject<kk::String,kk::String>();
+
+    kk::TObject<kk::String,kk::String> * q = (kk::TObject<kk::String,kk::String> *) v;
+
+    if(keys != nullptr && values != nullptr) {
+
+        int n = env->GetArrayLength(keys);
+
+        for(int i=0;i<n;i++) {
+
+            jstring key = (jstring) env->GetObjectArrayElement(keys,i);
+            jstring value = (jstring) env->GetObjectArrayElement(values,i);
+
+            kk::CString cKey = env->GetStringUTFChars(key,0);
+            kk::CString cValue = env->GetStringUTFChars(value,0);
+
+            (*q)[cKey] = cValue;
+
+            env->ReleaseStringUTFChars(key,cKey);
+            env->ReleaseStringUTFChars(value,cValue);
+
+            env->DeleteLocalRef(key);
+            env->DeleteLocalRef(value);
+        }
+
+    }
+
+    page->run(path,q);
+
+    env->ReleaseStringUTFChars(path_, path);
+}

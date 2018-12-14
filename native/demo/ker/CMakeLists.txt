@@ -36,6 +36,7 @@ add_library(ker
             src/main/jni/KerView.cc
             src/main/jni/KerPackage.cc
             src/main/jni/KerApp.cc
+            src/main/jni/KerPage.cc
             src/main/jni/native.cc
             src/main/jni/core/kk.cc
             src/main/jni/core/jit.cc
