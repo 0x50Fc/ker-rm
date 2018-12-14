@@ -78,8 +78,7 @@ public class PageFragment extends Fragment implements Page.Listener{
             _page.run(path,query);
             onDidPageLoad(_page);
         }
-
-        this.onDestroy();
+        
     }
 
     @Override
