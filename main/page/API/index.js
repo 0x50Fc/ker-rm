@@ -133,7 +133,11 @@ Page({
           }, {
             zh: '蓝牙',
             url: 'bluetooth/bluetooth'
-          }, {
+          },{
+            zh: '蓝牙 api测试',
+            url: 'bluetooth-test/index'
+          }, 
+          {
             zh: 'iBeacon',
             url: 'ibeacon/ibeacon'
           }, {

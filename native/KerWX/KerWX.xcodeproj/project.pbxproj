@@ -63,8 +63,6 @@
 		E9A5D89A21C12426004FC729 /* KerWXObject+DeviceClipboard.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A5D89821C12426004FC729 /* KerWXObject+DeviceClipboard.m */; };
 		E9D0BFA021C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D0BF9E21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.h */; };
 		E9D0BFA121C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D0BF9F21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.m */; };
-		E9D0BFA521C3B46100BFBE56 /* KerWXObject+DeviceBLE.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D0BFA321C3B46100BFBE56 /* KerWXObject+DeviceBLE.h */; };
-		E9D0BFA621C3B46100BFBE56 /* KerWXObject+DeviceBLE.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D0BFA421C3B46100BFBE56 /* KerWXObject+DeviceBLE.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -164,8 +162,6 @@
 		E9A5D89821C12426004FC729 /* KerWXObject+DeviceClipboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceClipboard.m"; sourceTree = "<group>"; };
 		E9D0BF9E21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceBluetooth.h"; sourceTree = "<group>"; };
 		E9D0BF9F21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceBluetooth.m"; sourceTree = "<group>"; };
-		E9D0BFA321C3B46100BFBE56 /* KerWXObject+DeviceBLE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceBLE.h"; sourceTree = "<group>"; };
-		E9D0BFA421C3B46100BFBE56 /* KerWXObject+DeviceBLE.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceBLE.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -229,8 +225,6 @@
 				E94769F721C2511C0007EEBF /* KerWXObject+DevicePhoneCall.m */,
 				E9D0BF9E21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.h */,
 				E9D0BF9F21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.m */,
-				E9D0BFA321C3B46100BFBE56 /* KerWXObject+DeviceBLE.h */,
-				E9D0BFA421C3B46100BFBE56 /* KerWXObject+DeviceBLE.m */,
 				1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */,
 				1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */,
 				1A53C6E221B8DD4800170AB7 /* KerWXObject+downloadFile.h */,
@@ -290,7 +284,6 @@
 				1A53C6F421B9103A00170AB7 /* KerWXObject+uploadFile.h in Headers */,
 				E9A5D88A21C10303004FC729 /* KerWXObject+DeviceAccelerometer.h in Headers */,
 				E9A5D89921C12426004FC729 /* KerWXObject+DeviceClipboard.h in Headers */,
-				E9D0BFA521C3B46100BFBE56 /* KerWXObject+DeviceBLE.h in Headers */,
 				1A53C66C21AFD94D00170AB7 /* KerWXObject+Analytics.h in Headers */,
 				E94769F821C2511C0007EEBF /* KerWXObject+DevicePhoneCall.h in Headers */,
 				1A53C6E421B8DD4800170AB7 /* KerWXObject+downloadFile.h in Headers */,
@@ -458,7 +451,6 @@
 				E94769F921C2511C0007EEBF /* KerWXObject+DevicePhoneCall.m in Sources */,
 				1A53C6F521B9103A00170AB7 /* KerWXObject+uploadFile.m in Sources */,
 				E9D0BFA121C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.m in Sources */,
-				E9D0BFA621C3B46100BFBE56 /* KerWXObject+DeviceBLE.m in Sources */,
 				1AF0662D219D57C800F8F7A8 /* KerWXObject+Location.m in Sources */,
 				1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */,
 				1A53C6E521B8DD4800170AB7 /* KerWXObject+downloadFile.m in Sources */,

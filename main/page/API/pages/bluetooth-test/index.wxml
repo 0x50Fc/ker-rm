@@ -1,0 +1,15 @@
+<view class="container">
+  <button open-type='openBluetoothAdapter' bindgetuserinfo="openBluetoothAdapter" bindtap= "openBluetoothAdapter">openBluetoothAdapter</button>
+
+  <button open-type='closeBluetoothAdapter' bindgetuserinfo="closeBluetoothAdapter" bindtap= "closeBluetoothAdapter">closeBluetoothAdapter</button>
+
+   <button open-type='getBluetoothAdapterState' bindgetuserinfo="getBluetoothAdapterState" bindtap= "getBluetoothAdapterState">getBluetoothAdapterState</button>
+
+   <button open-type='startBluetoothDevicesDiscovery' bindgetuserinfo="startBluetoothDevicesDiscovery" bindtap= "startBluetoothDevicesDiscovery">startBluetoothDevicesDiscovery</button>
+
+   <button open-type='stopBluetoothDevicesDiscovery' bindgetuserinfo="stopBluetoothDevicesDiscovery" bindtap= "stopBluetoothDevicesDiscovery">stopBluetoothDevicesDiscovery</button>
+
+   <button open-type='getBluetoothDevices' bindgetuserinfo="getBluetoothDevices" bindtap= "getBluetoothDevices">getBluetoothDevices</button>
+
+
+</view>

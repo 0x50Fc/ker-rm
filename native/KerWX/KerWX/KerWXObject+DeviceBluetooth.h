@@ -7,6 +7,7 @@
 //
 
 #import <KerWX/KerWX.h>
+#import <CoreBluetooth/CoreBluetooth.h>
 
 /*
  err type
@@ -73,6 +74,43 @@
 @property (nonatomic, copy) NSArray<WXConnectedBluetoothDevices *> * devices;
 @end
 
+
+@interface  WXOnBLEConnectionStateChangeRes : WXBluetoothRes
+@property (nonatomic, copy) NSString * deviceId;
+@property (nonatomic, assign) BOOL connected;
+@end
+
+@interface WXBLEDeviceService : NSObject
+@property (nonatomic, copy) NSString * uuid;
+@property (nonatomic, assign) BOOL isPrimary;
+@end
+
+@interface WXGetBLEDeviceServicesRes : WXBluetoothRes
+@property (nonatomic, copy) NSString * deviceId;
+@property (nonatomic, copy) NSArray<WXBLEDeviceService *> * services;
+@end
+
+@interface WXBLEDeviceCharacteristicPropertie : NSObject
+@property (nonatomic, assign) BOOL read;                 //1<<1 CBCharacteristicPropertyRead
+@property (nonatomic, assign) BOOL write;                //1<<3 CBCharacteristicPropertyWrite
+@property (nonatomic, assign) BOOL notify;               //1<<4 CBCharacteristicPropertyNotify
+@property (nonatomic, assign) BOOL indicate;             //1<<5 CBCharacteristicPropertyIndicate
+@end
+
+@interface WXBLEDeviceCharacteristic : NSObject
+@property (nonatomic, strong) WXBLEDeviceCharacteristicPropertie * properties;
+@property (nonatomic, copy) NSString * uuid;
+@end
+
+@interface WXGetBLEDeviceCharacteristicsRes : WXBluetoothRes
+@property (nonatomic, copy) NSArray<WXBLEDeviceCharacteristic *> * characteristics;
+@end
+
+
+
+
+
+
 @protocol WXStartBluetoothDevicesDiscoveryObject <WXCallbackFunction>
 @property (nonatomic, copy) NSArray<NSString*> * services;
 @property (nonatomic, assign) BOOL allowDuplicatesKey;
@@ -83,8 +121,28 @@
 @property (nonatomic, copy) NSArray<NSString*> * services;
 @end
 
+@protocol WXCreateBLEConnectionObject <WXCallbackFunction>
+@property (nonatomic, strong) NSString * deviceId;
+@property (nonatomic, assign) double timeout;
+@end
+
+@protocol WXCloseBLEConnectionObject <WXCallbackFunction>
+@property (nonatomic, strong) NSString * deviceId;
+@end
+
+@protocol WXGetBLEDeviceServicesObject <WXCallbackFunction>
+@property (nonatomic, strong) NSString * deviceId;
+@end
+
+@protocol WXBGetLEDeviceCharacteristicsObject <WXCallbackFunction>
+@property (nonatomic, copy) NSString * deviceId;
+@property (nonatomic, copy) NSString * serviceId;
+@end
+
 
 @interface KerWXObject (DeviceBluetooth)
+
+/*bluetooth*/
 
 -(void) getBluetoothAdapterState:(KerJSObject *) object;
 -(void) onBluetoothAdapterStateChange:(KerJSObject *) object;
@@ -100,14 +158,40 @@
 -(void) getBluetoothDevices:(KerJSObject *) object;
 -(void) getConnectedBluetoothDevices:(KerJSObject *) object;
 
+/*BLE*/
+
+-(void) createBLEConnection:(KerJSObject *) object;
+-(void) closeBLEConnection:(KerJSObject *)object;
+-(void) onBLEConnectionStateChange:(KerJSObject *) object;
+
+-(void) getBLEDeviceServices:(KerJSObject *) object;
+
+-(void) getBLEDeviceCharacteristics:(KerJSObject *) object;
+
 @end
 
 
 typedef BOOL (^ArrayCompareFunc)(id objA, id objB);
 
-@interface NSMutableArray (WXBOpenBluetooth)
+@interface NSMutableArray (DeviceBluetooth)
 
 -(BOOL) ker_alreadySaveObject:(id)object method:(ArrayCompareFunc)func ;
 
 @end
+
+@interface CBPeripheral(DeviceBluetooth)
+
+-(CBService *)ker_findServiceByID:(NSString *)ID;
+
+@end
+
+@interface NSDictionary (DeviceBluetooth)
+
+- (NSMutableDictionary *)ker_mutableDeepCopy;
+
+@end
+
+
+
+
 
