@@ -2,7 +2,9 @@ package cn.kkmofang.ker;
 
 import android.app.Activity;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.webkit.WebSettings;
 
@@ -23,15 +25,46 @@ import java.util.TreeMap;
 public class App {
 
     static {
+
         System.loadLibrary("ker");
+
+        _openlibs = new ArrayList<>();
+
+        addOpenlib(new Openlib() {
+            @Override
+            public void open(long jsContext, App app) {
+
+                DisplayMetrics metrics = new DisplayMetrics();
+                app.activity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                JSContext.PushObject(jsContext);
+
+                JSContext.PushString(jsContext,"width");
+                JSContext.PushInt(jsContext, Math.min(metrics.widthPixels,metrics.heightPixels));
+                JSContext.PutProp(jsContext,-3);
+
+                JSContext.PushString(jsContext,"height");
+                JSContext.PushInt(jsContext, Math.max(metrics.widthPixels,metrics.heightPixels));
+                JSContext.PutProp(jsContext,-3);
+
+                JSContext.PushString(jsContext,"density");
+                JSContext.PushNumber(jsContext, metrics.density);
+                JSContext.PutProp(jsContext,-3);
+
+                JSContext.PutGlobalString(jsContext,"screen");
+
+            }
+        });
+
         openlib();
+
     }
 
     public interface Openlib {
         void open(long jsContext,App app);
     }
 
-    private static List<Openlib> _openlibs = new ArrayList<>();
+    private final static List<Openlib> _openlibs;
 
     public static void addOpenlib(Openlib openlib){
         _openlibs.add(openlib);
@@ -59,6 +92,7 @@ public class App {
         _basePath = basePath;
         _appkey = appkey;
         _jsContext = jsContext(_ptr);
+        JSContext.openlib(_jsContext);
         openlib(_jsContext,this);
     }
 
@@ -106,6 +140,7 @@ public class App {
         }
     }
 
+
     protected void openPageFragment(String type,String path,Map<String,String> query,boolean animated) {
 
         PageFragment fragment = new PageFragment();
@@ -117,12 +152,12 @@ public class App {
         if(PageFragment.TYPE_WINDOW.equals(type)) {
             Activity a = activity();
             if(a != null && a instanceof IAppActivity) {
-                ((IAppActivity) a).open(fragment, animated);
+                ((IAppActivity) a).show(fragment, animated);
             }
         } else {
             Activity a = activity();
             if(a != null && a instanceof IAppActivity) {
-                ((IAppActivity) a).show(fragment, animated);
+                ((IAppActivity) a).open(fragment, animated);
             }
         }
     }

@@ -72,13 +72,20 @@ public class PageFragment extends Fragment implements Page.Listener{
         Activity a = getActivity();
 
         if(a instanceof IAppActivity && path != null) {
-            _page = new Page(getView(),((IAppActivity) a).app());
+            View view = getView();
+            PageView pageView;
+            if(view instanceof PageView) {
+                pageView = (PageView) view;
+            } else {
+                pageView = view.findViewById(R.id.ker_contentView);
+            }
+            _page = new Page(pageView,((IAppActivity) a).app());
             _page.setListener(this);
             onWillPageLoad(_page);
             _page.run(path,query);
             onDidPageLoad(_page);
         }
-        
+
     }
 
     @Override
@@ -125,5 +132,9 @@ public class PageFragment extends Fragment implements Page.Listener{
                 ((IAppActivity) a).back(1,animated);
             }
         }
+    }
+
+    public boolean onBackPressed() {
+        return true;
     }
 }

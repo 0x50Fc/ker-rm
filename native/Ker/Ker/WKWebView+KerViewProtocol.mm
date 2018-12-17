@@ -47,9 +47,7 @@
         if(config != nullptr ){
             
             WKNavigationActionPolicy policy = WKNavigationActionPolicyCancel;
-            
-            NSString * name = @"action";
-            
+ 
             NSString * u = navigationAction.request.URL.absoluteString;
             
             auto m = config->userActions();
@@ -63,7 +61,6 @@
                 NSTextCheckingResult * r = [pattern firstMatchInString:u options:NSMatchingReportProgress range:NSMakeRange(0, [u length])];
                 
                 if(r != nil) {
-                    name = [NSString stringWithCString:v.name.c_str() encoding:NSUTF8StringEncoding];
                     if(v.policy == kk::ui::WebViewActionPolicyAllow) {
                         policy = WKNavigationActionPolicyAllow;
                     }
@@ -80,7 +77,7 @@
                 
                 e->setData(new kk::TObject<kk::String,kk::String>({{"url",[u UTF8String]}}));
                 
-                view->emit([name UTF8String], e);
+                view->emit("action", e);
                 
                 decisionHandler(policy);
                 
@@ -158,11 +155,11 @@
     
     WKWebViewKKViewProtocol * object = [[WKWebViewKKViewProtocol alloc] init];
     
-    [userContentController addScriptMessageHandler:object name:@"kk"];
+    [userContentController addScriptMessageHandler:object name:@"ker"];
     
     if(v != nullptr) {
         
-        auto m = v->userScripts();
+        auto & m = v->userScripts();
         
         auto i = m.begin();
         

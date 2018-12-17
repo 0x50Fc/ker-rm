@@ -2,14 +2,14 @@ package cn.kkmofang.ker;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
+
+import java.lang.ref.WeakReference;
 
 /**
- * Created by zhanghailong on 2018/12/14.
+ * Created by zhanghailong on 2018/12/17.
  */
 
-public class PageView extends ViewGroup {
+public class PageView extends KerView {
 
     public PageView(Context context) {
         super(context);
@@ -20,52 +20,23 @@ public class PageView extends ViewGroup {
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
-        int width = getDefaultSize(Integer.MAX_VALUE,widthMeasureSpec);
-        int height = getDefaultSize(Integer.MAX_VALUE,heightMeasureSpec);
-
-        Rect frame = (Rect) getTag(R.id.ker_frame);
-
-        if(frame != null) {
-            width = frame.width;
-            height = frame.height;
-        }
-
-        setMeasuredDimension(width, height);
-
-        int parentWidthSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST);
-        int parentHeightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST);
-
-        int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View v = getChildAt(i);
-            if (v != null && v.getVisibility() != GONE){
-                measureChild(v, parentWidthSpec, parentHeightSpec);
-            }
-        }
-
-    }
-
-    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int count = getChildCount();
-
-        for(int i=0;i<count;i++) {
-
-            View v = getChildAt(i);
-
-            if(v != null && v.getVisibility() == View.VISIBLE) {
-
-                Rect frame = (Rect) getTag(R.id.ker_frame);
-
-                if(frame != null) {
-                    v.layout(frame.x,frame.y,frame.x + frame.width,frame.y + frame.height);
-                }
-
+        if(_pageListener != null) {
+            PageListener v = _pageListener.get();
+            if(v != null) {
+                v.onPageLayout(this,r - l, b - t);
             }
-
         }
+        super.onLayout(changed,l,t,r,b);
     }
 
+    private WeakReference<PageListener> _pageListener;
+
+    public void setPageListener(PageListener pageListener) {
+        _pageListener = pageListener == null ? null : new WeakReference<>(pageListener);
+    }
+
+    public interface PageListener {
+        void onPageLayout(PageView view,int width,int height);
+    }
 }

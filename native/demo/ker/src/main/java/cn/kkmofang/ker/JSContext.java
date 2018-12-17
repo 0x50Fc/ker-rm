@@ -1,12 +1,10 @@
 package cn.kkmofang.ker;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by hailong11 on 2018/12/11.
@@ -97,6 +95,8 @@ public final class JSContext {
 
     public static native void PushObject(long jsContext,Object object,String prototype);
 
+    public static native void PushJSONString(long jsContext,String string);
+
     public static native void SetPrototype(long jsContext,int idx) ;
 
     public static native void PutGlobalString(long jsContext,String name);
@@ -154,18 +154,6 @@ public final class JSContext {
         }
         return null;
     }
-
-    /*
-     jboolean    z;
-    jbyte       b;
-    jchar       c;
-    jshort      s;
-    jint        i;
-    jlong       j;
-    jfloat      f;
-    jdouble     d;
-    jobject     l;
-     */
 
     public static String typeString(Class<?> isa) {
         if(Boolean.class == isa || boolean.class == isa) {

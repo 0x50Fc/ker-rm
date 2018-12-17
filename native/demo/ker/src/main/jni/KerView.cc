@@ -78,7 +78,7 @@ namespace kk {
                 env->DeleteLocalRef(value_);
             }
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -102,7 +102,7 @@ namespace kk {
                     ,(jfloat) frame.size.width
                     ,(jfloat) frame.size.height);
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -124,7 +124,7 @@ namespace kk {
                     ,(jfloat) size.width
                     ,(jfloat) size.height);
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -147,7 +147,7 @@ namespace kk {
                     ,(jfloat) offset.y
                     ,(jboolean) animated);
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -170,7 +170,7 @@ namespace kk {
             p.x = env->CallStaticFloatMethod(isa,viewGetContentOffsetX,_view,(jlong) this);
             p.y = env->CallStaticFloatMethod(isa,viewGetContentOffsetY,_view,(jlong) this);
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -240,7 +240,7 @@ namespace kk {
 
             env->CallStaticVoidMethod(isa,viewAddSubview,_view,(jlong) this,ov->object(),(jint)position);
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -261,7 +261,7 @@ namespace kk {
 
             env->CallStaticVoidMethod(isa,viewRemoveView,_view,(jlong) this);
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -317,7 +317,7 @@ namespace kk {
             env->CallStaticVoidMethod(isa,viewEvaluateJavaScript,_view,(jlong) this,v);
 
             env->DeleteLocalRef(v);
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -336,7 +336,7 @@ namespace kk {
 
             env->CallStaticVoidMethod(isa,viewSetAttributedText,_view,(jlong) this,(jlong) text);
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -356,7 +356,7 @@ namespace kk {
 
                 env->CallStaticVoidMethod(isa,viewSetImage,_view,(jlong) this,((OSImage *) _image)->object());
 
-                env->DeleteGlobalRef(isa);
+                env->DeleteLocalRef(isa);
 
                 if(isAttach) {
                     gJavaVm->DetachCurrentThread();
@@ -398,7 +398,7 @@ namespace kk {
                 _image->on("load", (kk::TFunction<void, kk::CString,Event *> *) _onImageLoadFunc);
             }
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -425,7 +425,7 @@ namespace kk {
                 env->DeleteLocalRef(v);
             }
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -461,7 +461,7 @@ namespace kk {
                 env->DeleteLocalRef(basePath_);
             }
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -504,7 +504,7 @@ namespace kk {
                 env->DeleteLocalRef(object);
             }
 
-            env->DeleteGlobalRef(isa);
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();

@@ -4,9 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import java.lang.*;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -106,11 +112,13 @@ public final class Native {
         } else if(object instanceof Map) {
             JSContext.PushObject(jsContext);
             Map m = (Map) object;
-            for(Object key : m.keySet()) {
-                JSContext.PushString(jsContext,JSContext.stringValue(key,""));
-                pushObject(jsContext,m.get(key));
-                JSContext.PutProp(jsContext,-3);
+            for (Object key : m.keySet()) {
+                JSContext.PushString(jsContext, JSContext.stringValue(key, ""));
+                pushObject(jsContext, m.get(key));
+                JSContext.PutProp(jsContext, -3);
             }
+        } else if(object instanceof JSONString) {
+            JSContext.PushJSONString(jsContext,((JSONString)object).string);
         } else {
             JSContext.PushObject(jsContext,object);
         }
@@ -202,18 +210,41 @@ public final class Native {
 
     public static void viewObtain(Object view,long viewObject) {
 
+        if(view instanceof IKerView) {
+            ((IKerView) view).obtain(viewObject);
+        }
+
     }
 
     public static void viewRecycle(Object view,long viewObject) {
+
+        if(view instanceof IKerView) {
+            ((IKerView) view).recycle(viewObject);
+        }
 
     }
 
     public static void viewSetAttribute(Object view,long viewObject,String key,String value) {
 
+        if(view instanceof IKerView) {
+            ((IKerView) view).setAttributeValue(viewObject,key,value);
+        }
     }
 
     public static void viewSetFrame(Object view,long viewObject,float x,float y,float width,float height) {
 
+        if(view instanceof View) {
+            Rect frame = new Rect();
+            frame.x = (int) x;
+            frame.y = (int) y;
+            frame.width = (int) Math.ceil(width);
+            frame.height = (int) Math.ceil(height);
+            ((View) view).setTag(R.id.ker_frame,frame);
+            ViewParent p = ((View) view).getParent();
+            if(p != null) {
+                p.requestLayout();
+            }
+        }
     }
 
     public static void viewSetContentSize(Object view,long viewObject,float width,float height) {
@@ -222,26 +253,79 @@ public final class Native {
 
     public static void viewSetContentOffset(Object view,long viewObject,float x,float y,boolean animated) {
 
+        if(view instanceof View) {
+            ((View) view).scrollTo((int) x,(int) y);
+        }
+
     }
 
     public static float viewGetContentOffsetX(Object view,long viewObject) {
+
+        if(view instanceof View) {
+            return ((View) view).getScrollX();
+        }
         return 0;
     }
 
     public static float viewGetContentOffsetY(Object view,long viewObject) {
+
+        if(view instanceof View) {
+            return ((View) view).getScrollY();
+        }
+
         return 0;
     }
 
     public static void viewAddSubview(Object view,long viewObject,Object subview,int position) {
 
+        ViewGroup contentView = null;
+
+        if(view instanceof IKerView) {
+            contentView = ((IKerView) view).contentView();
+        } else if(view instanceof View) {
+            contentView = ((View) view).findViewById(R.id.ker_contentView);
+        }
+
+        if(contentView == null && view instanceof ViewGroup) {
+            contentView = (ViewGroup) view;
+        }
+
+        if(subview instanceof View) {
+            ViewParent p = ((View) subview).getParent();
+            if(p != null) {
+                if(p == view) {
+                    return ;
+                }
+                if(p instanceof ViewGroup) {
+                    ((ViewGroup) p).removeView((View) subview);
+                }
+            }
+            if(contentView != null) {
+                if(position ==1) {
+                    contentView.addView((View) subview,0);
+                } else  {
+                    contentView.addView((View) subview);
+                }
+            }
+        }
+
     }
 
     public static void viewRemoveView(Object view,long viewObject) {
 
+        if(view instanceof View) {
+            ViewParent p = ((View) view).getParent();
+            if(p != null && p instanceof ViewGroup) {
+                ((ViewGroup) p).removeView((View) view);
+            }
+        }
     }
 
     public static void viewEvaluateJavaScript(Object view,long viewObject,String code) {
 
+        if(view instanceof IKerView) {
+            ((IKerView) view).evaluateJavaScript(viewObject,code);
+        }
     }
 
     public static void viewSetAttributedText(Object view,long viewObject, long textObject) {
@@ -258,27 +342,68 @@ public final class Native {
 
     public static void viewSetContent(Object view,long viewObject,String content,String contentType,String basePath) {
 
+        if(view instanceof IKerView) {
+            ((IKerView) view).setContent(viewObject,content,contentType,basePath);
+        }
     }
 
     public static int getViewWidth(Object view) {
+
+        if(view instanceof View) {
+            Rect frame = (Rect) ((View) view).getTag(R.id.ker_frame);
+            if(frame != null) {
+                return frame.width;
+            }
+        }
 
         return 0;
     }
 
     public static int getViewHeight(Object view) {
 
+        if(view instanceof View) {
+            Rect frame = (Rect) ((View) view).getTag(R.id.ker_frame);
+            if(frame != null) {
+                return frame.height;
+            }
+        }
+
         return 0;
     }
 
     public static Object createView(App app,String name,long viewConfiguration) {
 
+        Log.d("ker",name);
 
+        View view = null;
 
-        return null;
+        if(name != null && _viewClasss.containsKey(name)) {
+
+            Class<?> isa = _viewClasss.get(name);
+
+            try {
+                Constructor<?> init = isa.getConstructor(Context.class);
+                view = (View ) init.newInstance(app.activity());
+            } catch (Throwable e) {
+                Log.d("ker",Log.getStackTraceString(e));
+            }
+        }
+
+        if(view == null) {
+            view = new KerView(app.activity());
+        }
+
+        if(view instanceof IKerView){
+            ((IKerView) view).setViewConfiguration(viewConfiguration);
+        }
+
+        return view;
     }
 
     public static void runApp(final App app,String URI,final Object query) {
+
         Package.getPackage(app.activity(), URI, new Package.Callback() {
+
             @Override
             public void onError(Throwable ex) {
 
@@ -300,6 +425,13 @@ public final class Native {
 
     public static void addViewClass(String name,Class<?> viewClass) {
         _viewClasss.put(name,viewClass);
+    }
+
+    static  {
+        _viewClasss.put("UILabel",KerTextView.class);
+        _viewClasss.put("UIView",KerView.class);
+        _viewClasss.put("KerButton",KerButton.class);
+        _viewClasss.put("WKWebView",KerWebView.class);
     }
 
     public static void openlib() {
@@ -325,13 +457,15 @@ public final class Native {
 
             @Override
             public void onError(Throwable ex) {
-                pakcageEmitError(ptr,ex.getLocalizedMessage());
+                Map<String,Object> data = new TreeMap<>();
+                data.put("error",ex.getLocalizedMessage());
+                emit(ptr,"error",data);
                 release(ptr);
             }
 
             @Override
             public void onLoad(Package pkg) {
-                pakcageEmitLoad(ptr);
+                emit(ptr,"load",new TreeMap<>());
                 release(ptr);
             }
 
@@ -347,7 +481,7 @@ public final class Native {
     public native static void release(long kerObject);
     public native static void setImage(long imageObject,Object image);
     public native static void loop();
-    public native static void pakcageEmitError(long ptr,String errmsg);
-    public native static void pakcageEmitLoad(long ptr);
-
+    public native static void emit(long ptr,String name,Object data);
+    public native static WebViewConfiguration getWebViewConfiguration(long kerObject);
+    public native static String absolutePath(long ptr,String path);
 }

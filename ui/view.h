@@ -153,14 +153,13 @@ namespace kk {
         
         struct WebViewUserAction {
             kk::String pattern;
-            kk::String name;
             WebViewActionPolicy policy;
         };
         
         class WebViewConfiguration : public ViewConfiguration {
         public:
             virtual void addUserScript(kk::CString code,WebViewUserScriptInjectionTime injectionTime);
-            virtual void addUserAction(kk::CString pattern,kk::CString name,WebViewActionPolicy policy);
+            virtual void addUserAction(kk::CString pattern,WebViewActionPolicy policy);
             virtual std::vector<WebViewUserScript> & userScripts();
             virtual std::vector<WebViewUserAction> & userActions();
             

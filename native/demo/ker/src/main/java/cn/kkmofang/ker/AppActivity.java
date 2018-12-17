@@ -84,27 +84,30 @@ public class AppActivity extends Activity implements IAppActivity {
     public void open(Fragment fragment, boolean animated) {
         FragmentManager fm = getFragmentManager();
         int n = _fragments.size();
+        FragmentTransaction tr = fm.beginTransaction();
+
+        if(animated && n > 0) {
+            tr.setCustomAnimations(R.anim.slide_right_in, R.anim.slide_left_out,R.anim.slide_right_in, R.anim.slide_left_out);
+        }
+
         if(n > 0) {
-            FragmentTransaction tr = fm.beginTransaction().hide(_fragments.get(n - 1));
-            if(animated) {
-                tr.setCustomAnimations(R.anim.slide_left_out, 0);
-            }
-            tr.commit();
+            tr.hide(_fragments.get(n - 1));
         }
-        {
-            FragmentTransaction tr = fm.beginTransaction().add(R.id.ker_contentView, fragment);
-            if (animated && n > 0) {
-                tr.setCustomAnimations(R.anim.slide_right_in, 0);
-            }
-            tr.commit();
-        }
+        tr.add(R.id.ker_contentView, fragment);
         _fragments.add(fragment);
+        tr.commit();
     }
 
     @SuppressLint("ResourceType")
     @Override
     public void back(int delta, boolean animated) {
         FragmentManager fm = getFragmentManager();
+
+        FragmentTransaction tr = fm.beginTransaction();
+
+        if(animated) {
+            tr.setCustomAnimations(R.anim.slide_left_in, R.anim.slide_right_out,R.anim.slide_left_in, R.anim.slide_right_out);
+        }
 
         int n = _fragments.size();
 
@@ -115,19 +118,11 @@ public class AppActivity extends Activity implements IAppActivity {
             for(int i=b;i<=e;i++) {
                 Fragment f = _fragments.get(i);
                 if(i == b) {
-                    FragmentTransaction tr = fm.beginTransaction().show(f);
-                    if(animated) {
-                        tr.setCustomAnimations(R.anim.slide_left_in, 0);
-                    }
-                    tr.commit();
+                    tr.show(f);
                 } else if(i == e) {
-                    FragmentTransaction tr = fm.beginTransaction().remove(f);
-                    if(animated) {
-                        tr.setCustomAnimations(R.anim.slide_right_out, 0);
-                    }
-                    tr.commit();
+                    tr.remove(f);
                 } else {
-                    fm.beginTransaction().remove(f).commit();
+                    tr.remove(f);
                 }
             }
             while(v >0){
@@ -135,7 +130,12 @@ public class AppActivity extends Activity implements IAppActivity {
                 v --;
             }
         }
+
+        tr.commit();
+
     }
+
+    private List<Fragment> _showFragments = new ArrayList<>();
 
     @SuppressLint("ResourceType")
     @Override
@@ -146,6 +146,7 @@ public class AppActivity extends Activity implements IAppActivity {
             tr.setCustomAnimations(R.anim.show, 0);
         }
         tr.commit();
+        _showFragments.add(fragment);
     }
 
     @SuppressLint("ResourceType")
@@ -157,5 +158,35 @@ public class AppActivity extends Activity implements IAppActivity {
             tr.setCustomAnimations(R.anim.hide, 0);
         }
         tr.commit();
+        _showFragments.remove(fragment);
+    }
+
+    public void onBackPressed() {
+
+        if(_showFragments.size() > 0) {
+            Fragment fragment = _showFragments.get(_showFragments.size() - 1);
+            if(fragment instanceof PageFragment) {
+                if(!((PageFragment) fragment).onBackPressed()) {
+                    return;
+                }
+            }
+            close(fragment,true);
+            return;
+        }
+
+        if(_fragments.size() > 1) {
+            Fragment fragment = _fragments.get(_fragments.size() - 1);
+            if(fragment instanceof PageFragment) {
+                if(!((PageFragment) fragment).onBackPressed()) {
+                    return;
+                }
+            }
+            back(1,true);
+            return;
+        }
+
+
+        super.onBackPressed();
+
     }
 }

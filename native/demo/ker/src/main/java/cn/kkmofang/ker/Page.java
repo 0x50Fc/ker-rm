@@ -1,8 +1,6 @@
 package cn.kkmofang.ker;
 
-import android.app.Activity;
 import android.view.View;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +11,21 @@ import java.util.TreeMap;
  * Created by zhanghailong on 2018/12/12.
  */
 
-public class Page {
+public class Page implements PageView.PageListener{
 
+    private int _layoutWidth = -1;
+    private int _layoutHeight = -1;
+
+    @Override
+    public void onPageLayout(PageView view, int width, int height) {
+        if(_layoutWidth != width || _layoutHeight != height) {
+            _layoutWidth = width;
+            _layoutHeight = height;
+            if(_ptr != 0) {
+                setSize(_ptr, _layoutWidth, _layoutHeight);
+            }
+        }
+    }
 
     public interface Openlib {
         void open(long jsContext,Page page);
@@ -32,26 +43,29 @@ public class Page {
         }
     }
 
-    private final Map<String,Object> _librarys = new TreeMap<>();
 
     public void addLibrary(String name,Object object) {
-        _librarys.put(name,object);
+        if(_ptr != 0) {
+            addLibrary(_ptr, name, object);
+        }
     }
 
     private long _ptr;
     private long _jsContext;
     private App _app;
-    private View _view;
+    private PageView _view;
 
     public long ptr() {
         return _ptr;
     }
 
-    public Page(View view, App app) {
+    public Page(PageView view, App app) {
         _ptr = alloc(view,app.ptr());
         _jsContext = jsContext(_ptr);
         _app = app;
         _view = view;
+        _view.setPageListener(this);
+        openlib(_jsContext,this);
     }
 
     public void recycle() {
@@ -130,5 +144,6 @@ public class Page {
     private static native void dealloc(long ptr);
     private static native long jsContext(long ptr);
     private static native void run(long ptr,String path,String[] keys,String[] values);
-
+    private static native void setSize(long ptr,int width,int height);
+    private static native void addLibrary(long ptr,String name,Object object);
 }

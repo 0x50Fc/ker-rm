@@ -258,7 +258,8 @@ Page.prototype = Object.create(Object.prototype, {
             this.compileUsingComponentsCSS(vs);
             this.compilePageCSS(vs);
             vs.push('</style></head><body><script type="text/javascript">\n');
-            vs.push("(function(){\n");
+            vs.push("(function(ready){ if(window.kk) { ready(); } else { window.addEventListener('ker',ready); }  })(")
+            vs.push("function(){\n");
             vs.push("var __CC = {};\n");
             vs.push("var __V = kk.CreateElement;\n");
             vs.push("var __T = kk.CreateTElement;\n");
@@ -271,7 +272,7 @@ Page.prototype = Object.create(Object.prototype, {
 
             this.compilePageView(vs);
 
-            vs.push(");})();\n");
+            vs.push(");});\n");
             vs.push('</script></body>');
 
             fs.writeFileSync(this.path.html, vs.join(''));

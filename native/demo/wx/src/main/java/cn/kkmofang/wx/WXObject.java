@@ -10,16 +10,16 @@ import cn.kkmofang.ker.Page;
 /**
  * Created by zhanghailong on 2018/12/12.
  */
-@JSPrototype("wx")
-public class WX {
+@JSPrototype("WXObject")
+public class WXObject {
 
-    public static void openlib() {
+    static {
 
         JSContext.addOpenlib(new JSContext.Openlib() {
             @Override
             public void open(long jsContext) {
 
-                JSContext.PushPrototype(jsContext,WX.class);
+                JSContext.PushPrototype(jsContext,WXObject.class);
                 JSContext.PushPrototype(jsContext,RequestTask.class);
 
             }
@@ -28,7 +28,7 @@ public class WX {
         Page.addOpenlib(new Page.Openlib() {
             @Override
             public void open(long jsContext, Page page) {
-                page.addLibrary("wx",new WX());
+                page.addLibrary("wx",new WXObject());
             }
         });
 
@@ -36,17 +36,21 @@ public class WX {
 
             @Override
             public void open(long jsContext, App app) {
-                JSContext.PushObject(jsContext,new WX());
+                JSContext.PushObject(jsContext,new WXObject());
                 JSContext.PutGlobalString(jsContext,"wx");
             }
 
         });
-
     }
 
     @JSMethod()
-    public RequestTask request(JSObject jsObject) {
+    public RequestTask request(Object jsObject) {
 
         return null;
+    }
+
+    @JSMethod()
+    public void reportAnalytics(Object jsObject) {
+
     }
 }

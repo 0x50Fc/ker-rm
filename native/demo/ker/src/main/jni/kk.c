@@ -6,7 +6,6 @@
 #include <android/log.h>
 #include "kk.h"
 
-
 JavaVM * gJavaVm = 0;
 
 void kk_logv(const char * format , va_list va){

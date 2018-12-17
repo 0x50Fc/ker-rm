@@ -1,5 +1,7 @@
 package cn.kkmofang.ker;
 
+import android.content.Intent;
+
 import java.util.Map;
 
 /**
@@ -57,4 +59,64 @@ public final class Ker {
         return stringValue(get(object,key),defaultValue);
     }
 
+    public static Font fontValue(String v, Font font) {
+        if(font == null) {
+            font = new Font();
+        }
+
+        if(v != null) {
+            for(String s : v.split(" ")) {
+                if(s.endsWith("px")) {
+                    try {
+                        font.size = Float.valueOf(s.substring(0, s.length() - 2));
+                    } catch (Throwable e) {
+
+                    }
+                } else  if("bold".equals(s)) {
+                    font.weight = Font.WEIGHT_BOLD;
+                } else if("italic".equals(s)) {
+                    font.style = Font.STYLE_ITALIC;
+                } else {
+                    font.family = s;
+                }
+            }
+        }
+
+        return font;
+    }
+    public static int colorValue(String v, int defaultValue) {
+
+        if(v != null) {
+            if(v.startsWith("#")) {
+                if(v.length() == 4) {
+                    int r = Integer.valueOf(v.substring(1,2),16);
+                    int g = Integer.valueOf(v.substring(2,3),16);
+                    int b = Integer.valueOf(v.substring(3,4),16);
+                    return 0xff000000 | ((r | r << 4) << 16) | ((g | g << 4) << 8) | (b | b << 4);
+                } else if(v.length() == 7) {
+                    int r = Integer.valueOf(v.substring(1,3),16);
+                    int g = Integer.valueOf(v.substring(3,5),16);
+                    int b = Integer.valueOf(v.substring(5,7),16);
+                    return 0xff000000 | (r << 16) | (g << 8) | b;
+                } else if(v.length() == 9) {
+                    int a = Integer.valueOf(v.substring(1,3),16);
+                    int r = Integer.valueOf(v.substring(3,5),16);
+                    int g = Integer.valueOf(v.substring(5,7),16);
+                    int b = Integer.valueOf(v.substring(7,9),16);
+                    return (a << 24) | (r << 16) | (g << 8) | b;
+                }
+            } else if(v.startsWith("rgba(") && v.endsWith(")")) {
+                String[] vs = v.substring(5,v.length() - 6).split(",");
+                if(vs.length > 3) {
+                    int r = Integer.valueOf(vs[0], 10);
+                    int g = Integer.valueOf(vs[1], 10);
+                    int b = Integer.valueOf(vs[2], 10);
+                    float a = Float.valueOf(vs[3]);
+                    return ((int)(255 * a) << 24) | (r << 16) | ( g << 8) | b;
+                }
+            }
+        }
+
+        return defaultValue;
+    }
 }

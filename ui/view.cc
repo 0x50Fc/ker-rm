@@ -235,8 +235,8 @@ namespace kk {
             _userScripts.push_back({code,injectionTime});
         }
         
-        void WebViewConfiguration::addUserAction(kk::CString pattern,kk::CString name,WebViewActionPolicy policy) {
-            _userActions.push_back({pattern,name,policy});
+        void WebViewConfiguration::addUserAction(kk::CString pattern,WebViewActionPolicy policy) {
+            _userActions.push_back({pattern,policy});
         }
         
         std::vector<WebViewUserScript> & WebViewConfiguration::userScripts() {
@@ -254,7 +254,7 @@ namespace kk {
                 kk::PushClass<WebViewConfiguration>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutMethod<WebViewConfiguration,void,kk::CString,kk::Uint>(ctx, -1, "addUserScript", &WebViewConfiguration::addUserScript);
-                    kk::PutMethod<WebViewConfiguration,void,kk::CString,kk::CString,kk::Uint>(ctx, -1, "addUserAction", &WebViewConfiguration::addUserAction);
+                    kk::PutMethod<WebViewConfiguration,void,kk::CString,kk::Uint>(ctx, -1, "addUserAction", &WebViewConfiguration::addUserAction);
                     
                 });
                 

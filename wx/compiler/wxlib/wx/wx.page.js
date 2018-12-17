@@ -19,6 +19,18 @@ module.exports = function (options, path, page, app, padding) {
         }
         page.setOptions(options);
         padding = { top: 64, left: 0, bottom: 0, right: 0 };
+
+        if (platform == 'Android') {
+            padding.top = 44;
+        }
+
+        if (typeof screen == 'object' && screen.density !== undefined) {
+            padding.top = padding.top * screen.density;
+            padding.left = padding.left * screen.density;
+            padding.bottom = padding.bottom * screen.density;
+            padding.right = padding.right * screen.density;
+        }
+
         view.set("background-color", options.backgroundColor || "#fff");
     }
 
@@ -39,7 +51,14 @@ module.exports = function (options, path, page, app, padding) {
 
     view.addSubview(webview);
 
-    webview.setFrame(padding.left, padding.top, page.width - padding.left - padding.right, page.height - padding.top - padding.bottom);
+    var resize = function(){
+        webview.setFrame(padding.left, padding.top, page.width - padding.left - padding.right, page.height - padding.top - padding.bottom);
+    };
+    
+    page.on("resize",resize);
+
+    resize();
+
     webview.set("background-color", "#fff");
 
     (function () {
@@ -195,6 +214,11 @@ module.exports = function (options, path, page, app, padding) {
 
     var content = app.getTextContent(path + ".wx.html");
     var rem = page.width * 20 / 750.0;
+
+    if (typeof screen == 'object' && screen.density !== undefined) {
+        rem = (screen.width / screen.density) * 20 / 750.0;
+        console.info("[REM]", rem, screen);
+    }
 
     webview.setContent('<html style="font-size: ' + rem + 'px"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">'
         + __cssContext + '</style>'

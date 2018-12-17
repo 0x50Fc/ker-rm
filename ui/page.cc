@@ -106,11 +106,12 @@ namespace kk {
         }
         
         void Page::setSize(Size & size) {
-            if(_size.width != size.width || _size.height != size.height) {
+            Size v = _size;
+            _size = size;
+            if(v.width != size.width || v.height != size.height) {
                 Strong<Event> e = new Event();
                 emit("resize", e);
             }
-            _size = size;
         }
         
         Size Page::size() {
@@ -144,7 +145,7 @@ namespace kk {
         
         void Page::run(kk::CString path , kk::TObject<kk::String,kk::String> * query) {
 
-            kk::String code("(function(app,app,path,query");
+            kk::String code("(function(app,page,path,query");
             
             std::vector<kk::Any> vs;
             

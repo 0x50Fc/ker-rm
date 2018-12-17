@@ -35,7 +35,7 @@ namespace kk {
                 setWidth((kk::Uint) width);
                 setWidth((kk::Uint) height);
 
-                env->DeleteGlobalRef(isa);
+                env->DeleteLocalRef(isa);
 
                 if(isAttach) {
                     gJavaVm->DetachCurrentThread();

@@ -973,3 +973,202 @@ Java_cn_kkmofang_ker_Page_run(
 
     env->ReleaseStringUTFChars(path_, path);
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_Page_setSize(JNIEnv *env, jclass type, jlong ptr, jint width, jint height) {
+
+    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
+
+    kk::ui::Size size(width,height);
+
+    page->setSize(size);
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_Native_emit(JNIEnv *env, jclass type, jlong ptr, jstring name_, jobject data) {
+    const char *name = env->GetStringUTFChars(name_, 0);
+
+    kk::Strong<kk::Event> event = new kk::Event();
+
+    event->setData(new kk::NativeValue((kk::Native *) data));
+
+    kk::EventEmitter * emitter = (kk::EventEmitter *) ptr;
+
+    emitter->emit(name,event);
+
+    env->ReleaseStringUTFChars(name_, name);
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_cn_kkmofang_ker_Native_getWebViewConfiguration(JNIEnv *env, jclass type, jlong kerObject) {
+
+    kk::ui::WebViewConfiguration * webViewConfiguration = dynamic_cast<kk::ui::WebViewConfiguration *>((kk::ui::ViewConfiguration *)kerObject);
+
+    jclass isa = env->FindClass("cn/kkmofang/ker/WebViewConfiguration");
+
+    jobject v = env->NewObject(isa,env->GetMethodID(isa,"<init>","()V"));
+
+    if(webViewConfiguration != nullptr) {
+
+        {
+
+            jclass isa_UserScript = env->FindClass("cn/kkmofang/ker/WebViewConfiguration$UserScript");
+
+            auto & s = webViewConfiguration->userScripts();
+
+            jobjectArray userScripts = env->NewObjectArray(s.size(),isa_UserScript, nullptr);
+
+            jmethodID init_UserScript = env->GetMethodID(isa_UserScript,"<init>","()V");
+            jfieldID fd_source = env->GetFieldID(isa_UserScript,"source","Ljava/lang/String;");
+            jfieldID fd_type = env->GetFieldID(isa_UserScript,"type","I");
+
+            auto i = s.begin();
+
+            int idx = 0;
+
+            while(i != s.end()) {
+
+                auto & u = *i;
+
+                jstring source = env->NewStringUTF(u.code.c_str());
+
+                jobject us = env->NewObject(isa_UserScript,init_UserScript);
+
+                env->SetObjectField(us,fd_source,source);
+                env->SetIntField(us,fd_type,u.injectionTime);
+
+                env->SetObjectArrayElement(userScripts,idx,us);
+
+                env->DeleteLocalRef(us);
+
+                env->DeleteLocalRef(source);
+
+                i ++;
+                idx ++;
+            }
+
+            env->SetObjectField(v,env->GetFieldID(isa,"userScripts","[Lcn/kkmofang/ker/WebViewConfiguration$UserScript;"),userScripts);
+
+            env->DeleteLocalRef(userScripts);
+            }
+
+        {
+
+            jclass isa_UserAction = env->FindClass("cn/kkmofang/ker/WebViewConfiguration$UserAction");
+
+            jmethodID init_UserAction = env->GetMethodID(isa_UserAction,"<init>","()V");
+            jfieldID fd_pattern = env->GetFieldID(isa_UserAction,"pattern","Ljava/lang/String;");
+            jfieldID fd_policy = env->GetFieldID(isa_UserAction,"policy","I");
+
+            auto & a = webViewConfiguration->userActions();
+
+            auto i = a.begin();
+            int idx = 0;
+
+            jobjectArray userActions = env->NewObjectArray(a.size(),isa_UserAction, nullptr);
+
+            while(i != a.end()) {
+
+                auto & u = *i;
+
+                jstring pattern = env->NewStringUTF(u.pattern.c_str());
+
+                jobject us = env->NewObject(isa_UserAction,init_UserAction);
+
+                env->SetObjectField(us,fd_pattern,pattern);
+                env->SetIntField(us,fd_policy,u.policy);
+
+                env->SetObjectArrayElement(userActions,idx,us);
+
+                env->DeleteLocalRef(us);
+
+                env->DeleteLocalRef(pattern);
+
+                i ++;
+                idx ++;
+            }
+
+            env->SetObjectField(v,env->GetFieldID(isa,"userActions","[Lcn/kkmofang/ker/WebViewConfiguration$UserAction;"),userActions);
+
+            env->DeleteLocalRef(userActions);
+
+        }
+
+
+    }
+
+    env->DeleteLocalRef(isa);
+
+    return v;
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_cn_kkmofang_ker_Native_absolutePath(JNIEnv *env, jclass type, jlong ptr, jstring path_) {
+
+    const char *path = env->GetStringUTFChars(path_, 0);
+
+    kk::String r;
+
+    while(1){
+
+        {
+            kk::ui::Context * v = dynamic_cast<kk::ui::Context *>((kk::Object *) ptr);
+            if(v != nullptr) {
+                r = v->absolutePath(path);
+                break;
+            }
+        }
+
+        {
+            kk::ui::View * v = dynamic_cast<kk::ui::View *>((kk::Object *) ptr);
+            if(v != nullptr) {
+                r = v->context()->absolutePath(path);
+                break;
+            }
+        }
+
+        break;
+    }
+
+
+    env->ReleaseStringUTFChars(path_, path);
+
+    return env->NewStringUTF(r.c_str());
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_JSContext_PushJSONString(JNIEnv *env, jclass type, jlong jsContext,
+                                              jstring string_) {
+    const char *string = env->GetStringUTFChars(string_, 0);
+
+    duk_context * ctx = (duk_context *) jsContext;
+
+    kk::duk_json_decode(ctx,(void *) string,strlen(string));
+
+    env->ReleaseStringUTFChars(string_, string);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_Page_addLibrary__JLjava_lang_String_2Ljava_lang_Object_2(JNIEnv *env,
+                                                                              jclass type,
+                                                                              jlong ptr,
+                                                                              jstring name_,
+                                                                              jobject object) {
+    const char *name = env->GetStringUTFChars(name_, 0);
+
+    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
+
+    kk::Any v = new kk::NativeObject((kk::Native *) object);
+
+    page->addLibrary(name,v);
+
+    env->ReleaseStringUTFChars(name_, name);
+
+}

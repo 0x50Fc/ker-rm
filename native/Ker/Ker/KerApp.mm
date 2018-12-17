@@ -38,6 +38,34 @@ namespace kk {
     [KerURLProtocol openlibs];
     
     kk::ui::App::Openlib();
+    kk::ui::addAppOpenlib([](duk_context * ctx, kk::ui::App * app)->void{
+        
+        @autoreleasepool {
+            
+            UIScreen * mainScreen = [UIScreen mainScreen];
+            
+            CGFloat width = MIN(mainScreen.bounds.size.width,mainScreen.bounds.size.height);
+            CGFloat height = MAX(mainScreen.bounds.size.width,mainScreen.bounds.size.height);
+            
+            duk_push_object(ctx);
+            
+            duk_push_number(ctx, (duk_double_t) width);
+            duk_put_prop_string(ctx, -2, "width");
+            
+            duk_push_number(ctx, (duk_double_t) height);
+            duk_put_prop_string(ctx, -2, "height");
+            
+            duk_push_number(ctx, 1);
+            duk_put_prop_string(ctx, -2, "density");
+            
+            duk_push_number(ctx, mainScreen.scale);
+            duk_put_prop_string(ctx, -2, "scale");
+            
+            duk_put_global_string(ctx, "screen");
+            
+        }
+        
+    });
 }
 
 static NSString * gKerAppUserAgent = nil;

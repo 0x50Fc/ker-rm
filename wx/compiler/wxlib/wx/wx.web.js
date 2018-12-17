@@ -1082,10 +1082,26 @@ exports.FormElement = FormElement;
 },{"./CheckboxElement":5,"./InputElement":16,"./PickerElement":23,"./RadioElement":26,"./SliderElement":29,"./SwitchElement":32,"./ViewElement":36,"./once":37}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+let messages = [];
+window.addEventListener("ker", function () {
+    let w = window;
+    while (messages.length > 0) {
+        var data = messages.shift();
+        if (w.ker) {
+            w.ker.postMessage(JSON.stringify(data));
+        }
+    }
+});
 function postMessage(data) {
     let w = window;
-    if (w.webkit && w.webkit.messageHandlers && w.webkit.messageHandlers.kk) {
-        w.webkit.messageHandlers.kk.postMessage(data);
+    if (w.webkit && w.webkit.messageHandlers && w.webkit.messageHandlers.ker) {
+        w.webkit.messageHandlers.ker.postMessage(data);
+    }
+    else if (w.ker) {
+        w.ker.postMessage(JSON.stringify(data));
+    }
+    else {
+        messages.push(data);
     }
 }
 exports.postMessage = postMessage;

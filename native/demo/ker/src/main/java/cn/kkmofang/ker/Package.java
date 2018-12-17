@@ -2,6 +2,7 @@ package cn.kkmofang.ker;
 
 import android.content.Context;
 import android.telecom.Call;
+import android.webkit.MimeTypeMap;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -64,6 +65,89 @@ public class Package {
         }
 
         return new Package(URI,basePath,appkey);
+    }
+
+    public static String resolvePath(Context context,String URI) {
+
+        if(URI == null) {
+            return null;
+        }
+
+        if(URI.startsWith("ker-tmp://")) {
+            String basePath = context.getCacheDir().getAbsolutePath() + "/ker-tmp/";
+            return basePath + URI.substring(10);
+        }
+
+        if(URI.startsWith("ker-data://")) {
+            String basePath = context.getDir("ker", Context.MODE_PRIVATE).getAbsolutePath() + "/";
+            return basePath + URI.substring(11);
+        }
+
+        if(URI.startsWith("ker-app://")) {
+            String basePath = context.getDir("ker-app", Context.MODE_PRIVATE).getAbsolutePath() + "/";
+            return basePath + URI.substring(10);
+        }
+
+        return null;
+    }
+
+    public static String resolveURI(Context context, String path) {
+
+        if(path.contains("://")) {
+            return path;
+        }
+
+        {
+            String basePath = context.getCacheDir().getAbsolutePath() + "/ker-tmp/";
+            if(path.startsWith(basePath)) {
+                return "ker-tmp://" + path.substring(basePath.length());
+            }
+        }
+
+        {
+            String basePath = context.getDir("ker", Context.MODE_PRIVATE).getAbsolutePath() + "/";
+            if(path.startsWith(basePath)) {
+                return "ker-data://" + path.substring(basePath.length());
+            }
+        }
+
+        {
+            String basePath = context.getDir("ker-app", Context.MODE_PRIVATE).getAbsolutePath() + "/";
+            if(path.startsWith(basePath)) {
+                return "ker-app://" + path.substring(basePath.length());
+            }
+        }
+
+        return "file://" + path;
+    }
+
+    public static String mimeType(String path,byte[] data,String defaultType) {
+        String v = MimeTypeMap.getFileExtensionFromUrl(path);
+        if(v == null) {
+            if(data != null && data.length >0) {
+                switch (data[0]){
+                    case (byte) 0xFF:
+                        v = "image/jpeg";
+                        break;
+                    case (byte) 0x89:
+                        v = "image/png";
+                        break;
+                    case (byte) 0x47:
+                        v = "image/gif";
+                        break;
+                    case (byte) 0x49:
+                    case (byte) 0x4D:
+                        v = "image/tiff";
+                        break;
+                }
+            }
+        }
+
+        if(v == null) {
+            return defaultType;
+        }
+
+        return v;
     }
 
     private static Map<String,List<Callback>> _loadings = new TreeMap<>();

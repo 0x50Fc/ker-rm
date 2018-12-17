@@ -28,6 +28,32 @@ view.addSubview(topView);
 var buttons = [];
 var selectedIndex = 0;
 var pages = [];
+var fontSize = 12;
+var barHeight = 49;
+var iconSize = 28;
+var paddingTop = 64;
+var barBottom = 0;
+var textHeight = 20;
+
+if (/iPhone/i.test(userAgent)) {
+    if (page.height >= 812) {
+        barHeight += 34;
+        barBottom = 34;
+    }
+} 
+
+if(platform == 'Android') {
+    paddingTop = 44;
+}
+
+if(typeof screen == 'object' && screen.density !== undefined) {
+    barHeight = barHeight * screen.density;
+    iconSize = iconSize * screen.density;
+    paddingTop = paddingTop * screen.density;
+    barBottom = barBottom * screen.density;
+    fontSize = fontSize * screen.density;
+    textHeight = textHeight * screen.density;
+}
 
 for (var i = 0; i < items.length; i++) {
     var item = items[i];
@@ -37,7 +63,7 @@ for (var i = 0; i < items.length; i++) {
     button.textView = app.createView("UILabel");
     button.addSubview(button.textView);
     button.textView.set("text-align", 'center');
-    button.textView.set("font", '12px');
+    button.textView.set("font", fontSize + 'px');
     button.textView.set("color", tabBar.color);
     button.textView.set("#text", item.text || '');
     button.textView.set("enabled", "false");
@@ -67,17 +93,6 @@ for (var i = 0; i < items.length; i++) {
     pages.push({ path: item.pagePath });
 }
 
-var barHeight = 49;
-var iconSize = 28;
-var paddingTop = 64;
-var barBottom = 0;
-
-if (/iPhone/i.test(userAgent)) {
-    if (page.height >= 812) {
-        barHeight += 34;
-        barBottom = 34;
-    }
-}
 
 changedSelectedIndex = function () {
     for (var i = 0; i < buttons.length; i++) {
@@ -117,7 +132,7 @@ resize = function () {
             button.setFrame(i * w, 0, w, barHeight);
             button.imageView.setFrame((w - iconSize) * 0.5, 4, iconSize, iconSize);
             button.selectImageView.setFrame((w - iconSize) * 0.5, 4, iconSize, iconSize);
-            button.textView.setFrame(0, barHeight - 20 - barBottom, w, 20);
+            button.textView.setFrame(0, barHeight - textHeight - barBottom, w, textHeight);
             if (p.webview !== undefined) {
                 p.webview.setFrame(0, paddingTop, page.width, page.height - paddingTop - barHeight);
             }
