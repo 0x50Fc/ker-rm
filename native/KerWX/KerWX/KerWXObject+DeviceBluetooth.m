@@ -1356,7 +1356,7 @@
 }
 
 -(void) writeBLECharacteristicValue:(KerJSObject *) object{
-    
+    [self.WXBluetooth writeBLECharacteristicValue:object];
 }
 
 -(void) onBLECharacteristicValueChange:(KerJSObject *) object{
