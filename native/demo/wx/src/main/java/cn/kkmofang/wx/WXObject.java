@@ -44,13 +44,13 @@ public class WXObject {
     }
 
     @JSMethod()
-    public RequestTask request(Object jsObject) {
+    public RequestTask request(JSObject jsObject) {
 
         return null;
     }
 
     @JSMethod()
-    public void reportAnalytics(Object jsObject) {
+    public void reportAnalytics(String name) {
 
     }
 }

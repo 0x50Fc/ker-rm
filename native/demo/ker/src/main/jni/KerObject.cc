@@ -580,17 +580,30 @@ duk_ret_t JObjectInvoke(JNIEnv * env,jobject object,jmethodID method,kk::CString
                         top ++;
                         break;
                     case 'L':
+                    {
+                        kk::String n;
+                        p ++;
+                        while(p && *p) {
+                            if(*p == ';'){
+                                break;
+                            }
+                            n.append(p,0,1);
+                            p ++;
+                        }
                         v.l = duk_to_JObject(env,ctx,-top);
+                        if(v.l != nullptr) {
+                            jclass isa = env->FindClass(n.c_str());
+                            if(!env->IsInstanceOf(v.l,isa)) {
+                                env->DeleteLocalRef(v.l);
+                                v.l = nullptr;
+                            }
+                            env->DeleteLocalRef(isa);
+                        }
                         vs.push_back(v);
                         objects.push_back(v.l);
                         top ++;
-                        while(p && *p) {
-                            if(*p == ';') {
-                                break;
-                            }
-                            p ++;
-                        }
                         break;
+                    }
                     default:
                         assert(0);
                         break;
