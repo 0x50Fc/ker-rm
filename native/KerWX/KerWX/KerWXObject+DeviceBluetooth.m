@@ -1063,7 +1063,6 @@
 -(void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error{
     
     //NSLog(@"断开连接 %@", peripheral);
-    
     if (self.closeBLEConnectionObject) {
         
         //主动断开连接
@@ -1234,6 +1233,7 @@
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(nullable NSError *)error{
+    
     //写反馈
     if (self.writeBLECharacteristicValueObject) {
         
