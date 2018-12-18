@@ -322,6 +322,24 @@
 
 @end
 
+@implementation WXOnBLECharacteristicValueChangeRes
+
+-(instancetype)initWithPeripheral:(CBPeripheral *)peripheral Characteristic:(CBCharacteristic *)characteristic{
+    if (self = [super init]) {
+        self.deviceId = peripheral.identifier.UUIDString;
+        self.serviceId = characteristic.service.UUID.UUIDString;
+        self.characteristicId = characteristic.UUID.UUIDString;
+        self.value = characteristic.value;
+    }
+    return self;
+}
+
+-(void) dealloc {
+    NSLog(@"[WXOnBLECharacteristicValueChangeRes] [dealloc]");
+}
+
+@end
+
 
 
 
@@ -351,6 +369,7 @@
 @property (nonatomic, strong) KerJSObject * writeBLECharacteristicValueObject;
 
 @property (nonatomic, strong) KerJSObject * onBLEConnectionStateChange;
+@property (nonatomic, strong) KerJSObject * onBLECharacteristicValueChange;
 
 @end
 
@@ -724,6 +743,166 @@
     }
 }
 
+-(void) notifyBLECharacteristicValueChange:(KerJSObject *) object{
+    
+    id<WXNotifyBLECharacteristicValueChangeObject> v = [object implementProtocol:@protocol(WXNotifyBLECharacteristicValueChangeObject)];
+    if (self.centralManager == nil) {
+        //未初始化
+        WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10000" errCode:10000];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [v fail:res];
+            [v complete:res];
+        });
+        
+    }else {
+        
+        CBPeripheral * peripheral = [self findConnectedPeripheral:v.deviceId];
+        if (peripheral) {
+            CBService * service = [peripheral ker_findServiceByID:v.serviceId];
+            if (service) {
+                CBCharacteristic * characteristic = [service ker_findCharacteristicByID:v.characteristicId];
+                if (characteristic) {
+                    //开始设定特征值notify
+                    self.notifyBLECharacteristicValueChangeObject = object;
+                    [peripheral setNotifyValue:v.state forCharacteristic:characteristic];
+                }else{
+                    //特征值未找到
+                    WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10005 charcteristics not found" errCode:10005];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [v fail:res];
+                        [v complete:res];
+                    });
+                }
+            }else {
+                //服务未找到
+                WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10004 service not found" errCode:10004];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [v fail:res];
+                    [v complete:res];
+                });
+            }
+        }else{
+            //设备未找到
+            WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10002 device not found" errCode:10002];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [v fail:res];
+                [v complete:res];
+            });
+        }
+    }
+}
+
+-(void) readBLECharacteristicValue:(KerJSObject *) object{
+    
+    id<WXReadBLECharacteristicValueObject> v = [object implementProtocol:@protocol(WXReadBLECharacteristicValueObject)];
+    if (self.centralManager == nil) {
+        //未初始化
+        WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10000" errCode:10000];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [v fail:res];
+            [v complete:res];
+        });
+        
+    }else {
+        
+        CBPeripheral * peripheral = [self findConnectedPeripheral:v.deviceId];
+        if (peripheral) {
+            CBService * service = [peripheral ker_findServiceByID:v.serviceId];
+            if (service) {
+                
+                CBCharacteristic * characteristic = [service ker_findCharacteristicByID:v.characteristicId];
+                if (characteristic) {
+                    //开始读
+                    self.readBLECharacteristicValueObject = object;
+                    [peripheral readValueForCharacteristic:characteristic];
+                }else {
+                    //特征值未找到
+                    WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10005" errCode:10005];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [v fail:res];
+                        [v complete:res];
+                    });
+                }
+            }else {
+                //服务未找到
+                WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10004" errCode:10004];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [v fail:res];
+                    [v complete:res];
+                });
+            }
+            
+        }else {
+            
+            //设备未找到
+            WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10002" errCode:10002];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [v fail:res];
+                [v complete:res];
+            });
+            
+        }
+    }
+    
+}
+
+-(void) writeBLECharacteristicValue:(KerJSObject *) object{
+    
+    id<WXWriteBLECharacteristicValueObject> v = [object implementProtocol:@protocol(WXWriteBLECharacteristicValueObject)];
+    if (self.centralManager == nil) {
+        
+        //未初始化
+        WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10000" errCode:10000];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [v fail:res];
+            [v complete:res];
+        });
+
+    }else {
+        
+        CBPeripheral * peripheral = [self findConnectedPeripheral:v.deviceId];
+        if (peripheral) {
+            CBService * service = [peripheral ker_findServiceByID:v.serviceId];
+            if (service) {
+                
+                CBCharacteristic * characteristic = [service ker_findCharacteristicByID:v.characteristicId];
+                if (characteristic) {
+                    //开始写
+                    self.writeBLECharacteristicValueObject = object;
+                    [peripheral writeValue:v.value forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+                }else {
+                    //特征值未找到
+                    WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10005" errCode:10005];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [v fail:res];
+                        [v complete:res];
+                    });
+                }
+                
+            }else {
+                
+                //服务未找到
+                WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10004" errCode:10004];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [v fail:res];
+                    [v complete:res];
+                });
+            }
+            
+        }else {
+            
+            //设备未找到
+            WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10002" errCode:10002];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [v fail:res];
+                [v complete:res];
+            });
+            
+        }
+    }
+    
+}
+
 
 
 #pragma mark -- tools
@@ -860,6 +1039,7 @@
     //NSLog(@"连接成功 %@", peripheral);
     peripheral.delegate = self;
     if (self.createBLEConnectionObject) {
+        
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"createBLEConnection:ok" errCode:0];
         id<WXCreateBLEConnectionObject> v = [self.createBLEConnectionObject implementProtocol:@protocol(WXCreateBLEConnectionObject)];
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -867,12 +1047,15 @@
             [v complete:res];
             self.createBLEConnectionObject = nil;
         });
+        
     }
     
     if (self.onBLEConnectionStateChange) {
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.onBLEConnectionStateChange callWithArguments:@[[[WXOnBLEConnectionStateChangeRes alloc]initWithPeripheral:peripheral Connected:YES ErrMsg:@"connect success" ErrCode:0]]];
         });
+        
     }
     
 }
@@ -882,6 +1065,7 @@
     //NSLog(@"断开连接 %@", peripheral);
     
     if (self.closeBLEConnectionObject) {
+        
         //主动断开连接
         id<WXCloseBLEConnectionObject> v = [self.closeBLEConnectionObject implementProtocol:@protocol(WXCloseBLEConnectionObject)];
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"closeBLEConnectionObject:ok" errCode:0];
@@ -897,13 +1081,16 @@
             [self.onBLEConnectionStateChange callWithArguments:@[[[WXOnBLEConnectionStateChangeRes alloc]initWithPeripheral:peripheral Connected:NO ErrMsg:@"disconnect success" ErrCode:0]]];
             });
         }
+        
     }else {
+        
         //被动断开
         if (self.onBLEConnectionStateChange) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.onBLEConnectionStateChange callWithArguments:@[[[WXOnBLEConnectionStateChangeRes alloc]initWithPeripheral:peripheral Connected:NO ErrMsg:@"disconnect 10006" ErrCode:10006]]];
             });
         }
+        
     }
 }
 
@@ -970,89 +1157,119 @@
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(nullable NSError *)error{
     
     //NSLog(@"error = %@", error);
-//    if (self.notifyBLECharacteristicValueChangeObject) {
-//        if (error) {
-//            if (error.code == 6) {
-//                //特征不支持 notify
-//                WXNotifyBLECharacteristicValueChangeRes * res = [[WXNotifyBLECharacteristicValueChangeRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10007" ErrCode:10007];
-//                self.notifyBLECharacteristicValueChangeObject.fail(res);
-//                self.notifyBLECharacteristicValueChangeObject.complete(res);
-//            }else {
-//                //其他错误
-//                WXNotifyBLECharacteristicValueChangeRes * res = [[WXNotifyBLECharacteristicValueChangeRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10008" ErrCode:10008];
-//                self.notifyBLECharacteristicValueChangeObject.fail(res);
-//                self.notifyBLECharacteristicValueChangeObject.complete(res);
-//            }
-//        }else {
-//            //成功
-//            WXNotifyBLECharacteristicValueChangeRes * res = [[WXNotifyBLECharacteristicValueChangeRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:ok" ErrCode:0];
-//            self.notifyBLECharacteristicValueChangeObject.success(res);
-//            self.notifyBLECharacteristicValueChangeObject.complete(res);
-//        }
-//        self.notifyBLECharacteristicValueChangeObject = nil;
-//    }
+    if (self.notifyBLECharacteristicValueChangeObject) {
+        id<WXNotifyBLECharacteristicValueChangeObject> v = [self.notifyBLECharacteristicValueChangeObject implementProtocol:@protocol(WXNotifyBLECharacteristicValueChangeObject)];
+        if (error) {
+            if (error.code == 6) {
+                //特征不支持 notify
+                WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10007" errCode:10007];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [v fail:res];
+                    [v complete:res];
+                });
+            }else {
+                //其他错误
+                WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10008" errCode:10008];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [v fail:res];
+                    [v complete:res];
+                });
+            }
+        }else {
+            //成功
+            WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:ok" errCode:0];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [v success:res];
+                [v complete:res];
+            });
+        }
+        self.notifyBLECharacteristicValueChangeObject = nil;
+    }
     
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(nullable NSError *)error{
     
     //读反馈
-//    if (self.readBLECharacteristicValueObject) {
-//        if (error == nil) {
-//            //成功
-//            WXReadBLECharacteristicValueRes * res = [[WXReadBLECharacteristicValueRes alloc] initWithErrMsg:@"readBLECharacteristicValue:ok" ErrCode:0];
-//            self.readBLECharacteristicValueObject.success(res);
-//            self.readBLECharacteristicValueObject.complete(res);
-//            self.readBLECharacteristicValueObject = nil;
-//        }else {
-//            if (error.code == 2) {
-//                //特征不支持读取操作
-//                WXReadBLECharacteristicValueRes * res = [[WXReadBLECharacteristicValueRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail characteristic not support read errCode 10007" ErrCode:10007];
-//                self.readBLECharacteristicValueObject.fail(res);
-//                self.readBLECharacteristicValueObject.complete(res);
-//                self.readBLECharacteristicValueObject = nil;
-//            }else {
-//                //其他错误
-//                WXReadBLECharacteristicValueRes * res = [[WXReadBLECharacteristicValueRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10008" ErrCode:10008];
-//                self.readBLECharacteristicValueObject.fail(res);
-//                self.readBLECharacteristicValueObject.complete(res);
-//                self.readBLECharacteristicValueObject = nil;
-//            }
-//        }
-//
-//    }
-//
-//    if (self.onBLECharacteristicValueChange) {
-//        WXOnBLECharacteristicValueChangeRes * res = [[WXOnBLECharacteristicValueChangeRes alloc] initWithPeripheral:peripheral Characteristic:characteristic];
-//        self.onBLECharacteristicValueChange(res);
-//    }
+    if (self.readBLECharacteristicValueObject) {
+        id<WXReadBLECharacteristicValueObject> v = [self.readBLECharacteristicValueObject implementProtocol:@protocol(WXReadBLECharacteristicValueObject)];
+        
+        if (error == nil) {
+            //成功
+            WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:ok" errCode:0];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [v success:res];
+                [v complete:res];
+            });
+
+        }else {
+            
+            if (error.code == 2) {
+                //特征不支持读取操作
+                WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail characteristic not support read errCode 10007" errCode:10007];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [v fail:res];
+                    [v complete:res];
+                });
+            }else {
+                //其他错误
+                WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10008" errCode:10008];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [v fail:res];
+                    [v complete:res];
+                });
+            }
+        }
+        
+        self.readBLECharacteristicValueObject = nil;
+        
+    }
+
+    if (self.onBLECharacteristicValueChange) {
+        WXOnBLECharacteristicValueChangeRes * res = [[WXOnBLECharacteristicValueChangeRes alloc] initWithPeripheral:peripheral Characteristic:characteristic];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.onBLECharacteristicValueChange callWithArguments:@[res]];
+        });
+    }
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(nullable NSError *)error{
     //写反馈
-//    if (self.writeBLECharacteristicValueObject) {
-//        if (error == nil) {
-//            //写成功
-//            WXWriteBLECharacteristicValueRes * res = [[WXWriteBLECharacteristicValueRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:ok" ErrCode:0];
-//            self.writeBLECharacteristicValueObject.success(res);
-//            self.writeBLECharacteristicValueObject.complete(res);
-//            self.writeBLECharacteristicValueObject = nil;
-//        }else {
-//            if (error.code == 3) {
-//                //特征不支持写
-//                WXWriteBLECharacteristicValueRes * res = [[WXWriteBLECharacteristicValueRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail not support write errCode 10007" ErrCode:10007];
-//                self.writeBLECharacteristicValueObject.fail(res);
-//                self.writeBLECharacteristicValueObject.complete(res);
-//                self.writeBLECharacteristicValueObject = nil;
-//            }else {
-//                //其他错误
-//                WXWriteBLECharacteristicValueRes * res = [[WXWriteBLECharacteristicValueRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10008" ErrCode:10008];
-//                self.writeBLECharacteristicValueObject.fail(res);
-//                self.writeBLECharacteristicValueObject.complete(res);
-//                self.writeBLECharacteristicValueObject = nil;
-//            }
-//        }
-//    }
+    if (self.writeBLECharacteristicValueObject) {
+        
+        id<WXWriteBLECharacteristicValueObject> v = [self.writeBLECharacteristicValueObject implementProtocol:@protocol(WXWriteBLECharacteristicValueObject)];
+        if (error == nil) {
+            
+            //写成功
+            WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:ok" errCode:0];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [v success:res];
+                [v complete:res];
+            });
+            
+        }else {
+            
+            if (error.code == 3) {
+                //特征不支持写
+                WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail not support write errCode 10007" errCode:10007];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [v fail:res];
+                    [v complete:res];
+                });
+            }else {
+                //其他错误
+                WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10008" errCode:10008];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [v fail:res];
+                    [v complete:res];
+                });
+            }
+            
+        }
+        
+        self.writeBLECharacteristicValueObject = nil;
+        
+    }
 }
 
 
@@ -1130,6 +1347,22 @@
     [self.WXBluetooth getBLEDeviceCharacteristics:object];
 }
 
+-(void) notifyBLECharacteristicValueChange:(KerJSObject *) object{
+    [self.WXBluetooth notifyBLECharacteristicValueChange:object];
+}
+
+-(void) readBLECharacteristicValue:(KerJSObject *) object{
+    [self.WXBluetooth readBLECharacteristicValue:object];
+}
+
+-(void) writeBLECharacteristicValue:(KerJSObject *) object{
+    
+}
+
+-(void) onBLECharacteristicValueChange:(KerJSObject *) object{
+    self.WXBluetooth.onBLECharacteristicValueChange = object;
+}
+
 @end
 
 
@@ -1152,6 +1385,17 @@
     for (CBService * service in self.services) {
         if ([service.UUID.UUIDString isEqualToString:ID]) {
             return service;
+        }
+    }
+    return nil;
+}
+@end
+
+@implementation CBService(DeviceBluetooth)
+-(CBCharacteristic *)ker_findCharacteristicByID:(NSString *)ID{
+    for (CBCharacteristic * characteristic in self.characteristics) {
+        if ([characteristic.UUID.UUIDString isEqualToString:ID]) {
+            return characteristic;
         }
     }
     return nil;

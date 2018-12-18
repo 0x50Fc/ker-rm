@@ -106,6 +106,13 @@
 @property (nonatomic, copy) NSArray<WXBLEDeviceCharacteristic *> * characteristics;
 @end
 
+@interface WXOnBLECharacteristicValueChangeRes : NSObject
+@property (nonatomic, copy) NSString * deviceId;
+@property (nonatomic, copy) NSString * serviceId;
+@property (nonatomic, copy) NSString * characteristicId;
+@property (nonatomic, copy) NSData * value;
+@end
+
 
 
 
@@ -139,6 +146,26 @@
 @property (nonatomic, copy) NSString * serviceId;
 @end
 
+@protocol WXNotifyBLECharacteristicValueChangeObject <WXCallbackFunction>
+@property (nonatomic, copy) NSString * deviceId;
+@property (nonatomic, copy) NSString * serviceId;
+@property (nonatomic, copy) NSString * characteristicId;
+@property (nonatomic, assign) BOOL state;
+@end
+
+@protocol WXReadBLECharacteristicValueObject <WXCallbackFunction>
+@property (nonatomic, copy) NSString * deviceId;
+@property (nonatomic, copy) NSString * serviceId;
+@property (nonatomic, copy) NSString * characteristicId;
+@end
+
+@protocol WXWriteBLECharacteristicValueObject <WXCallbackFunction>
+@property (nonatomic, copy) NSString * deviceId;
+@property (nonatomic, copy) NSString * serviceId;
+@property (nonatomic, copy) NSString * characteristicId;
+@property (nonatomic, copy) NSData * value;
+@end
+
 
 @interface KerWXObject (DeviceBluetooth)
 
@@ -165,8 +192,13 @@
 -(void) onBLEConnectionStateChange:(KerJSObject *) object;
 
 -(void) getBLEDeviceServices:(KerJSObject *) object;
-
 -(void) getBLEDeviceCharacteristics:(KerJSObject *) object;
+-(void) notifyBLECharacteristicValueChange:(KerJSObject *) object;
+
+-(void) readBLECharacteristicValue:(KerJSObject *) object;
+-(void) writeBLECharacteristicValue:(KerJSObject *) object;
+
+-(void) onBLECharacteristicValueChange:(KerJSObject *) object;
 
 @end
 
@@ -182,6 +214,12 @@ typedef BOOL (^ArrayCompareFunc)(id objA, id objB);
 @interface CBPeripheral(DeviceBluetooth)
 
 -(CBService *)ker_findServiceByID:(NSString *)ID;
+
+@end
+
+@interface CBService(DeviceBluetooth)
+
+-(CBCharacteristic *)ker_findCharacteristicByID:(NSString *)ID;
 
 @end
 
