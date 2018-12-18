@@ -238,12 +238,14 @@ namespace kk {
             virtual kk::Strong<Canvas> createCanvas();
             virtual kk::Strong<Image> createImage(kk::CString src);
             virtual kk::Strong<Sqlite> createSqlite(kk::CString path);
-            
+            virtual kk::Strong<Context> parent();
+            virtual void setParent(Context * v);
             static void Openlib();
             
             Ker_CLASS(Context, EventEmitter, "UIContext");
             
         protected:
+            kk::Weak<Context> _parent;
             kk::String _basePath;
             kk::Strong<kk::DispatchQueue> _queue;
             duk_context * _jsContext;

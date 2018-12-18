@@ -1,7 +1,5 @@
 package cn.kkmofang.ker.http;
 
-import android.os.Handler;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,7 +10,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -24,13 +22,13 @@ public class Session {
 
 
     private final ThreadPoolExecutor _executor;
-    private final PriorityBlockingQueue<Runnable> _queue;
+    private final LinkedBlockingDeque<Runnable> _queue;
     private long _autoId;
     public int defaultTimeout;
 
     public Session() {
         _autoId = 0;
-        _queue = new PriorityBlockingQueue<>();
+        _queue = new LinkedBlockingDeque<>();
         _executor = new ThreadPoolExecutor(1,5, 6,TimeUnit.SECONDS,_queue);
     }
 
@@ -43,29 +41,33 @@ public class Session {
         return _defaultSession;
     }
 
-    public SessionTask dataTask(Request req,Callback callback,int priority) {
-        return new DataSessionTask(req,callback,++_autoId, priority);
+    public void execute(Runnable command) {
+        _executor.execute(command);
     }
 
-    public SessionTask uploadTask(Request req,Callback callback,int priority) {
-        return new UploadSessionTask(req,callback,++_autoId, priority);
+    public SessionTask dataTask(Request req,Callback callback) {
+        return new DataSessionTask(req,callback,++_autoId);
     }
 
-    public SessionTask downloadTask(Request req,Callback callback,int priority) {
-        return new DowonloadSessionTask(req,callback,++_autoId, priority);
+    public SessionTask uploadTask(Request req,Callback callback) {
+        return new UploadSessionTask(req,callback,++_autoId);
+    }
+
+    public SessionTask downloadTask(Request req,Callback callback) {
+        return new DowonloadSessionTask(req,callback,++_autoId);
     }
 
     private class DataSessionTask extends SessionTaskBase {
 
-        public DataSessionTask(Request req, Callback callback, long id,int priority) {
-            super(req, callback, id, priority);
+        public DataSessionTask(Request req, Callback callback, long id) {
+            super(req, callback, id);
         }
     }
 
     private class UploadSessionTask extends SessionTaskBase {
 
-        public UploadSessionTask(Request req, Callback callback, long id,int priority) {
-            super(req, callback, id, priority);
+        public UploadSessionTask(Request req, Callback callback, long id) {
+            super(req, callback, id);
         }
     }
 
@@ -74,8 +76,8 @@ public class Session {
         private File _tmpFile;
         private FileOutputStream _out;
 
-        public DowonloadSessionTask(Request req, Callback callback, long id,int priority) {
-            super(req, callback, id, priority);
+        public DowonloadSessionTask(Request req, Callback callback, long id) {
+            super(req, callback, id);
             try {
                 _tmpFile = File.createTempFile("Ker-",".download");
             } catch (IOException e) {
@@ -123,18 +125,16 @@ public class Session {
         }
     }
 
-    private class SessionTaskBase implements SessionTask ,Runnable, Comparable<SessionTaskBase>  {
+    private class SessionTaskBase implements SessionTask ,Runnable {
 
         protected final long _id;
         protected final Request _req;
         protected final Callback _cb;
-        protected final int _priority;
 
-        public SessionTaskBase(Request req,Callback callback,long id,int priority) {
+        public SessionTaskBase(Request req,Callback callback,long id) {
             _id = id;
             _req = req;
             _cb = callback;
-            _priority = priority;
             _executor.execute(this);
         }
 
@@ -357,14 +357,5 @@ public class Session {
             return defaultValue;
         }
 
-        @Override
-        public int compareTo(SessionTaskBase sessionTaskBase) {
-            if(_priority > sessionTaskBase._priority) {
-                return -1;
-            } else if(_priority == sessionTaskBase._priority) {
-                return 0;
-            }
-            return 1;
-        }
     }
 }

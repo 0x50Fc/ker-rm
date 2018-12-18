@@ -2,6 +2,7 @@ package cn.kkmofang.ker;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -76,6 +77,11 @@ public class KerTextView extends View implements IKerView,KerText.TextContent {
     @Override
     public void evaluateJavaScript(long object, String evaluateCode) {
 
+    }
+
+    @Override
+    public void setImage(Drawable image) {
+        setBackground(image);
     }
 
     @Override

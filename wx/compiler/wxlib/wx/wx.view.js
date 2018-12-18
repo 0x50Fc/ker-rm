@@ -1,14 +1,11 @@
 
 
 var viewClass = {
-
+    input : 'UITextField',
+    textarea : 'UITextView',
+    canvas : 'UIView'
 };
 
-if (platform == 'iOS') {
-    viewClass['input'] = 'UITextField';
-    viewClass['textarea'] = 'UITextView';
-    viewClass['canvas'] = 'UIView';
-}
 
 function Context(view) {
     this._view = view;

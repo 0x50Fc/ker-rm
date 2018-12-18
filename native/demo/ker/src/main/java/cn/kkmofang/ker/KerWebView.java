@@ -2,6 +2,7 @@ package cn.kkmofang.ker;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -258,6 +259,11 @@ public class KerWebView extends WebView implements IKerView {
             loadUrl("javascript:(function(){" +evaluateCode+ "})();");
         }
 
+    }
+
+    @Override
+    public void setImage(Drawable image) {
+        setBackground(image);
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import cn.kkmofang.ker.App;
+import cn.kkmofang.ker.Native;
 import cn.kkmofang.ker.Package;
 
 public class MainActivity extends Activity {
@@ -22,6 +23,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Native.openlib();
 
         App.AppActivityClass = AppActivity.class;
 

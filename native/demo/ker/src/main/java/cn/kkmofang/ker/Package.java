@@ -326,7 +326,7 @@ public class Package {
 
                 }
 
-            },0);
+            });
 
         } else {
             callback.onError(new Exception("未找到应用包 " + URI));

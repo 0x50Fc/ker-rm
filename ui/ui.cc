@@ -550,6 +550,8 @@ namespace kk {
                 
                 Context * v = this->_context = new Context(main->basePath(),this->_queue);
                 
+                v->setParent(main);
+                
                 v->retain();
                 
                 duk_context * ctx = v->jsContext();
@@ -616,14 +618,16 @@ namespace kk {
         }
         
         Worker::~Worker() {
-            if(_context != nullptr) {
-                _context->release();
-                _context = nullptr;
-            }
+            
             if(_queue != nullptr) {
+                _queue->sync([this]()->void{
+                    this->_context->release();
+                    this->_context = nullptr;
+                });
                 _queue->release();
                 _queue = nullptr;
             }
+            
         }
         
         void Worker::postMessage(Any data) {
@@ -658,18 +662,28 @@ namespace kk {
         }
         
         void Worker::terminate() {
-            if(_context != nullptr) {
-                _context->release();
-                _context = nullptr;
-            }
+            
             if(_queue != nullptr) {
+                _queue->sync([this]()->void{
+                    this->_context->release();
+                    this->_context = nullptr;
+                });
                 _queue->release();
                 _queue = nullptr;
             }
+            
             if(_main != nullptr) {
                 _main->remove(this);
                 _main = nullptr;
             }
+        }
+        
+        kk::Strong<Context> Context::parent() {
+            return (Context *) _parent;
+        }
+        
+        void Context::setParent(Context * v) {
+            _parent = v;
         }
         
         kk::Strong<Worker> Context::createWorker(kk::CString cpath) {

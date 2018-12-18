@@ -1172,3 +1172,54 @@ Java_cn_kkmofang_ker_Page_addLibrary__JLjava_lang_String_2Ljava_lang_Object_2(JN
     env->ReleaseStringUTFChars(name_, name);
 
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_KerQueue_async__JLjava_lang_Runnable_2(JNIEnv *env, jclass type, jlong ptr,
+                                                            jobject run) {
+
+    kk::DispatchQueue * queue = (kk::DispatchQueue *) ptr;
+
+    jobject object = env->NewGlobalRef(run);
+
+    queue->async([object]()->void{
+
+        jboolean isAttach = false;
+
+        JNIEnv *env = kk_env(&isAttach);
+
+        jclass isa = env->GetObjectClass(object);
+
+        jmethodID run = env->GetMethodID(isa,"run","()V");
+
+        env->CallVoidMethod(object,run);
+
+        env->DeleteGlobalRef(object);
+
+        if(isAttach) {
+            gJavaVm->DetachCurrentThread();
+        }
+
+    });
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_KerQueue_sync__JLjava_lang_Runnable_2(JNIEnv *env, jclass type, jlong ptr,
+                                                           jobject object) {
+
+    kk::DispatchQueue * queue = (kk::DispatchQueue *) ptr;
+
+    queue->sync([object,env]()->void{
+
+        jclass isa = env->GetObjectClass(object);
+
+        jmethodID run = env->GetMethodID(isa,"run","()V");
+
+        env->CallVoidMethod(object,run);
+
+    });
+
+
+}

@@ -26,6 +26,7 @@ namespace kk {
         LibeventDispatchQueue() {
             _pid = 0;
             _base = event_base_new();
+            pthread_mutex_init(&_lock, nullptr);
             setup();
         }
 

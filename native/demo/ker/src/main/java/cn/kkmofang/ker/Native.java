@@ -1,10 +1,14 @@
 package cn.kkmofang.ker;
 
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.Log;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -12,16 +16,13 @@ import android.view.ViewParent;
 import java.lang.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import cn.kkmofang.ker.http.Callback;
-import cn.kkmofang.ker.http.Request;
-import cn.kkmofang.ker.http.Response;
-import cn.kkmofang.ker.http.Session;
+import cn.kkmofang.ker.image.ImageCache;
 
 /**
  * Created by zhanghailong on 2018/12/11.
@@ -200,12 +201,90 @@ public final class Native {
         return 0;
     }
 
+    public static byte[] getImageData(Object object) {
+        Bitmap bitmap = null;
+        if(object instanceof BitmapDrawable) {
+            bitmap = ((BitmapDrawable) object).getBitmap();
+        }
+        if(object instanceof Image) {
+            bitmap = ((Image) object).getBitmap();
+        }
+        if(bitmap != null) {
+            if(bitmap.getConfig() == Bitmap.Config.ARGB_8888) {
+                ByteBuffer data = ByteBuffer.allocate(bitmap.getWidth() * bitmap.getHeight() * 4);
+                bitmap.copyPixelsToBuffer(data);
+                return data.array();
+            } else {
+                Bitmap b = bitmap.copy(Bitmap.Config.ARGB_8888,false);
+                ByteBuffer data = ByteBuffer.allocate(bitmap.getWidth() * bitmap.getHeight() * 4);
+                b.copyPixelsToBuffer(data);
+                b.recycle();
+                return data.array();
+            }
+        }
+        return null;
+    }
+
     public static Object getImageWithCache(String URI,String basePath) {
         return null;
     }
 
-    public static void getImage(long imageObject,String URI,String basePath) {
+    public static void getImage(App app, long imageObject,String URI,String basePath,long queuePtr) {
 
+        final KerObject object = new KerObject(imageObject);
+        final KerQueue queue = new KerQueue(queuePtr);
+        final Context context = app.activity().getApplicationContext();
+
+        if(!URI.contains("://")) {
+            URI = basePath + "/" + URI;
+        }
+
+        final Drawable image = ImageCache.getDefaultImageCache().getImageWithCache(URI);
+
+        if(image != null) {
+            queue.async(new Runnable() {
+                @Override
+                public void run() {
+                    Native.setImage(object.ptr(),image);
+                    queue.recycle();
+                    object.recycle();
+                }
+            });
+        } else {
+
+            ImageCache.getDefaultImageCache().getImage(context, URI, new ImageCache.Callback() {
+
+                @Override
+                public void onError(Throwable ex) {
+
+                    Log.e("ker",Log.getStackTraceString(ex));
+
+                    queue.async(new Runnable() {
+                        @Override
+                        public void run() {
+                            Native.setImage(object.ptr(),null);
+                            queue.recycle();
+                            object.recycle();
+                        }
+                    });
+                }
+
+                @Override
+                public void onImage(final Drawable image) {
+
+                    queue.async(new Runnable() {
+                        @Override
+                        public void run() {
+                            Native.setImage(object.ptr(),image);
+                            queue.recycle();
+                            object.recycle();
+                        }
+                    });
+
+                }
+
+            });
+        }
     }
 
     public static void viewObtain(Object view,long viewObject) {
@@ -334,6 +413,20 @@ public final class Native {
 
     public static void viewSetImage(Object view,long viewObject, Object image) {
 
+        if(view instanceof IKerView) {
+            if(image instanceof Drawable) {
+                ((IKerView) view).setImage((Drawable) image);
+            } else {
+                ((IKerView) view).setImage(null);
+            }
+        } else if(view instanceof View) {
+            if(image instanceof Drawable) {
+                ((View) view).setBackground((Drawable) image);
+            } else {
+                ((View) view).setBackground(null);
+            }
+        }
+
     }
 
     public static void viewSetGravity(Object view,long viewObject,String gravity) {
@@ -354,6 +447,7 @@ public final class Native {
             if(frame != null) {
                 return frame.width;
             }
+            return Math.max(((View) view).getWidth(),((View) view).getMeasuredWidth());
         }
 
         return 0;
@@ -366,6 +460,7 @@ public final class Native {
             if(frame != null) {
                 return frame.height;
             }
+            return Math.max(((View) view).getHeight(),((View) view).getMeasuredHeight());
         }
 
         return 0;
@@ -474,6 +569,26 @@ public final class Native {
 
             }
         });
+
+    }
+
+    public static KerCanvas createCanvas(int width, int height) {
+        return new KerCanvas(width,height);
+    }
+
+    public static void displayCanvas(KerCanvas canvas,Object view) {
+
+        if(view instanceof SurfaceView) {
+            SurfaceView s = (SurfaceView) view;
+            Canvas v = s.getHolder().lockCanvas();
+            v.drawBitmap(canvas.getBitmap(),
+                    new android.graphics.Rect(0,0,canvas.getWidth(),canvas.getHeight()),
+                    new android.graphics.Rect(0,0,((View) view).getWidth(),((View) view).getHeight()),
+                    new Paint(Paint.ANTI_ALIAS_FLAG));
+            s.getHolder().unlockCanvasAndPost(v);
+        } else if(view instanceof View) {
+            ((View) view).setBackground(canvas.getDrawable());
+        }
 
     }
 

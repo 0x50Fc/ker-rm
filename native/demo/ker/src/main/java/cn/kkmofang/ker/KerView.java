@@ -1,6 +1,7 @@
 package cn.kkmofang.ker;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,6 +111,11 @@ public class KerView extends ViewGroup implements IKerView {
     @Override
     public void evaluateJavaScript(long object, String evaluateCode) {
 
+    }
+
+    @Override
+    public void setImage(Drawable image) {
+        setBackground(image);
     }
 
     @Override

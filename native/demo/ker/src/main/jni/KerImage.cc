@@ -4,6 +4,7 @@
 
 #include "KerImage.h"
 #include "kk.h"
+#include "KerApp.h"
 
 namespace kk {
 
@@ -59,9 +60,13 @@ namespace kk {
 
             jboolean isAttach = false;
 
-            JNIEnv *env = kk_env(&isAttach);
+            JNIEnv * env = kk_env(&isAttach);
 
-            env->DeleteGlobalRef(_object);
+            if(_object && _width > 0 && _height > 0) {
+
+
+
+            }
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -138,9 +143,48 @@ namespace kk {
 
         kk::Strong<Image> ImageCreate(Context * context,kk::CString src) {
 
+            kk::ui::KerApp * app = nullptr;
+            kk::Strong<Context> v = context;
+
+            while(v != nullptr && app == nullptr) {
+                app = dynamic_cast<kk::ui::KerApp *>((Context *) v);
+                if(app != nullptr) {
+                    break;
+                }
+                v = v->parent();
+            }
+
+            if(app == nullptr) {
+                return nullptr;
+            }
+
+
             OSImage * i = new OSImage(src);
 
+            jboolean isAttach = false;
 
+            JNIEnv * env = kk_env(&isAttach);
+
+            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
+
+            jmethodID getImage = env->GetStaticMethodID(isa,"getImage","(Lcn/kkmofang/ker/App;JLjava/lang/String;Ljava/lang/String;J)V");
+
+            jstring URI = src == nullptr ? nullptr : env->NewStringUTF(src);
+            jstring basePath = env->NewStringUTF(context->basePath());
+
+            env->CallStaticVoidMethod(isa,getImage,app->object(),(jlong) i,URI,basePath,(jlong) context->queue());
+
+            if(URI) {
+                env->DeleteLocalRef(URI);
+            }
+
+            if(basePath) {
+                env->DeleteLocalRef(basePath);
+            }
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
 
             return i;
 
