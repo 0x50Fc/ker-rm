@@ -86,12 +86,19 @@
 
 
 @implementation WXCallbackRes
+
 @synthesize errMsg = _errMsg;
+
 -(instancetype) initWithErrMsg:(NSString *)errMsg {
     if (self = [super init]){
         self.errMsg = errMsg;
     }
     return self;
 }
+
+-(void) dealloc {
+    NSLog(@"[WXCallbackRes] [dealloc]");
+}
+
 @end
 
