@@ -18,10 +18,13 @@ namespace kk {
     public:
         virtual Object * data();
         virtual void setData(Object * data);
+        virtual Any & returnValue();
+        virtual void setReturnValue(Any & v);
         Ker_CLASS(Event,Object,"Event")
         static void Openlib();
     protected:
         Strong<Object> _data;
+        Any _returnValue;
     };
     
     class EventEmitter : public Object {

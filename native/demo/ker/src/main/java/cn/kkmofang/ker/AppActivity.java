@@ -119,8 +119,6 @@ public class AppActivity extends Activity implements IAppActivity {
                 Fragment f = _fragments.get(i);
                 if(i == b) {
                     tr.show(f);
-                } else if(i == e) {
-                    tr.remove(f);
                 } else {
                     tr.remove(f);
                 }
@@ -164,14 +162,20 @@ public class AppActivity extends Activity implements IAppActivity {
     public void onBackPressed() {
 
         if(_showFragments.size() > 0) {
-            Fragment fragment = _showFragments.get(_showFragments.size() - 1);
-            if(fragment instanceof PageFragment) {
-                if(!((PageFragment) fragment).onBackPressed()) {
-                    return;
+
+            int i = _showFragments.size() - 1;
+
+            while(i >= 0) {
+                Fragment fragment = _showFragments.get(i);
+                if(fragment instanceof PageFragment) {
+                    if(((PageFragment) fragment).onBackPressed()) {
+                        close(fragment,true);
+                        return;
+                    }
                 }
+                i --;
             }
-            close(fragment,true);
-            return;
+
         }
 
         if(_fragments.size() > 1) {

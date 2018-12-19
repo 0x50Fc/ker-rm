@@ -267,6 +267,14 @@ public class KerWebView extends WebView implements IKerView {
     }
 
     @Override
+    public void setAttributedText(long object, CharSequence string) {
+        if(string == null) {
+            return;
+        }
+        setContent(object,string.toString(),"text/html","");
+    }
+
+    @Override
     public ViewGroup contentView() {
         return this;
     }

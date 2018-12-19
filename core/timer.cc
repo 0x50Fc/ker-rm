@@ -18,26 +18,26 @@ namespace kk {
     }
     
     void Timer::setEvent(std::function<void()> && func) {
-        if(_source) {
+        if(_source != nullptr) {
             _source->setEvent(std::move(func));
         }
     }
     
     Timer::~Timer() {
-        if(_source) {
+        if(_source != nullptr) {
             _source->cancel();
         }
         kk::Log("[Timer] [dealloc]");
     }
     
     void Timer::resume() {
-        if(_source) {
+        if(_source != nullptr) {
             _source->resume();
         }
     }
     
     void Timer::cancel() {
-        if(_source) {
+        if(_source != nullptr) {
             _source->cancel();
             _source = nullptr;
         }

@@ -1379,3 +1379,22 @@ Java_cn_kkmofang_ker_JSContext_PushJSObject__JJ(JNIEnv *env, jclass type, jlong 
     }
 
 }
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_cn_kkmofang_ker_Page_onBackPressed__J(JNIEnv *env, jclass type, jlong ptr) {
+
+    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
+
+    kk::Strong<kk::Event> event = new kk::Event();
+
+    page->emit("backPressed",(kk::Event *) event);
+
+    kk::Any & v = event->returnValue();
+
+    if(v.type == kk::TypeBoolean) {
+        return (jboolean) v.booleanValue;
+    }
+
+    return true;
+}

@@ -68,7 +68,7 @@ namespace kk {
     class GCDDispatchSource : public DispatchSource {
     public:
         
-        GCDDispatchSource(kk::Uint64 fd,DispatchSourceType type,GCDDispatchQueue * queue) {
+        GCDDispatchSource(kk::Uint64 fd,DispatchSourceType type,GCDDispatchQueue * queue):_queue(queue) {
             
             dispatch_source_type_t t;
             
@@ -131,6 +131,8 @@ namespace kk {
 
         ::dispatch_source_t _source;
         std::function<void()> _event;
+        kk::Strong<GCDDispatchQueue> _queue;
+
     };
     
     kk::Strong<DispatchSource> createDispatchSource(kk::Uint64 fd,DispatchSourceType type,DispatchQueue * queue) {

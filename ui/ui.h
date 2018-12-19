@@ -82,6 +82,9 @@ namespace kk {
                 a = c.a;
                 return * this;
             }
+            kk::Int intValue() {
+                return ((kk::Int) (a * 0x0ff) << 24) | ((kk::Int) (r * 0x0ff) << 16) | ((kk::Int) (g * 0x0ff) << 8) | ((kk::Int) (b * 0x0ff));
+            }
         };
         
         class Palette {

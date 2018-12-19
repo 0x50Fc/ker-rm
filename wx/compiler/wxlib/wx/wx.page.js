@@ -220,7 +220,7 @@ module.exports = function (options, path, page, app, padding) {
         console.info("[REM]", rem, screen);
     }
 
-    webview.setContent('<html style="font-size: ' + rem + 'px"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1" /><style type="text/css">'
+    webview.setContent('<html style="font-size: ' + rem + 'px"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,initial-scale=1,user-scalable=no" /><style type="text/css">'
         + __cssContext + '</style>'
         + content + '</html>', undefined, basePath);
 

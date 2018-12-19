@@ -136,49 +136,98 @@ namespace kk {
         return v;
     }
 
+    static void LibeventDispatchSourceCB(evutil_socket_t fd, short ev, void * userData) ;
+
     class LibeventDispatchSource : public DispatchSource {
     public:
 
-        LibeventDispatchSource(kk::Uint64 fd,DispatchSourceType type,LibeventDispatchQueue * queue) {
+        LibeventDispatchSource(kk::Uint64 fd,DispatchSourceType type,LibeventDispatchQueue * queue):
+                _queue(queue),_fd(nullptr),_isResume(false),_type(type) {
 
+            _tv.tv_usec = 0;
+            _tv.tv_sec = 0;
+            _interval.tv_sec = 0;
+            _interval.tv_usec = 0;
+
+            if(type == DispatchSourceTypeTimer) {
+                _fd = event_new(queue->base(),-1,0,LibeventDispatchSourceCB,this);
+            }
 
         }
 
         virtual ~LibeventDispatchSource() {
 
+            if(_fd != nullptr) {
+                if(_isResume) {
+                    event_del(_fd);
+                }
+                event_free(_fd);
+            }
         }
 
         virtual void suspend() {
-
+            if(_fd != nullptr && _isResume) {
+                event_del(_fd);
+                _isResume = false;
+            }
         }
 
         virtual void resume() {
-
+            if(_fd != nullptr && !_isResume) {
+                evtimer_add(_fd,&_tv);
+                _isResume = true;
+            }
         }
 
         virtual void cancel() {
-
+            if(_fd != nullptr) {
+                if(_isResume) {
+                    event_del(_fd);
+                }
+                event_free(_fd);
+                _fd = nullptr;
+            }
         }
 
         virtual void setTimer(kk::Uint64 delay,kk::Uint64 interval) {
-
+            _tv.tv_sec = delay / 1000;
+            _tv.tv_usec = (delay % 1000) * 1000000;
+            _interval.tv_sec = interval / 1000;
+            _interval.tv_usec = (interval % 1000) * 1000000;
         }
 
         virtual void setEvent(std::function<void()> && func) {
             _event = func;
         }
 
-    protected:
-
         virtual void onEvent() {
             if(_event != nullptr) {
                 std::function<void()> fn = _event;
                 fn();
             }
+            if(_type == DispatchSourceTypeTimer) {
+                if((_interval.tv_usec > 0 || _interval.tv_sec > 0) && _isResume) {
+                    evtimer_add(_fd,&_interval);
+                }
+            }
         }
 
+    protected:
+
+        DispatchSourceType _type;
+        kk::Strong<LibeventDispatchQueue> _queue;
+
         std::function<void()> _event;
+        ::event * _fd;
+        kk::Boolean _isResume;
+        ::timeval _tv;
+        ::timeval _interval;
     };
+
+    static void LibeventDispatchSourceCB(evutil_socket_t fd, short ev, void * userData) {
+        LibeventDispatchSource * s = (LibeventDispatchSource *) userData;
+        s->onEvent();
+    }
 
     kk::Strong<DispatchSource> createDispatchSource(kk::Uint64 fd,DispatchSourceType type,DispatchQueue * queue) {
         return new LibeventDispatchSource(fd, type, (LibeventDispatchQueue *) queue);

@@ -137,6 +137,20 @@ public final class Ker {
         return defaultValue;
     }
 
+    public static int intValue(Object v,int defaultValue) {
+        if(v != null) {
+            if(v instanceof Number) {
+                return ((Number) v).intValue();
+            } else if(v instanceof String){
+                try {
+                    return Integer.parseInt((String) v);
+                }
+                catch(Throwable e){}
+            }
+        }
+        return defaultValue;
+    }
+
     public static boolean booleanValue(Object v,boolean defaultValue) {
         if(v != null) {
             if(v instanceof String) {
@@ -202,7 +216,7 @@ public final class Ker {
                     return (a << 24) | (r << 16) | (g << 8) | b;
                 }
             } else if(v.startsWith("rgba(") && v.endsWith(")")) {
-                String[] vs = v.substring(5,v.length() - 6).split(",");
+                String[] vs = v.substring(5,v.length() - 1).split(",");
                 if(vs.length > 3) {
                     int r = Integer.valueOf(vs[0], 10);
                     int g = Integer.valueOf(vs[1], 10);

@@ -4,14 +4,27 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
+import android.text.Layout;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.StaticLayout;
+import android.text.TextPaint;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.DynamicDrawableSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.TextView;
 
 import java.lang.*;
 import java.lang.reflect.Array;
@@ -427,8 +440,105 @@ public final class Native {
         }
     }
 
-    public static void viewSetAttributedText(Object view,long viewObject, long textObject) {
+    public static void appendText(SpannableStringBuilder string,String text,String family,float size,boolean bold,boolean italic,int color) {
 
+        if(text == null){
+            return;
+        }
+
+        SpannableString span = new SpannableString(text);
+
+        int length = text.length();
+
+        span.setSpan(new AbsoluteSizeSpan((int) Math.ceil( size)), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.setSpan(new ForegroundColorSpan(color), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        if(bold) {
+            span.setSpan(new StyleSpan(Typeface.BOLD), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else if(italic) {
+            span.setSpan(new StyleSpan(Typeface.ITALIC), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else if(family != null && !"".equals(family)) {
+            Typeface f = Typeface.create(family,Typeface.NORMAL);
+            if(f != null) {
+                span.setSpan(new StyleSpan(f.getStyle()), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+
+        string.append(span);
+    }
+
+    public static void appendImage(SpannableStringBuilder string, final Object image, final int width, final int height, final int left, int top, int right, int bottom) {
+
+        if(image == null) {
+            return ;
+        }
+
+        if(image instanceof Drawable || image instanceof Image) {
+
+            SpannableString span = new SpannableString("...");
+
+            span.setSpan(new DynamicDrawableSpan() {
+                @Override
+                public Drawable getDrawable() {
+                    Drawable drawable = null;
+                    if(image instanceof Drawable) {
+                        drawable = (Drawable) image;
+                    } else if(image instanceof Image) {
+                        drawable = ((Image) image).getDrawable();
+                    }
+                    android.graphics.Rect bounds = drawable.getBounds();
+                    if(width != 0) {
+                        bounds.right = width;
+                    }
+                    if(height != 0) {
+                        bounds.bottom = height;
+                    }
+                    drawable.setBounds(bounds);
+                    return drawable;
+                }
+            },0,3,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            string.append(span);
+        }
+
+    }
+
+    public static void viewSetAttributedText(Object view,long viewObject, CharSequence string) {
+        if(view instanceof IKerView) {
+            ((IKerView) view).setAttributedText(viewObject,string);
+        } else if(view instanceof TextView) {
+            ((TextView) view).setText(string);
+        }
+    }
+
+    public static float[] getAttributedTextSize(CharSequence string,float maxWidth) {
+        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            paint.setLetterSpacing(0);
+        }
+
+        StaticLayout v = new StaticLayout(
+                string,
+                0,
+                string.length(),
+                paint,
+                (int) Math.ceil(maxWidth),
+                Layout.Alignment.ALIGN_NORMAL,
+                1.0f,
+                0f,
+                false);
+
+        float[] r = new float[]{0,v.getHeight()};
+
+        for(int i=0;i<v.getLineCount();i++) {
+            float vv = v.getLineWidth(i);
+            if(vv > r[0]) {
+                r[0] = vv;
+            }
+        }
+
+        return r;
     }
 
     public static void viewSetImage(Object view,long viewObject, Object image) {

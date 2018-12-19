@@ -95,6 +95,13 @@ public class Page implements PageView.PageListener{
         }
     }
 
+    public boolean onBackPressed() {
+        if(_ptr != 0) {
+            return onBackPressed(_ptr);
+        }
+        return true;
+    }
+
     public View view() {
         return _view;
     }
@@ -146,4 +153,5 @@ public class Page implements PageView.PageListener{
     private static native void run(long ptr,String path,String[] keys,String[] values);
     private static native void setSize(long ptr,int width,int height);
     private static native void addLibrary(long ptr,String name,Object object);
+    private static native boolean onBackPressed(long ptr);
 }

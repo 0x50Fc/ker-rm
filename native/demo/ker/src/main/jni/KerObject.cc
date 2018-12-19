@@ -435,8 +435,7 @@ static jobject KerToJObject(JNIEnv * env,duk_context * ctx,duk_idx_t idx,kk::CSt
     if(duk_is_object(ctx,idx)) {
         kk::NativeObject * native = dynamic_cast<kk::NativeObject *>(kk::GetObject(ctx,idx));
         if(native != nullptr) {
-            v = (jobject) native->native();
-            env->NewLocalRef(v);
+            v = env->NewLocalRef((jobject) native->native());
         } else {
             kk::JSObject * jsObject = new kk::JSObject(ctx,duk_get_heapptr(ctx,idx));
             jclass isa = env->FindClass("cn/kkmofang/ker/Native");
@@ -518,6 +517,9 @@ duk_ret_t JObjectSetProperty(JNIEnv * env,jobject object,jfieldID field,kk::CStr
             }
             jobject v = KerToJObject(env,ctx,-1,n.c_str());
             env->SetObjectField(object,field,v);
+            if(v != nullptr) {
+                env->DeleteLocalRef(v);
+            }
         }
 
     }

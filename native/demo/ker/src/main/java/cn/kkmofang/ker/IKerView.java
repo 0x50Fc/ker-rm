@@ -15,5 +15,6 @@ public interface IKerView {
     void setContent(long object,String content,String contentType,String basePath);
     void evaluateJavaScript(long object,String evaluateCode);
     void setImage(Drawable image);
+    void setAttributedText(long object,CharSequence string);
     ViewGroup contentView();
 }

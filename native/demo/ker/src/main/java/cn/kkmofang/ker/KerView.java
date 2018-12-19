@@ -2,6 +2,7 @@ package cn.kkmofang.ker;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,16 +82,46 @@ public class KerView extends ViewGroup implements IKerView {
         setAttributeValue(this,object,key,value);
     }
 
+    private static void updateViewBackground(View view) {
+        GradientDrawable bg;
+        if(view.getBackground() != null && view.getBackground() instanceof GradientDrawable) {
+            bg = (GradientDrawable) view.getBackground();
+        } else {
+            bg = new GradientDrawable();
+        }
+
+        int bgColor =  Ker.intValue(view.getTag(R.id.ker_background_color),0);
+        int color = Ker.intValue(view.getTag(R.id.ker_border_color),0);
+        int width = Ker.intValue(view.getTag(R.id.ker_border_width),0);
+        int radius = Ker.intValue(view.getTag(R.id.ker_border_radius),0);
+
+        bg.setStroke(width,color);
+        bg.setCornerRadius(radius);
+        bg.setColor(bgColor);
+
+        view.setBackground(bg);
+    }
+
     public static void setAttributeValue(View view,long object, String key, String value) {
 
         if("background-color".equals(key)) {
-            view.setBackgroundColor(Ker.colorValue(value,0));
+            view.setTag(R.id.ker_background_color,Ker.colorValue(value,0));
+            updateViewBackground(view);
         } else if("hidden".equals(key)) {
             if(Ker.booleanValue(value,false)) {
                 view.setVisibility(View.GONE);
             } else {
                 view.setVisibility(View.VISIBLE);
             }
+        } else if("border-width".equals(key)) {
+            view.setTag(R.id.ker_border_width,Ker.intValue(value,0));
+            updateViewBackground(view);
+        } else if("border-color".equals(key)) {
+            view.setTag(R.id.ker_border_color,Ker.colorValue(value,0));
+            updateViewBackground(view);
+        } else if("border-radius".equals(key)) {
+            view.setTag(R.id.ker_border_radius,Ker.intValue(value,0));
+            updateViewBackground(view);
         }
 
     }
@@ -118,6 +149,11 @@ public class KerView extends ViewGroup implements IKerView {
     @Override
     public void setImage(Drawable image) {
         setBackground(image);
+    }
+
+    @Override
+    public void setAttributedText(long object, CharSequence string) {
+
     }
 
     @Override

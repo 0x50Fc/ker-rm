@@ -76,6 +76,7 @@ namespace kk {
     }
     
     void Object::weak(Object ** ptr) {
+        assert(ptr != nullptr);
         Atomic * a = Atomic::current();
         if(a != nullptr) {
             a->lock();

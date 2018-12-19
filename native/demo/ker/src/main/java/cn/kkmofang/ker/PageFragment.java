@@ -135,6 +135,9 @@ public class PageFragment extends Fragment implements Page.Listener{
     }
 
     public boolean onBackPressed() {
+        if(_page != null) {
+            return _page.onBackPressed();
+        }
         return true;
     }
 }

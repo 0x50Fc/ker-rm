@@ -30,6 +30,9 @@ public class KerText {
 
     public KerText(TextContent textContent) {
         _textContent = new WeakReference<>(textContent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            paint.setLetterSpacing(0);
+        }
     }
 
     public void setNeedDisplay() {

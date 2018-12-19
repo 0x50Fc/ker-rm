@@ -6,27 +6,43 @@ page.on("app.toast.hide", function (e) {
 var view = page.view;
 
 var title = new UIAttributedText();
-title.appendText(query.title || '', '14px', '#fff');
+var fontSize = 14;
+var maxWidth = 200;
+var minWidth = 80;
+var minHeight = 20;
+var padding = 20;
+var borderRadius = 5;
 
-var titleSize = app.getAttributedTextContentSize(title, 200);
+if(typeof screen == 'object' && screen.density !== undefined) {
+    fontSize = fontSize * screen.density;
+    maxWidth = maxWidth * screen.density;
+    minWidth = minWidth * screen.density;
+    minHeight = minHeight * screen.density;
+    padding = padding * screen.density;
+    borderRadius = borderRadius * screen.density;
+}
 
-if (titleSize.width < 80) {
-    titleSize.width = 80;
+title.appendText(query.title || '', fontSize + 'px', '#fff');
+
+var titleSize = app.getAttributedTextContentSize(title, maxWidth);
+
+if (titleSize.width < minWidth) {
+    titleSize.width = minWidth;
 } else {
     titleSize.width = Math.ceil(titleSize.width);
 }
 
-if (titleSize.height < 20) {
-    titleSize.height = 20;
+if (titleSize.height < minHeight) {
+    titleSize.height = minHeight;
 } else {
     titleSize.height = Math.ceil(titleSize.height);
 }
 
 var bgView = app.createView("UIView");
-var bgSize = { width: titleSize.width + 20, height: titleSize.height + 20 };
+var bgSize = { width: titleSize.width + padding, height: titleSize.height + padding };
 
 bgView.set('background-color', 'rgba(0,0,0,0.65)');
-bgView.set('border-radius', '5');
+bgView.set('border-radius', borderRadius + '');
 bgView.set('overflow', 'hidden');
 
 view.addSubview(bgView);
@@ -47,6 +63,10 @@ var resize = function () {
 page.on('resize', resize);
 
 resize();
+
+page.on('backPressed',function(e){
+    e.returnValue = false;
+});
 
 setTimeout(function () {
     page.close();

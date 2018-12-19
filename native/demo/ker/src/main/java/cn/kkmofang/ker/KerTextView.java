@@ -85,6 +85,11 @@ public class KerTextView extends View implements IKerView,KerText.TextContent {
     }
 
     @Override
+    public void setAttributedText(long object, CharSequence string) {
+        setTextContent(string);
+    }
+
+    @Override
     public ViewGroup contentView() {
         return null;
     }

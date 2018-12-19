@@ -114,6 +114,11 @@ public class KerCanvas extends Canvas implements Image {
 
         private Paint _paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
+        public Drawable() {
+            super();
+            setBounds(0,0,_bitmap.getWidth(),_bitmap.getHeight());
+        }
+
         @Override
         public void draw(Canvas canvas) {
             canvas.drawBitmap(_bitmap,new android.graphics.Rect(0,0,_bitmap.getWidth(),_bitmap.getHeight()),getBounds(),_paint);
