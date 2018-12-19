@@ -1,7 +1,18 @@
 package cn.kkmofang.ker;
 
 import android.content.Intent;
+import android.util.JsonWriter;
+import android.util.Log;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,6 +41,91 @@ public final class Ker {
 
         return null;
     }
+
+    public static String encodeURL(String v) {
+        if(v == null) {
+            return  null;
+        }
+        try {
+            return URLEncoder.encode(v,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return v;
+        }
+    }
+
+    public static String decodeURL(String v) {
+        if(v == null) {
+            return  null;
+        }
+        try {
+            return URLDecoder.decode(v,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return v;
+        }
+    }
+
+    public static String encodeJSON(Object object) {
+        StringWriter sw = new StringWriter();
+        JsonWriter w = new JsonWriter(sw);
+        try {
+            encodeJSON(object,w);
+        } catch (IOException e) {
+            Log.e("ker",Log.getStackTraceString(e));
+        }
+        return sw.toString();
+    }
+
+    public static void encodeJSON(Object object,JsonWriter w) throws IOException {
+
+        if(object == null) {
+            w.nullValue();
+        } else if(object instanceof String) {
+            w.value((String) object);
+        } else if(object instanceof Long) {
+            w.value(((Long) object).longValue());
+        } else if(object instanceof Integer) {
+            w.value(((Integer) object).longValue());
+        } else if(object instanceof Number) {
+            w.value((Number) object);
+        } else if(object instanceof Boolean) {
+            w.value((Boolean) object);
+        } else if(object instanceof Map) {
+            w.beginObject();
+            Map<?,?> m = (Map<?,?>) object;
+            for(Object key : m.keySet()) {
+                w.name(stringValue(key,""));
+                encodeJSON(m.get(key),w);
+            }
+            w.endObject();
+        } else if(object.getClass().isArray()) {
+            w.beginArray();
+            int n = Array.getLength(object);
+            for(int i=0;i<n;i++) {
+                encodeJSON(Array.get(object,i));
+            }
+            w.endArray();
+        } else if(object instanceof List) {
+            w.beginArray();
+            for(Object v : (List<?>) object) {
+                encodeJSON(v);
+            }
+            w.endArray();
+        } else {
+            w.beginObject();
+            for(Field fd : object.getClass().getFields()) {
+                Object v;
+                try {
+                    v = fd.get(object);
+                } catch (IllegalAccessException e) {
+                    continue;
+                }
+                w.name(fd.getName());
+                encodeJSON(v,w);
+            }
+            w.endObject();
+        }
+    }
+
 
     public static String stringValue(Object v,String defaultValue) {
         if(v != null) {

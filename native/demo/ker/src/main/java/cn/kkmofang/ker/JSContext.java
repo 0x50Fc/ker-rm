@@ -97,6 +97,16 @@ public final class JSContext {
 
     public static native void PushJSONString(long jsContext,String string);
 
+    private static native void PushJSObject(long jsContext,long jsObject);
+
+    public static void PushJSObject(long jsContext,JSObject jsObject) {
+        if(jsObject == null ||jsObject.kerObject == 0) {
+            PushUndefined(jsContext);
+        } else {
+            PushJSObject(jsContext, jsObject.kerObject);
+        }
+    }
+
     public static native void SetPrototype(long jsContext,int idx) ;
 
     public static native void PutGlobalString(long jsContext,String name);

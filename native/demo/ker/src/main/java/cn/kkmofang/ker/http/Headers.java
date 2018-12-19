@@ -45,5 +45,12 @@ public class Headers {
         return _headers.toArray(new Header[_headers.size()]);
     }
 
+    public Map<String,String> getHeaderMap() {
+        Map<String,String> v = new TreeMap<>();
+        for(Header h : _headers) {
+            v.put(h.key,h.value);
+        }
+        return v;
+    }
 
 }

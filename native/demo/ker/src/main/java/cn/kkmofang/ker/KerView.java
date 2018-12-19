@@ -62,6 +62,8 @@ public class KerView extends ViewGroup implements IKerView {
 
                 if(frame != null) {
                     v.layout(frame.x,frame.y,frame.x + frame.width,frame.y + frame.height);
+                } else {
+                    v.layout(l,t,r,b);
                 }
 
             }

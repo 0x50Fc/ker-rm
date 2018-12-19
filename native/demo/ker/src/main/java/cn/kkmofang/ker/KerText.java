@@ -80,13 +80,16 @@ public class KerText {
 
         if(_layout == null) {
 
-            CharSequence textContent = "";
+            CharSequence textContent = null;
 
             TextContent vv = _textContent.get();
 
-
             if(vv != null) {
                 textContent = vv.textContent();
+            }
+
+            if(textContent == null) {
+                textContent = "";
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

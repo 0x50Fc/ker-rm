@@ -1223,3 +1223,159 @@ Java_cn_kkmofang_ker_KerQueue_sync__JLjava_lang_Runnable_2(JNIEnv *env, jclass t
 
 
 }
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_cn_kkmofang_ker_JSObject_get__JLjava_lang_String_2(JNIEnv *env, jclass type, jlong ptr,
+                                                        jstring key_) {
+    const char *key = env->GetStringUTFChars(key_, 0);
+
+    kk::JSObject * v = (kk::JSObject *) ptr;
+
+    jobject r = nullptr;
+
+    duk_context * ctx = v->jsContext();
+    void * heapptr = v->heapptr();
+
+    if(ctx && heapptr) {
+        duk_push_heapptr(ctx,heapptr);
+        duk_get_prop_string(ctx,-1,key);
+        r = duk_to_JObject(env,ctx,-1);
+        duk_pop_2(ctx);
+    }
+
+    env->ReleaseStringUTFChars(key_, key);
+
+    return r;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_JSObject_set__JLjava_lang_String_2Ljava_lang_Object_2(JNIEnv *env, jclass type,
+                                                                           jlong ptr, jstring key_,
+                                                                           jobject value) {
+    const char *key = env->GetStringUTFChars(key_, 0);
+
+    kk::JSObject * v = (kk::JSObject *) ptr;
+
+    duk_context * ctx = v->jsContext();
+    void * heapptr = v->heapptr();
+
+    if(ctx && heapptr) {
+        duk_push_heapptr(ctx,heapptr);
+        duk_push_JObject(ctx,value);
+        duk_put_prop_string(ctx,-2,key);
+        duk_pop(ctx);
+    }
+
+    env->ReleaseStringUTFChars(key_, key);
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_cn_kkmofang_ker_JSObject_call(JNIEnv *env, jclass type, jlong ptr,
+                                                               jobjectArray args) {
+
+
+    kk::JSObject * v = (kk::JSObject *) ptr;
+
+    jobject r = nullptr;
+
+    duk_context * ctx = v->jsContext();
+    void * heapptr = v->heapptr();
+
+    if(ctx && heapptr) {
+        duk_push_heapptr(ctx,heapptr);
+        if(duk_is_function(ctx,-1)) {
+            duk_idx_t n = 0;
+            if(args != nullptr) {
+                n = env->GetArrayLength(args);
+                for(duk_idx_t i= 0;i<n;i++) {
+                    jobject v = env->GetObjectArrayElement(args,i);
+                    duk_push_JObject(ctx,v);
+                    if(v != nullptr) {
+                        env->DeleteLocalRef(v);
+                    }
+                }
+            }
+
+            if(duk_pcall(ctx,n) != DUK_EXEC_SUCCESS) {
+                kk::Error(ctx,-1,"[JSObject] [call] ");
+            } else {
+                r = duk_to_JObject(env,ctx,-1);
+            }
+        }
+        duk_pop(ctx);
+    }
+
+    return r;
+
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_cn_kkmofang_ker_JSObject_invoke(JNIEnv *env,
+                                                                                    jclass type,
+                                                                                    jlong ptr,
+                                                                                    jstring name_,
+                                                                                    jobjectArray args) {
+    const char *name = env->GetStringUTFChars(name_, 0);
+
+    kk::JSObject * v = (kk::JSObject *) ptr;
+
+    jobject r = nullptr;
+
+    duk_context * ctx = v->jsContext();
+    void * heapptr = v->heapptr();
+
+    if(ctx && heapptr) {
+        duk_push_heapptr(ctx,heapptr);
+        duk_get_prop_string(ctx,-1, name);
+        if(duk_is_function(ctx,-1)) {
+            duk_dup(ctx,-2);
+            duk_idx_t n = 0;
+            if(args != nullptr) {
+                n = env->GetArrayLength(args);
+                for(duk_idx_t i= 0;i<n;i++) {
+                    jobject v = env->GetObjectArrayElement(args,i);
+                    duk_push_JObject(ctx,v);
+                    if(v != nullptr) {
+                        env->DeleteLocalRef(v);
+                    }
+                }
+            }
+
+            if(duk_pcall_method(ctx,n) != DUK_EXEC_SUCCESS) {
+                kk::Error(ctx,-1,"[JSObject] [call] ");
+            } else {
+                r = duk_to_JObject(env,ctx,-1);
+            }
+        }
+        duk_pop_2(ctx);
+    }
+
+    env->ReleaseStringUTFChars(name_, name);
+
+    return r;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_JSContext_PushJSObject__JJ(JNIEnv *env, jclass type, jlong jsContext,
+                                                jlong jsObject) {
+
+    duk_context * ctx = (duk_context *) jsContext;
+    kk::JSObject * object = (kk::JSObject *) jsObject;
+
+    if(object->jsContext() == ctx) {
+        void * heapptr = object->heapptr();
+        if(heapptr) {
+            duk_push_heapptr(ctx,heapptr);
+        } else {
+            duk_push_undefined(ctx);
+        }
+    } else {
+        duk_push_undefined(ctx);
+    }
+
+}

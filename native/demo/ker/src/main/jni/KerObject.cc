@@ -106,6 +106,8 @@ jobject ker_to_JObject(JNIEnv * env, kk::Any &v) {
         {
             return ker_Object_to_JObject(env,v.objectValue.get());
         }
+        default:
+            return nullptr;
     }
 
     return nullptr;
@@ -426,9 +428,43 @@ duk_ret_t JObjectGetProperty(JNIEnv * env,jobject object,jfieldID field,kk::CStr
     return 0;
 }
 
+static jobject KerToJObject(JNIEnv * env,duk_context * ctx,duk_idx_t idx,kk::CString type) {
+
+    jobject v = nullptr;
+
+    if(duk_is_object(ctx,idx)) {
+        kk::NativeObject * native = dynamic_cast<kk::NativeObject *>(kk::GetObject(ctx,idx));
+        if(native != nullptr) {
+            v = (jobject) native->native();
+            env->NewLocalRef(v);
+        } else {
+            kk::JSObject * jsObject = new kk::JSObject(ctx,duk_get_heapptr(ctx,idx));
+            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
+            jmethodID allocJSObject = env->GetStaticMethodID(isa,"allocJSObject","(J)Lcn/kkmofang/ker/JSObject;");
+            v = env->CallStaticObjectMethod(isa,allocJSObject,(jlong) jsObject);
+            env->DeleteLocalRef(isa);
+        }
+    } else {
+        v = duk_to_JObject(env,ctx,idx);
+    }
+
+    if(v != nullptr) {
+        jclass isa = env->FindClass(type);
+        if(!env->IsInstanceOf(v,isa)) {
+            env->DeleteLocalRef(v);
+            v = nullptr;
+        }
+        env->DeleteLocalRef(isa);
+    }
+
+    return v;
+}
+
 duk_ret_t JObjectSetProperty(JNIEnv * env,jobject object,jfieldID field,kk::CString type,duk_context * ctx) {
 
-    switch (* type) {
+    char * p = (char *) type;
+
+    switch (* p) {
         case 'Z':
         {
             env->SetBooleanField(object,field,duk_to_JBoolean(env,ctx,-1));
@@ -471,7 +507,17 @@ duk_ret_t JObjectSetProperty(JNIEnv * env,jobject object,jfieldID field,kk::CStr
         }
         case 'L':
         {
-            env->SetObjectField(object,field,duk_to_JObject(env,ctx,-1));
+            kk::String n;
+            p ++;
+            while(p && *p) {
+                if(*p == ';'){
+                    break;
+                }
+                n.append(p,0,1);
+                p ++;
+            }
+            jobject v = KerToJObject(env,ctx,-1,n.c_str());
+            env->SetObjectField(object,field,v);
         }
 
     }
@@ -590,17 +636,11 @@ duk_ret_t JObjectInvoke(JNIEnv * env,jobject object,jmethodID method,kk::CString
                             n.append(p,0,1);
                             p ++;
                         }
-                        v.l = duk_to_JObject(env,ctx,-top);
-                        if(v.l != nullptr) {
-                            jclass isa = env->FindClass(n.c_str());
-                            if(!env->IsInstanceOf(v.l,isa)) {
-                                env->DeleteLocalRef(v.l);
-                                v.l = nullptr;
-                            }
-                            env->DeleteLocalRef(isa);
-                        }
+                        v.l = KerToJObject(env,ctx,-top,n.c_str());
                         vs.push_back(v);
-                        objects.push_back(v.l);
+                        if(v.l != nullptr) {
+                            objects.push_back(v.l);
+                        }
                         top ++;
                         break;
                     }
@@ -806,7 +846,7 @@ namespace kk {
 
                     jclass isa =env->FindClass("cn/kkmofang/ker/Native");
 
-                    jmethodID allocJSObject = env->GetMethodID(isa,"allocJSObject","(J)Lcn/kkmofang/ker/JSObject;");
+                    jmethodID allocJSObject = env->GetStaticMethodID(isa,"allocJSObject","(J)Lcn/kkmofang/ker/JSObject;");
 
                     jobject native = env->CallStaticObjectMethod(isa,allocJSObject,(jlong) v);
 

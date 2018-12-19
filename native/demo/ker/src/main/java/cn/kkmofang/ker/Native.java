@@ -16,6 +16,7 @@ import android.view.ViewParent;
 import java.lang.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
@@ -119,9 +120,28 @@ public final class Native {
                 JSContext.PutProp(jsContext, -3);
             }
         } else if(object instanceof JSONString) {
-            JSContext.PushJSONString(jsContext,((JSONString)object).string);
+            JSContext.PushJSONString(jsContext, ((JSONString) object).string);
+        } else if(object instanceof JSObject) {
+
         } else {
-            JSContext.PushObject(jsContext,object);
+            String name = Native.getPrototype(object);
+            if(name == null) {
+                JSContext.PushObject(jsContext);
+                for(Field fd : object.getClass().getFields()) {
+                    try {
+                        Object v = fd.get(object);
+                        if(v != null) {
+                            JSContext.PushString(jsContext, fd.getName());
+                            Native.pushObject(jsContext, v);
+                            JSContext.PutProp(jsContext,-3);
+                        }
+                    } catch (IllegalAccessException e) {
+                        Log.e("ker",Log.getStackTraceString(e));
+                    }
+                }
+            } else {
+                JSContext.PushObject(jsContext, object,name);
+            }
         }
 
 
