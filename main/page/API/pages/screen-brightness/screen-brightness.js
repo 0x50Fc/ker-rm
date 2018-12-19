@@ -15,9 +15,11 @@ Page({
   },
 
   changeBrightness(e) {
-    const value = Number.parseFloat(
-      (e.detail.value).toFixed(1)
-    )
+    // Number 类不可调用 等待实现后再用下面代码
+    // const value = Number.parseFloat(
+    //   (e.detail.value).toFixed(1)
+    // )
+    const value = e.detail.value;
     wx.setScreenBrightness({
       value,
       success: () => {
@@ -30,9 +32,10 @@ Page({
     wx.getScreenBrightness({
       success: (res) => {
         this.setData({
-          screenBrightness: Number.parseFloat(
-            res.value.toFixed(1)
-          )
+          // screenBrightness: Number.parseFloat(
+          //   res.value.toFixed(1)
+          // )
+          screenBrightness: res.value
         })
       },
       fail(err) {

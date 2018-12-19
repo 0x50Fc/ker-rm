@@ -57,6 +57,8 @@
 		E990EA1821BFBBB2002439A8 /* 1.0 in Resources */ = {isa = PBXBuildFile; fileRef = E990EA1721BFBBB2002439A8 /* 1.0 */; };
 		E996A27921C9E85E00B6870C /* KerWXObject+DeviceVibrate.h in Headers */ = {isa = PBXBuildFile; fileRef = E996A27721C9E85E00B6870C /* KerWXObject+DeviceVibrate.h */; };
 		E996A27A21C9E85E00B6870C /* KerWXObject+DeviceVibrate.m in Sources */ = {isa = PBXBuildFile; fileRef = E996A27821C9E85E00B6870C /* KerWXObject+DeviceVibrate.m */; };
+		E996A27E21C9F04700B6870C /* KerWXObject+DeviceScreen.h in Headers */ = {isa = PBXBuildFile; fileRef = E996A27C21C9F04700B6870C /* KerWXObject+DeviceScreen.h */; };
+		E996A27F21C9F04700B6870C /* KerWXObject+DeviceScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = E996A27D21C9F04700B6870C /* KerWXObject+DeviceScreen.m */; };
 		E9A5D88A21C10303004FC729 /* KerWXObject+DeviceAccelerometer.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A5D88721C10303004FC729 /* KerWXObject+DeviceAccelerometer.h */; };
 		E9A5D88B21C10303004FC729 /* KerWXObject+DeviceAccelerometer.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A5D88921C10303004FC729 /* KerWXObject+DeviceAccelerometer.m */; };
 		E9A5D89021C1212C004FC729 /* KerWXObject+DeviceBattery.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A5D88E21C1212C004FC729 /* KerWXObject+DeviceBattery.h */; };
@@ -160,6 +162,8 @@
 		E990EA1721BFBBB2002439A8 /* 1.0 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 1.0; path = ../../../bin/1.0; sourceTree = "<group>"; };
 		E996A27721C9E85E00B6870C /* KerWXObject+DeviceVibrate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceVibrate.h"; sourceTree = "<group>"; };
 		E996A27821C9E85E00B6870C /* KerWXObject+DeviceVibrate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceVibrate.m"; sourceTree = "<group>"; };
+		E996A27C21C9F04700B6870C /* KerWXObject+DeviceScreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceScreen.h"; sourceTree = "<group>"; };
+		E996A27D21C9F04700B6870C /* KerWXObject+DeviceScreen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceScreen.m"; sourceTree = "<group>"; };
 		E9A5D88721C10303004FC729 /* KerWXObject+DeviceAccelerometer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceAccelerometer.h"; sourceTree = "<group>"; };
 		E9A5D88921C10303004FC729 /* KerWXObject+DeviceAccelerometer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceAccelerometer.m"; sourceTree = "<group>"; };
 		E9A5D88E21C1212C004FC729 /* KerWXObject+DeviceBattery.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceBattery.h"; sourceTree = "<group>"; };
@@ -225,6 +229,8 @@
 				E9A5D88921C10303004FC729 /* KerWXObject+DeviceAccelerometer.m */,
 				E9A5D88E21C1212C004FC729 /* KerWXObject+DeviceBattery.h */,
 				E9A5D88F21C1212C004FC729 /* KerWXObject+DeviceBattery.m */,
+				E996A27C21C9F04700B6870C /* KerWXObject+DeviceScreen.h */,
+				E996A27D21C9F04700B6870C /* KerWXObject+DeviceScreen.m */,
 				E9A5D89721C12426004FC729 /* KerWXObject+DeviceClipboard.h */,
 				E9A5D89821C12426004FC729 /* KerWXObject+DeviceClipboard.m */,
 				E94769F121C203870007EEBF /* KerWXObject+DevicePhoneContact.h */,
@@ -296,6 +302,7 @@
 				1A53C6F421B9103A00170AB7 /* KerWXObject+uploadFile.h in Headers */,
 				E9A5D88A21C10303004FC729 /* KerWXObject+DeviceAccelerometer.h in Headers */,
 				E9A5D89921C12426004FC729 /* KerWXObject+DeviceClipboard.h in Headers */,
+				E996A27E21C9F04700B6870C /* KerWXObject+DeviceScreen.h in Headers */,
 				1A53C66C21AFD94D00170AB7 /* KerWXObject+Analytics.h in Headers */,
 				E94769F821C2511C0007EEBF /* KerWXObject+DevicePhoneCall.h in Headers */,
 				E9FB9FE821C8C78700C39891 /* KerWXObject+DeviceIbeacon.h in Headers */,
@@ -469,6 +476,7 @@
 				1AF0662D219D57C800F8F7A8 /* KerWXObject+Location.m in Sources */,
 				1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */,
 				1A53C6E521B8DD4800170AB7 /* KerWXObject+downloadFile.m in Sources */,
+				E996A27F21C9F04700B6870C /* KerWXObject+DeviceScreen.m in Sources */,
 				E9A5D88B21C10303004FC729 /* KerWXObject+DeviceAccelerometer.m in Sources */,
 				E9A5D89A21C12426004FC729 /* KerWXObject+DeviceClipboard.m in Sources */,
 				1A53C6F121B90FA000170AB7 /* KerWXHttpBody.m in Sources */,
