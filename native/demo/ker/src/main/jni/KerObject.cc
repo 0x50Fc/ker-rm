@@ -100,7 +100,7 @@ jobject ker_to_JObject(JNIEnv * env, kk::Any &v) {
         }
         case kk::TypeString:
         {
-            return env->NewStringUTF(v.stringValue);
+            return v.stringValue == nullptr ? nullptr : env->NewStringUTF(v.stringValue);
         }
         case kk::TypeObject:
         {
@@ -110,7 +110,6 @@ jobject ker_to_JObject(JNIEnv * env, kk::Any &v) {
             return nullptr;
     }
 
-    return nullptr;
 }
 
 jobject ker_Object_to_JObject(JNIEnv * env, kk::Object * object) {
@@ -148,8 +147,9 @@ jobject ker_Object_to_JObject(JNIEnv * env, kk::Object * object) {
         if(v != nullptr) {
             jclass isa = env->FindClass("java/util/TreeMap");
             jmethodID alloc = env->GetMethodID(isa,"<init>","()V");
-            jobject r = env->NewObject(isa,alloc);
             jmethodID put = env->GetMethodID(isa,"put","(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+            jobject r = env->NewObject(isa,alloc);
 
             v->forEach([&put,&r,&env](kk::Any & value,kk::Any & key)->void{
                 kk::CString sKey = (kk::CString) key;
@@ -180,8 +180,9 @@ jobject ker_Object_to_JObject(JNIEnv * env, kk::Object * object) {
 
             jclass isa = env->FindClass("java/util/ArrayList");
             jmethodID alloc = env->GetMethodID(isa,"<init>","()V");
-            jobject r = env->NewObject(isa,alloc);
             jmethodID add = env->GetMethodID(isa,"add","(Ljava/lang/Object)Z");
+
+            jobject r = env->NewObject(isa,alloc);
 
             v->forEach([&add,&r,&env](kk::Any & value)->void{
                 jobject v = ker_to_JObject(env,value);
@@ -419,6 +420,7 @@ duk_ret_t JObjectGetProperty(JNIEnv * env,jobject object,jfieldID field,kk::CStr
             jobject v = env->GetObjectField(object,field);
             if(v != nullptr) {
                 duk_push_JObject(ctx,v);
+                env->DeleteLocalRef(v);
                 return 1;
             }
         }
@@ -437,10 +439,10 @@ static jobject KerToJObject(JNIEnv * env,duk_context * ctx,duk_idx_t idx,kk::CSt
         if(native != nullptr) {
             v = env->NewLocalRef((jobject) native->native());
         } else {
-            kk::JSObject * jsObject = new kk::JSObject(ctx,duk_get_heapptr(ctx,idx));
+            kk::Strong<kk::JSObject> jsObject = new kk::JSObject(ctx,duk_get_heapptr(ctx,idx));
             jclass isa = env->FindClass("cn/kkmofang/ker/Native");
             jmethodID allocJSObject = env->GetStaticMethodID(isa,"allocJSObject","(J)Lcn/kkmofang/ker/JSObject;");
-            v = env->CallStaticObjectMethod(isa,allocJSObject,(jlong) jsObject);
+            v = env->CallStaticObjectMethod(isa,allocJSObject,(jlong) jsObject.get());
             env->DeleteLocalRef(isa);
         }
     } else {
@@ -654,41 +656,50 @@ duk_ret_t JObjectInvoke(JNIEnv * env,jobject object,jmethodID method,kk::CString
             }
         } else {
 
+            duk_ret_t r = 0;
+
             switch (* p) {
                 case 'Z':
                     duk_push_boolean(ctx,env->CallBooleanMethodA(object,method,vs.data()));
-                    return 1;
+                    r = 1;
+                    break;
                 case 'B':
                     duk_push_int(ctx,env->CallByteMethodA(object,method,vs.data()));
-                    return 1;
+                    r = 1;
+                    break;
                 case 'C':
                     duk_push_int(ctx,env->CallCharMethodA(object,method,vs.data()));
-                    return 1;
+                    r = 1;
+                    break;
                 case 'S':
                     duk_push_int(ctx,env->CallShortMethodA(object,method,vs.data()));
-                    return 1;
+                    r = 1;
+                    break;
                 case 'I':
                     duk_push_int(ctx,env->CallIntMethodA(object,method,vs.data()));
-                    return 1;
+                    r = 1;
+                    break;
                 case 'J':
                     duk_push_int(ctx,env->CallLongMethodA(object,method,vs.data()));
-                    return 1;
+                    r = 1;
+                    break;
                 case 'F':
                     duk_push_number(ctx,env->CallFloatMethodA(object,method,vs.data()));
-                    return 1;
+                    r = 1;
+                    break;
                 case 'D':
                     duk_push_number(ctx,env->CallDoubleMethodA(object,method,vs.data()));
-                    return 1;
+                    r = 1;
+                    break;
                 case 'L':
                 {
                     jobject v = env->CallObjectMethodA(object,method,vs.data());
-                    if(v == nullptr){
-                        return 0;
-                    } else {
+                    if(v != nullptr){
                         duk_push_JObject(ctx,v);
                         env->DeleteLocalRef(v);
-                        return 1;
+                        r = 1;
                     }
+                    break;
                 }
                 case 'V':
                     env->CallVoidMethodA(object,method,vs.data());
@@ -699,7 +710,14 @@ duk_ret_t JObjectInvoke(JNIEnv * env,jobject object,jmethodID method,kk::CString
 
             }
 
-            break;
+            auto i = objects.begin();
+
+            while(i != objects.end()) {
+                env->DeleteLocalRef(*i);
+                i ++;
+            }
+
+            return r;
         }
 
         p ++;

@@ -75,6 +75,34 @@ static const kk::Class * Class() { \
     return & isa; \
 };
 
+    class Object;
+    
+    class Atomic {
+    public:
+        Atomic();
+        virtual ~Atomic();
+        virtual void lock();
+        virtual void unlock();
+        virtual void addObject(Object * object);
+        static Atomic * current();
+    protected:
+        pthread_mutex_t _lock;
+        pthread_mutex_t _objectLock;
+        std::queue<Object *> _objects;
+    };
+    
+    class Zombies {
+    public:
+        virtual void alloc(Object * object) = 0;
+        virtual void dealloc(Object * object) = 0;
+        virtual void retain(Object * object) = 0;
+        virtual void release(Object * object) = 0;
+        virtual void weak(Object * object, Object ** ptr) = 0;
+        virtual void unWeak(Object * object, Object ** ptr) = 0;
+        virtual void dump() = 0;
+        static Zombies * current();
+    };
+    
     class Object {
         
     private:
@@ -106,19 +134,7 @@ static const kk::Class * Class() { \
         };
     };
     
-    class Atomic {
-    public:
-        Atomic();
-        virtual ~Atomic();
-        virtual void lock();
-        virtual void unlock();
-        virtual void addObject(Object * object);
-        static Atomic * current();
-    protected:
-        pthread_mutex_t _lock;
-        pthread_mutex_t _objectLock;
-        std::queue<Object *> _objects;
-    };
+   
     
     class ArrayBuffer : public Object {
     public:
@@ -324,7 +340,7 @@ static const kk::Class * Class() { \
 
     class Any {
     public:
-        Any(void);
+        Any();
         Any(Function * v);
         Any(Object * v);
         Any(Int8 v);

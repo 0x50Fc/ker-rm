@@ -1,11 +1,12 @@
 package cn.kkmofang.ker;
 
+import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.view.View;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Created by zhanghailong on 2018/12/12.
@@ -21,8 +22,9 @@ public class Page implements PageView.PageListener{
         if(_layoutWidth != width || _layoutHeight != height) {
             _layoutWidth = width;
             _layoutHeight = height;
-            if(_ptr != 0) {
-                setSize(_ptr, _layoutWidth, _layoutHeight);
+            if(_ptr != 0 && _app != null) {
+                DisplayMetrics metrics = _app.activity().getResources().getDisplayMetrics();
+                setSize(_ptr, (int) (_layoutWidth / metrics.density), (int) (_layoutHeight / metrics.density));
             }
         }
     }
@@ -54,6 +56,7 @@ public class Page implements PageView.PageListener{
     private long _jsContext;
     private App _app;
     private PageView _view;
+    private final Handler _handler;
 
     public long ptr() {
         return _ptr;
@@ -65,6 +68,7 @@ public class Page implements PageView.PageListener{
         _app = app;
         _view = view;
         _view.setPageListener(this);
+        _handler = new Handler();
         openlib(_jsContext,this);
     }
 
@@ -86,11 +90,17 @@ public class Page implements PageView.PageListener{
         }
     }
 
-    public void close(boolean animated) {
+    public void close(final boolean animated) {
         if(_listener != null) {
-            Listener v = _listener.get();
+            final Listener v = _listener.get();
             if(v != null) {
-                v.onClose(animated);
+                _handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        v.onClose(animated);
+                    }
+                });
+
             }
         }
     }

@@ -10,11 +10,11 @@ namespace kk {
 
     namespace ui {
 
-        OSCanvas::OSCanvas(DispatchQueue * queue):OSCanvas(queue, nullptr) {
+        OSCanvas::OSCanvas(DispatchQueue * queue):OSCanvas(queue, nullptr, 0 , 0 ) {
 
         }
 
-        OSCanvas::OSCanvas(DispatchQueue * queue, jobject object):Canvas(queue),_width(0),_height(0),_resize(false),_object(nullptr) {
+        OSCanvas::OSCanvas(DispatchQueue * queue, jobject object, kk::Uint width,kk::Uint height):Canvas(queue),_width(width),_height(height),_resize(false),_object(nullptr) {
 
             if(object) {
 
@@ -22,20 +22,7 @@ namespace kk {
 
                 JNIEnv *env = kk_env(&isAttach);
 
-                jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
                 _object = env->NewGlobalRef(object);
-
-                jmethodID getViewWidth = env->GetStaticMethodID(isa,"getViewWidth","(Ljava/lang/Object;)I");
-                jmethodID getViewHeight = env->GetStaticMethodID(isa,"getViewHeight","(Ljava/lang/Object;)I");
-
-                jint width = env->CallStaticIntMethod(isa,getViewWidth,object);
-                jint height = env->CallStaticIntMethod(isa,getViewHeight,object);
-
-                setWidth((kk::Uint) width);
-                setHeight((kk::Uint) height);
-
-                env->DeleteLocalRef(isa);
 
                 if(isAttach) {
                     gJavaVm->DetachCurrentThread();

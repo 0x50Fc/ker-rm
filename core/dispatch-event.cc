@@ -10,13 +10,15 @@
 namespace kk {
 
 
+    static pthread_key_t kGCDDispatchQueueKey = 0;
+
     static void * LibeventDispatchQueueRunnable(void * userData);
     static void LibeventDispatchQueueLoop(evutil_socket_t fd, short ev, void * userData);
 
     class LibeventDispatchQueue : public DispatchQueue {
     public:
 
-        LibeventDispatchQueue(kk::CString name,DispatchQueueType type) {
+        LibeventDispatchQueue(kk::CString name) {
             _base = event_base_new();
             pthread_mutex_init(&_lock, nullptr);
             setup();
@@ -28,6 +30,12 @@ namespace kk {
             _base = event_base_new();
             pthread_mutex_init(&_lock, nullptr);
             setup();
+            if(kGCDDispatchQueueKey == 0) {
+                pthread_key_create(&kGCDDispatchQueueKey, nullptr);
+            }
+            assert(pthread_getspecific(kGCDDispatchQueueKey) == nullptr);
+            pthread_setspecific(kGCDDispatchQueueKey,this);
+
         }
 
         virtual ~LibeventDispatchQueue(){
@@ -49,22 +57,27 @@ namespace kk {
 
         virtual void sync(std::function<void()> && func) {
 
-            pthread_cond_t v;
-
-            pthread_cond_init(&v, nullptr);
-
-            pthread_mutex_lock(&_lock);
-
-            _funcs.push([&func,&v]()->void{
+            if((DispatchQueue *) this == getCurrentDispatchQueue()) {
                 func();
-                pthread_cond_broadcast(&v);
-            });
+            } else {
+                pthread_cond_t v;
 
-            pthread_cond_wait(&v,&_lock);
+                pthread_cond_init(&v, nullptr);
 
-            pthread_mutex_unlock(&_lock);
+                pthread_mutex_lock(&_lock);
 
-            pthread_cond_destroy(&v);
+                _funcs.push([&func,&v]()->void{
+                    func();
+                    pthread_cond_broadcast(&v);
+                });
+
+                pthread_cond_wait(&v,&_lock);
+
+                pthread_mutex_unlock(&_lock);
+
+                pthread_cond_destroy(&v);
+            }
+
 
         }
 
@@ -90,7 +103,7 @@ namespace kk {
             if(fn != nullptr) {
                 fn();
             } else {
-                tv.tv_usec = 17 * 1000000;
+                tv.tv_usec = 17 * 1000;
             }
 
             evtimer_add(_event,&tv);
@@ -100,7 +113,7 @@ namespace kk {
 
         virtual void setup() {
             _event = evtimer_new(_base,LibeventDispatchQueueLoop,this);
-            struct timeval tv = {0,17 * 1000000};
+            struct timeval tv = {0,17 * 1000};
             evtimer_add(_event,&tv);
         }
 
@@ -118,13 +131,27 @@ namespace kk {
 
     static void * LibeventDispatchQueueRunnable(void * userData) {
         LibeventDispatchQueue * queue = (LibeventDispatchQueue *) userData;
+
+        if(kGCDDispatchQueueKey == 0) {
+            pthread_key_create(&kGCDDispatchQueueKey, nullptr);
+        }
+
+        pthread_setspecific(kGCDDispatchQueueKey,queue);
+
         event_base * base = queue->base();
         event_base_dispatch(base);
         return nullptr;
     }
 
-    kk::Strong<DispatchQueue> createDispatchQueue(kk::CString name,DispatchQueueType type) {
-        return new LibeventDispatchQueue(name,type);
+    DispatchQueue * getCurrentDispatchQueue() {
+        if(kGCDDispatchQueueKey != 0) {
+            return (DispatchQueue *) pthread_getspecific(kGCDDispatchQueueKey);
+        }
+        return nullptr;
+    }
+
+    kk::Strong<DispatchQueue> createDispatchQueue(kk::CString name) {
+        return new LibeventDispatchQueue(name);
     }
 
     DispatchQueue * mainDispatchQueue() {
@@ -187,13 +214,14 @@ namespace kk {
                 event_free(_fd);
                 _fd = nullptr;
             }
+            _event = nullptr;
         }
 
         virtual void setTimer(kk::Uint64 delay,kk::Uint64 interval) {
-            _tv.tv_sec = delay / 1000;
-            _tv.tv_usec = (delay % 1000) * 1000000;
-            _interval.tv_sec = interval / 1000;
-            _interval.tv_usec = (interval % 1000) * 1000000;
+            _tv.tv_sec = delay / 1000LL;
+            _tv.tv_usec = (delay % 1000LL) * 1000LL;
+            _interval.tv_sec = interval / 1000LL;
+            _interval.tv_usec = (interval % 1000LL) * 1000LL;
         }
 
         virtual void setEvent(std::function<void()> && func) {
@@ -201,15 +229,25 @@ namespace kk {
         }
 
         virtual void onEvent() {
+
             if(_event != nullptr) {
+
+                retain();
+
                 std::function<void()> fn = _event;
+
                 fn();
-            }
-            if(_type == DispatchSourceTypeTimer) {
-                if((_interval.tv_usec > 0 || _interval.tv_sec > 0) && _isResume) {
-                    evtimer_add(_fd,&_interval);
+
+                if( _type == DispatchSourceTypeTimer) {
+                    if(_fd != nullptr && (_interval.tv_usec > 0 || _interval.tv_sec > 0) && _isResume) {
+                        evtimer_add(_fd,&_interval);
+                    }
                 }
+
+                release();
+
             }
+
         }
 
     protected:
@@ -236,7 +274,8 @@ namespace kk {
     DispatchQueue * IODispatchQueue() {
         static DispatchQueue * v = nullptr;
         if(v == nullptr) {
-            v = new LibeventDispatchQueue("kk::IODispatchQueue",DispatchQueueTypeSerial);
+            v = new LibeventDispatchQueue("kk::IODispatchQueue");
+            v->retain();
         }
         return v;
     }

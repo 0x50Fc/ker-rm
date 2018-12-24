@@ -139,7 +139,6 @@ public class Session {
         }
 
 
-
         @Override
         public long id() {
             return _id;
@@ -151,11 +150,11 @@ public class Session {
         }
 
         protected void onError(Throwable ex) {
-
             if(_cb != null) {
                 _cb.onError(ex);
             }
         }
+
 
         protected void onResponse(Response resp) throws Throwable {
 

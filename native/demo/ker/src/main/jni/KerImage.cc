@@ -103,12 +103,12 @@ namespace kk {
                     jclass isa = env->FindClass("cn/kkmofang/ker/Native");
 
                     jmethodID getImageWidth = env->GetStaticMethodID(isa,"getImageWidth","(Ljava/lang/Object;)I");
-
-                    _width = (kk::Uint) env->CallStaticIntMethod(isa,getImageWidth,_object);
-
                     jmethodID getImageHeight = env->GetStaticMethodID(isa,"getImageHeight","(Ljava/lang/Object;)I");
 
+                    _width = (kk::Uint) env->CallStaticIntMethod(isa,getImageWidth,_object);
                     _height = (kk::Uint) env->CallStaticIntMethod(isa,getImageHeight,_object);
+
+                    env->DeleteLocalRef(isa);
 
                 } else {
                     _width = 0;
@@ -181,6 +181,8 @@ namespace kk {
             if(basePath) {
                 env->DeleteLocalRef(basePath);
             }
+
+            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();

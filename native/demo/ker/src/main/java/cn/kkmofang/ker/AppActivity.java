@@ -5,7 +5,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,30 +136,48 @@ public class AppActivity extends Activity implements IAppActivity {
 
     }
 
+    protected void onSaveInstanceState(Bundle outState) {
+
+    }
+
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+
     private List<Fragment> _showFragments = new ArrayList<>();
 
     @SuppressLint("ResourceType")
     @Override
     public void show(Fragment fragment,boolean animated) {
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction tr = fm.beginTransaction().add(R.id.ker_contentView, fragment);
-        if(animated) {
-            tr.setCustomAnimations(R.anim.show, 0);
+        try {
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction tr = fm.beginTransaction().add(R.id.ker_contentView, fragment);
+            if (animated) {
+                tr.setCustomAnimations(R.anim.show, 0);
+            }
+            tr.commit();
+            _showFragments.add(fragment);
         }
-        tr.commit();
-        _showFragments.add(fragment);
+        catch (Throwable e) {
+            Log.e("ker",Log.getStackTraceString(e));
+        }
     }
 
     @SuppressLint("ResourceType")
     @Override
     public void close(Fragment fragment,boolean animated) {
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction tr = fm.beginTransaction().remove(fragment);
-        if(animated) {
-            tr.setCustomAnimations(R.anim.hide, 0);
+        try {
+            FragmentManager fm = getFragmentManager();
+            FragmentTransaction tr = fm.beginTransaction().remove(fragment);
+            if(animated) {
+                //tr.setCustomAnimations(R.anim.hide, 0);
+            }
+            tr.commit();
+            _showFragments.remove(fragment);
         }
-        tr.commit();
-        _showFragments.remove(fragment);
+        catch (Throwable e) {
+            Log.e("ker",Log.getStackTraceString(e));
+        }
     }
 
     public void onBackPressed() {

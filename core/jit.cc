@@ -491,6 +491,11 @@ namespace kk {
         
         JITContext::current()->weak(ctx, heapptr, this);
         
+        _queue = getCurrentDispatchQueue();
+        
+        if(_queue.get() != mainDispatchQueue()) {
+            kk::Log("");
+        }
     }
     
     void Error(duk_context * ctx, duk_idx_t idx, kk::CString prefix) {
@@ -510,29 +515,38 @@ namespace kk {
         }
     }
     
+    DispatchQueue * JSObject::queue() {
+        return _queue;
+    }
+    
     JSObject::~JSObject() {
         
-        if(_ctx) {
+        duk_context * ctx = _ctx;
+        Object * object = this;
+        
+        if(ctx) {
             
-            void * heapptr = JITContext::current()->get(this, _ctx);
-            
-            if(heapptr) {
+            _queue->sync([ctx,object]()->void{
                 
-                duk_context * ctx = _ctx;
+                void * heapptr = JITContext::current()->get(object, ctx);
                 
-                duk_push_heapptr(ctx, heapptr);
-                duk_push_undefined(ctx);
-                duk_set_finalizer(ctx, -2);
-                duk_pop(ctx);
+                if(heapptr) {
+                    
+                    duk_push_heapptr(ctx, heapptr);
+                    duk_push_undefined(ctx);
+                    duk_set_finalizer(ctx, -2);
+                    duk_pop(ctx);
+                    
+                    duk_push_heap_stash(ctx);
+                    duk_push_sprintf(ctx, "0x%x",(long) heapptr);
+                    duk_del_prop(ctx, -2);
+                    duk_pop(ctx);
+                    
+                }
                 
-                duk_push_heap_stash(ctx);
-                duk_push_sprintf(ctx, "0x%x",(long) heapptr);
-                duk_del_prop(ctx, -2);
-                duk_pop(ctx);
+                JITContext::current()->remove(object);
                 
-            }
-            
-            JITContext::current()->remove(this);
+            });
             
         }
 

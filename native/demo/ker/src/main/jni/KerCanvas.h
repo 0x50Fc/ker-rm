@@ -17,7 +17,7 @@ namespace kk {
 
             OSCanvas(DispatchQueue * queue);
 
-            OSCanvas(DispatchQueue * queue, jobject object);
+            OSCanvas(DispatchQueue * queue, jobject object, kk::Uint width,kk::Uint height);
 
             virtual ~OSCanvas();
 

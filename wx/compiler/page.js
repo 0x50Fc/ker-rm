@@ -251,7 +251,7 @@ function compileAttributes(attrs, vs) {
 Page.prototype = Object.create(Object.prototype, {
     compile: {
         value: function () {
-
+            mkdirs(path.dirname(this.path.page));
             fs.writeFileSync(this.path.page, 'require("wx/wx.page.js")({path: path,query: query}, ' + JSON.stringify(path.relative(this.basePath, this.base)) + ', page, app);');
             var vs = [];
             vs.push('<style type="text/css">\n');

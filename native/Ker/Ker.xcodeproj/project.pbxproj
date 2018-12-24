@@ -43,6 +43,7 @@
 		1AA4AC4321BFBC3A00C636F5 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3721BFBC3A00C636F5 /* ioapi.h */; };
 		1AA4AC4421BFBC3A00C636F5 /* crypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3821BFBC3A00C636F5 /* crypt.h */; };
 		1AA4AC4721C21B2A00C636F5 /* crypto.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC4621C21B2A00C636F5 /* crypto.cc */; };
+		1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CBE21CB7AC80055C932 /* zombies.cc */; };
 		1AF0658D219D516000F8F7A8 /* Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0658B219D516000F8F7A8 /* Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */; };
 		1AF065A4219D518200F8F7A8 /* bio.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06595219D518200F8F7A8 /* bio.h */; };
@@ -144,6 +145,7 @@
 		1AA4AC3821BFBC3A00C636F5 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crypt.h; path = ../../lib/minizip/crypt.h; sourceTree = SOURCE_ROOT; };
 		1AA4AC4521C21A9400C636F5 /* crypto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = crypto.h; sourceTree = "<group>"; };
 		1AA4AC4621C21B2A00C636F5 /* crypto.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = crypto.cc; sourceTree = "<group>"; };
+		1AE91CBE21CB7AC80055C932 /* zombies.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = zombies.cc; sourceTree = "<group>"; };
 		1AF06588219D516000F8F7A8 /* Ker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF0658B219D516000F8F7A8 /* Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ker.h; sourceTree = "<group>"; };
 		1AF0658C219D516000F8F7A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -333,6 +335,7 @@
 				1AA4AC0821BF5B3600C636F5 /* sqlite.cc */,
 				1AA4AC4521C21A9400C636F5 /* crypto.h */,
 				1AA4AC4621C21B2A00C636F5 /* crypto.cc */,
+				1AE91CBE21CB7AC80055C932 /* zombies.cc */,
 			);
 			name = core;
 			path = ../../../core;
@@ -539,6 +542,7 @@
 				1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */,
 				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
 				1AA4AB6E21BE344700C636F5 /* Package.mm in Sources */,
+				1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */,
 				1AA4AC4721C21B2A00C636F5 /* crypto.cc in Sources */,
 				1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */,
 				1AF065EB219D54E600F8F7A8 /* KerPageViewController.m in Sources */,
@@ -738,6 +742,7 @@
 					"@loader_path/Frameworks",
 				);
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DKER_ZOMBIES";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.Ker;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -769,6 +774,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.Ker;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;

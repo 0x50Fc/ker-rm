@@ -146,6 +146,7 @@ public class WXHttp {
                         task.onResponseHeader(header);
                     }
                 });
+
             }
 
             @Override

@@ -66,11 +66,11 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/KerCanvas");
+            jclass isa = env->GetObjectClass(_object);
 
             jmethodID save = env->GetMethodID(isa,"save","()I");
 
-            env->CallIntMethod(isa,save);
+            env->CallIntMethod(_object,save);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -84,11 +84,11 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/KerCanvas");
+            jclass isa = env->GetObjectClass(_object);
 
             jmethodID restore = env->GetMethodID(isa,"restore","()V");
 
-            env->CallVoidMethod(isa,restore);
+            env->CallVoidMethod(_object,restore);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -110,18 +110,73 @@ namespace kk {
 
         void OSCGContext::clearRect(Float x, Float y,Float width,Float height) {
 
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jclass isa = env->GetObjectClass(_object);
+
+            jmethodID clearRect = env->GetMethodID(isa,"clearRect","(IIII)V");
+
+            env->CallVoidMethod(_object,clearRect,(jint) x,(jint) y,(jint) width,(jint) height);
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
         }
 
         void OSCGContext::fill() {
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jclass isa = env->GetObjectClass(_object);
+
+            jmethodID fill = env->GetMethodID(isa,"fill","()V");
+
+            env->CallVoidMethod(_object,fill);
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
 
         }
 
         void OSCGContext::stroke() {
 
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jclass isa = env->GetObjectClass(_object);
+
+            jmethodID stroke = env->GetMethodID(isa,"stroke","()V");
+
+            env->CallVoidMethod(_object,stroke);
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
         }
 
         void OSCGContext::beginPath() {
 
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jclass isa = env->GetObjectClass(_object);
+
+            jmethodID beginPath = env->GetMethodID(isa,"beginPath","()V");
+
+            env->CallVoidMethod(_object,beginPath);
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
         }
 
         void OSCGContext::moveTo(Float x,Float y) {
@@ -149,6 +204,20 @@ namespace kk {
         }
 
         void OSCGContext::arc(Float x,Float y,Float r, Float sAngle,Float eAngle,Boolean counterclockwise) {
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jclass isa = env->GetObjectClass(_object);
+
+            jmethodID arc = env->GetMethodID(isa,"arc","(FFFFFZ)V");
+
+            env->CallVoidMethod(_object,arc,x,y,r,sAngle,eAngle,counterclockwise);
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
 
         }
 
@@ -206,6 +275,20 @@ namespace kk {
 
         void OSCGContext::setFillColor(Color color) {
             _fillColor = color;
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jclass isa = env->GetObjectClass(_object);
+
+            jmethodID setFillColor = env->GetMethodID(isa,"setFillColor","(I)V");
+
+            env->CallVoidMethod(_object,setFillColor,(jint) color.intValue());
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
         }
 
         Color OSCGContext::fillColor() {
@@ -222,6 +305,21 @@ namespace kk {
 
         void OSCGContext::setStrokeColor(Color color) {
             _strokeColor = color;
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jclass isa = env->GetObjectClass(_object);
+
+            jmethodID setStrokeColor = env->GetMethodID(isa,"setStrokeColor","(I)V");
+
+            env->CallVoidMethod(_object,setStrokeColor,(jint) color.intValue());
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
         }
 
         Color OSCGContext::strokeColor() {

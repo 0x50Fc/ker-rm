@@ -9,18 +9,37 @@
 #include <core/dispatch.h>
 #include <future>
 #include <dispatch/dispatch.h>
+#include <pthread.h>
 
 namespace kk {
+    
+    class GCDDispatchQueue;
+    
+    static pthread_key_t kGCDDispatchQueueKey = 0;
+    
     
     class GCDDispatchQueue : public DispatchQueue {
     public:
         
-        GCDDispatchQueue(kk::CString name,DispatchQueueType type) {
-            _queue = ::dispatch_queue_create(name, type == DispatchQueueTypeSerial ? DISPATCH_QUEUE_SERIAL : DISPATCH_QUEUE_CONCURRENT);
+        GCDDispatchQueue(kk::CString name) {
+            _queue = ::dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL);
+            if(kGCDDispatchQueueKey == 0) {
+                pthread_key_create(&kGCDDispatchQueueKey, nullptr);
+            }
+            GCDDispatchQueue * v = this;
+            dispatch_async(_queue, ^{
+                assert(pthread_getspecific(kGCDDispatchQueueKey) == nullptr);
+                pthread_setspecific(kGCDDispatchQueueKey, v);
+            });
         }
         
         GCDDispatchQueue(::dispatch_queue_t queue) {
             _queue = queue;
+            if(kGCDDispatchQueueKey == 0) {
+                pthread_key_create(&kGCDDispatchQueueKey, nullptr);
+            }
+            assert(pthread_getspecific(kGCDDispatchQueueKey) == nullptr);
+            pthread_setspecific(kGCDDispatchQueueKey, this);
         }
         
         virtual ~GCDDispatchQueue(){
@@ -39,9 +58,13 @@ namespace kk {
             
         }
         virtual void sync(std::function<void()> && func) {
-            ::dispatch_sync(_queue, ^{
+            if(this == getCurrentDispatchQueue()) {
                 func();
-            });
+            } else {
+                ::dispatch_sync(_queue, ^{
+                    func();
+                });
+            }
         }
         virtual ::dispatch_queue_t queue() {
             return _queue;
@@ -50,18 +73,23 @@ namespace kk {
         ::dispatch_queue_t _queue;
     };
 
+    DispatchQueue * getCurrentDispatchQueue() {
+        if(kGCDDispatchQueueKey != 0) {
+            return (DispatchQueue *) pthread_getspecific(kGCDDispatchQueueKey);
+        }
+        return nullptr;
+    }
     
-    kk::Strong<DispatchQueue> createDispatchQueue(kk::CString name,DispatchQueueType type) {
-        return new GCDDispatchQueue(name,type);
+    kk::Strong<DispatchQueue> createDispatchQueue(kk::CString name) {
+        return new GCDDispatchQueue(name);
     }
     
     DispatchQueue * mainDispatchQueue() {
         static DispatchQueue * v = nullptr;
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
+        if(v == nullptr){
             v = new kk::GCDDispatchQueue(dispatch_get_main_queue());
             v->retain();
-        });
+        }
         return v;
     }
     
@@ -143,7 +171,7 @@ namespace kk {
         static DispatchQueue * v = nullptr;
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            v = new kk::GCDDispatchQueue("kk::IODispatchQueue",DispatchQueueTypeSerial);
+            v = new kk::GCDDispatchQueue("kk::IODispatchQueue");
             v->retain();
         });
         return v;

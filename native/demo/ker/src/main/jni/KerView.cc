@@ -112,7 +112,7 @@ namespace kk {
                 gJavaVm->DetachCurrentThread();
             }
 
-            kk::Log("[OSView] [dealloc]");
+            kk::Log("[OSView] [dealloc] 0x%x",pthread_self());
         }
 
         void OSView::set(kk::CString name,kk::CString value) {
@@ -145,6 +145,8 @@ namespace kk {
         }
 
         void OSView::setFrame(Rect & frame) {
+
+            _frame = frame;
 
             jboolean isAttach = false;
 
@@ -240,20 +242,22 @@ namespace kk {
         kk::Strong<Canvas> OSView::createCanvas(Worker * worker) {
 
             if(worker == nullptr || worker->context() == nullptr) {
-                return new OSCanvas(mainDispatchQueue(),_view);
+                return new OSCanvas(mainDispatchQueue(),_view,(kk::Uint) _frame.size.width,(kk::Uint) _frame.size.height);
             }
 
             kk::Strong<Worker> w = worker;
             kk::Weak<OSView> view = this;
+            kk::Uint width = (kk::Uint) _frame.size.width;
+            kk::Uint height = (kk::Uint) _frame.size.height;
 
-            worker->context()->queue()->async([w,view]()->void{
+            worker->context()->queue()->async([w,view,width,height]()->void{
 
                 kk::Strong<OSView> vw = view.operator->();
                 kk::Strong<Worker> v = w.operator->();
 
                 if(v != nullptr && v->context() != nullptr && vw != nullptr) {
 
-                    kk::Any c = new OSCanvas(v->context()->queue(),vw->_view);
+                    kk::Any c = new OSCanvas(v->context()->queue(),vw->_view,width,height);
 
                     JITContext::current()->forEach(v.get(), [&c](duk_context * ctx,void * heapptr)->void{
 
@@ -567,6 +571,8 @@ namespace kk {
                 v = new OSView(object,configuration,context);
                 env->DeleteLocalRef(object);
             }
+
+            env->DeleteLocalRef(name_);
 
             env->DeleteLocalRef(isa);
 

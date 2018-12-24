@@ -100,10 +100,10 @@ public final class JSContext {
     private static native void PushJSObject(long jsContext,long jsObject);
 
     public static void PushJSObject(long jsContext,JSObject jsObject) {
-        if(jsObject == null ||jsObject.kerObject == 0) {
+        if(jsObject == null || jsObject.ptr() == 0) {
             PushUndefined(jsContext);
         } else {
-            PushJSObject(jsContext, jsObject.kerObject);
+            PushJSObject(jsContext, jsObject.ptr());
         }
     }
 

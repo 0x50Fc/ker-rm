@@ -76,8 +76,10 @@ static NSString * gKerAppUserAgent = nil;
 
 +(NSString *) userAgent {
     if(gKerAppUserAgent == nil) {
-        UIWebView * view = [[UIWebView alloc] init];
-        gKerAppUserAgent = [view stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        @autoreleasepool {
+            UIWebView * view = [[UIWebView alloc] init];
+            gKerAppUserAgent = [view stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        }
     }
     return gKerAppUserAgent;
 }
@@ -136,6 +138,10 @@ static NSString * gKerAppUserAgent = nil;
     if(_app != nullptr) {
         _app->off();
         _app->release();
+        kk::Zombies * z = kk::Zombies::current();
+        if(z != nullptr) {
+            z->dump();
+        }
     }
 }
 
@@ -377,6 +383,10 @@ static NSString * gKerAppUserAgent = nil;
         _app->off();
         _app->release();
         _app = nullptr;
+        kk::Zombies * z = kk::Zombies::current();
+        if(z != nullptr) {
+            z->dump();
+        }
     }
 }
 

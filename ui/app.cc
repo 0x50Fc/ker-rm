@@ -72,6 +72,8 @@ namespace kk {
         
         void App::Openlib() {
             
+            mainDispatchQueue();
+            
             kk::OpenBaselib();
             kk::Event::Openlib();
             kk::EventEmitter::Openlib();

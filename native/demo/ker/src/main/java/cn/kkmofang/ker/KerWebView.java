@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -187,6 +188,7 @@ public class KerWebView extends WebView implements IKerView {
             }
 
         },"ker");
+
     }
 
     @Override
@@ -279,5 +281,28 @@ public class KerWebView extends WebView implements IKerView {
         return this;
     }
 
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+
+        int count = getChildCount();
+
+        for(int i=0;i<count;i++) {
+
+            View v = getChildAt(i);
+
+            if(v != null && v.getVisibility() == View.VISIBLE) {
+
+                Rect frame = (Rect) v.getTag(R.id.ker_frame);
+
+                if(frame != null) {
+                    v.layout(frame.x,frame.y,frame.x + frame.width,frame.y + frame.height);
+                } else {
+                    v.layout(l,t,r,b);
+                }
+
+            }
+
+        }
+    }
 
 }

@@ -54,6 +54,7 @@ namespace kk {
 
         protected:
             jobject _view;
+            Rect _frame;
             kk::Strong<kk::TFunction<void, kk::CString, Event *>> _onImageLoadFunc;
         };
 

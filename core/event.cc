@@ -97,6 +97,9 @@ namespace kk {
                         }
                         n ++ ;
                     }
+                    if(vs.size() == 0) {
+                        _prefixs.erase(i);
+                    }
                 }
             }
         } else {
@@ -113,6 +116,9 @@ namespace kk {
                             continue;
                         }
                         n ++ ;
+                    }
+                    if(vs.size() == 0) {
+                        _events.erase(i);
                     }
                 }
             }

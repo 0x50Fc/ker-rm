@@ -3,6 +3,7 @@ package cn.kkmofang.ker;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -39,7 +40,8 @@ public class KerTextView extends View implements IKerView,KerText.TextContent {
             _text.paint.setColor(Ker.colorValue(value,0xff000000));
         } else if("font".equals(key)) {
             Font font = Ker.fontValue(value,new Font());
-            _text.paint.setTextSize(font.size);
+            DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+            _text.paint.setTextSize(font.size * metrics.density);
             _text.paint.setFakeBoldText(font.weight == Font.WEIGHT_BOLD);
         } else if("text-align".equals(key)) {
             if("center".equals(value)) {

@@ -16,11 +16,6 @@
 
 namespace kk {
     
-    enum DispatchQueueType {
-        DispatchQueueTypeSerial,
-        DispatchQueueTypeConcurrent
-    };
-    
     class DispatchQueue : public Object {
     public:
         virtual void async(std::function<void()> && func) = 0;
@@ -43,13 +38,16 @@ namespace kk {
         virtual void setEvent(std::function<void()> && func) = 0;
     };
     
-    kk::Strong<DispatchQueue> createDispatchQueue(kk::CString name,DispatchQueueType type);
+    kk::Strong<DispatchQueue> createDispatchQueue(kk::CString name);
     
     kk::Strong<DispatchSource> createDispatchSource(kk::Uint64 fd,DispatchSourceType type,DispatchQueue * queue);
     
     DispatchQueue * mainDispatchQueue();
     
     DispatchQueue * IODispatchQueue();
+    
+    DispatchQueue * getCurrentDispatchQueue();
+    
     
 }
 

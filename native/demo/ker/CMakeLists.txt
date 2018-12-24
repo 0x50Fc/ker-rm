@@ -47,6 +47,7 @@ add_library(ker
             src/main/jni/core/sqlite.cc
             src/main/jni/core/crypto.cc
             src/main/jni/core/dispatch-event.cc
+            src/main/jni/core/zombies.cc
             src/main/jni/ui/ui.cc
             src/main/jni/ui/view.cc
             src/main/jni/ui/app.cc

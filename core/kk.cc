@@ -12,9 +12,19 @@
 namespace kk {
     
     Object::Object(): _retainCount(0) {
+        Zombies * z = Zombies::current();
+        if(z != nullptr) {
+            z->alloc(this);
+        }
     }
     
     Object::~Object(){
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->dealloc(this);
+        }
         
         Atomic * a = Atomic::current();
         
@@ -43,6 +53,13 @@ namespace kk {
     }
     
     void Object::release() {
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->release(this);
+        }
+        
         Atomic * a = Atomic::current();
         if(a != nullptr) {
             a->lock();
@@ -61,6 +78,13 @@ namespace kk {
     }
     
     void Object::retain() {
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->retain(this);
+        }
+        
         Atomic * a = Atomic::current();
         if(a != nullptr) {
             a->lock();
@@ -76,7 +100,15 @@ namespace kk {
     }
     
     void Object::weak(Object ** ptr) {
+        
         assert(ptr != nullptr);
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->weak(this, ptr);
+        }
+        
         Atomic * a = Atomic::current();
         if(a != nullptr) {
             a->lock();
@@ -88,6 +120,13 @@ namespace kk {
     }
     
     void Object::unWeak(Object ** ptr) {
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->unWeak(this, ptr);
+        }
+        
         Atomic * a = Atomic::current();
         if(a != nullptr) {
             a->lock();
@@ -100,6 +139,12 @@ namespace kk {
             a->unlock();
         }
     }
+    
+#ifndef KER_ZOMBIES
+    Zombies * Zombies::current() {
+        return nullptr;
+    }
+#endif
     
     Atomic::Atomic(){
         pthread_mutex_init(&_lock, NULL);

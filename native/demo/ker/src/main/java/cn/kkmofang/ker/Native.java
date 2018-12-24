@@ -9,6 +9,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.MessageQueue;
 import android.text.Layout;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -19,6 +21,7 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.DynamicDrawableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
@@ -346,11 +349,13 @@ public final class Native {
     public static void viewSetFrame(Object view,long viewObject,float x,float y,float width,float height) {
 
         if(view instanceof View) {
+            Context context = ((View) view).getContext();
+            DisplayMetrics metrics = context.getResources().getDisplayMetrics();
             Rect frame = new Rect();
-            frame.x = (int) x;
-            frame.y = (int) y;
-            frame.width = (int) Math.ceil(width);
-            frame.height = (int) Math.ceil(height);
+            frame.x = (int) (x * metrics.density);
+            frame.y = (int) (y * metrics.density);
+            frame.width = (int) Math.ceil(width * metrics.density);
+            frame.height = (int) Math.ceil(height * metrics.density);
             ((View) view).setTag(R.id.ker_frame,frame);
             ViewParent p = ((View) view).getParent();
             if(p != null) {
@@ -366,7 +371,9 @@ public final class Native {
     public static void viewSetContentOffset(Object view,long viewObject,float x,float y,boolean animated) {
 
         if(view instanceof View) {
-            ((View) view).scrollTo((int) x,(int) y);
+            Context context = ((View) view).getContext();
+            DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+            ((View) view).scrollTo((int) (x * metrics.density),(int) (y * metrics.density));
         }
 
     }
@@ -374,7 +381,9 @@ public final class Native {
     public static float viewGetContentOffsetX(Object view,long viewObject) {
 
         if(view instanceof View) {
-            return ((View) view).getScrollX();
+            Context context = ((View) view).getContext();
+            DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+            return ((View) view).getScrollX() / metrics.density;
         }
         return 0;
     }
@@ -382,7 +391,9 @@ public final class Native {
     public static float viewGetContentOffsetY(Object view,long viewObject) {
 
         if(view instanceof View) {
-            return ((View) view).getScrollY();
+            Context context = ((View) view).getContext();
+            DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+            return ((View) view).getScrollY() / metrics.density;
         }
 
         return 0;
@@ -608,14 +619,14 @@ public final class Native {
 
             try {
                 Constructor<?> init = isa.getConstructor(Context.class);
-                view = (View ) init.newInstance(app.activity());
+                view = (View ) init.newInstance(app.activity().getApplicationContext());
             } catch (Throwable e) {
                 Log.d("ker",Log.getStackTraceString(e));
             }
         }
 
         if(view == null) {
-            view = new KerView(app.activity());
+            view = new KerView(app.activity().getApplicationContext());
         }
 
         if(view instanceof IKerView){
@@ -657,21 +668,21 @@ public final class Native {
         _viewClasss.put("UIView",KerView.class);
         _viewClasss.put("KerButton",KerButton.class);
         _viewClasss.put("WKWebView",KerWebView.class);
+        _viewClasss.put("UICanvasView",KerCanvasView.class);
     }
 
     public static void openlib() {
 
         final Handler v = new Handler();
 
-        v.postDelayed(new Runnable() {
+        v.post(new Runnable() {
             @Override
             public void run() {
                 loop();
-                v.postDelayed(this,1000 / 60);
+                v.post(this);
             }
-        },1000 / 60);
+        });
 
-        loop();
     }
 
     public static void getPackage(App app, final long ptr, String URI) {
@@ -708,18 +719,16 @@ public final class Native {
 
     public static void displayCanvas(KerCanvas canvas,Object view) {
 
-        if(view instanceof SurfaceView) {
-            SurfaceView s = (SurfaceView) view;
-            Canvas v = s.getHolder().lockCanvas();
-            v.drawBitmap(canvas.getBitmap(),
-                    new android.graphics.Rect(0,0,canvas.getWidth(),canvas.getHeight()),
-                    new android.graphics.Rect(0,0,((View) view).getWidth(),((View) view).getHeight()),
-                    new Paint(Paint.ANTI_ALIAS_FLAG));
-            s.getHolder().unlockCanvasAndPost(v);
+        if(view instanceof KerCanvasView) {
+            ((KerCanvasView) view).post(canvas.getDrawable());
         } else if(view instanceof View) {
             ((View) view).setBackground(canvas.getDrawable());
         }
 
+    }
+
+    public static void gc() {
+        Runtime.getRuntime().gc();
     }
 
     public native static void retain(long kerObject);

@@ -113,6 +113,7 @@ public class PageFragment extends Fragment implements Page.Listener{
 
         if(_page != null) {
             onWillPageUnLoad(_page);
+            _page.setListener(null);
             _page.recycle();
             _page = null;
         }

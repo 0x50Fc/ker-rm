@@ -319,13 +319,17 @@ namespace kk {
         
         Context::Context(kk::CString basePath,kk::DispatchQueue * queue):EventEmitter(), _basePath(basePath),_queue(queue) {
             _jsContext = duk_create_heap(nullptr, nullptr, nullptr, nullptr, Context_duk_fatal_function);
-            kk::Openlib<>::openlib(_jsContext);
-            kk::Openlib<kk::Container *>::openlib(_jsContext, this);
+            _queue->sync([this]()->void{
+                kk::Openlib<>::openlib(_jsContext);
+                kk::Openlib<kk::Container *>::openlib(_jsContext, this);
+            });
         }
         
         Context::~Context() {
-            JITContext::current()->remove(_jsContext);
-            duk_destroy_heap(_jsContext);
+            _queue->sync([this]()->void{
+                JITContext::current()->remove(_jsContext);
+                duk_destroy_heap(_jsContext);
+            });
         }
         
         void Context::set(kk::Object * object) {
@@ -539,7 +543,7 @@ namespace kk {
         
         Worker::Worker(Context * main,kk::CString path):_main(main),_context(nullptr),_queue(nullptr) {
             
-            _queue = createDispatchQueue("kk::ui::Worker", DispatchQueueTypeSerial);
+            _queue = createDispatchQueue("kk::ui::Worker");
             _queue->retain();
             
             kk::String p = path;

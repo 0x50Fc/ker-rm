@@ -46,16 +46,10 @@ namespace kk {
     void Timer::Openlib() {
         
         kk::Openlib<Container *>::add([](duk_context * ctx, Container * container)->void {
-            
-            Weak<Object> s = dynamic_cast<Object *>(container);
-            
-            PushFunction(ctx, new TFunction<kk::Uint64, JSObject *,kk::Int>([s](JSObject * func,kk::Int tv)->kk::Uint64{
-                
-                kk::Strong<Object> o = s.operator->();
-                
-                Container * container = dynamic_cast<Container *>(o.get());
-                
-                if(container != nullptr) {
+
+            PushFunction(ctx, new TFunction<kk::Uint64, JSObject *,kk::Int>([container](JSObject * func,kk::Int tv)->kk::Uint64{
+
+                if(container != nullptr && func != nullptr) {
                     kk::Strong<JSObject> fn = func;
                     Timer * v = new Timer(container->queue(),tv,0);
                     v->setEvent([fn,container,v]()->void{
@@ -73,12 +67,8 @@ namespace kk {
             
             duk_put_global_string(ctx, "setTimeout");
             
-            PushFunction(ctx, new TFunction<void, kk::Uint64>([s](kk::Uint64 id )->void{
-                
-                kk::Strong<Object> o = s.operator->();
-                
-                Container * container = dynamic_cast<Container *>(o.get());
-                
+            PushFunction(ctx, new TFunction<void, kk::Uint64>([container](kk::Uint64 id )->void{
+
                 if(container != nullptr && id != 0) {
                     
                     Timer * v = dynamic_cast<Timer *>(container->get((kk::Object *) id));
@@ -94,12 +84,8 @@ namespace kk {
         
             duk_put_global_string(ctx, "clearTimeout");
             
-            PushFunction(ctx, new TFunction<kk::Uint64, JSObject *,kk::Int>([s](JSObject * func,kk::Int tv)->kk::Uint64{
-                
-                kk::Strong<Object> o = s.operator->();
-                
-                Container * container = dynamic_cast<Container *>(o.get());
-                
+            PushFunction(ctx, new TFunction<kk::Uint64, JSObject *,kk::Int>([container](JSObject * func,kk::Int tv)->kk::Uint64{
+
                 if(container != nullptr) {
                     kk::Strong<JSObject> fn = func;
                     Timer * v = new Timer(container->queue(),tv,tv);
@@ -117,12 +103,8 @@ namespace kk {
             
             duk_put_global_string(ctx, "setInterval");
             
-            PushFunction(ctx, new TFunction<void, kk::Uint64>([s](kk::Uint64 id )->void{
-                
-                kk::Strong<Object> o = s.operator->();
-                
-                Container * container = dynamic_cast<Container *>(o.get());
-                
+            PushFunction(ctx, new TFunction<void, kk::Uint64>([container](kk::Uint64 id )->void{
+
                 if(container != nullptr && id != 0) {
                     
                     Timer * v = dynamic_cast<Timer *>(container->get((kk::Object *) id));

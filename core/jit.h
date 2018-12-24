@@ -14,6 +14,7 @@
 #include <tuple>
 #include <list>
 #include <set>
+#include <core/dispatch.h>
 
 namespace kk {
     
@@ -675,6 +676,7 @@ namespace kk {
         virtual void recycle();
         virtual duk_context * jsContext();
         virtual void * heapptr();
+        virtual DispatchQueue * queue();
         template<typename T,typename ... TArgs>
         T invoke(JSObject * object,TArgs ... args,typename std::enable_if<std::is_void<T>::value>::type* = 0) {
             
@@ -815,6 +817,7 @@ namespace kk {
         
     protected:
         duk_context * _ctx;
+        kk::Strong<DispatchQueue> _queue;
     };
     
     
