@@ -222,6 +222,11 @@ namespace kk {
                     CGContextClearRect(_ctx, CGRectMake(x, y, width, height));
                 }
                 
+                virtual void clear() {
+                    void * data = CGBitmapContextGetData(_ctx);
+                    memset(data, 0, _width * _height * 4);
+                }
+                
                 virtual void fill() {
                     
                     {

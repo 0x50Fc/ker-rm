@@ -24,12 +24,12 @@ module.exports = function (options, path, page, app, padding) {
             padding.top = 44;
         }
 
-        // if (typeof screen == 'object' && screen.density !== undefined) {
-        //     padding.top = padding.top * screen.density;
-        //     padding.left = padding.left * screen.density;
-        //     padding.bottom = padding.bottom * screen.density;
-        //     padding.right = padding.right * screen.density;
-        // }
+        if (typeof screen == 'object' && screen.density !== undefined) {
+            padding.top = padding.top * screen.density;
+            padding.left = padding.left * screen.density;
+            padding.bottom = padding.bottom * screen.density;
+            padding.right = padding.right * screen.density;
+        }
 
         view.set("background-color", options.backgroundColor || "#fff");
     }

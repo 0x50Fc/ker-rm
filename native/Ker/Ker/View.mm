@@ -39,7 +39,7 @@ namespace kk {
                 
             }
             
-            OSCanvas(DispatchQueue * queue, CFTypeRef view):Canvas(queue),_width(0),_height(0),_resize(false) {
+            OSCanvas(DispatchQueue * queue, CFTypeRef view):Canvas(queue),_resize(false) {
                 @autoreleasepool {
                     _view = view;
                     CFRetain(view);
@@ -86,7 +86,7 @@ namespace kk {
                         v = createCGContext(_width,_height);
                         _context = v;
                     } else {
-                        v->clearRect(0, 0, _width, _height);
+                        v->clear();
                     }
                     
                     if(_view != nil) {
@@ -117,6 +117,7 @@ namespace kk {
                 }
             }
             
+
             virtual Uint height() {
                 return _height;
             }
@@ -140,8 +141,6 @@ namespace kk {
             
         protected:
             CFTypeRef _view;
-            kk::Uint _width;
-            kk::Uint _height;
             kk::Boolean _resize;
             kk::Strong<Object> _context;
         };

@@ -46,14 +46,14 @@ if(platform == 'Android') {
     paddingTop = 44;
 }
 
-// if(typeof screen == 'object' && screen.density !== undefined) {
-//     barHeight = barHeight * screen.density;
-//     iconSize = iconSize * screen.density;
-//     paddingTop = paddingTop * screen.density;
-//     barBottom = barBottom * screen.density;
-//     fontSize = fontSize * screen.density;
-//     textHeight = textHeight * screen.density;
-// }
+if(typeof screen == 'object' && screen.density !== undefined) {
+    barHeight = barHeight * screen.density;
+    iconSize = iconSize * screen.density;
+    paddingTop = paddingTop * screen.density;
+    barBottom = barBottom * screen.density;
+    fontSize = fontSize * screen.density;
+    textHeight = textHeight * screen.density;
+}
 
 for (var i = 0; i < items.length; i++) {
     var item = items[i];

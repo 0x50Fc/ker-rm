@@ -42,6 +42,8 @@ namespace kk {
 
             virtual void clearRect(Float x, Float y,Float width,Float height);
 
+            virtual void clear();
+
             virtual void fill();
 
             virtual void stroke();

@@ -23,8 +23,7 @@ public class Page implements PageView.PageListener{
             _layoutWidth = width;
             _layoutHeight = height;
             if(_ptr != 0 && _app != null) {
-                DisplayMetrics metrics = _app.activity().getResources().getDisplayMetrics();
-                setSize(_ptr, (int) (_layoutWidth / metrics.density), (int) (_layoutHeight / metrics.density));
+                setSize(_ptr, _layoutWidth, _layoutHeight);
             }
         }
     }

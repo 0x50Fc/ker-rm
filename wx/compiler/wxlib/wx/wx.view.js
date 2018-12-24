@@ -69,7 +69,12 @@ Context.prototype = Object.create(Object.prototype, {
             if (v !== undefined) {
                 v = v.getContext('2d');
                 if (v !== undefined) {
-                    v.draw = function () { };
+                    if(v.draw === undefined) {
+                        if (typeof screen == 'object' && screen.density !== undefined) {
+                            v.scale(screen.density,screen.density);
+                        }
+                        v.draw = function () { };
+                    }
                 }
                 return v;
             }

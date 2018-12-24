@@ -65,7 +65,7 @@ namespace kk {
                     v = createCGContext(_width,_height);
                     _context = v;
                 } else {
-                    v->clearRect(0, 0, _width, _height);
+                    v->clear();
                 }
 
                 if(_object != nullptr) {

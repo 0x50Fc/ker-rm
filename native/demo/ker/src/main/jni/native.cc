@@ -13,22 +13,6 @@
 
 static pthread_t main_pid = 0;
 
-
-static char ZombieObjectB[8] = "CDCDCDC";
-static char ZombieObjectE[8] = "DEDEDED";
-
-void * operator new(size_t size) {
-    char * p = (char *) malloc(sizeof(ZombieObjectB) + size + sizeof(ZombieObjectE));
-    memcpy(p,ZombieObjectB,sizeof(ZombieObjectB));
-    memcpy(p + sizeof(ZombieObjectB) + size,ZombieObjectE,sizeof(ZombieObjectE));
-    return p + sizeof(ZombieObjectB);
-}
-
-void operator delete(void * p) {
-    char * v = (char *) p - sizeof(ZombieObjectB);
-    free(v);
-}
-
 namespace kk {
     extern event_base * GetDispatchQueueEventBase(DispatchQueue * queue);
 }

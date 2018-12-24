@@ -13,6 +13,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -52,11 +53,17 @@ public class KerWebView extends WebView implements IKerView {
 
         final WebViewConfiguration configuration = Native.getWebViewConfiguration(viewConfiguration);
 
-        getSettings().setAllowFileAccess(true);
-        getSettings().setAllowFileAccessFromFileURLs(true);
-        getSettings().setAllowUniversalAccessFromFileURLs(true);
-        getSettings().setJavaScriptEnabled(true);
-        getSettings().setDefaultTextEncodingName("UTF-8");
+        WebSettings settings = getSettings();
+
+        settings.setAllowFileAccess(true);
+        settings.setAllowFileAccessFromFileURLs(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
+        settings.setJavaScriptEnabled(true);
+        settings.setDefaultTextEncodingName("UTF-8");
+        settings.setSupportZoom(false);
+        settings.setBuiltInZoomControls(false);
+        settings.setDisplayZoomControls(false);
+        settings.setUseWideViewPort(true);
 
         setWebChromeClient(new WebChromeClient(){
 

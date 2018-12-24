@@ -1082,13 +1082,13 @@ exports.FormElement = FormElement;
 },{"./CheckboxElement":5,"./InputElement":16,"./PickerElement":23,"./RadioElement":26,"./SliderElement":29,"./SwitchElement":32,"./ViewElement":36,"./once":37}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-let messages = [];
+let readys = [];
 window.addEventListener("ker", function () {
     let w = window;
-    while (messages.length > 0) {
-        var data = messages.shift();
-        if (w.ker) {
-            w.ker.postMessage(JSON.stringify(data));
+    while (readys.length > 0) {
+        let func = readys.shift();
+        if (func !== undefined) {
+            func();
         }
     }
 });
@@ -1101,10 +1101,25 @@ function postMessage(data) {
         w.ker.postMessage(JSON.stringify(data));
     }
     else {
-        messages.push(data);
+        ready(() => {
+            w.ker.postMessage(JSON.stringify(data));
+        });
     }
 }
 exports.postMessage = postMessage;
+function ready(func) {
+    let w = window;
+    if (w.webkit && w.webkit.messageHandlers && w.webkit.messageHandlers.ker) {
+        func();
+    }
+    else if (w.ker) {
+        func();
+    }
+    else {
+        readys.push(func);
+    }
+}
+exports.ready = ready;
 
 },{}],14:[function(require,module,exports){
 "use strict";
@@ -1669,6 +1684,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
 const IPC_1 = require("./IPC");
 const once_1 = require("./once");
+const V_1 = require("./V");
 var _elements = {};
 function add(element) {
     _elements[element.id] = element;
@@ -1735,10 +1751,10 @@ class NViewElement extends ViewElement_1.ViewElement {
         IPC_1.postMessage({
             view: 'setFrame',
             id: this._id,
-            x: x,
-            y: y,
-            width: this._displayFrame.width,
-            height: this._displayFrame.height
+            x: V_1.nativePixelValue(x),
+            y: V_1.nativePixelValue(y),
+            width: V_1.nativePixelValue(this._displayFrame.width),
+            height: V_1.nativePixelValue(this._displayFrame.height)
         });
         this._displaying = false;
     }
@@ -1798,7 +1814,7 @@ class NViewElement extends ViewElement_1.ViewElement {
 }
 exports.NViewElement = NViewElement;
 
-},{"./IPC":13,"./ViewElement":36,"./once":37}],21:[function(require,module,exports){
+},{"./IPC":13,"./V":35,"./ViewElement":36,"./once":37}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2851,6 +2867,13 @@ function pixelValue(v) {
     return 0;
 }
 exports.pixelValue = pixelValue;
+function nativePixelValue(v) {
+    if (/Android/i.test(navigator.userAgent)) {
+        return v * window.devicePixelRatio;
+    }
+    return v;
+}
+exports.nativePixelValue = nativePixelValue;
 function pixelStringValue(v) {
     if (v && v.endsWith("rpx")) {
         return (parseFloat(v) * 0.05) + 'rem';

@@ -349,13 +349,11 @@ public final class Native {
     public static void viewSetFrame(Object view,long viewObject,float x,float y,float width,float height) {
 
         if(view instanceof View) {
-            Context context = ((View) view).getContext();
-            DisplayMetrics metrics = context.getResources().getDisplayMetrics();
             Rect frame = new Rect();
-            frame.x = (int) (x * metrics.density);
-            frame.y = (int) (y * metrics.density);
-            frame.width = (int) Math.ceil(width * metrics.density);
-            frame.height = (int) Math.ceil(height * metrics.density);
+            frame.x = (int) (x);
+            frame.y = (int) (y);
+            frame.width = (int) Math.ceil(width);
+            frame.height = (int) Math.ceil(height);
             ((View) view).setTag(R.id.ker_frame,frame);
             ViewParent p = ((View) view).getParent();
             if(p != null) {
@@ -679,7 +677,7 @@ public final class Native {
             @Override
             public void run() {
                 loop();
-                v.post(this);
+                v.postDelayed(this,17);
             }
         });
 

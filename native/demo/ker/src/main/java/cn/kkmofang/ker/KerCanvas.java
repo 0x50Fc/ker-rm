@@ -31,13 +31,15 @@ public class KerCanvas extends Object implements Image {
     }
 
     public void clearRect(int x,int y,int width,int height) {
-        int r = Math.min(_bitmap.getWidth(),x + width);
-        int b = Math.min(_bitmap.getHeight(),y + height);
-        for(int l = x; l < r;l ++) {
-            for(int t = y; t < b;t ++) {
-                _bitmap.setPixel(l,t,0);
-            }
-        }
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        _canvas.drawRect(new Rect(x,y,x + width,y + height),p);
+    }
+
+    public void clear() {
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        _canvas.drawPaint(p);
     }
 
     public int save() {
@@ -108,6 +110,10 @@ public class KerCanvas extends Object implements Image {
     public boolean isPointInPath(float x,float y) {
         //TODO
         return false;
+    }
+
+    public void scale(float sx,float sy) {
+        _canvas.scale(sx,sy);
     }
 
     protected int _fillColor = 0;

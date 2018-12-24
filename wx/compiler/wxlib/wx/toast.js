@@ -13,14 +13,14 @@ var minHeight = 20;
 var padding = 20;
 var borderRadius = 5;
 
-// if(typeof screen == 'object' && screen.density !== undefined) {
-//     fontSize = fontSize * screen.density;
-//     maxWidth = maxWidth * screen.density;
-//     minWidth = minWidth * screen.density;
-//     minHeight = minHeight * screen.density;
-//     padding = padding * screen.density;
-//     borderRadius = borderRadius * screen.density;
-// }
+if(typeof screen == 'object' && screen.density !== undefined) {
+    fontSize = fontSize * screen.density;
+    maxWidth = maxWidth * screen.density;
+    minWidth = minWidth * screen.density;
+    minHeight = minHeight * screen.density;
+    padding = padding * screen.density;
+    borderRadius = borderRadius * screen.density;
+}
 
 title.appendText(query.title || '', fontSize + 'px', '#fff');
 

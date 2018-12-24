@@ -15,6 +15,13 @@ export function pixelValue(v:string|undefined):number {
     return 0;
 }
 
+export function nativePixelValue(v:number): number {
+    if(/Android/i.test(navigator.userAgent)) {
+        return v * window.devicePixelRatio;
+    }
+    return v;
+}
+
 export function pixelStringValue(v:string|undefined):string {
     if(v && v.endsWith("rpx")) {
         return (parseFloat(v) * 0.05) + 'rem';

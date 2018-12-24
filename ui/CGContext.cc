@@ -318,6 +318,7 @@ namespace kk {
                         kk::PutMethod<Context,void,kk::ui::Float,kk::ui::Float,kk::ui::Float,kk::ui::Float>(ctx, -1, "fillRect", &Context::fillRect);
                         kk::PutMethod<Context,void,kk::ui::Float,kk::ui::Float,kk::ui::Float,kk::ui::Float>(ctx, -1, "strokeRect", &Context::strokeRect);
                         kk::PutMethod<Context,void,kk::ui::Float,kk::ui::Float,kk::ui::Float,kk::ui::Float>(ctx, -1, "clearRect", &Context::clearRect);
+                        kk::PutMethod<Context,void>(ctx, -1, "clearRect", &Context::clear);
                         kk::PutMethod<Context,void>(ctx, -1, "fill", &Context::fill);
                         kk::PutMethod<Context,void>(ctx, -1, "stroke", &Context::stroke);
                         kk::PutMethod<Context,void>(ctx, -1, "beginPath", &Context::beginPath);

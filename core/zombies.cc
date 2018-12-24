@@ -71,6 +71,42 @@ char ** backtrace_symbols(void ** array,int size) {
     return v;
 }
 
+
+
+struct ZombieObject {
+    char b[32];
+    size_t size;
+//    char** backtrace_symbols;
+//    int backtrace_size;
+    char e[32];
+};
+
+#define ZombieObjectB "CDCDCDCDCDCDCD"
+#define ZombieObjectE "DEDEDEDEDEDEDE"
+
+static char ZombieObjectEnd[] = "DEDEDEDEDEDEDE";
+
+void * operator new(size_t size) {
+    struct ZombieObject * v = (struct ZombieObject *) malloc(size + sizeof(struct ZombieObject) + sizeof(ZombieObjectEnd));
+    void * array[10];
+    strcpy(v->b,ZombieObjectB);
+    v->size = size;
+//    v->backtrace_size = backtrace(array,10);
+//    v->backtrace_symbols = backtrace_symbols(array,v->backtrace_size);
+    strcpy(v->e,ZombieObjectE);
+    strcpy((char *) (v + 1) + size,ZombieObjectEnd);
+    return v + 1;
+}
+
+void operator delete(void * p) {
+    struct ZombieObject * v = ((struct ZombieObject *) p) - 1;
+    assert(strcmp(v->b,ZombieObjectB) == 0);
+    assert(strcmp(v->e,ZombieObjectE) == 0);
+    assert(strcmp((char *) p + v->size,ZombieObjectEnd) == 0);
+    free(v);
+}
+
+
 #else
 #include <execinfo.h>
 #endif

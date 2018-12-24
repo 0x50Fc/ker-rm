@@ -231,6 +231,37 @@ namespace kk {
 
         void OSCGContext::scale(Float sx,Float sy) {
 
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jclass isa = env->GetObjectClass(_object);
+
+            jmethodID scale = env->GetMethodID(isa,"scale","(FF)V");
+
+            env->CallVoidMethod(_object,scale,(jfloat) sx,(jfloat) sy);
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+        }
+
+        void OSCGContext::clear() {
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jclass isa = env->GetObjectClass(_object);
+
+            jmethodID clear = env->GetMethodID(isa,"clear","()V");
+
+            env->CallVoidMethod(_object,clear);
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
         }
 
         void OSCGContext::rotate(Float angle) {
