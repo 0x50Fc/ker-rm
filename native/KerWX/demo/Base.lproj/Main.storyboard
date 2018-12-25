@@ -34,9 +34,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WhH-Fk-wFj">
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WhH-Fk-wFj">
                                 <rect key="frame" x="164" y="215" width="46" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>
                                 <connections>
                                     <action selector="doTapAction:" destination="fLY-fr-AEc" eventType="touchUpInside" id="XIx-4Y-L14"/>
@@ -44,6 +43,11 @@
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="WhH-Fk-wFj" firstAttribute="leading" secondItem="xdw-lm-hun" secondAttribute="leading" constant="164" id="EPd-BW-d5R"/>
+                            <constraint firstItem="WhH-Fk-wFj" firstAttribute="centerX" secondItem="eI8-YZ-1R5" secondAttribute="centerX" id="I1R-8o-LJy"/>
+                            <constraint firstItem="WhH-Fk-wFj" firstAttribute="top" secondItem="xdw-lm-hun" secondAttribute="top" constant="151" id="nl0-Nk-90i"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="xdw-lm-hun"/>
                     </view>
                     <navigationItem key="navigationItem" id="Ing-bi-7wM"/>

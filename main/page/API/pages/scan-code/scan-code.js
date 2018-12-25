@@ -14,6 +14,7 @@ Page({
     const that = this
     wx.scanCode({
       success(res) {
+        console.log("scan res = ", res);
         that.setData({
           result: res.result
         })
