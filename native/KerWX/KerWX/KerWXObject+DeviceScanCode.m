@@ -8,7 +8,6 @@
 
 #import "KerWXObject+DeviceScanCode.h"
 #import <AVFoundation/AVFoundation.h>
-#import <objc/runtime.h>
 
 #define WXScanCodeKey "WXScanCodeKey"
 
@@ -24,7 +23,9 @@
         self.charSet = @"UTF-8";
         //path是微信特定path 现在还不知道要如何兼容
         self.path = @"";
-        self.rawData = [object valueForKeyPath:@"_internal.basicDescriptor"][@"BarcodeRawData"];
+        
+        NSData *data =[object.stringValue dataUsingEncoding:NSUTF8StringEncoding];
+        self.rawData = [data base64EncodedStringWithOptions:0];
         
     }
     return self;
@@ -390,12 +391,8 @@
                 res.scanType = @"QR_CODE";
                 res.charSet = @"UTF-8";
                 res.path = @"";
-                if (@available(iOS 11.0, *)) {
-                    res.rawData = feature.symbolDescriptor.errorCorrectedPayload;
-                } else {
-                    // Fallback on earlier versions
-                    res.rawData = nil;
-                }
+                NSData *data =[feature.messageString dataUsingEncoding:NSUTF8StringEncoding];
+                res.rawData = [data base64EncodedStringWithOptions:0];
                 
                 id<WXScanCodeObject> v = [self.kerScanCodeObject implementProtocol:@protocol(WXScanCodeObject)];
                 dispatch_async(dispatch_get_main_queue(), ^{
