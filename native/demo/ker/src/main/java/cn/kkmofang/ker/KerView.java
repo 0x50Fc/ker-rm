@@ -15,10 +15,16 @@ public class KerView extends ViewGroup implements IKerView {
 
     public KerView(Context context) {
         super(context);
+        init();
     }
 
     public KerView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
+    }
+
+    protected void init() {
+        setOverScrollMode(View.OVER_SCROLL_NEVER);
     }
 
     @Override

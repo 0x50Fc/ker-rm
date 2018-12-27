@@ -309,7 +309,6 @@ Java_cn_kkmofang_ker_App_alloc(JNIEnv *env, jclass type, jobject object, jstring
         env->CallVoidMethod(object,open,URI,(jboolean) animated);
 
         env->DeleteLocalRef(URI);
-        env->DeleteLocalRef(isa);
 
         if(isAttach) {
             gJavaVm->DetachCurrentThread();
@@ -338,8 +337,6 @@ Java_cn_kkmofang_ker_App_alloc(JNIEnv *env, jclass type, jobject object, jstring
         }
 
         env->CallVoidMethod(object,back,(jint)delta,(jboolean) animated);
-
-        env->DeleteLocalRef(isa);
 
         if(isAttach) {
             gJavaVm->DetachCurrentThread();
@@ -441,7 +438,7 @@ Java_cn_kkmofang_ker_JSContext_PushBytes(JNIEnv *env, jclass type, jlong jsConte
 
     duk_remove(ctx,-2);
 
-    env->ReleaseByteArrayElements(v_, v, 0);
+    env->ReleaseByteArrayElements(v_, v, JNI_COMMIT);
 }
 
 extern "C"
@@ -924,9 +921,6 @@ Java_cn_kkmofang_ker_Page_alloc(JNIEnv *env, jobject instance, jobject view, jlo
 
         JNIEnv *env = kk_env(&isAttach);
 
-        if((long) page == 0x9f8ae590) {
-            kk::Log("");
-        }
         jweak object = page->object();
 
         jclass isa = env->GetObjectClass(object);
@@ -1026,6 +1020,8 @@ Java_cn_kkmofang_ker_Page_run(
     page->run(path,q);
 
     env->ReleaseStringUTFChars(path_, path);
+
+    env->EnsureLocalCapacity(0);
 }
 
 extern "C"

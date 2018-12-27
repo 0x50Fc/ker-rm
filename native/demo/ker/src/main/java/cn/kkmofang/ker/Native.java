@@ -138,7 +138,7 @@ public final class Native {
         } else if(object instanceof JSONString) {
             JSContext.PushJSONString(jsContext, ((JSONString) object).string);
         } else if(object instanceof JSObject) {
-
+            JSContext.PushJSObject(jsContext,(JSObject) object);
         } else {
             String name = Native.getPrototype(object);
             if(name == null) {
@@ -726,7 +726,7 @@ public final class Native {
     }
 
     public static void gc() {
-        Runtime.getRuntime().gc();
+       System.gc();
     }
 
     public native static void retain(long kerObject);

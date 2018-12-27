@@ -38,10 +38,16 @@ public class KerWebView extends WebView implements IKerView {
 
     public KerWebView(Context context) {
         super(context);
+        init();
     }
 
     public KerWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
+    }
+
+    protected void init() {
+        setOverScrollMode(View.OVER_SCROLL_NEVER);
     }
 
     @SuppressLint("JavascriptInterface")
