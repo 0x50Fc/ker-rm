@@ -7,6 +7,7 @@
 #include "KerCanvas.h"
 #include "KerImage.h"
 #include "KerApp.h"
+#include "global.h"
 
 namespace kk {
 
@@ -14,17 +15,7 @@ namespace kk {
 
         jobject getAttributedTextString(JNIEnv * env, AttributedText * text) {
 
-            jclass isa = env->FindClass("android/text/SpannableStringBuilder");
-            jmethodID init = env->GetMethodID(isa,"<init>","()V");
-            jobject v = env->NewObject(isa,init);
-
-            jclass native = env->FindClass("cn/kkmofang/ker/Native");
-
-            //public static void appendText(SpannableStringBuilder string,String text,String family,float size,boolean bold,boolean italic,int color)
-            jmethodID appendText = env->GetStaticMethodID(native,"appendText","(Landroid/text/SpannableStringBuilder;Ljava/lang/String;Ljava/lang/String;FZZI)V");
-
-            //public static void appendImage(SpannableStringBuilder string,Object image,int width,int height,int left,int top,int right,int bottom)
-            jmethodID appendImage = env->GetStaticMethodID(native,"appendImage","(Landroid/text/SpannableStringBuilder;Ljava/lang/Object;IIIIII)V");
+            jobject v = env->NewObject(G.SpannableStringBuilder.isa,G.SpannableStringBuilder.init);
 
             if(text != nullptr) {
                 auto& m = text->spans();
@@ -34,8 +25,8 @@ namespace kk {
                     if(span.type == AttributedTextSpanTypeText) {
                         jstring family = env->NewStringUTF(span.font.family.c_str());
                         jstring text = env->NewStringUTF(span.text.c_str());
-                        env->CallStaticVoidMethod(native,
-                                                  appendText,
+                        env->CallStaticVoidMethod(G.Native.isa,
+                                                  G.Native.appendText,
                                                   v,
                                                   text,
                                                   family,
@@ -48,8 +39,8 @@ namespace kk {
                     } else if(span.type == AttributedTextSpanTypeImage) {
                         kk::ui::OSImage * image = span.image;
                         if(image != nullptr && image->object() != nullptr) {
-                            env->CallStaticVoidMethod(native,
-                                                      appendImage,
+                            env->CallStaticVoidMethod(G.Native.isa,
+                                                      G.Native.appendImage,
                                                       v,
                                                       image->object(),
                                                       (jint)span.width,
@@ -64,9 +55,6 @@ namespace kk {
                 }
             }
 
-            env->DeleteLocalRef(isa);
-            env->DeleteLocalRef(native);
-
             return v;
         }
 
@@ -78,13 +66,7 @@ namespace kk {
 
             _view = env->NewGlobalRef(view);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewObtain = env->GetStaticMethodID(isa,"viewObtain","(Ljava/lang/Object;J)V");
-
-            env->CallStaticVoidMethod(isa,viewObtain,_view,(jlong) this);
-
-            env->DeleteLocalRef(isa);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewObtain,_view,(jlong) this);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -98,13 +80,7 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewRecycle = env->GetStaticMethodID(isa,"viewRecycle","(Ljava/lang/Object;J)V");
-
-            env->CallStaticVoidMethod(isa,viewRecycle,_view,(jlong) this);
-
-            env->DeleteLocalRef(isa);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewRecycle,_view,(jlong) this);
 
             env->DeleteGlobalRef(_view);
 
@@ -112,7 +88,7 @@ namespace kk {
                 gJavaVm->DetachCurrentThread();
             }
 
-            kk::Log("[OSView] [dealloc] 0x%x",pthread_self());
+            kk::Log("[OSView] [dealloc] 0x%x",(long) this);
         }
 
         void OSView::set(kk::CString name,kk::CString value) {
@@ -121,22 +97,16 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewSetAttribute = env->GetStaticMethodID(isa,"viewSetAttribute","(Ljava/lang/Object;JLjava/lang/String;Ljava/lang/String;)V");
-
             jstring name_ = env->NewStringUTF(name);
             jstring value_ = value == nullptr ? nullptr : env->NewStringUTF(value);
 
-            env->CallStaticVoidMethod(isa,viewSetAttribute,_view,(jlong) this,name_,value_);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetAttribute,_view,(jlong) this,name_,value_);
 
             env->DeleteLocalRef(name_);
 
             if(value_ != nullptr) {
                 env->DeleteLocalRef(value_);
             }
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -152,17 +122,11 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewSetFrame = env->GetStaticMethodID(isa,"viewSetFrame","(Ljava/lang/Object;JFFFF)V");
-
-            env->CallStaticVoidMethod(isa,viewSetFrame,_view,(jlong) this
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetFrame,_view,(jlong) this
                     ,(jfloat) frame.origin.x
                     ,(jfloat) frame.origin.y
                     ,(jfloat) frame.size.width
                     ,(jfloat) frame.size.height);
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -176,15 +140,9 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewSetContentSize = env->GetStaticMethodID(isa,"viewSetContentSize","(Ljava/lang/Object;JFF)V");
-
-            env->CallStaticVoidMethod(isa,viewSetContentSize,_view,(jlong) this
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetContentSize,_view,(jlong) this
                     ,(jfloat) size.width
                     ,(jfloat) size.height);
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -198,16 +156,10 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewSetContentOffset = env->GetStaticMethodID(isa,"viewSetContentOffset","(Ljava/lang/Object;JFFZ)V");
-
-            env->CallStaticVoidMethod(isa,viewSetContentOffset,_view,(jlong) this
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetContentOffset,_view,(jlong) this
                     ,(jfloat) offset.x
                     ,(jfloat) offset.y
                     ,(jboolean) animated);
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -222,15 +174,8 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewGetContentOffsetX = env->GetStaticMethodID(isa,"viewGetContentOffsetX","(Ljava/lang/Object;J)F");
-            jmethodID viewGetContentOffsetY = env->GetStaticMethodID(isa,"viewGetContentOffsetY","(Ljava/lang/Object;J)F");
-
-            p.x = env->CallStaticFloatMethod(isa,viewGetContentOffsetX,_view,(jlong) this);
-            p.y = env->CallStaticFloatMethod(isa,viewGetContentOffsetY,_view,(jlong) this);
-
-            env->DeleteLocalRef(isa);
+            p.x = env->CallStaticFloatMethod(G.Native.isa,G.Native.viewGetContentOffsetX,_view,(jlong) this);
+            p.y = env->CallStaticFloatMethod(G.Native.isa,G.Native.viewGetContentOffsetY,_view,(jlong) this);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -296,13 +241,7 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewAddSubview = env->GetStaticMethodID(isa,"viewAddSubview","(Ljava/lang/Object;JLjava/lang/Object;I)V");
-
-            env->CallStaticVoidMethod(isa,viewAddSubview,_view,(jlong) this,ov->object(),(jint)position);
-
-            env->DeleteLocalRef(isa);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewAddSubview,_view,(jlong) this,ov->object(),(jint)position);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -317,13 +256,7 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewRemoveView = env->GetStaticMethodID(isa,"viewRemoveView","(Ljava/lang/Object;J)V");
-
-            env->CallStaticVoidMethod(isa,viewRemoveView,_view,(jlong) this);
-
-            env->DeleteLocalRef(isa);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewRemoveView,_view,(jlong) this);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -338,22 +271,16 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewRemoveView = env->GetStaticMethodID(isa,"viewRemoveView","(Ljava/lang/Object;J)V");
-
             auto i = _subviews.begin();
 
             while(i != _subviews.end()) {
 
                 OSView * v = i->second;
 
-                env->CallStaticVoidMethod(isa,viewRemoveView,v->_view,(jlong) v);
+                env->CallStaticVoidMethod(G.Native.isa,G.Native.viewRemoveView,v->_view,(jlong) v);
 
                 i ++;
             }
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -370,16 +297,11 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewEvaluateJavaScript = env->GetStaticMethodID(isa,"viewEvaluateJavaScript","(Ljava/lang/Object;JLjava/lang/String;)V");
-
             jstring v = env->NewStringUTF(code);
 
-            env->CallStaticVoidMethod(isa,viewEvaluateJavaScript,_view,(jlong) this,v);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewEvaluateJavaScript,_view,(jlong) this,v);
 
             env->DeleteLocalRef(v);
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -394,17 +316,11 @@ namespace kk {
 
             jobject v = getAttributedTextString(env,text);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewSetAttributedText = env->GetStaticMethodID(isa,"viewSetAttributedText","(Ljava/lang/Object;JLjava/lang/CharSequence;)V");
-
-            env->CallStaticVoidMethod(isa,viewSetAttributedText,_view,(jlong) this,v);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetAttributedText,_view,(jlong) this,v);
 
             if(v != nullptr) {
                 env->DeleteLocalRef(v);
             }
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -418,13 +334,7 @@ namespace kk {
 
                 JNIEnv *env = kk_env(&isAttach);
 
-                jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-                jmethodID viewSetImage = env->GetStaticMethodID(isa,"viewSetImage","(Ljava/lang/Object;JLjava/lang/Object;)V");
-
-                env->CallStaticVoidMethod(isa,viewSetImage,_view,(jlong) this,((OSImage *) _image)->object());
-
-                env->DeleteLocalRef(isa);
+                env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetImage,_view,(jlong) this,((OSImage *) _image)->object());
 
                 if(isAttach) {
                     gJavaVm->DetachCurrentThread();
@@ -445,14 +355,10 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewSetImage = env->GetStaticMethodID(isa,"viewSetImage","(Ljava/lang/Object;JLjava/lang/Object;)V");
-
             if(image == nullptr) {
-                env->CallStaticVoidMethod(isa,viewSetImage,_view,(jlong) this, nullptr);
+                env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetImage,_view,(jlong) this, nullptr);
             } else if(image->state() == ImageStateLoaded) {
-                env->CallStaticVoidMethod(isa,viewSetImage,_view,(jlong) this, ((OSImage *) image)->object());
+                env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetImage,_view,(jlong) this, ((OSImage *) image)->object());
             } else if(image->state() != ImageStateError) {
                 if(_onImageLoadFunc == nullptr) {
                     kk::Weak<OSView> v = this;
@@ -465,8 +371,6 @@ namespace kk {
                 }
                 _image->on("load", (kk::TFunction<void, kk::CString,Event *> *) _onImageLoadFunc);
             }
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -481,19 +385,13 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewSetGravity = env->GetStaticMethodID(isa,"viewSetGravity","(Ljava/lang/Object;JLjava/lang/String;)V");
-
             jstring v = gravity == nullptr ? nullptr : env->NewStringUTF(gravity);
 
-            env->CallStaticVoidMethod(isa,viewSetGravity,_view,(jlong) this,v);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetGravity,_view,(jlong) this,v);
 
             if(v != nullptr) {
                 env->DeleteLocalRef(v);
             }
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -507,15 +405,11 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID viewSetContent = env->GetStaticMethodID(isa,"viewSetContent","(Ljava/lang/Object;JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
-
             jstring content_ = content == nullptr ? nullptr : env->NewStringUTF(content);
             jstring contentType_ = content == nullptr ? nullptr : env->NewStringUTF(contentType);
             jstring basePath_ = content == nullptr ? nullptr : env->NewStringUTF(basePath);
 
-            env->CallStaticVoidMethod(isa,viewSetContent,_view,(jlong) this,content_,contentType_,basePath_);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.viewSetContent,_view,(jlong) this,content_,contentType_,basePath_);
 
             if(content_ != nullptr) {
                 env->DeleteLocalRef(content_);
@@ -528,8 +422,6 @@ namespace kk {
             if(basePath_ != nullptr) {
                 env->DeleteLocalRef(basePath_);
             }
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -559,13 +451,9 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID createView = env->GetStaticMethodID(isa,"createView","(Lcn/kkmofang/ker/App;Ljava/lang/String;J)Ljava/lang/Object;");
-
             jstring name_ = env->NewStringUTF(name);
 
-            jobject object = env->CallStaticObjectMethod(isa,createView,app->object(), name_,(jlong) configuration);
+            jobject object = env->CallStaticObjectMethod(G.Native.isa,G.Native.createView,app->object(), name_,(jlong) configuration);
 
             if(object) {
                 v = new OSView(object,configuration,context);
@@ -573,8 +461,6 @@ namespace kk {
             }
 
             env->DeleteLocalRef(name_);
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -592,18 +478,11 @@ namespace kk {
 
             jobject v = getAttributedTextString(env,text);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            //public static float[] getAttributedTextSize(CharSequence string,float maxWidth)
-            jmethodID getAttributedTextSize = env->GetStaticMethodID(isa,"getAttributedTextSize","(Ljava/lang/CharSequence;F)[F");
-
-            jobject r = env->CallStaticObjectMethod(isa,getAttributedTextSize,v,(jfloat) maxWidth);
+            jobject r = env->CallStaticObjectMethod(G.Native.isa,G.Native.getAttributedTextSize,v,(jfloat) maxWidth);
 
             if(v != nullptr) {
                 env->DeleteLocalRef(v);
             }
-
-            env->DeleteLocalRef(isa);
 
             Size rr;
 

@@ -8,6 +8,7 @@
 
 #include <core/kk.h>
 #include <typeinfo>
+#include <string.h>
 
 namespace kk {
     

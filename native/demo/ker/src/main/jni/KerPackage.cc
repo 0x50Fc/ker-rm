@@ -7,7 +7,7 @@
 #include "kk.h"
 #include "KerApp.h"
 #include "KerObject.h"
-
+#include "global.h"
 namespace kk {
 
     namespace ui {
@@ -29,10 +29,6 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID runApp = env->GetMethodID(isa,"runApp","(Lcn/kkmofang/ker/App;Ljava/lang/String;Ljava/lang/Object;)V");
-
             jstring u = env->NewStringUTF(_URI.c_str());
 
             jobject q = nullptr;
@@ -49,15 +45,13 @@ namespace kk {
                 }
             }
 
-            env->CallStaticVoidMethod(isa,runApp,app->object(), u,q);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.runApp,app->object(), u,q);
 
             env->DeleteLocalRef(u);
 
             if(q) {
                 env->DeleteLocalRef(q);
             }
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -84,17 +78,11 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa =env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID getPackage = env->GetMethodID(isa,"getPackage","(Lcn/kkmofang/ker/App;JLjava/lang/String;)V");
-
             jstring u = env->NewStringUTF(URI);
 
-            env->CallStaticVoidMethod(isa,getPackage,app->object(), (jlong) v.get(), u);
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.getPackage,app->object(), (jlong) v.get(), u);
 
             env->DeleteLocalRef(u);
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();

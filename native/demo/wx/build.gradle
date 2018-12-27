@@ -23,5 +23,5 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    provided project(path: ':ker', configuration: 'debug')
+    compile project(path: ':ker', configuration: 'debug')
 }

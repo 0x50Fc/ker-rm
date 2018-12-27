@@ -5,6 +5,7 @@
 #include "KerImage.h"
 #include "kk.h"
 #include "KerApp.h"
+#include "global.h"
 
 namespace kk {
 
@@ -100,15 +101,9 @@ namespace kk {
 
                 if(_object) {
 
-                    jclass isa = env->FindClass("cn/kkmofang/ker/Native");
+                    _width = (kk::Uint) env->CallStaticIntMethod(G.Native.isa,G.Native.getImageWidth,_object);
+                    _height = (kk::Uint) env->CallStaticIntMethod(G.Native.isa,G.Native.getImageWidth,_object);
 
-                    jmethodID getImageWidth = env->GetStaticMethodID(isa,"getImageWidth","(Ljava/lang/Object;)I");
-                    jmethodID getImageHeight = env->GetStaticMethodID(isa,"getImageHeight","(Ljava/lang/Object;)I");
-
-                    _width = (kk::Uint) env->CallStaticIntMethod(isa,getImageWidth,_object);
-                    _height = (kk::Uint) env->CallStaticIntMethod(isa,getImageHeight,_object);
-
-                    env->DeleteLocalRef(isa);
 
                 } else {
                     _width = 0;
@@ -165,14 +160,10 @@ namespace kk {
 
             JNIEnv * env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID getImage = env->GetStaticMethodID(isa,"getImage","(Lcn/kkmofang/ker/App;JLjava/lang/String;Ljava/lang/String;J)V");
-
             jstring URI = src == nullptr ? nullptr : env->NewStringUTF(src);
             jstring basePath = env->NewStringUTF(context->basePath());
 
-            env->CallStaticVoidMethod(isa,getImage,app->object(),(jlong) i,URI,basePath,(jlong) context->queue());
+            env->CallStaticVoidMethod(G.Native.isa,G.Native.getImage,app->object(),(jlong) i,URI,basePath,(jlong) context->queue());
 
             if(URI) {
                 env->DeleteLocalRef(URI);
@@ -181,8 +172,6 @@ namespace kk {
             if(basePath) {
                 env->DeleteLocalRef(basePath);
             }
-
-            env->DeleteLocalRef(isa);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();

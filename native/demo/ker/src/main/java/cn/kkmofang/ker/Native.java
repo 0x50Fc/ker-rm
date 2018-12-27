@@ -607,8 +607,6 @@ public final class Native {
 
     public static Object createView(App app,String name,long viewConfiguration) {
 
-        Log.d("ker",name);
-
         View view = null;
 
         if(name != null && _viewClasss.containsKey(name)) {

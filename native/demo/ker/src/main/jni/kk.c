@@ -5,6 +5,7 @@
 #include <jni.h>
 #include <android/log.h>
 #include "kk.h"
+#include "global.h"
 
 JavaVM * gJavaVm = 0;
 
@@ -24,6 +25,16 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved){
     gJavaVm = vm;
 
     kk_log("JNI_OnLoad");
+
+    jboolean isAttach = 0;
+
+    JNIEnv * env = kk_env(&isAttach);
+
+    globalInit(env);
+
+    if(isAttach) {
+        (*gJavaVm)->DetachCurrentThread(gJavaVm);
+    }
 
     return JNI_VERSION_1_4;
 }

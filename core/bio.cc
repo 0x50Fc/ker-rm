@@ -7,6 +7,7 @@
 //
 
 #include <core/bio.h>
+#include <string.h>
 
 #define BYTE_BITS       8
 #define INT32_BYTES      4

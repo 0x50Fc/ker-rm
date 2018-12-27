@@ -30,6 +30,7 @@ add_library(md5
 add_library(ker
             SHARED
             src/main/jni/kk.c
+            src/main/jni/global.cc
             src/main/jni/KerObject.cc
             src/main/jni/KerImage.cc
             src/main/jni/KerCanvas.cc

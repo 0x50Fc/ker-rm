@@ -10,8 +10,7 @@
 #include "KerPackage.h"
 #include "KerView.h"
 #include "KerPage.h"
-
-static pthread_t main_pid = 0;
+#include "global.h"
 
 namespace kk {
     extern event_base * GetDispatchQueueEventBase(DispatchQueue * queue);
@@ -41,14 +40,14 @@ Java_cn_kkmofang_ker_Native_release(JNIEnv *env, jclass type, jlong kerObject) {
             if(v != nullptr) {
                 v->queue()->sync([v]()->void{
                     v->release();
-                    kk::Log("[JSObject] [release] 0x%x 0x%x",pthread_self(),main_pid);
+                    kk::Log("[JSObject] [release] 0x%x",(long) v);
                 });
                 return;
             }
         }
 
         object->release();
-        kk::Log("[Object] [release] 0x%x 0x%x",pthread_self(),main_pid);
+        kk::Log("[Object] [release] 0x%x",(long) object);
     }
 
 }
@@ -81,20 +80,9 @@ Java_cn_kkmofang_ker_JSContext_PushFunction(JNIEnv *env, jclass type, jlong jsCo
 
                 JNIEnv * env = kk_env(&isAttach);
 
-                jclass isa = env->FindClass("cn/kkmofang/ker/JSFunction");
+                duk_ret_t r = env->CallIntMethod(object,G.JSFunction.invoke,(jlong) ctx);
 
-                jmethodID invoke = env->GetMethodID(isa,"invoke","(J)I");
-
-                duk_ret_t r = env->CallIntMethod(object,invoke,(jlong) ctx);
-
-                env->DeleteLocalRef(isa);
-
-                {
-                    jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-                    jmethodID gc = env->GetStaticMethodID(isa,"gc","()V");
-                    env->CallStaticVoidMethod(isa,gc);
-                    env->DeleteLocalRef(isa);
-                }
+                env->CallStaticVoidMethod(G.Native.isa,G.Native.gc);
 
                 if(isAttach) {
                     gJavaVm->DetachCurrentThread();
@@ -216,12 +204,7 @@ Java_cn_kkmofang_ker_JSContext_PutMethod(JNIEnv *env, jclass isa, jlong jsContex
 
             duk_ret_t r = JObjectInvoke(env,(jobject) object->native(),m,type,ctx,duk_get_top(ctx));
 
-            {
-                jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-                jmethodID gc = env->GetStaticMethodID(isa, "gc", "()V");
-                env->CallStaticVoidMethod(isa, gc);
-                env->DeleteLocalRef(isa);
-            }
+            env->CallStaticVoidMethod(G.Native.isa, G.Native.gc);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -292,10 +275,6 @@ Java_cn_kkmofang_ker_App_alloc(JNIEnv *env, jclass type, jobject object, jstring
 
         jweak object = app->object();
 
-        jclass isa = env->GetObjectClass(object);
-
-        jmethodID open = env->GetMethodID(isa,"open","(Ljava/lang/String;Z)V");
-
         kk::TObject<kk::String, kk::Any> * data = (kk::TObject<kk::String, kk::Any> *) event->data();
         kk::CString uri = (*data)["uri"];
         kk::Boolean animated = true;
@@ -306,9 +285,11 @@ Java_cn_kkmofang_ker_App_alloc(JNIEnv *env, jclass type, jobject object, jstring
 
         jstring URI = env->NewStringUTF(uri);
 
-        env->CallVoidMethod(object,open,URI,(jboolean) animated);
+        env->CallVoidMethod(object,G.App.open,URI,(jboolean) animated);
 
         env->DeleteLocalRef(URI);
+
+        env->CallStaticVoidMethod(G.Native.isa, G.Native.gc);
 
         if(isAttach) {
             gJavaVm->DetachCurrentThread();
@@ -324,10 +305,6 @@ Java_cn_kkmofang_ker_App_alloc(JNIEnv *env, jclass type, jobject object, jstring
 
         jweak object = app->object();
 
-        jclass isa = env->GetObjectClass(object);
-
-        jmethodID back = env->GetMethodID(isa,"back","(IZ)V");
-
         kk::TObject<kk::String, kk::Any> * data = (kk::TObject<kk::String, kk::Any> *) event->data();
         kk::Uint delta = (*data)["delta"];
         kk::Boolean animated = true;
@@ -336,7 +313,9 @@ Java_cn_kkmofang_ker_App_alloc(JNIEnv *env, jclass type, jobject object, jstring
             animated = (*data)["animated"];
         }
 
-        env->CallVoidMethod(object,back,(jint)delta,(jboolean) animated);
+        env->CallVoidMethod(object,G.App.back,(jint)delta,(jboolean) animated);
+
+        env->CallStaticVoidMethod(G.Native.isa, G.Native.gc);
 
         if(isAttach) {
             gJavaVm->DetachCurrentThread();
@@ -520,12 +499,7 @@ Java_cn_kkmofang_ker_JSContext_PutProperty(JNIEnv *env, jclass isa, jlong jsCont
 
             duk_ret_t r = JObjectGetProperty(env,(jobject) object->native(),fd,type,ctx);
 
-            {
-                jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-                jmethodID gc = env->GetStaticMethodID(isa,"gc","()V");
-                env->CallStaticVoidMethod(isa,gc);
-                env->DeleteLocalRef(isa);
-            }
+            env->CallStaticVoidMethod(G.Native.isa, G.Native.gc);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -579,12 +553,7 @@ Java_cn_kkmofang_ker_JSContext_PutProperty(JNIEnv *env, jclass isa, jlong jsCont
 
                 duk_ret_t r = JObjectSetProperty(env,(jobject) object->native(),fd,type,ctx);
 
-                {
-                    jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-                    jmethodID gc = env->GetStaticMethodID(isa,"gc","()V");
-                    env->CallStaticVoidMethod(isa,gc);
-                    env->DeleteLocalRef(isa);
-                }
+                env->CallStaticVoidMethod(G.Native.isa, G.Native.gc);
 
                 if(isAttach) {
                     gJavaVm->DetachCurrentThread();
@@ -832,13 +801,7 @@ Java_cn_kkmofang_ker_JSContext_ToJSObject(JNIEnv *env, jclass type, jlong jsCont
 
         kk::Strong<kk::JSObject> v = new kk::JSObject(ctx,duk_get_heapptr(ctx,idx));
 
-        jclass isa =env->FindClass("cn/kkmofang/ker/Native");
-
-        jmethodID allocJSObject = env->GetMethodID(isa,"allocJSObject","(J)Lcn/kkmofang/ker/JSObject;");
-
-        jobject native = env->CallStaticObjectMethod(isa,allocJSObject,(jlong) v.get());
-
-        env->DeleteLocalRef(isa);
+        jobject native = env->CallStaticObjectMethod(G.Native.isa,G.Native.allocJSObject,(jlong) v.get());
 
         return native;
 
@@ -853,8 +816,6 @@ Java_cn_kkmofang_ker_Native_loop(JNIEnv *env, jclass type) {
 
     event_base * base = kk::GetDispatchQueueEventBase(kk::mainDispatchQueue());
     event_base_loop(base,EVLOOP_ONCE | EVLOOP_NONBLOCK);
-
-    main_pid = pthread_self();
 
 }
 
@@ -871,11 +832,13 @@ JNIEXPORT void JNICALL
 Java_cn_kkmofang_ker_App_run__JLjava_lang_Object_2(JNIEnv *env, jclass type, jlong ptr,
                                                    jobject query) {
 
+
     kk::ui::App * app = (kk::ui::App *) ptr;
 
     kk::Strong<kk::TObject<kk::String, kk::Any>> v = new kk::TObject<kk::String, kk::Any>({{"query",new kk::NativeValue((kk::Native *) query)}});
 
     app->exec("main.js", (kk::TObject<kk::String, kk::Any> *) v);
+
 
 }
 
@@ -898,11 +861,7 @@ Java_cn_kkmofang_ker_Page_alloc(JNIEnv *env, jobject instance, jobject view, jlo
 
         jobject v = ker_Object_to_JObject(env, event->data());
 
-        jclass isa = env->GetObjectClass(object);
-
-        jmethodID setOptions = env->GetMethodID(isa,"setOptions","(Ljava/lang/Object;)V");
-
-        env->CallVoidMethod(object,setOptions,v);
+        env->CallVoidMethod(object,G.Page.setOptions,v);
 
         if(v != nullptr) {
             env->DeleteLocalRef(v);
@@ -923,8 +882,6 @@ Java_cn_kkmofang_ker_Page_alloc(JNIEnv *env, jobject instance, jobject view, jlo
 
         jweak object = page->object();
 
-        jclass isa = env->GetObjectClass(object);
-
         kk::JSObject * v = dynamic_cast<kk::JSObject *>(event->data());
 
         jboolean animated = true;
@@ -942,9 +899,7 @@ Java_cn_kkmofang_ker_Page_alloc(JNIEnv *env, jobject instance, jobject view, jlo
             }
         }
 
-        jmethodID close = env->GetMethodID(isa,"close","(Z)V");
-
-        env->CallVoidMethod(object,close,animated);
+        env->CallVoidMethod(object,G.Page.close,animated);
 
         if(isAttach) {
             gJavaVm->DetachCurrentThread();
@@ -986,6 +941,7 @@ JNIEXPORT void JNICALL
 Java_cn_kkmofang_ker_Page_run(
         JNIEnv *env, jclass type, jlong ptr, jstring path_, jobjectArray keys,
         jobjectArray values) {
+
     const char *path = env->GetStringUTFChars(path_, 0);
 
     kk::ui::Page * page = (kk::ui::Page *) ptr;
@@ -1021,7 +977,6 @@ Java_cn_kkmofang_ker_Page_run(
 
     env->ReleaseStringUTFChars(path_, path);
 
-    env->EnsureLocalCapacity(0);
 }
 
 extern "C"
@@ -1058,23 +1013,16 @@ Java_cn_kkmofang_ker_Native_getWebViewConfiguration(JNIEnv *env, jclass type, jl
 
     kk::ui::WebViewConfiguration * webViewConfiguration = dynamic_cast<kk::ui::WebViewConfiguration *>((kk::ui::ViewConfiguration *)kerObject);
 
-    jclass isa = env->FindClass("cn/kkmofang/ker/WebViewConfiguration");
-
-    jobject v = env->NewObject(isa,env->GetMethodID(isa,"<init>","()V"));
+    jobject v = env->NewObject(G.WebViewConfiguration.isa,G.WebViewConfiguration.init);
 
     if(webViewConfiguration != nullptr) {
 
         {
 
-            jclass isa_UserScript = env->FindClass("cn/kkmofang/ker/WebViewConfiguration$UserScript");
 
             auto & s = webViewConfiguration->userScripts();
 
-            jobjectArray userScripts = env->NewObjectArray(s.size(),isa_UserScript, nullptr);
-
-            jmethodID init_UserScript = env->GetMethodID(isa_UserScript,"<init>","()V");
-            jfieldID fd_source = env->GetFieldID(isa_UserScript,"source","Ljava/lang/String;");
-            jfieldID fd_type = env->GetFieldID(isa_UserScript,"type","I");
+            jobjectArray userScripts = env->NewObjectArray(s.size(),G.WebViewConfiguration.UserScript.isa, nullptr);
 
             auto i = s.begin();
 
@@ -1086,10 +1034,10 @@ Java_cn_kkmofang_ker_Native_getWebViewConfiguration(JNIEnv *env, jclass type, jl
 
                 jstring source = env->NewStringUTF(u.code.c_str());
 
-                jobject us = env->NewObject(isa_UserScript,init_UserScript);
+                jobject us = env->NewObject(G.WebViewConfiguration.UserScript.isa,G.WebViewConfiguration.UserScript.init);
 
-                env->SetObjectField(us,fd_source,source);
-                env->SetIntField(us,fd_type,u.injectionTime);
+                env->SetObjectField(us,G.WebViewConfiguration.UserScript.source,source);
+                env->SetIntField(us,G.WebViewConfiguration.UserScript.type,u.injectionTime);
 
                 env->SetObjectArrayElement(userScripts,idx,us);
 
@@ -1101,7 +1049,7 @@ Java_cn_kkmofang_ker_Native_getWebViewConfiguration(JNIEnv *env, jclass type, jl
                 idx ++;
             }
 
-            env->SetObjectField(v,env->GetFieldID(isa,"userScripts","[Lcn/kkmofang/ker/WebViewConfiguration$UserScript;"),userScripts);
+            env->SetObjectField(v,G.WebViewConfiguration.userScripts,userScripts);
 
             env->DeleteLocalRef(userScripts);
 
@@ -1109,18 +1057,13 @@ Java_cn_kkmofang_ker_Native_getWebViewConfiguration(JNIEnv *env, jclass type, jl
 
         {
 
-            jclass isa_UserAction = env->FindClass("cn/kkmofang/ker/WebViewConfiguration$UserAction");
-
-            jmethodID init_UserAction = env->GetMethodID(isa_UserAction,"<init>","()V");
-            jfieldID fd_pattern = env->GetFieldID(isa_UserAction,"pattern","Ljava/lang/String;");
-            jfieldID fd_policy = env->GetFieldID(isa_UserAction,"policy","I");
 
             auto & a = webViewConfiguration->userActions();
 
             auto i = a.begin();
             int idx = 0;
 
-            jobjectArray userActions = env->NewObjectArray(a.size(),isa_UserAction, nullptr);
+            jobjectArray userActions = env->NewObjectArray(a.size(),G.WebViewConfiguration.UserAction.isa, nullptr);
 
             while(i != a.end()) {
 
@@ -1128,10 +1071,10 @@ Java_cn_kkmofang_ker_Native_getWebViewConfiguration(JNIEnv *env, jclass type, jl
 
                 jstring pattern = env->NewStringUTF(u.pattern.c_str());
 
-                jobject us = env->NewObject(isa_UserAction,init_UserAction);
+                jobject us = env->NewObject(G.WebViewConfiguration.UserAction.isa,G.WebViewConfiguration.UserAction.init);
 
-                env->SetObjectField(us,fd_pattern,pattern);
-                env->SetIntField(us,fd_policy,u.policy);
+                env->SetObjectField(us,G.WebViewConfiguration.UserAction.pattern,pattern);
+                env->SetIntField(us,G.WebViewConfiguration.UserAction.policy,u.policy);
 
                 env->SetObjectArrayElement(userActions,idx,us);
 
@@ -1143,7 +1086,7 @@ Java_cn_kkmofang_ker_Native_getWebViewConfiguration(JNIEnv *env, jclass type, jl
                 idx ++;
             }
 
-            env->SetObjectField(v,env->GetFieldID(isa,"userActions","[Lcn/kkmofang/ker/WebViewConfiguration$UserAction;"),userActions);
+            env->SetObjectField(v,G.WebViewConfiguration.userActions,userActions);
 
             env->DeleteLocalRef(userActions);
 
@@ -1151,8 +1094,6 @@ Java_cn_kkmofang_ker_Native_getWebViewConfiguration(JNIEnv *env, jclass type, jl
 
 
     }
-
-    env->DeleteLocalRef(isa);
 
     return v;
 }
@@ -1241,11 +1182,7 @@ Java_cn_kkmofang_ker_KerQueue_async__JLjava_lang_Runnable_2(JNIEnv *env, jclass 
 
         JNIEnv *env = kk_env(&isAttach);
 
-        jclass isa = env->GetObjectClass(object);
-
-        jmethodID run = env->GetMethodID(isa,"run","()V");
-
-        env->CallVoidMethod(object,run);
+        env->CallVoidMethod(object,G.Runnable.run);
 
         if(isAttach) {
             gJavaVm->DetachCurrentThread();
@@ -1266,9 +1203,7 @@ Java_cn_kkmofang_ker_KerQueue_sync__JLjava_lang_Runnable_2(JNIEnv *env, jclass t
 
         jclass isa = env->GetObjectClass(object);
 
-        jmethodID run = env->GetMethodID(isa,"run","()V");
-
-        env->CallVoidMethod(object,run);
+        env->CallVoidMethod(object,G.Runnable.run);
 
     });
 
@@ -1283,19 +1218,20 @@ Java_cn_kkmofang_ker_JSObject_get__JLjava_lang_String_2(JNIEnv *env, jclass type
 
     kk::JSObject * v = (kk::JSObject *) ptr;
 
-    assert(v->queue() == kk::getCurrentDispatchQueue());
-
     jobject r = nullptr;
 
-    duk_context * ctx = v->jsContext();
-    void * heapptr = v->heapptr();
+    v->queue()->sync([&r,v,env,key]()->void {
 
-    if(ctx && heapptr) {
-        duk_push_heapptr(ctx,heapptr);
-        duk_get_prop_string(ctx,-1,key);
-        r = duk_to_JObject(env,ctx,-1);
-        duk_pop_2(ctx);
-    }
+        duk_context * ctx = v->jsContext();
+        void * heapptr = v->heapptr();
+
+        if(ctx && heapptr) {
+            duk_push_heapptr(ctx,heapptr);
+            duk_get_prop_string(ctx,-1,key);
+            r = duk_to_JObject(env,ctx,-1);
+            duk_pop_2(ctx);
+        }
+    });
 
     env->ReleaseStringUTFChars(key_, key);
 
@@ -1311,17 +1247,19 @@ Java_cn_kkmofang_ker_JSObject_set__JLjava_lang_String_2Ljava_lang_Object_2(JNIEn
 
     kk::JSObject * v = (kk::JSObject *) ptr;
 
-    assert(v->queue() == kk::getCurrentDispatchQueue());
+    v->queue()->sync([value,v,env,key]()->void {
 
-    duk_context * ctx = v->jsContext();
-    void * heapptr = v->heapptr();
+        duk_context *ctx = v->jsContext();
+        void *heapptr = v->heapptr();
 
-    if(ctx && heapptr) {
-        duk_push_heapptr(ctx,heapptr);
-        duk_push_JObject(ctx,value);
-        duk_put_prop_string(ctx,-2,key);
-        duk_pop(ctx);
-    }
+        if (ctx && heapptr) {
+            duk_push_heapptr(ctx, heapptr);
+            duk_push_JObject(ctx, value);
+            duk_put_prop_string(ctx, -2, key);
+            duk_pop(ctx);
+        }
+
+    });
 
     env->ReleaseStringUTFChars(key_, key);
 }
@@ -1334,36 +1272,38 @@ Java_cn_kkmofang_ker_JSObject_call(JNIEnv *env, jclass type, jlong ptr,
 
     kk::JSObject * v = (kk::JSObject *) ptr;
 
-    assert(v->queue() == kk::getCurrentDispatchQueue());
-
     jobject r = nullptr;
 
-    duk_context * ctx = v->jsContext();
-    void * heapptr = v->heapptr();
+    v->queue()->sync([&r,v,env,args]()->void {
 
-    if(ctx && heapptr) {
-        duk_push_heapptr(ctx,heapptr);
-        if(duk_is_function(ctx,-1)) {
-            duk_idx_t n = 0;
-            if(args != nullptr) {
-                n = env->GetArrayLength(args);
-                for(duk_idx_t i= 0;i<n;i++) {
-                    jobject v = env->GetObjectArrayElement(args,i);
-                    duk_push_JObject(ctx,v);
-                    if(v != nullptr) {
-                        env->DeleteLocalRef(v);
+        duk_context *ctx = v->jsContext();
+        void *heapptr = v->heapptr();
+
+        if (ctx && heapptr) {
+            duk_push_heapptr(ctx, heapptr);
+            if (duk_is_function(ctx, -1)) {
+                duk_idx_t n = 0;
+                if (args != nullptr) {
+                    n = env->GetArrayLength(args);
+                    for (duk_idx_t i = 0; i < n; i++) {
+                        jobject v = env->GetObjectArrayElement(args, i);
+                        duk_push_JObject(ctx, v);
+                        if (v != nullptr) {
+                            env->DeleteLocalRef(v);
+                        }
                     }
                 }
-            }
 
-            if(duk_pcall(ctx,n) != DUK_EXEC_SUCCESS) {
-                kk::Error(ctx,-1,"[JSObject] [call] ");
-            } else {
-                r = duk_to_JObject(env,ctx,-1);
+                if (duk_pcall(ctx, n) != DUK_EXEC_SUCCESS) {
+                    kk::Error(ctx, -1, "[JSObject] [call] ");
+                } else {
+                    r = duk_to_JObject(env, ctx, -1);
+                }
             }
+            duk_pop(ctx);
         }
-        duk_pop(ctx);
-    }
+
+    });
 
     return r;
 
@@ -1380,38 +1320,39 @@ Java_cn_kkmofang_ker_JSObject_invoke(JNIEnv *env,
 
     kk::JSObject * v = (kk::JSObject *) ptr;
 
-    assert(v->queue() == kk::getCurrentDispatchQueue());
-
     jobject r = nullptr;
 
-    duk_context * ctx = v->jsContext();
-    void * heapptr = v->heapptr();
+    v->queue()->sync([&r,v,env,args,name]()->void {
 
-    if(ctx && heapptr) {
-        duk_push_heapptr(ctx,heapptr);
-        duk_get_prop_string(ctx,-1, name);
-        if(duk_is_function(ctx,-1)) {
-            duk_dup(ctx,-2);
-            duk_idx_t n = 0;
-            if(args != nullptr) {
-                n = env->GetArrayLength(args);
-                for(duk_idx_t i= 0;i<n;i++) {
-                    jobject v = env->GetObjectArrayElement(args,i);
-                    duk_push_JObject(ctx,v);
-                    if(v != nullptr) {
-                        env->DeleteLocalRef(v);
+        duk_context *ctx = v->jsContext();
+        void *heapptr = v->heapptr();
+
+        if (ctx && heapptr) {
+            duk_push_heapptr(ctx, heapptr);
+            duk_get_prop_string(ctx, -1, name);
+            if (duk_is_function(ctx, -1)) {
+                duk_dup(ctx, -2);
+                duk_idx_t n = 0;
+                if (args != nullptr) {
+                    n = env->GetArrayLength(args);
+                    for (duk_idx_t i = 0; i < n; i++) {
+                        jobject v = env->GetObjectArrayElement(args, i);
+                        duk_push_JObject(ctx, v);
+                        if (v != nullptr) {
+                            env->DeleteLocalRef(v);
+                        }
                     }
                 }
-            }
 
-            if(duk_pcall_method(ctx,n) != DUK_EXEC_SUCCESS) {
-                kk::Error(ctx,-1,"[JSObject] [call] ");
-            } else {
-                r = duk_to_JObject(env,ctx,-1);
+                if (duk_pcall_method(ctx, n) != DUK_EXEC_SUCCESS) {
+                    kk::Error(ctx, -1, "[JSObject] [call] ");
+                } else {
+                    r = duk_to_JObject(env, ctx, -1);
+                }
             }
+            duk_pop_2(ctx);
         }
-        duk_pop_2(ctx);
-    }
+    });
 
     env->ReleaseStringUTFChars(name_, name);
 
