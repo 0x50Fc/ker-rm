@@ -18,7 +18,9 @@
 #import "KerURLProtocol.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #include "unzip.h"
-
+#import "KerView.h"
+#import "KerPage.h"
+#import "KerWeak.h"
 
 namespace kk {
     extern ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue);
@@ -26,7 +28,11 @@ namespace kk {
 
 @interface KerApp() {
     kk::ui::App * _app;
+    KerView * _view;
 }
+
+-(void) execViewCommand:(kk::ui::ViewCommand *) command;
+-(void) execPageCommand:(kk::ui::PageCommand *) command;
 
 @end
 
@@ -84,8 +90,57 @@ static NSString * gKerAppUserAgent = nil;
     return gKerAppUserAgent;
 }
 
+-(void) execViewCommand:(kk::ui::ViewCommand *) command {
+    [_view execCommand:command];
+}
+
+-(void) execPageCommand:(kk::ui::PageCommand *) command {
+    
+    kk::Strong<kk::ui::Page> page = _app->getPage(command->pageId);
+    
+    if(page != nullptr) {
+        
+        KerWeak * v = (__bridge KerWeak *) page->native();
+        
+        if(v != nil) {
+            KerPage * p = (KerPage *) v.object;
+            
+            if(p != nil) {
+            
+                {
+                    kk::ui::PageSetOptionsCommand * cmd = dynamic_cast<kk::ui::PageSetOptionsCommand *>(command);
+                    
+                    if(cmd != nullptr) {
+                        id options = KerObjectFromObject((kk::Object *) cmd->data);
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [p setOptions:options];
+                        });
+                        return;
+                    }
+                }
+                
+                {
+                    kk::ui::PageCloseCommand * cmd = dynamic_cast<kk::ui::PageCloseCommand *>(command);
+                    
+                    if(cmd != nullptr) {
+                        BOOL animated = cmd->animated;
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [p close:animated];
+                        });
+                        return;
+                    }
+                }
+                
+            }
+        }
+        
+    }
+    
+}
+
 -(instancetype) initWithBasePath:(NSString *) basePath appkey:(NSString *) appkey {
     if((self = [super init])) {
+        _view = [[KerView alloc] initWithApp:self];
         _appkey = appkey;
         _basePath = basePath;
         _dataPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker/"] stringByAppendingString:appkey];
@@ -94,41 +149,90 @@ static NSString * gKerAppUserAgent = nil;
         _app = new kk::ui::App([basePath UTF8String],"iOS",[[KerApp userAgent] UTF8String],[appkey UTF8String]);
         _app->retain();
         
-        CFTypeRef app = (__bridge CFTypeRef) self;
+        CFTypeRef native = (__bridge CFTypeRef) self;
         
-        _app->on("open", new kk::TFunction<void,kk::CString,kk::Event *>([app](kk::CString name,kk::Event * event)->void{
+        _app->setOnCommand([native](kk::ui::App * app,kk::ui::Command * command)->void{
             
-            @autoreleasepool {
-                KerApp * a = (__bridge KerApp *) app;
-                kk::TObject<kk::String, kk::Any> * data = (kk::TObject<kk::String, kk::Any> *) event->data();
-                kk::CString uri = (*data)["uri"];
-                kk::Boolean animated = true;
-                
-                if(data->find("animated") != data->end()) {
-                    animated = (*data)["animated"];
+            {
+                kk::ui::AppOpenCommand * cmd = dynamic_cast<kk::ui::AppOpenCommand *>(command);
+                if(cmd) {
+                    
+                    @autoreleasepool {
+                        
+                        KerApp * a = (__bridge KerApp *) native;
+                        
+                        NSString * u = [NSString stringWithCString:cmd->uri.c_str() encoding:NSUTF8StringEncoding];
+                        BOOL animated = cmd->animated;
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [a open:u animated:animated];
+                        });
+                        
+                    }
+                    
+                    return;
                 }
-                
-                [a open:[NSString stringWithCString:uri encoding:NSUTF8StringEncoding] animated:animated];
             }
             
-        }));
-        
-        _app->on("back", new kk::TFunction<void,kk::CString,kk::Event *>([app](kk::CString name,kk::Event * event)->void{
             
-            @autoreleasepool {
-                KerApp * a = (__bridge KerApp *) app;
-                kk::TObject<kk::String, kk::Any> * data = (kk::TObject<kk::String, kk::Any> *) event->data();
-                kk::Uint delta = (*data)["delta"];
-                kk::Boolean animated = true;
+            {
+                kk::ui::AppBackCommand * cmd = dynamic_cast<kk::ui::AppBackCommand *>(command);
                 
-                if(data->find("animated") != data->end()) {
-                    animated = (*data)["animated"];
+                if(cmd) {
+                    
+                    @autoreleasepool {
+                        
+                        __weak KerApp * a = (__bridge KerApp *) native;
+                        
+                        NSUInteger delta = cmd->delta;
+                        BOOL animated = cmd->animated;
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [a back:delta animated:animated];
+                        });
+                        
+                    }
+                    
+                    return;
                 }
-                
-                [a back:(NSUInteger) delta animated:animated];
             }
             
-        }));
+            {
+                kk::ui::ViewCommand * cmd = dynamic_cast<kk::ui::ViewCommand *>(command);
+                
+                if(cmd) {
+                    
+                    @autoreleasepool {
+                        
+                        __weak KerApp * a = (__bridge KerApp *) native;
+                        
+                        [a execViewCommand:cmd];
+                        
+                    }
+                    
+                    return;
+                }
+            }
+            
+            {
+                kk::ui::PageCommand * cmd = dynamic_cast<kk::ui::PageCommand *>(command);
+                
+                if(cmd) {
+                    
+                    @autoreleasepool {
+                        
+                        __weak KerApp * a = (__bridge KerApp *) native;
+                        
+                        [a execPageCommand:cmd];
+                        
+                    }
+                    
+                    return;
+                }
+            }
+            
+            
+        });
         
     }
     return self;
@@ -136,12 +240,17 @@ static NSString * gKerAppUserAgent = nil;
 
 -(void) dealloc {
     if(_app != nullptr) {
-        _app->off();
-        _app->release();
-        kk::Zombies * z = kk::Zombies::current();
-        if(z != nullptr) {
-            z->dump();
-        }
+        kk::ui::App * app = (kk::ui::App *) _app;
+        _app = nullptr;
+        app->setOnCommand(nullptr);
+        app->queue()->async([app]()->void{
+            app->off();
+            app->release();
+            kk::Zombies * z = kk::Zombies::current();
+            if(z != nullptr) {
+                z->dump();
+            }
+        });
     }
 }
 
@@ -166,8 +275,13 @@ static NSString * gKerAppUserAgent = nil;
 
     kk::Strong<kk::TObject<kk::String, kk::Any>> v = new kk::TObject<kk::String, kk::Any>({{"query",(__bridge kk::Native *) query}});
     
-    app->exec("main.js", (kk::TObject<kk::String, kk::Any> *) v);
+    CFTypeRef a = CFBridgingRetain(self);
     
+    app->queue()->async([v,app,a]()->void{
+        app->exec("main.js", v.operator->());
+        CFRelease(a);
+    });
+
 }
 
 -(void) back:(NSUInteger)delta animated:(BOOL) animated {
@@ -380,13 +494,17 @@ static NSString * gKerAppUserAgent = nil;
 
 -(void) recycle {
     if(_app != nullptr) {
-        _app->off();
-        _app->release();
+        kk::ui::App * app = (kk::ui::App *) _app;
         _app = nullptr;
-        kk::Zombies * z = kk::Zombies::current();
-        if(z != nullptr) {
-            z->dump();
-        }
+        app->setOnCommand(nullptr);
+        app->queue()->async([app]()->void{
+            app->off();
+            app->release();
+            kk::Zombies * z = kk::Zombies::current();
+            if(z != nullptr) {
+                z->dump();
+            }
+        });
     }
 }
 
@@ -773,6 +891,35 @@ static NSString * gKerAppUserAgent = nil;
         }
     } queue:dispatch_get_main_queue()];
     
+}
+
+-(void) emit:(NSString *) name viewId:(unsigned long long) viewId data:(id) data {
+    kk::String n = [name UTF8String];
+    kk::Strong<kk::ui::App> app = _app;
+    kk::Strong<kk::Event> e = new kk::Event();
+    
+    if(data != nil) {
+        e->setData(new kk::NativeValue((__bridge kk::Native *) data));
+    }
+    
+    app->queue()->async([e,n,viewId,app]()->void{
+        kk::Strong<kk::ui::View> view = app->getView(viewId);
+        if(view != nullptr) {
+            view->emit(n.c_str(), e.operator->());
+        }
+    });
+    
+}
+
+-(void) setContentOffset:(CGPoint) offset viewId:(unsigned long long) viewId {
+    kk::Strong<kk::ui::ViewSetContentOffsetCommand> cmd = new kk::ui::ViewSetContentOffsetCommand();
+    cmd->viewId = viewId;
+    cmd->offset.x = offset.x;
+    cmd->offset.y = offset.y;
+    kk::Strong<kk::ui::App> app = _app;
+    app->queue()->async([cmd,app]()->void{
+        app->dispatchCommand(cmd.operator->());
+    });
 }
 
 @end

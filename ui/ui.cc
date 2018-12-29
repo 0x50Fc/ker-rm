@@ -695,7 +695,7 @@ namespace kk {
         }
         
         kk::Strong<Canvas> Context::createCanvas() {
-            return kk::ui::createCanvas((DispatchQueue *) _queue);
+            return new Canvas(_queue);
         }
         
         kk::Strong<Image> Context::createImage(kk::CString src) {
@@ -739,6 +739,14 @@ namespace kk {
                 
             });
             
+        }
+        
+        kk::DispatchQueue * UIDispatchQueue() {
+            static kk::Strong<DispatchQueue> v;
+            if(v == nullptr) {
+                v = kk::createDispatchQueue("kk::ui::UIDispatchQueue");
+            }
+            return v;
         }
         
     }

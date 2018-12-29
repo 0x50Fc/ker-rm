@@ -13,77 +13,80 @@
 #include <ui/ui.h>
 #include <ui/view.h>
 #include <objc/runtime.h>
+#import "KerApp.h"
 
 @interface WKWebViewKKViewProtocol : NSObject<WKScriptMessageHandler,WKNavigationDelegate>
 
+@property(nonatomic,assign) kk::Uint64 viewId;
+@property(nonatomic,weak) KerApp * app;
+@property(nonatomic,assign) kk::ui::WebViewConfiguration * configuration;
 @end
 
 @implementation WKWebViewKKViewProtocol
 
+-(void) dealloc {
+    if(_configuration != nullptr) {
+        _configuration->release();
+    }
+}
+
+-(void) setConfiguration:(kk::ui::WebViewConfiguration *)configuration {
+    if(_configuration != configuration) {
+        if(configuration != nullptr) {
+            configuration->retain();
+        }
+        if(_configuration != nullptr) {
+            _configuration->release();
+        }
+        _configuration = configuration;
+    }
+}
+
 - (void) userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(message.webView, "__WKWebViewKerViewProtocol");
-    
-    if(view != nullptr) {
-        
-        kk::Strong<kk::Event> e = new kk::Event();
-        
-        e->setData(new kk::NativeValue((__bridge kk::Native *) message.body));
-        
-        view->emit("data", e);
-        
+    if(_viewId != 0) {
+        [_app emit:@"data" viewId:_viewId data:message.body];
     }
     
 }
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKerViewProtocol");
-    
-    if(view != nullptr) {
+    if(_viewId != 0 && _configuration) {
         
-        kk::ui::WebViewConfiguration * config = dynamic_cast<kk::ui::WebViewConfiguration *>( view->configuration() );
+        WKNavigationActionPolicy policy = WKNavigationActionPolicyCancel;
         
-        if(config != nullptr ){
+        NSString * u = navigationAction.request.URL.absoluteString;
+        
+        auto m = _configuration->userActions();
+        auto i = m.begin();
+        
+        while(i != m.end()) {
             
-            WKNavigationActionPolicy policy = WKNavigationActionPolicyCancel;
- 
-            NSString * u = navigationAction.request.URL.absoluteString;
+            kk::ui::WebViewUserAction & v = * i;
             
-            auto m = config->userActions();
-            auto i = m.begin();
-            while(i != m.end()) {
-                
-                kk::ui::WebViewUserAction & v = * i;
-                
-                NSRegularExpression * pattern = [NSRegularExpression regularExpressionWithPattern:[NSString stringWithCString:v.pattern.c_str() encoding:NSUTF8StringEncoding] options:NSRegularExpressionAnchorsMatchLines error:nil];
-                
-                NSTextCheckingResult * r = [pattern firstMatchInString:u options:NSMatchingReportProgress range:NSMakeRange(0, [u length])];
-                
-                if(r != nil) {
-                    if(v.policy == kk::ui::WebViewActionPolicyAllow) {
-                        policy = WKNavigationActionPolicyAllow;
-                    }
-                    break;
+            NSRegularExpression * pattern = [NSRegularExpression regularExpressionWithPattern:[NSString stringWithCString:v.pattern.c_str() encoding:NSUTF8StringEncoding] options:NSRegularExpressionAnchorsMatchLines error:nil];
+            
+            NSTextCheckingResult * r = [pattern firstMatchInString:u options:NSMatchingReportProgress range:NSMakeRange(0, [u length])];
+            
+            if(r != nil) {
+                if(v.policy == kk::ui::WebViewActionPolicyAllow) {
+                    policy = WKNavigationActionPolicyAllow;
                 }
-                
-                
-                i ++;
+                break;
             }
             
-            if(i != m.end()) {
-                
-                kk::Strong<kk::Event> e = new kk::Event();
-                
-                e->setData(new kk::TObject<kk::String,kk::String>({{"url",[u UTF8String]}}));
-                
-                view->emit("action", e);
-                
-                decisionHandler(policy);
-                
-                return;
-            }
             
+            i ++;
+        }
+        
+        if(i != m.end()) {
+            
+            [_app emit:@"action" viewId:_viewId data:@{@"url":u}];
+            
+            decisionHandler(policy);
+            
+            return;
         }
         
     }
@@ -96,29 +99,21 @@
 
 - (void)webView:(WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
     
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKerViewProtocol");
-    
-    if(view != nullptr) {
-        kk::Strong<kk::Event> e = new kk::Event();
-        view->emit("loading", e);
+    if(_viewId != 0) {
+        [_app emit:@"loading" viewId:_viewId data:nil];
     }
     
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKerViewProtocol");
-    if(view != nullptr) {
-        kk::Strong<kk::Event> e = new kk::Event();
-        view->emit("load", e);
+    if(_viewId != 0) {
+        [_app emit:@"load" viewId:_viewId data:nil];
     }
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error {
-    kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(webView, "__WKWebViewKerViewProtocol");
-    if(view != nullptr) {
-        kk::Strong<kk::Event> e = new kk::Event();
-        e->setData(new kk::TObject<kk::String,kk::String>({{"errmsg",[[error localizedDescription] UTF8String]}}));
-        view->emit("load", e);
+    if(_viewId != 0) {
+        [_app emit:@"error" viewId:_viewId data:@{@"errmsg":[error localizedDescription]}];
     }
 }
 
@@ -127,12 +122,8 @@
     if([object isKindOfClass:[WKWebView class]]) {
         if([keyPath isEqualToString:@"estimatedProgress"]) {
             
-            kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(object, "__WKWebViewKerViewProtocol");
-            
-            if(view != nullptr) {
-                kk::Strong<kk::Event> e = new kk::Event();
-                e->setData(new kk::TObject<kk::String,kk::Double>({{"errmsg",[(WKWebView *) object estimatedProgress]}}));
-                view->emit("progress", e);
+            if(_viewId != 0) {
+                [_app emit:@"progress" viewId:_viewId data:@{@"value":@([(WKWebView *) object estimatedProgress])}];
             }
             
         }
@@ -145,7 +136,7 @@
 
 @implementation WKWebView (KerViewProtocol)
 
-+(instancetype) KerViewCreateWithConfiguration:(void *) config {
++(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer *) config app:(KerApp *) app {
     
     kk::ui::WebViewConfiguration * v = dynamic_cast<kk::ui::WebViewConfiguration *>((kk::ui::ViewConfiguration *) config);
     
@@ -154,6 +145,9 @@
     WKUserContentController * userContentController = [[WKUserContentController alloc] init];
     
     WKWebViewKKViewProtocol * object = [[WKWebViewKKViewProtocol alloc] init];
+    
+    object.configuration = v;
+    object.app = app;
     
     [userContentController addScriptMessageHandler:object name:@"ker"];
     
@@ -196,128 +190,93 @@
 
     WKWebView * view = [[self alloc] initWithFrame:CGRectZero configuration:configuration];
     
+    objc_setAssociatedObject(view, "__WKWebViewKerViewProtocol", object, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    
     [view setNavigationDelegate:object];
     [view setOpaque:NO];
     
     return view;
 }
 
--(void) KerViewObtain:(KerViewCPointer) view {
-    [super KerViewObtain:view];
-    objc_setAssociatedObject(self, "__WKWebViewKerViewProtocol", (__bridge id) view, OBJC_ASSOCIATION_ASSIGN);
-    [self.scrollView KerViewObtain:view];
+-(void) KerViewObtain:(KerViewId) viewId app:(KerApp *)app {
+    [super KerViewObtain:viewId app:app];
+    WKWebViewKKViewProtocol * object = (WKWebViewKKViewProtocol *) objc_getAssociatedObject(self, "__WKWebViewKerViewProtocol");
+    object.viewId = viewId;
+    [self.scrollView KerViewObtain:viewId app:app];
 }
 
--(void) KerViewRecycle:(KerViewCPointer) view {
-    [super KerViewRecycle:view];
-    objc_setAssociatedObject(self, "__WKWebViewKerViewProtocol", nil, OBJC_ASSOCIATION_ASSIGN);
-    [self.scrollView KerViewRecycle:view];
+-(void) KerViewRecycle:(KerViewId) viewId app:(KerApp *) app {
+    [super KerViewRecycle:viewId app:app];
+    objc_setAssociatedObject(self, "__WKWebViewKerViewProtocol", nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self.scrollView KerViewRecycle:viewId app:app];
 }
 
 -(UIView *) KerViewContentView {
     return self.scrollView;
 }
 
--(void) KerView:(KerViewCPointer) view setAttribute:(const char *) key value:(const char *) value {
+-(void) KerView:(KerViewId) viewId setAttribute:(NSString *) key value:(NSString *) value app:(KerApp *)app {
     
-    [super KerView:view setAttribute:key value:value];
+    [super KerView:viewId setAttribute:key value:value app:app];
     
-    if(key == nullptr) {
+    if(key == nil) {
         return ;
     }
     
-    if(strcmp(key, "src") == 0) {
+    if([key isEqualToString:@"src"]) {
         
-        if(value != nullptr) {
+        if(value != nil) {
             
-            NSString * v = [NSString stringWithCString:value encoding:NSUTF8StringEncoding];
-            
-            if([v rangeOfString:@"://"].location == NSNotFound) {
+            if([value rangeOfString:@"://"].location == NSNotFound) {
                 
-                kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(self, "__WKWebViewKerViewProtocol");
+                NSString * basePath = app.basePath;
                 
-                if(view) {
-                    
-                    kk::ui::Context * ctx = view->context();
-                    
-                    if(ctx != nullptr) {
-                        kk::CString basePath = ctx->basePath();
-                        NSURL * baseURL = [NSURL fileURLWithPath:[NSString stringWithCString:basePath encoding:NSUTF8StringEncoding]];
-                        [self loadFileURL:[NSURL URLWithString:v relativeToURL:baseURL] allowingReadAccessToURL:baseURL];
-                    }
-                }
+                NSURL * baseURL = [NSURL URLWithString:[KerApp relativeURI:basePath]];
                 
+                [self loadFileURL:[NSURL URLWithString:value relativeToURL:baseURL] allowingReadAccessToURL:baseURL];
                 
             } else {
                 @try {
-                    NSURL * u = [NSURL URLWithString:[NSString stringWithCString:value encoding:NSUTF8StringEncoding]];
+                    NSURL * u = [NSURL URLWithString:value];
                     [self loadRequest:[NSURLRequest requestWithURL:u]];
                 }
                 @catch(NSException * ex) {
-                    NSLog(@"[KK] %@",ex);
+                    NSLog(@"[Ker] %@",ex);
                 }
             }
         }
         
-    } else if(strcmp(key, "#text") == 0) {
+    } else if([key isEqualToString:@"#text"]) {
         
-        if(value != nullptr) {
+        if(value != nil) {
             
-            NSURL * baseURL = nil;
+            NSString * basePath = app.basePath;
             
-            kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(self, "__WKWebViewKerViewProtocol");
+            NSURL * baseURL = [NSURL URLWithString:[KerApp relativeURI:basePath]];
             
-            if(view) {
-                
-                kk::ui::Context * ctx = view->context();
-                
-                if(ctx != nullptr) {
-                    kk::CString basePath = ctx->basePath();
-                    baseURL = [NSURL fileURLWithPath:[NSString stringWithCString:basePath encoding:NSUTF8StringEncoding]];
-                }
-            }
-            
-            [self loadHTMLString:[NSString stringWithCString:value encoding:NSUTF8StringEncoding] baseURL:baseURL];
+            [self loadHTMLString:value baseURL:baseURL];
             
         }
     }
     
 }
 
--(void) KerView:(KerViewCPointer) view setContent:(const char *) content contentType:(const char *) contentType basePath:(const char *) basePath {
+-(void) KerView:(KerViewId) viewId setContent:(NSString *) content contentType:(NSString *) contentType basePath:(NSString *) basePath app:(KerApp *)app {
     
-    if(content != nullptr) {
+    if(content != nil) {
         
-        NSURL * baseURL = nil;
+        NSString * path = [app basePath];
         
-        kk::ui::View * view = (__bridge kk::ui::View *) objc_getAssociatedObject(self, "__WKWebViewKerViewProtocol");
-        
-        if(view) {
-            
-            kk::ui::Context * ctx = view->context();
-            
-            if(ctx != nullptr) {
-                
-                kk::String path ;
-                
-                if(basePath == nullptr) {
-                    path.append(ctx->basePath());
-                } else {
-                    path = ctx->absolutePath(basePath);
-                }
-                
-                if(!kk::CStringHasSuffix(path.c_str(), "/")) {
-                    path.append("/");
-                }
-  
-                baseURL = [NSURL URLWithString:[KerApp relativeURI:[NSString stringWithCString:path.c_str() encoding:NSUTF8StringEncoding]]];
-            }
+        if([basePath length] != 0) {
+            path = [path stringByAppendingPathComponent:basePath];
         }
         
-        if(contentType != nullptr) {
-            [self loadData:[NSData dataWithBytes:content length:strlen(content)] MIMEType:[NSString stringWithCString:contentType encoding:NSUTF8StringEncoding] characterEncodingName:@"utf-8" baseURL:baseURL];
+        NSURL * baseURL = [NSURL URLWithString:[KerApp relativeURI:path]];
+        
+        if([contentType length] == 0) {
+            [self loadData:[content dataUsingEncoding:NSUTF8StringEncoding] MIMEType:contentType characterEncodingName:@"utf-8" baseURL:baseURL];
         } else {
-            [self loadHTMLString:[NSString stringWithCString:content encoding:NSUTF8StringEncoding] baseURL:baseURL];
+            [self loadHTMLString:content baseURL:baseURL];
         }
         
     }

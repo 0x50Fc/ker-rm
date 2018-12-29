@@ -11,7 +11,9 @@
 #import "UIColor+Ker.h"
 #include <ui/ui.h>
 #include <ui/view.h>
+#include <ui/app.h>
 #include <objc/runtime.h>
+#import "KerApp.h"
 
 namespace kk {
     namespace ui {
@@ -21,7 +23,7 @@ namespace kk {
 
 @implementation UIView (KerViewProtocol)
 
-+(instancetype) KerViewCreateWithConfiguration:(void *)configuration {
++(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer)configuration app:(KerApp *) app {
     return [[self alloc] initWithFrame:CGRectZero];
 }
 
@@ -29,68 +31,62 @@ namespace kk {
     return self;
 }
 
--(void) KerViewObtain:(KerViewCPointer) view {
+-(void) KerViewObtain:(KerViewId) view app:(KerApp *) app {
     
 }
 
--(void) KerView:(KerViewCPointer) view setAttribute:(const char *) key value:(const char *) value {
+-(void) KerView:(KerViewId) view setAttribute:(NSString *) key value:(NSString *) value app:(KerApp *) app{
     
-    if(key == nullptr) {
+    if(key == nil) {
         return ;
     }
     
-    if(strcmp(key, "background-color") == 0) {
-        self.backgroundColor = [UIColor colorWithKerCString:value];
-    } else if(strcmp(key, "transform") == 0) {
-        kk::ui::Transform v = kk::ui::TransformFromString(value);
+    if([key isEqualToString:@"background-color"]) {
+        self.backgroundColor = [UIColor colorWithKerCString:[value UTF8String]];
+    } else if([key isEqualToString:@"transform"]) {
+        kk::ui::Transform v = kk::ui::TransformFromString([value UTF8String]);
         self.transform = CGAffineTransformIdentity;
         self.transform = CGAffineTransformMake(v.a, v.b, v.c, v.d, v.tx, v.ty);
-    } else if(strcmp(key, "background-image") == 0) {
+    } else if([key isEqualToString:@"background-image"]) {
         if(value == nullptr) {
             self.layer.contents = nil;
         } else {
-            kk::String s(value);
-            if(kk::CStringHasPrefix(value, "url(") && kk::CStringHasSuffix(value, ")")) {
-                s = s.substr(4,s.length() - 5);
+            if([value hasPrefix:@"url("] && [value hasSuffix:@")"]) {
+                NSRange r = {4,[value length] - 5};
+                value = [value substringWithRange:r];
             }
-            kk::ui::View * v = (kk::ui::View *) view;
-            kk::Strong<kk::ui::Image> image = v->context()->createImage(s.c_str());
-            CGImageRef i = kk::ui::GetCGImage(image);
-            if(i != nil) {
-                self.layer.contents = (__bridge id) i;
-            } else {
-                self.layer.contents = nil;
-            }
+            UIImage * image = [app getImage:value];
+            self.layer.contents = (id) [image CGImage];
         }
-    } else if(strcmp(key, "background-gravity") == 0) {
+    } else if([key isEqualToString:@"background-gravity"]) {
         if(value == nullptr) {
             self.layer.contentsGravity = @"resize";
         } else {
-            self.layer.contentsGravity = [NSString stringWithCString:value encoding:NSUTF8StringEncoding];
+            self.layer.contentsGravity = value;
         }
-    } else if(strcmp(key, "overflow") == 0) {
-        self.clipsToBounds = kk::CStringEqual(value, "hidden");
-    } else if(strcmp(key, "hidden") == 0) {
-        self.hidden = value && strcmp(value, "true") == 0;
-    } else if(strcmp(key, "enabled") == 0) {
-        self.userInteractionEnabled = value && strcmp(value, "true") == 0;
-    } else if(strcmp(key, "border-radius") == 0) {
-        self.layer.cornerRadius = value ? atof(value) : 0;
-    } else if(strcmp(key, "border-width") == 0) {
-        self.layer.borderWidth = value ? atof(value) : 0;
-    } else if(strcmp(key, "border-color") == 0) {
-        self.layer.borderColor = [UIColor colorWithKerCString:value].CGColor;
-    } else if(strcmp(key, "opacity") == 0) {
-        self.layer.opacity = value ? atof(value) : 0;
+    } else if([key isEqualToString:@"overflow"]) {
+        self.clipsToBounds = [value isEqualToString:@"hidden"];
+    } else if([key isEqualToString:@"hidden"]) {
+        self.hidden = value && ![value isEqualToString:@"false"];
+    } else if([key isEqualToString:@"enabled"]) {
+        self.userInteractionEnabled = value && ![value isEqualToString:@"false"];
+    } else if([key isEqualToString:@"border-radius"]) {
+        self.layer.cornerRadius = [value doubleValue];
+    } else if([key isEqualToString:@"border-width"]) {
+        self.layer.borderWidth = [value doubleValue];
+    } else if([key isEqualToString:@"border-color"]) {
+        self.layer.borderColor = [UIColor colorWithKerCString:[value UTF8String]].CGColor;
+    } else if([key isEqualToString:@"opacity"]) {
+        self.layer.opacity = [value doubleValue];
     }
     
 }
 
--(void) KerViewRecycle:(KerViewCPointer) view {
+-(void) KerViewRecycle:(KerViewId) view app:(KerApp *) app {
     
 }
 
--(void) KerView:(KerViewCPointer) view setContent:(const char *) content contentType:(const char *) contentType basePath:(const char *) basePath {
+-(void) KerView:(KerViewId) view setContent:(NSString *) content contentType:(NSString *) contentType basePath:(NSString *) basePath app:(KerApp *) app {
     
 }
 

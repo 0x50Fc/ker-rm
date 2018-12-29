@@ -8,8 +8,23 @@
 
 #import <UIKit/UIKit.h>
 
+#if defined(__cplusplus)
+
+namespace kk {
+    namespace ui {
+        class App;
+    }
+}
+
+typedef kk::ui::App * KerAppCPointer;
+
+#else
+
 typedef void * KerAppCPointer;
 
+#endif
+
+@class KerPage;
 @class KerApp;
 
 typedef void (^KerAppGetPackageCallback)(NSString * basePath,NSString * appkey,NSString * errmsg);
@@ -58,6 +73,12 @@ typedef void (^KerAppGetPackageCallback)(NSString * basePath,NSString * appkey,N
 -(void) openViewController:(UIViewController *) viewController animated:(BOOL) animated;
 
 -(void) recycle;
+
+-(void) setContentOffset:(CGPoint) offset viewId:(unsigned long long) viewId;
+
+-(void) emit:(NSString *) name viewId:(unsigned long long) viewId data:(id) data;
+
+-(UIImage *) getImage:(NSString *) src;
 
 +(NSString *) encodeURL:(NSString *) url;
 

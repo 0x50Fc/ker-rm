@@ -32,6 +32,7 @@
 @property(nonatomic,strong) NSString * filePath;
 @property(nonatomic,weak) KerWXDownloadTask * task;
 @property(nonatomic,strong) id<KerWXDownloadFileObject> object;
+@property(nonatomic,strong) dispatch_queue_t queue;
 
 @end
 
@@ -44,7 +45,7 @@ didCompleteWithError:(nullable NSError *)error {
     
     if(error != nil ){
     
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(_queue, ^{
             
             [object fail:[error localizedDescription]];
             
@@ -53,7 +54,7 @@ didCompleteWithError:(nullable NSError *)error {
 
     [session finishTasksAndInvalidate];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(_queue, ^{
         [object complete];
     });
 }
@@ -64,7 +65,7 @@ totalBytesWritten:(int64_t)totalBytesWritten
 totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
     KerJSObject * process = _task.process;
     if(process && totalBytesExpectedToWrite >0 ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(_queue, ^{
             [process callWithArguments:@[@(totalBytesWritten * 100 / totalBytesExpectedToWrite),@(totalBytesWritten),@(totalBytesExpectedToWrite)]];
         });
     }
@@ -92,7 +93,7 @@ didFinishDownloadingToURL:(NSURL *)location {
     __weak KerWXDownloadTask * task = _task;
     id<KerWXDownloadFileObject> object = _object;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(_queue, ^{
         
         [task onResponse:(NSHTTPURLResponse *) downloadTask.response];
         
@@ -205,6 +206,7 @@ didFinishDownloadingToURL:(NSURL *)location {
     delegate.task = task;
     delegate.filePath = filePath;
     delegate.object  = object;
+    delegate.queue = jsObject.queue;
     
     NSURLSession * session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:delegate delegateQueue:[NSOperationQueue currentQueue]];
     

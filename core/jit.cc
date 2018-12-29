@@ -7,7 +7,6 @@
 //
 
 #include <core/jit.h>
-#include <thread>
 
 namespace kk {
     
@@ -196,23 +195,17 @@ namespace kk {
         }
     }
     
-    static pthread_key_t gJITContextKey = 0;
-    
-    static void gJITContextKeyDealloc(void * p) {
-        JITContext * v = (JITContext *) p;
-        v->release();
-    }
+    static kk::CString kJITContextKey = "kJITContextKey";
     
     JITContext * JITContext::current(){
-        if(gJITContextKey == 0) {
-            pthread_key_create(&gJITContextKey, gJITContextKeyDealloc);
-        }
-        JITContext * v = (JITContext *) pthread_getspecific(gJITContextKey);
+        
+        JITContext * v = (JITContext *) getDispatchQueueSpecific(kJITContextKey);
+        
         if(v == nullptr) {
             v = new JITContext();
-            v->retain();
-            pthread_setspecific(gJITContextKey, v);
+            setDispatchQueueSpecific(kJITContextKey, v);
         }
+        
         return v;
     }
     
@@ -493,9 +486,8 @@ namespace kk {
         
         _queue = getCurrentDispatchQueue();
         
-        if(_queue.get() != mainDispatchQueue()) {
-            kk::Log("");
-        }
+        assert(_queue != nullptr);
+        
     }
     
     void Error(duk_context * ctx, duk_idx_t idx, kk::CString prefix) {

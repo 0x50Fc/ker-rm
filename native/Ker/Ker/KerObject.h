@@ -20,6 +20,7 @@ id ker_to_NSObject(duk_context * ctx,duk_idx_t idx);
 
 kk::Any KerObjectToAny(id object);
 id KerObjectFromAny(kk::Any & v);
+id KerObjectFromObject(kk::Object * v);
 
 namespace kk {
     
@@ -53,6 +54,7 @@ typedef void * KerJSObjectRef;
 @interface KerJSObject : NSObject
 
 @property(nonatomic,readonly,assign) KerJSObjectRef JSObject;
+@property(nonatomic,readonly,strong) dispatch_queue_t queue;
 
 -(id) propertyForKey:(NSString *) key;
 

@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
+#include <ui/view.h>
 #include <ui/CGContext.h>
 #import "UI.h"
 
@@ -16,6 +17,7 @@ namespace kk {
 
     namespace ui {
     
+        
         namespace CG {
             
             class OSImageData : public ImageData, public CGImageGetter {
@@ -1208,6 +1210,21 @@ namespace kk {
             
             return nullptr;
         }
+        
+        kk::Strong<kk::ui::CG::Context> Canvas::createCGContext() {
+            return new CG::OSContext(_width,_height);
+        }
+        
+        kk::Strong<kk::ui::Image> Canvas::toImage() {
+            {
+                kk::ui::CG::Context * v =dynamic_cast<kk::ui::CG::Context *>(_context.get());
+                if(v) {
+                    return createImageWithCGContext(v);
+                }
+            }
+            return nullptr;
+        }
+        
         
     }
     

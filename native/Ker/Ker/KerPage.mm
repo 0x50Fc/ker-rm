@@ -10,6 +10,7 @@
 #import "KerObject.h"
 #include <ui/ui.h>
 #include <ui/page.h>
+#import "KerWeak.h"
 
 namespace kk {
     namespace ui {
@@ -29,43 +30,30 @@ namespace kk {
 
 @implementation KerPage
 
--(instancetype) initWithView:(UIView *) view app:(KerApp *) app {
+-(instancetype) initWithView:(UIView *) view app:(KerApp *) app{
     if((self = [super init])) {
         _app = app;
         _view = view;
-        kk::Strong<kk::ui::View> v = kk::ui::createView((__bridge CFTypeRef) view,nullptr,(kk::ui::Context *) [app CPointer]);
-        _page = new kk::ui::Page((kk::ui::App *)[_app CPointer],v);
-        {
-            kk::ui::Size s = {(kk::ui::Float)view.bounds.size.width,(kk::ui::Float)view.bounds.size.height};
-            _page->setSize(s);
-        }
+        
+        kk::ui::App * a = [app CPointer];
+        
+        kk::Strong<kk::ui::View> v = a->createView((__bridge kk::Native *) view);
+        
+        kk::Strong<kk::ui::Page> page = a->createPage(v);
+        
+        _page = page;
         _page->retain();
         
-        CFTypeRef page = (__bridge CFTypeRef) self;
+        KerWeak * native = [[KerWeak alloc] init];
+        native.object = self;
         
-        _page->on("options", new kk::TFunction<void,kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
-            
-            @autoreleasepool {
-                KerPage * p = (__bridge KerPage *) page;
-                kk::Any v = event->data();
-                id object = KerObjectFromAny(v);
-                [p setOptions:object];
-            }
-            
-        }));
+        _page->setNative((__bridge kk::Native *) native);
+    
+        kk::ui::Size s = {(kk::ui::Float)view.bounds.size.width,(kk::ui::Float)view.bounds.size.height};
         
-        _page->on("close", new kk::TFunction<void,kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
-            
-            @autoreleasepool {
-                __weak KerPage * p = (__bridge KerPage *) page;
-                kk::Any v = event->data();
-                id object = KerObjectFromAny(v);
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [p close:[[object ker_getValue:@"animated"] boolValue]];
-                });
-            }
-            
-        }));
+        _page->queue()->async([page,s]()->void{
+            page->setSize((kk::ui::Size &)s);
+        });
         
     }
     return self;
@@ -73,17 +61,24 @@ namespace kk {
 
 -(void) dealloc{
     if(_page) {
-        _page->off();
-        _page->release();
+        kk::ui::Page * page = _page;
+        _page = nullptr;
+        page->queue()->async([page]()->void{
+            page->off();
+            page->release();
+        });
     }
 }
 
 -(void) recycle {
     self.delegate = nil;
     if(_page) {
-        _page->off();
-        _page->release();
+        kk::ui::Page * page = _page;
         _page = nullptr;
+        page->queue()->async([page]()->void{
+            page->off();
+            page->release();
+        });
     }
 }
 
@@ -102,7 +97,13 @@ namespace kk {
         NSString * value = [query valueForKey:key];
         (*q)[[key UTF8String]] = [value UTF8String];
     }
-    _page->run([path UTF8String], q);
+    kk::String p = [path UTF8String];
+    kk::ui::Page * page = _page;
+    
+    _page->queue()->async([p,q,page]()->void{
+        page->run(p.c_str(), q.operator->());
+    });
+    
 }
 
 -(void) setSize:(CGSize) size {
@@ -110,7 +111,10 @@ namespace kk {
         return;
     }
     kk::ui::Size s = {(kk::ui::Float)size.width,(kk::ui::Float)size.height};
-    _page->setSize(s);
+    kk::ui::Page * page = _page;
+    _page->queue()->async([s,page]()->void{
+        page->setSize((kk::ui::Size &) s);
+    });
 }
 
 -(void) setOptions:(id) options {

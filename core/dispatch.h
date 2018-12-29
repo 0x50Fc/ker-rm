@@ -15,11 +15,13 @@
 
 
 namespace kk {
-    
+
     class DispatchQueue : public Object {
     public:
         virtual void async(std::function<void()> && func) = 0;
         virtual void sync(std::function<void()> && func) = 0;
+        virtual void setSpecific(const void * key,kk::Object * object) = 0;
+        virtual kk::Object * getSpecific(const void * key) = 0;
     };
     
     enum DispatchSourceType {
@@ -42,12 +44,13 @@ namespace kk {
     
     kk::Strong<DispatchSource> createDispatchSource(kk::Uint64 fd,DispatchSourceType type,DispatchQueue * queue);
     
-    DispatchQueue * mainDispatchQueue();
-    
     DispatchQueue * IODispatchQueue();
     
     DispatchQueue * getCurrentDispatchQueue();
     
+    kk::Object * getDispatchQueueSpecific(const void * key);
+    
+    void setDispatchQueueSpecific(const void * key,kk::Object * object);
     
 }
 

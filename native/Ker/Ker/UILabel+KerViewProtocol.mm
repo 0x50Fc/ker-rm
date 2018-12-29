@@ -9,25 +9,28 @@
 #import "UILabel+KerViewProtocol.h"
 #import "UIColor+Ker.h"
 #import "UIFont+Ker.h"
+#import "KerApp.h"
 
 @implementation UILabel (KerViewProtocol)
 
--(void) KerViewObtain:(KerViewCPointer) view {
-    [super KerViewObtain:view];
+-(void) KerViewObtain:(KerViewId) viewId app:(KerApp *)app {
+    [super KerViewObtain:viewId app:app];
     self.numberOfLines = 0;
 }
 
--(void) KerView:(KerViewCPointer)view setAttribute:(const char *)key value:(const char *)value {
-    [super KerView:view setAttribute:key value:value];
-    if(key == nullptr) {
+-(void) KerView:(KerViewId)viewId setAttribute:(NSString *)key value:(NSString *)value app:(KerApp *)app {
+    [super KerView:viewId setAttribute:key value:value app:app];
+    
+    if(key == nil) {
         return;
     }
-    if(strcmp(key, "color") == 0) {
-        self.textColor = [UIColor colorWithKerCString:value];
-    } else if(strcmp(key, "font") == 0) {
-        self.font = [UIFont fontWithKerCString:value];
-    } else if(strcmp(key, "text-align") == 0) {
-        kk::ui::TextAlign v = kk::ui::TextAlignFromString(value);
+    
+    if([key isEqualToString:@"color"]) {
+        self.textColor = [UIColor colorWithKerCString:[value UTF8String]];
+    } else if([key isEqualToString:@"font"]) {
+        self.font = [UIFont fontWithKerCString:[value UTF8String]];
+    } else if([key isEqualToString:@"text-align"]) {
+        kk::ui::TextAlign v = kk::ui::TextAlignFromString([value UTF8String]);
         switch (v) {
             case kk::ui::TextAlignCenter:
                 self.textAlignment = NSTextAlignmentCenter;
@@ -40,9 +43,10 @@
                 self.textAlignment = NSTextAlignmentLeft;
                 break;
         }
-    } else if(strcmp(key, "#text") == 0) {
-        self.text = value == nullptr ? nil : [NSString stringWithCString:value encoding:NSUTF8StringEncoding];
+    } else if([key isEqualToString:@"#text"]) {
+        self.text = value;
     }
 }
+
 
 @end

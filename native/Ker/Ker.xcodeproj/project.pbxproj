@@ -44,6 +44,10 @@
 		1AA4AC4421BFBC3A00C636F5 /* crypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3821BFBC3A00C636F5 /* crypt.h */; };
 		1AA4AC4721C21B2A00C636F5 /* crypto.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC4621C21B2A00C636F5 /* crypto.cc */; };
 		1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CBE21CB7AC80055C932 /* zombies.cc */; };
+		1AE91CC521D611450055C932 /* KerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE91CC321D611450055C932 /* KerView.h */; };
+		1AE91CC621D611450055C932 /* KerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CC421D611450055C932 /* KerView.mm */; };
+		1AE91CC921D741C90055C932 /* KerWeak.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE91CC721D741C90055C932 /* KerWeak.h */; };
+		1AE91CCA21D741C90055C932 /* KerWeak.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CC821D741C90055C932 /* KerWeak.m */; };
 		1AF0658D219D516000F8F7A8 /* Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0658B219D516000F8F7A8 /* Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */; };
 		1AF065A4219D518200F8F7A8 /* bio.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06595219D518200F8F7A8 /* bio.h */; };
@@ -146,6 +150,10 @@
 		1AA4AC4521C21A9400C636F5 /* crypto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = crypto.h; sourceTree = "<group>"; };
 		1AA4AC4621C21B2A00C636F5 /* crypto.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = crypto.cc; sourceTree = "<group>"; };
 		1AE91CBE21CB7AC80055C932 /* zombies.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = zombies.cc; sourceTree = "<group>"; };
+		1AE91CC321D611450055C932 /* KerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerView.h; sourceTree = "<group>"; };
+		1AE91CC421D611450055C932 /* KerView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerView.mm; sourceTree = "<group>"; };
+		1AE91CC721D741C90055C932 /* KerWeak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerWeak.h; sourceTree = "<group>"; };
+		1AE91CC821D741C90055C932 /* KerWeak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerWeak.m; sourceTree = "<group>"; };
 		1AF06588219D516000F8F7A8 /* Ker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF0658B219D516000F8F7A8 /* Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ker.h; sourceTree = "<group>"; };
 		1AF0658C219D516000F8F7A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -278,6 +286,8 @@
 				1AA4AB6D21BE344700C636F5 /* Package.mm */,
 				1AF065DE219D53EA00F8F7A8 /* KerObject.h */,
 				1AF065DD219D53EA00F8F7A8 /* KerObject.mm */,
+				1AE91CC321D611450055C932 /* KerView.h */,
+				1AE91CC421D611450055C932 /* KerView.mm */,
 				1AF065E2219D547000F8F7A8 /* KerApp.h */,
 				1AF065E1219D547000F8F7A8 /* KerApp.mm */,
 				1AF065E6219D54AC00F8F7A8 /* KerPage.h */,
@@ -311,6 +321,8 @@
 				1AF0658C219D516000F8F7A8 /* Info.plist */,
 				1A53C6F621BE154300170AB7 /* UIImage+Ker.h */,
 				1A53C6F721BE154300170AB7 /* UIImage+Ker.mm */,
+				1AE91CC721D741C90055C932 /* KerWeak.h */,
+				1AE91CC821D741C90055C932 /* KerWeak.m */,
 			);
 			path = Ker;
 			sourceTree = "<group>";
@@ -410,6 +422,8 @@
 				1AA4AC3D21BFBC3A00C636F5 /* unzip.h in Headers */,
 				1AF0658D219D516000F8F7A8 /* Ker.h in Headers */,
 				1AF065CF219D52E200F8F7A8 /* KerViewProtocol.h in Headers */,
+				1AE91CC921D741C90055C932 /* KerWeak.h in Headers */,
+				1AE91CC521D611450055C932 /* KerView.h in Headers */,
 				1AF4CE3921A56DF600AE1249 /* UILabel+KerViewProtocol.h in Headers */,
 				1AF065FD219D555E00F8F7A8 /* UIView+KerViewProtocol.h in Headers */,
 				1AF065E0219D53EB00F8F7A8 /* KerObject.h in Headers */,
@@ -553,7 +567,9 @@
 				1AF065FF219D555E00F8F7A8 /* UIView+KerViewProtocol.mm in Sources */,
 				1AA4AC3A21BFBC3A00C636F5 /* mztools.c in Sources */,
 				1AF065E3219D547000F8F7A8 /* KerApp.mm in Sources */,
+				1AE91CCA21D741C90055C932 /* KerWeak.m in Sources */,
 				1A53C6F921BE154300170AB7 /* UIImage+Ker.mm in Sources */,
+				1AE91CC621D611450055C932 /* KerView.mm in Sources */,
 				1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */,
 				1AF4CE3221A56A2000AE1249 /* UIFont+Ker.mm in Sources */,
 				1AF065AA219D518200F8F7A8 /* kk.cc in Sources */,
@@ -742,7 +758,7 @@
 					"@loader_path/Frameworks",
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = "-DKER_ZOMBIES";
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.Ker;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;

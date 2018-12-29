@@ -82,6 +82,8 @@ void KerAddAppOpenlib(KerAddOpenlibFunction func) {
 
 namespace kk {
 
+    extern ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue);
+    
     void LogV(const char * format, va_list va) {
         NSLogv([NSString stringWithFormat:@"[Ker] %s",format], va);
         while(0){};
@@ -785,6 +787,83 @@ kk::Any KerObjectToAny(id object) {
     return v;
 }
 
+id KerObjectFromObject(kk::Object * v) {
+    
+    if(v == nullptr) {
+        return nil;
+    }
+    
+    {
+        kk::_TObject * object = dynamic_cast<kk::_TObject *>(v);
+        if(object) {
+            NSMutableDictionary * m = [NSMutableDictionary dictionaryWithCapacity:4];
+            object->forEach([m](kk::Any & key,kk::Any & value)->void{
+                kk::CString skey = key;
+                id vv = KerObjectFromAny(value);
+                if(skey) {
+                    [m setObject:vv forKey:[NSString stringWithCString:skey encoding:NSUTF8StringEncoding]];
+                }
+            });
+            return m;
+        }
+    }
+    {
+        kk::_Array * object = dynamic_cast<kk::_Array *>(v);
+        if(object) {
+            NSMutableArray * m = [NSMutableArray arrayWithCapacity:4];
+            object->forEach([m](kk::Any & value)->void{
+                id vv = KerObjectFromAny(value);
+                if(vv) {
+                    [m addObject:vv];
+                }
+            });
+            return m;
+        }
+    }
+    
+    {
+        kk::JSObject * object = dynamic_cast<kk::JSObject *>(v);
+        if(object) {
+            id r  = nil;
+            duk_context * ctx = object->jsContext();
+            void * heapptr = object->heapptr();
+            if(ctx && heapptr) {
+                duk_push_heapptr(ctx, heapptr);
+                if(duk_is_function(ctx, -1)) {
+                    r = [[KerJSObject alloc] initWithJSObject:object];
+                } else if(duk_is_array(ctx, -1)){
+                    r = [NSMutableArray arrayWithCapacity:4];
+                    duk_enum(ctx, -1, DUK_ENUM_ARRAY_INDICES_ONLY);
+                    while(duk_next(ctx, -1, 1)) {
+                        id i = ker_to_NSObject(ctx,-1);
+                        if(i != nil) {
+                            [r addObject:i];
+                        }
+                        duk_pop_2(ctx);
+                    }
+                    duk_pop(ctx);
+                } else {
+                    r = [NSMutableDictionary dictionaryWithCapacity:4];
+                    duk_enum(ctx, -1, DUK_ENUM_INCLUDE_SYMBOLS);
+                    while(duk_next(ctx, -1, 1)) {
+                        id key = ker_to_NSObject(ctx,-2);
+                        id value = ker_to_NSObject(ctx,-1);
+                        if(key && value && [key conformsToProtocol:@protocol(NSCopying)]) {
+                             [r setObject:value forKey:key];
+                        }
+                        duk_pop_2(ctx);
+                    }
+                    duk_pop(ctx);
+                }
+                duk_pop(ctx);
+            }
+            return r;
+        }
+    }
+    
+    return nil;
+}
+
 id KerObjectFromAny(kk::Any & v) {
     switch (v.type) {
         case kk::TypeInt8:
@@ -1084,20 +1163,25 @@ static void KerJSObjectDynamicObjectGetProperty(KerJSObject * object,NSInvocatio
     
     if(v) {
         
-        duk_context * ctx = v->jsContext();
-        void * heapptr = v->heapptr();
+        v->queue()->sync([v,name,anInvocation]()->void{
+            
+            duk_context * ctx = v->jsContext();
+            void * heapptr = v->heapptr();
+            
+            if(ctx && heapptr) {
+                
+                duk_push_heapptr(ctx, heapptr);
+                
+                duk_get_prop_string(ctx, -1, [name UTF8String]);
+                
+                KerJSObjectDynamicObjectSetReturnValue(ctx,-1,anInvocation);
+                
+                duk_pop_2(ctx);
+                
+            }
+            
+        });
         
-        if(ctx && heapptr) {
-            
-            duk_push_heapptr(ctx, heapptr);
-             
-            duk_get_prop_string(ctx, -1, [name UTF8String]);
-            
-            KerJSObjectDynamicObjectSetReturnValue(ctx,-1,anInvocation);
-            
-            duk_pop_2(ctx);
-           
-        }
     }
     
 }
@@ -1108,21 +1192,26 @@ static void KerJSObjectDynamicObjectSetProperty(KerJSObject * object,NSInvocatio
     
     if(v) {
         
-        duk_context * ctx = v->jsContext();
-        void * heapptr = v->heapptr();
+        v->queue()->sync([v,name,anInvocation]()->void{
+            
+            duk_context * ctx = v->jsContext();
+            void * heapptr = v->heapptr();
+            
+            if(ctx && heapptr) {
+                
+                duk_push_heapptr(ctx, heapptr);
+                
+                duk_push_string(ctx, [name UTF8String]);
+                KerJSObjectDynamicObjectPushValue(ctx,anInvocation,2);
+                duk_put_prop(ctx, -3);
+                
+                duk_pop(ctx);
+                
+                
+            }
+            
+        });
         
-        if(ctx && heapptr) {
-            
-            duk_push_heapptr(ctx, heapptr);
-            
-            duk_push_string(ctx, [name UTF8String]);
-            KerJSObjectDynamicObjectPushValue(ctx,anInvocation,2);
-            duk_put_prop(ctx, -3);
-            
-            duk_pop(ctx);
-            
-            
-        }
     }
     
 }
@@ -1133,36 +1222,41 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
     
     if(v) {
         
-        duk_context * ctx = v->jsContext();
-        void * heapptr = v->heapptr();
-        
-        if(ctx && heapptr) {
+        v->queue()->sync([v,anInvocation,name]()->void{
             
-            duk_push_heapptr(ctx, heapptr);
+            duk_context * ctx = v->jsContext();
+            void * heapptr = v->heapptr();
             
-            duk_get_prop_string(ctx, -1, [name UTF8String]);
-            
-            if(duk_is_function(ctx, -1)) {
+            if(ctx && heapptr) {
                 
                 duk_push_heapptr(ctx, heapptr);
                 
-                NSUInteger n = [[anInvocation methodSignature] numberOfArguments];
+                duk_get_prop_string(ctx, -1, [name UTF8String]);
                 
-                for(int i=2;i<n;i++) {
-                    KerJSObjectDynamicObjectPushValue(ctx,anInvocation,i);
+                if(duk_is_function(ctx, -1)) {
+                    
+                    duk_push_heapptr(ctx, heapptr);
+                    
+                    NSUInteger n = [[anInvocation methodSignature] numberOfArguments];
+                    
+                    for(int i=2;i<n;i++) {
+                        KerJSObjectDynamicObjectPushValue(ctx,anInvocation,i);
+                    }
+                    
+                    if(duk_pcall_method(ctx, (duk_idx_t) n - 2) != DUK_EXEC_SUCCESS) {
+                        kk::Error(ctx, -1, "[KerJSObjectDynamicObjectInvoke]");
+                    } else {
+                        KerJSObjectDynamicObjectSetReturnValue(ctx,-1,anInvocation);
+                    }
+                    
                 }
                 
-                if(duk_pcall_method(ctx, (duk_idx_t) n - 2) != DUK_EXEC_SUCCESS) {
-                    kk::Error(ctx, -1, "[KerJSObjectDynamicObjectInvoke]");
-                } else {
-                    KerJSObjectDynamicObjectSetReturnValue(ctx,-1,anInvocation);
-                }
+                duk_pop_2(ctx);
                 
             }
             
-            duk_pop_2(ctx);
-            
-        }
+        });
+        
     }
     
 }
@@ -1212,25 +1306,40 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
     return self;
 }
 
+-(dispatch_queue_t) queue {
+    if(_JSObject == nullptr) {
+        return nil;
+    }
+    return kk::DispatchQueueGCD(_JSObject->queue());
+}
+
 -(void) dealloc {
     if(_JSObject) {
-        _JSObject->release();
+        kk::JSObject * v = _JSObject;
+        _JSObject->queue()->async([v]()->void{
+            v->release();
+        });
+        _JSObject = nullptr;
     }
     NSLog(@"[Ker] [KerJSObject] [dealloc]");
 }
 
 
 -(id) propertyForKey:(NSString *) key {
-    if(_JSObject) {
-        duk_context * ctx = _JSObject->jsContext();
-        void * heapptr = _JSObject->heapptr();
-        if(ctx && heapptr) {
-            duk_push_heapptr(ctx, heapptr);
-            duk_get_prop_string(ctx, -1, [key UTF8String]);
-            id v = ker_to_NSObject(ctx, -1);
-            duk_pop_2(ctx);
-            return v;
-        }
+    kk::JSObject * v = _JSObject;
+    if(v != nullptr) {
+        id r = nil;
+        v->queue()->sync([v,key,&r]()->void{
+            duk_context * ctx = v->jsContext();
+            void * heapptr = v->heapptr();
+            if(ctx && heapptr) {
+                duk_push_heapptr(ctx, heapptr);
+                duk_get_prop_string(ctx, -1, [key UTF8String]);
+                r = ker_to_NSObject(ctx, -1);
+                duk_pop_2(ctx);
+            }
+        });
+        return r;
     }
     return nil;
 }
@@ -1240,52 +1349,64 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
 }
 
 -(void) setProperty:(id) value forKey:(NSString *) key {
-    if(_JSObject) {
-        duk_context * ctx = _JSObject->jsContext();
-        void * heapptr = _JSObject->heapptr();
-        if(ctx && heapptr) {
-            duk_push_heapptr(ctx, heapptr);
-            duk_push_string(ctx, [key UTF8String]);
-            ker_push_NSObject(ctx, value);
-            duk_put_prop(ctx, -3);
-            duk_pop(ctx);
-        }
+    kk::JSObject * v = _JSObject;
+    if(v != nullptr) {
+        v->queue()->sync([v,key,value]()->void{
+            duk_context * ctx = v->jsContext();
+            void * heapptr = v->heapptr();
+            if(ctx && heapptr) {
+                duk_push_heapptr(ctx, heapptr);
+                duk_push_string(ctx, [key UTF8String]);
+                ker_push_NSObject(ctx, value);
+                duk_put_prop(ctx, -3);
+                duk_pop(ctx);
+            }
+        });
     }
 }
 
 -(id) invoke:(NSString *) name arguments:(NSArray *) arguments {
     
-    if(_JSObject) {
-        duk_context * ctx = _JSObject->jsContext();
-        void * heapptr = _JSObject->heapptr();
-        if(ctx && heapptr) {
+    kk::JSObject * v = _JSObject;
+    
+    if(v != nullptr) {
+        
+        id r = nil;
+        
+        v->queue()->sync([&r,name,arguments,v]()->void{
             
-            id v = nil;
+            duk_context * ctx = v->jsContext();
+            void * heapptr = v->heapptr();
             
-            duk_push_heapptr(ctx, heapptr);
-            
-            duk_get_prop_string(ctx, -1, [name UTF8String]);
-            
-            if(duk_is_function(ctx, -1)) {
+            if(ctx && heapptr) {
                 
                 duk_push_heapptr(ctx, heapptr);
                 
-                for(id v in arguments) {
-                    ker_push_NSObject(ctx, v);
+                duk_get_prop_string(ctx, -1, [name UTF8String]);
+                
+                if(duk_is_function(ctx, -1)) {
+                    
+                    duk_push_heapptr(ctx, heapptr);
+                    
+                    for(id v in arguments) {
+                        ker_push_NSObject(ctx, v);
+                    }
+                    
+                    if(duk_pcall_method(ctx, (duk_idx_t) [arguments count]) != DUK_EXEC_SUCCESS) {
+                        kk::Error(ctx, -1, "[KerJSObject] [invoke]");
+                    } else {
+                        r = ker_to_NSObject(ctx, -1);
+                    }
+                    
                 }
                 
-                if(duk_pcall_method(ctx, (duk_idx_t) [arguments count]) != DUK_EXEC_SUCCESS) {
-                    kk::Error(ctx, -1, "[KerJSObject] [invoke]");
-                } else {
-                    v = ker_to_NSObject(ctx, -1);
-                }
-                
+                duk_pop_2(ctx);
+
             }
             
-            duk_pop_2(ctx);
-            
-            return v;
-        }
+        });
+        
+        return r;
     }
     
     return nil;

@@ -35,7 +35,7 @@
 
 -(void) viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    if(CGSizeEqualToSize(_layoutSize, self.view.bounds.size)) {
+    if(!CGSizeEqualToSize(_layoutSize, self.view.bounds.size)) {
         _layoutSize = self.view.bounds.size;
         [_page setSize:_layoutSize];
     }

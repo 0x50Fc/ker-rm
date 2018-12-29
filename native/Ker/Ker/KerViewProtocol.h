@@ -13,33 +13,37 @@
 
 namespace kk {
     namespace ui {
+        class App;
         class View;
         class ViewConfiguration;
     }
 }
 
-typedef kk::ui::View * KerViewCPointer;
+typedef unsigned long long KerViewId;
+
 typedef kk::ui::ViewConfiguration * KerViewConfigurationCPointer;
 
 #else
 
-typedef void * KerViewCPointer;
+typedef unsigned long long KerViewId;
 
 typedef void * KerViewConfigurationCPointer;
 
 #endif
 
+@class KerApp;
+
 @protocol KerViewProtocol <NSObject>
 
-+(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer) configuration;
++(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer) configuration app:(KerApp *) app;
 
--(void) KerViewObtain:(KerViewCPointer) view;
+-(void) KerViewObtain:(KerViewId) view app:(KerApp *) app;
 
--(void) KerView:(KerViewCPointer) view setAttribute:(const char *) key value:(const char *) value;
+-(void) KerView:(KerViewId) view setAttribute:(NSString *) key value:(NSString *) value app:(KerApp *) app;
 
--(void) KerView:(KerViewCPointer) view setContent:(const char *) content contentType:(const char *) contentType basePath:(const char *) basePath;
+-(void) KerView:(KerViewId) view setContent:(NSString *) content contentType:(NSString *) contentType basePath:(NSString *) basePath app:(KerApp *) app;
 
--(void) KerViewRecycle:(KerViewCPointer) view;
+-(void) KerViewRecycle:(KerViewId) view app:(KerApp *) app;
 
 -(UIView *) KerViewContentView;
 

@@ -17,6 +17,19 @@ namespace kk {
     namespace ui {
         
         class Package;
+        class Page;
+        
+        class AppOpenCommand : public Command {
+        public:
+            kk::String uri;
+            kk::Boolean animated;
+        };
+        
+        class AppBackCommand : public Command {
+        public:
+            kk::Uint delta;
+            kk::Boolean animated;
+        };
         
         class App : public Context {
         public:
@@ -31,11 +44,33 @@ namespace kk {
             
             virtual kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration);
             
+            virtual kk::Strong<View> getView(kk::Uint64 viewId);
+            
+            virtual kk::Strong<View> createView(kk::Native * native);
+            
+            virtual void removeView(kk::Uint64 viewId);
+            
+            virtual kk::Strong<Canvas> createCanvas(View * view,DispatchQueue * queue);
+            
+            virtual void removeCanvas(kk::Uint64 canvasId);
+            
+            virtual kk::Strong<Page> createPage(View * view);
+            
+            virtual kk::Strong<Page> getPage(kk::Uint64 pageId);
+            
+            virtual void removePage(kk::Uint64 pageId);
+            
             virtual Size getAttributedTextContentSize(AttributedText * text,Float maxWidth);
             
             virtual kk::Strong<Package> createPackage(kk::CString URI);
             
             virtual kk::CString appkey();
+            
+            virtual void execCommand(Command * command);
+            
+            virtual void dispatchCommand(Command * command);
+            
+            virtual void setOnCommand(std::function<void(App * ,Command *)> && func);
             
             static void Openlib();
             
@@ -43,6 +78,11 @@ namespace kk {
     
         protected:
             kk::String _appkey;
+            std::function<void(App * ,Command *)> _onCommand;
+            kk::Uint64 _autoId;
+            std::map<kk::Uint64,kk::Weak<View>> _views;
+            std::map<kk::Uint64,kk::Weak<Canvas>> _canvas;
+            std::map<kk::Uint64,kk::Weak<Page>> _pages;
         };
         
         

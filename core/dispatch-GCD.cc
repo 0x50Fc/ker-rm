@@ -9,37 +9,33 @@
 #include <core/dispatch.h>
 #include <future>
 #include <dispatch/dispatch.h>
-#include <pthread.h>
 
 namespace kk {
     
     class GCDDispatchQueue;
     
-    static pthread_key_t kGCDDispatchQueueKey = 0;
-    
+    static kk::CString kGCDDispatchQueueKey = "kGCDDispatchQueueKey";
+
+    static void GCDDispatchQueueSpecificObjectRelease(void * v) {
+        if(v == nullptr) {
+            return;
+        }
+        kk::Object * object = (kk::Object *) v;
+        delete object;
+    }
     
     class GCDDispatchQueue : public DispatchQueue {
     public:
         
         GCDDispatchQueue(kk::CString name) {
             _queue = ::dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL);
-            if(kGCDDispatchQueueKey == 0) {
-                pthread_key_create(&kGCDDispatchQueueKey, nullptr);
-            }
-            GCDDispatchQueue * v = this;
-            dispatch_async(_queue, ^{
-                assert(pthread_getspecific(kGCDDispatchQueueKey) == nullptr);
-                pthread_setspecific(kGCDDispatchQueueKey, v);
-            });
+            dispatch_queue_set_specific(_queue, kGCDDispatchQueueKey, this, nullptr);
         }
         
         GCDDispatchQueue(::dispatch_queue_t queue) {
             _queue = queue;
-            if(kGCDDispatchQueueKey == 0) {
-                pthread_key_create(&kGCDDispatchQueueKey, nullptr);
-            }
-            assert(pthread_getspecific(kGCDDispatchQueueKey) == nullptr);
-            pthread_setspecific(kGCDDispatchQueueKey, this);
+            dispatch_retain(_queue);
+            dispatch_queue_set_specific(_queue, kGCDDispatchQueueKey, this, nullptr);
         }
         
         virtual ~GCDDispatchQueue(){
@@ -57,6 +53,7 @@ namespace kk {
             });
             
         }
+        
         virtual void sync(std::function<void()> && func) {
             if(this == getCurrentDispatchQueue()) {
                 func();
@@ -66,31 +63,38 @@ namespace kk {
                 });
             }
         }
+        
+        virtual void setSpecific(const void * key,kk::Object * object) {
+            _objects[key] = object;
+        }
+        
+        virtual kk::Object * getSpecific(const void * key) {
+            auto i = _objects.find(key);
+            if(i != _objects.end()) {
+                return i->second;
+            }
+            return nullptr;
+        }
+        
         virtual ::dispatch_queue_t queue() {
             return _queue;
         }
+        
+    protected:
+        std::map<const void *,kk::Strong<kk::Object>> _objects;
     protected:
         ::dispatch_queue_t _queue;
     };
 
     DispatchQueue * getCurrentDispatchQueue() {
         if(kGCDDispatchQueueKey != 0) {
-            return (DispatchQueue *) pthread_getspecific(kGCDDispatchQueueKey);
+            return (DispatchQueue *) dispatch_get_specific(kGCDDispatchQueueKey);
         }
         return nullptr;
     }
     
     kk::Strong<DispatchQueue> createDispatchQueue(kk::CString name) {
         return new GCDDispatchQueue(name);
-    }
-    
-    DispatchQueue * mainDispatchQueue() {
-        static DispatchQueue * v = nullptr;
-        if(v == nullptr){
-            v = new kk::GCDDispatchQueue(dispatch_get_main_queue());
-            v->retain();
-        }
-        return v;
     }
     
     class GCDDispatchSource : public DispatchSource {
@@ -169,16 +173,29 @@ namespace kk {
     
     DispatchQueue * IODispatchQueue() {
         static DispatchQueue * v = nullptr;
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
+        if(v == nullptr) {
             v = new kk::GCDDispatchQueue("kk::IODispatchQueue");
             v->retain();
-        });
+        }
         return v;
     }
     
     ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue) {
         return ((GCDDispatchQueue *) queue)->queue();
+    }
+    
+    kk::Object * getDispatchQueueSpecific(const void * key) {
+        GCDDispatchQueue * queue = (GCDDispatchQueue *) getCurrentDispatchQueue();
+        if(queue != nullptr) {
+            return queue->getSpecific(key);
+        }
+        return nullptr;
+    }
+    
+    void setDispatchQueueSpecific(const void * key,kk::Object * object) {
+        GCDDispatchQueue * queue = (GCDDispatchQueue *) getCurrentDispatchQueue();
+        assert(queue != nullptr);
+        queue->setSpecific(key,object);
     }
     
 }

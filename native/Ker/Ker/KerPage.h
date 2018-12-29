@@ -9,7 +9,21 @@
 #import <UIKit/UIKit.h>
 #import <Ker/KerApp.h>
 
+#if defined(__cplusplus)
+
+namespace kk {
+    namespace ui {
+        class Page;
+    }
+}
+
+typedef kk::ui::Page * KerPageCPointer;
+
+#else
+
 typedef void * KerPageCPointer;
+
+#endif
 
 @class KerPage;
 
@@ -38,6 +52,10 @@ typedef void * KerPageCPointer;
 -(void) setSize:(CGSize) size;
 
 -(void) recycle;
+
+-(void) setOptions:(id) options;
+
+-(void) close:(BOOL) animated;
 
 @end
 

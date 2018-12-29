@@ -8,6 +8,7 @@
 
 #include <ui/app.h>
 #include <ui/page.h>
+#include <ui/view.h>
 #include <ui/CGContext.h>
 #include <ui/package.h>
 #include <core/crypto.h>
@@ -16,20 +17,22 @@ namespace kk {
     
     namespace ui {
     
-        App::App(kk::CString basePath,kk::CString platform,kk::CString userAgent,kk::CString appkey):Context(basePath,kk::mainDispatchQueue()),_appkey(appkey) {
+        App::App(kk::CString basePath,kk::CString platform,kk::CString userAgent,kk::CString appkey):Context(basePath,UIDispatchQueue()),_appkey(appkey),_autoId(0) {
 
-            duk_context * ctx = jsContext();
+            _queue->sync([this,userAgent,platform]()->void{
+                
+                PushWeakObject(_jsContext, this);
+                duk_put_global_string(_jsContext, "app");
+                
+                duk_push_string(_jsContext, platform);
+                duk_put_global_string(_jsContext, "platform");
+                
+                duk_push_string(_jsContext, userAgent);
+                duk_put_global_string(_jsContext, "userAgent");
+                
+                kk::Openlib<App *>::openlib(_jsContext, this);
+            });
             
-            PushWeakObject(ctx, this);
-            duk_put_global_string(ctx, "app");
-            
-            duk_push_string(ctx, platform);
-            duk_put_global_string(ctx, "platform");
-            
-            duk_push_string(ctx, userAgent);
-            duk_put_global_string(ctx, "userAgent");
-            
-            kk::Openlib<App *>::openlib(ctx, this);
         }
         
         App::~App() {
@@ -44,23 +47,80 @@ namespace kk {
             if(uri == nullptr) {
                 return;
             }
-            kk::Strong<Event> e = new Event();
-            kk::Strong<kk::TObject<kk::String, kk::Any>> data = new kk::TObject<kk::String, kk::Any>({{"uri", kk::Any(uri)},{"animated",kk::Any(animated)}});
-            e->setData((kk::TObject<kk::String, kk::Any> *) data);
-            emit("open", e);
+            kk::Strong<AppOpenCommand> cmd = new AppOpenCommand();
+            cmd->uri = uri;
+            cmd->animated = animated;
+            execCommand(cmd);
         }
         
         void App::back(kk::Uint delta,kk::Boolean animated) {
-            kk::Strong<Event> e = new Event();
-            kk::Strong<kk::TObject<kk::String, kk::Any>> data = new kk::TObject<kk::String, kk::Any>({{"delta", kk::Any(delta)},{"animated",kk::Any(animated)}});
-            e->setData((kk::TObject<kk::String, kk::Any> *) data);
-            emit("back", e);
+            kk::Strong<AppBackCommand> cmd = new AppBackCommand();
+            cmd->delta = delta;
+            cmd->animated = animated;
+            execCommand(cmd);
         }
         
         kk::Strong<View> App::createView(kk::CString name,ViewConfiguration * configuration) {
-            return kk::ui::createView(name, configuration, this);
+            kk::Strong<View> v = new View(name, configuration,this,++_autoId);
+            _views[v->viewId()] = (View *) v;
+            return v;
         }
         
+        kk::Strong<View> App::createView(kk::Native * native) {
+            kk::Strong<View> v = new View(native,this,++_autoId);
+            _views[v->viewId()] = (View *) v;
+            return v;
+        }
+        
+        kk::Strong<View> App::getView(kk::Uint64 viewId) {
+            kk::Strong<View> v;
+            auto i = _views.find(viewId);
+            if(i != _views.end()) {
+                v = (View *) i->second;
+            }
+            return v;
+        }
+        
+        void App::removeView(kk::Uint64 viewId) {
+            auto i = _views.find(viewId);
+            if(i != _views.end()) {
+                _views.erase(i);
+            }
+        }
+        
+        kk::Strong<Canvas> App::createCanvas(View * view,DispatchQueue * queue) {
+            kk::Strong<Canvas> v = new Canvas(view,queue == nullptr ? this->queue() : queue,this,++_autoId);
+            _canvas[v->canvasId()] = (Canvas *) v;
+            return v;
+        }
+        
+        void App::removeCanvas(kk::Uint64 canvasId) {
+            auto i = _canvas.find(canvasId);
+            if(i != _canvas.end()) {
+                _canvas.erase(i);
+            }
+        }
+        
+        kk::Strong<Page> App::createPage(View * view) {
+            kk::Strong<Page> v = new Page(this,view,++_autoId);
+            _pages[v->pageId()] = (Page *) v;
+            return v;
+        }
+        
+        kk::Strong<Page> App::getPage(kk::Uint64 pageId) {
+            auto i = _pages.find(pageId);
+            if(i != _pages.end()) {
+                return (Page *) i->second;
+            }
+            return nullptr;
+        }
+        
+        void App::removePage(kk::Uint64 pageId) {
+            auto i = _pages.find(pageId);
+            if(i != _pages.end()) {
+                _pages.erase(i);
+            }
+        }
         
         Size App::getAttributedTextContentSize(AttributedText * text,Float maxWidth) {
             return ::kk::ui::getAttributedTextContentSize(this, text, maxWidth);
@@ -70,9 +130,33 @@ namespace kk {
             return ::kk::ui::createPackage(this,URI);
         }
         
+        void App::execCommand(Command * command) {
+            std::function<void(App * ,Command *)> fn = _onCommand;
+            if(fn != nullptr) {
+                fn(this,command);
+            }
+        }
+        
+        void App::setOnCommand(std::function<void(App * ,Command *)> && func) {
+            _onCommand = func;
+        }
+        
+        void App::dispatchCommand(Command * command) {
+            {
+                ViewCommand * v = dynamic_cast<ViewCommand *>(command);
+                if(v != nullptr){
+                    auto i = _views.find(v->viewId);
+                    if(i != _views.end()) {
+                        i->second->dispatchCommand(v);
+                    }
+                    return;
+                }
+            }
+        }
+        
         void App::Openlib() {
             
-            mainDispatchQueue();
+            UIDispatchQueue();
             
             kk::OpenBaselib();
             kk::Event::Openlib();

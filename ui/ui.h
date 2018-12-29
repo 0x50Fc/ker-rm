@@ -261,6 +261,12 @@ namespace kk {
         
         void setImageLoader(std::function<void(Context * ,Image *)> && func);
         
+        kk::DispatchQueue * UIDispatchQueue() ;
+        
+        class Command : public Object {
+            
+        };
+        
     }
     
     

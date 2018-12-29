@@ -16,9 +16,30 @@ namespace kk {
     
     namespace ui {
         
+        class PageCommand : public Command {
+        public:
+            kk::Uint64 pageId;
+        };
+        
+        class PageCreateCommand : public PageCommand {
+        };
+        
+        class PageDeleteCommand : public PageCommand {
+        };
+        
+        class PageSetOptionsCommand : public PageCommand {
+        public:
+            kk::Strong<kk::Object> data;
+        };
+        
+        class PageCloseCommand : public PageCommand {
+        public:
+            kk::Boolean animated;
+        };
+        
         class Page : public EventEmitter , public kk::Container {
         public:
-            Page(App * app,View * view);
+            Page(App * app,View * view,kk::Uint64 pageId);
             virtual ~Page();
             virtual duk_context * jsContext();
             virtual App * app();
@@ -35,6 +56,9 @@ namespace kk {
             virtual Float width();
             virtual Float height();
             virtual void addLibrary(kk::CString name,kk::Any & value);
+            virtual kk::Uint64 pageId();
+            virtual Native * native();
+            virtual void setNative(Native * native);
             static void Openlib();
             
             Ker_CLASS(Page,EventEmitter,"UIPage")
@@ -47,6 +71,8 @@ namespace kk {
             duk_context * _jsContext;
             std::map<void *,kk::Strong<kk::Object>> _objects;
             Size _size;
+            kk::Uint64 _pageId;
+            kk::Strong<kk::NativeObject> _native;
         };
         
         void addPageOpenlib(std::function<void(duk_context *,Page *)> && func);

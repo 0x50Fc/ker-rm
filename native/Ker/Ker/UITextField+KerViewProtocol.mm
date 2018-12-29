@@ -13,10 +13,12 @@
 #include <ui/ui.h>
 #include <ui/view.h>
 #include <objc/runtime.h>
+#import "KerApp.h"
 
 @interface UITextFieldKKViewProtocol : NSObject<UITextFieldDelegate>
 
-@property(nonatomic,assign) kk::ui::View * view;
+@property(nonatomic,assign) kk::Uint64 viewId;
+@property(nonatomic,weak) KerApp * app;
 
 @end
 
@@ -24,12 +26,9 @@
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     
-    if(_view) {
+    if(_viewId != 0) {
         NSString * text = [textField.text stringByReplacingCharactersInRange:range withString:string];
-        kk::Strong<kk::Event> e = new kk::Event();
-        kk::Strong<kk::TObject<kk::String, kk::String>> data = new kk::TObject<kk::String, kk::String>({{"value",[text UTF8String]}});
-        e->setData(data);
-        _view->emit("change", e);
+        [_app emit:@"chnage" viewId:_viewId data:@{@"value":text}];
     }
     
     return YES;
@@ -37,9 +36,8 @@
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
     
-    if(_view) {
-        kk::Strong<kk::Event> e = new kk::Event();
-        _view->emit("focus", e);
+    if(_viewId) {
+        [_app emit:@"focus" viewId:_viewId data:nil];
     }
     
     return YES;
@@ -47,9 +45,8 @@
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
     
-    if(_view) {
-        kk::Strong<kk::Event> e = new kk::Event();
-        _view->emit("blur", e);
+    if(_viewId) {
+        [_app emit:@"blur" viewId:_viewId data:nil];
     }
     
     return YES;
@@ -57,9 +54,8 @@
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     
-    if(_view) {
-        kk::Strong<kk::Event> e = new kk::Event();
-        _view->emit("done", e);
+    if(_viewId) {
+        [_app emit:@"done" viewId:_viewId data:nil];
     }
     
     return YES;
@@ -69,16 +65,17 @@
 
 @implementation UITextField (KerViewProtocol)
 
--(void) KerViewObtain:(KerViewCPointer) view {
-    [super KerViewObtain:view];
+-(void) KerViewObtain:(KerViewId) viewId app:(KerApp *)app {
+    [super KerViewObtain:viewId app:app];
     UITextFieldKKViewProtocol * object = [[UITextFieldKKViewProtocol alloc] init];
-    object.view = (kk::ui::View *) view;
+    object.viewId = viewId;
+    object.app = app;
     self.delegate = object;
     objc_setAssociatedObject(self, "__UITextFieldKKViewProtocol", object, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
--(void) KerViewRecycle:(KerViewCPointer) view {
-    [super KerViewRecycle:view];
+-(void) KerViewRecycle:(KerViewId) viewId app:(KerApp *)app {
+    [super KerViewRecycle:viewId app:app];
     UITextFieldKKViewProtocol * object = objc_getAssociatedObject(self, "__UITextFieldKKViewProtocol");
     if(object) {
         self.delegate = nil;
@@ -86,56 +83,56 @@
     }
 }
 
--(void) KerView:(KerViewCPointer) view setAttribute:(const char *) key value:(const char *) value {
+-(void) KerView:(KerViewId) viewId setAttribute:(NSString *) key value:(NSString *) value app:(KerApp *) app {
     
-    [super KerView:view setAttribute:key value:value];
+    [super KerView:viewId setAttribute:key value:value app:app];
     
-    if(key == nullptr) {
+    if(key == nil) {
         return ;
     }
     
-    if(strcmp(key, "value") == 0) {
-        self.text = value? [NSString stringWithCString:value encoding:NSUTF8StringEncoding] : nil;
-    } else if(strcmp(key, "type") == 0) {
-        if(value == nullptr || strcmp(value, "text") == 0) {
+    if([key isEqualToString:@"value"]) {
+        self.text =value;
+    } else if([key isEqualToString:@"type"]) {
+        if([value isEqualToString:@"text"]) {
             self.keyboardType = UIKeyboardTypeDefault;
-        } else if(strcmp(value, "number") == 0) {
+        } else if([value isEqualToString:@"number"]) {
             self.keyboardType = UIKeyboardTypeNumberPad;
-        } else if(strcmp(value, "digit") == 0) {
+        } else if([value isEqualToString:@"digit"]) {
             self.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
         } else {
             self.keyboardType = UIKeyboardTypeDefault;
         }
-    } else if(strcmp(key, "password") == 0) {
-        self.secureTextEntry = value != nullptr && strcmp(value, "true") == 0;
-    } else if(strcmp(key, "placeholder") == 0) {
-        self.placeholder = value? [NSString stringWithCString:value encoding:NSUTF8StringEncoding] : nil;
-    } else if(strcmp(key, "disabled") == 0) {
-        self.enabled = !(value != nullptr && strcmp(value, "true") == 0);
-    } else if(strcmp(key, "focus") == 0) {
-        if(value != nullptr && strcmp(value, "true") == 0) {
+    } else if([key isEqualToString:@"password"]) {
+        self.secureTextEntry = value != nil && ![value isEqualToString:@"false"];
+    } else if([key isEqualToString:@"placeholder"]) {
+        self.placeholder = value;
+    } else if([key isEqualToString:@"disabled"]) {
+        self.enabled = value != nil && ![value isEqualToString:@"false"];
+    } else if([key isEqualToString:@"focus"]) {
+        if(value != nil && ![value isEqualToString:@"false"]) {
             [self becomeFirstResponder];
         }
-    } else if(strcmp(key, "confirm-type") == 0) {
-        if(value == nullptr || strcmp(value, "done") == 0) {
+    } else if([key isEqualToString:@"confirm-type"]) {
+        if([value isEqualToString:@"done"]) {
             self.returnKeyType = UIReturnKeyDone;
-        } else if(strcmp(value, "send") == 0) {
+        } else if([value isEqualToString:@"send"]) {
             self.returnKeyType = UIReturnKeySend;
-        } else if(strcmp(value, "search") == 0) {
+        } else if([value isEqualToString:@"search"]) {
             self.returnKeyType = UIReturnKeySearch;
-        } else if(strcmp(value, "next") == 0) {
+        } else if([value isEqualToString:@"next"]) {
             self.returnKeyType = UIReturnKeyNext;
-        } else if(strcmp(value, "go") == 0) {
+        } else if([value isEqualToString:@"go"]) {
             self.returnKeyType = UIReturnKeyGo;
         } else {
             self.returnKeyType = UIReturnKeyDone;
         }
-    } else if(strcmp(key, "color") == 0) {
-        self.textColor = [UIColor colorWithKerCString:value];
-    } else if(strcmp(key, "font") == 0) {
-        self.font = [UIFont fontWithKerCString:value];
-    } else if(strcmp(key, "text-align") == 0){
-        kk::ui::TextAlign v = kk::ui::TextAlignFromString(value);
+    } else if([key isEqualToString:@"color"]) {
+        self.textColor = [UIColor colorWithKerCString:[value UTF8String]];
+    } else if([key isEqualToString:@"font"]) {
+        self.font = [UIFont fontWithKerCString:[value UTF8String]];
+    } else if([key isEqualToString:@"text-align"]){
+        kk::ui::TextAlign v = kk::ui::TextAlignFromString([value UTF8String]);
         
         switch (v) {
             case kk::ui::TextAlignEnd:
@@ -150,8 +147,8 @@
                 break;
         }
         
-    } else if(strcmp(key, "padding") == 0){
-        kk::ui::Edge padding(value);
+    } else if([key isEqualToString:@"padding"]){
+        kk::ui::Edge padding([value UTF8String]);
         
         if(padding.left <= 0) {
             self.leftView = nil;

@@ -12,55 +12,60 @@
 #include <ui/view.h>
 #include <objc/runtime.h>
 
+#import "KerApp.h"
+
 @interface KerButton() {
-    kk::ui::View * _view;
+    
 }
+
+@property(nonatomic,assign) kk::Uint64 viewId;
+@property(nonatomic,weak) KerApp * app;
 
 @end
 
 
 @implementation KerButton
 
-static kk::CString KerViewUITouchPhaseCString(UITouchPhase phase) {
+static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
     switch (phase) {
         case UITouchPhaseBegan:
         case UITouchPhaseEnded:
-            return "end";
+            return @"end";
         case UITouchPhaseMoved:
-            return "move";
+            return @"move";
         case UITouchPhaseCancelled:
-            return "cancel";
+            return @"cancel";
         default:
-            return "move";
+            return @"move";
     }
 }
 
 - (void) event:(NSString *) name touches:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     
-    kk::Strong<kk::Event> e = new kk::Event();
+    if(_viewId == 0 || _app == nil) {
+        return;
+    }
+    NSMutableDictionary * data = [NSMutableDictionary dictionaryWithCapacity:4];
     
-    kk::TObject<kk::String, kk::Any> * data = new kk::TObject<kk::String, kk::Any>();
+    data[@"timestamp"] = @([event timestamp]);
     
-    (*data)["timestamp"] = (kk::Double) [event timestamp];
+    NSMutableArray * items = [NSMutableArray arrayWithCapacity:4];
     
-    kk::Array<kk::Any> * items = new kk::Array<kk::Any>();
+    data[@"touches"] = items;
     
     for(UITouch * touch in touches) {
-        kk::TObject<kk::String, kk::Any> * item = new kk::TObject<kk::String, kk::Any>();
+        NSMutableDictionary * item = [NSMutableDictionary dictionaryWithCapacity:4];
         CGPoint p = [touch locationInView:self];
-        (*item)["x"] = (kk::Double) p.x;
-        (*item)["y"] = (kk::Double) p.y;
-        (*item)["type"] = KerViewUITouchPhaseCString(touch.phase);
-        (*item)["id"] = (kk::CString) [[NSString stringWithFormat:@"0x%lx",(long)(__bridge void *) touch] UTF8String];
-        kk::Any v(item);
-        items->push(v);
+        
+        item[@"x"] = @(p.x);
+        item[@"y"] = @(p.y);
+        item[@"type"] = KerViewUITouchPhaseCString(touch.phase);
+        item[@"id"] = [NSString stringWithFormat:@"0x%lx",(long)(__bridge void *) touch];
+        
+        [items addObject:item];
     }
     
-    (*data)["touches"] = items;
-    
-    e->setData(data);
-    
-    _view->emit([name UTF8String], e);
+    [_app emit:name viewId:_viewId data:data];
     
 }
 
@@ -84,12 +89,16 @@ static kk::CString KerViewUITouchPhaseCString(UITouchPhase phase) {
     [self event:@"touchcancel" touches:touches withEvent:event];
 }
 
--(void) KerViewObtain:(void *) view {
-    _view = (kk::ui::View *) view;
+-(void) KerViewObtain:(KerViewId) viewId app:(KerApp *) app {
+    [super KerViewObtain:viewId app:app];
+    _viewId = viewId;
+    _app = app;
 }
 
--(void) KerViewRecycle:(void *) view {
-    _view = nullptr;
+-(void) KerViewRecycle:(KerViewId) viewId app:(KerApp *) app {
+    [super KerViewRecycle:viewId app:app];
+    _viewId = 0;
+    _app = nil;
 }
 
 - (void)endTrackingWithTouch:(nullable UITouch *)touch withEvent:(nullable UIEvent *)event {
