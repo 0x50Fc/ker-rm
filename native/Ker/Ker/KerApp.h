@@ -78,8 +78,6 @@ typedef void (^KerAppGetPackageCallback)(NSString * basePath,NSString * appkey,N
 
 -(void) emit:(NSString *) name viewId:(unsigned long long) viewId data:(id) data;
 
--(UIImage *) getImage:(NSString *) src;
-
 +(NSString *) encodeURL:(NSString *) url;
 
 +(NSString *) decodeURL:(NSString *) url;

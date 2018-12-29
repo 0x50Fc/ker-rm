@@ -21,12 +21,6 @@ namespace kk {
             kk::Uint64 pageId;
         };
         
-        class PageCreateCommand : public PageCommand {
-        };
-        
-        class PageDeleteCommand : public PageCommand {
-        };
-        
         class PageSetOptionsCommand : public PageCommand {
         public:
             kk::Strong<kk::Object> data;

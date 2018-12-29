@@ -14,6 +14,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by zhanghailong on 2018/12/14.
@@ -168,6 +169,48 @@ public final class Ker {
     public static String getString(Object object,String key,String defaultValue) {
         return stringValue(get(object,key),defaultValue);
     }
+
+    public static String encodeQuery(Object query){
+        StringBuffer sb = new StringBuffer();
+
+        if(query != null) {
+            String dot = "";
+            if(query instanceof Map) {
+                Map<?,?> m = (Map<?,?>) query;
+                for(Object key : m.keySet()) {
+                    sb.append(dot);
+                    dot = "&";
+                    sb.append(Ker.stringValue(key,""));
+                    sb.append("=");
+                    try {
+                        sb.append(URLEncoder.encode(Ker.stringValue(m.get(key),""),"UTF-8"));
+                    } catch (UnsupportedEncodingException e) {
+                    }
+                }
+            }
+
+        }
+
+        return sb.toString();
+    }
+
+    public static Map<String,String> decodeQuery(String queryString) {
+        Map<String,String> m = new TreeMap<>();
+        if(queryString != null) {
+            String[] vs = queryString.split("&");
+            for(String v : vs) {
+                String[] kv = v.split("=");
+                if(kv.length > 1) {
+                    try {
+                        m.put(kv[0], URLDecoder.decode(kv[1],"UTF-8"));
+                    } catch (UnsupportedEncodingException e) {
+                    }
+                }
+            }
+        }
+        return m;
+    }
+
 
     public static Font fontValue(String v, Font font) {
         if(font == null) {

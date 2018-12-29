@@ -23,7 +23,14 @@
 #import "KerWeak.h"
 
 namespace kk {
+    
     extern ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue);
+    
+    namespace ui {
+        
+        extern CGImageRef createCGImageWithCGContext(kk::ui::CG::Context * context);
+        
+    }
 }
 
 @interface KerApp() {
@@ -33,6 +40,7 @@ namespace kk {
 
 -(void) execViewCommand:(kk::ui::ViewCommand *) command;
 -(void) execPageCommand:(kk::ui::PageCommand *) command;
+-(void) execCanvasCommand:(kk::ui::CanvasCommand *) command;
 
 @end
 
@@ -88,6 +96,10 @@ static NSString * gKerAppUserAgent = nil;
         }
     }
     return gKerAppUserAgent;
+}
+
+-(void) execCanvasCommand:(kk::ui::CanvasCommand *) command {
+    [_view execCanvasCommand:command];
 }
 
 -(void) execViewCommand:(kk::ui::ViewCommand *) command {
@@ -231,6 +243,17 @@ static NSString * gKerAppUserAgent = nil;
                 }
             }
             
+            {
+                kk::ui::CanvasCommand * cmd = dynamic_cast<kk::ui::CanvasCommand *>(command);
+                
+                if(cmd) {
+                 
+                    @autoreleasepool {
+                        __weak KerApp * a = (__bridge KerApp *) native;
+                        [a execCanvasCommand:cmd];
+                    }
+                }
+            }
             
         });
         

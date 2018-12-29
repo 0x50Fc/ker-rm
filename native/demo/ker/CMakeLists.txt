@@ -32,7 +32,6 @@ add_library(ker
             src/main/jni/kk.c
             src/main/jni/KerObject.cc
             src/main/jni/KerImage.cc
-            src/main/jni/KerCanvas.cc
             src/main/jni/KerView.cc
             src/main/jni/KerPackage.cc
             src/main/jni/KerApp.cc

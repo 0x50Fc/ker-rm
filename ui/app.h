@@ -46,7 +46,7 @@ namespace kk {
             
             virtual kk::Strong<View> getView(kk::Uint64 viewId);
             
-            virtual kk::Strong<View> createView(kk::Native * native);
+            virtual kk::Strong<View> createView(kk::Native * native,Rect & frame);
             
             virtual void removeView(kk::Uint64 viewId);
             

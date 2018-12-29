@@ -20,5 +20,7 @@
 
 -(void) execCommand:(kk::ui::ViewCommand *) command;
 
+-(void) execCanvasCommand:(kk::ui::CanvasCommand *) command;
+
 @end
 

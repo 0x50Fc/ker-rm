@@ -779,7 +779,11 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            _native = (Native *) env->NewGlobalRef((jobject)native);
+            if(env->GetObjectRefType((jobject)native) == JNIWeakGlobalRefType) {
+                _native = native;
+            } else {
+                _native = (Native *) env->NewGlobalRef((jobject)native);
+            }
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -825,19 +829,25 @@ namespace kk {
     }
 
     NativeObject::~NativeObject() {
+
         if(_native != nullptr) {
 
             jboolean isAttach = false;
 
             JNIEnv *env = kk_env(&isAttach);
 
-            env->DeleteGlobalRef((jobject) _native);
+            if(env->GetObjectRefType((jobject) _native) == JNIWeakGlobalRefType) {
+                env->DeleteWeakGlobalRef((jobject) _native);
+            } else {
+                env->DeleteGlobalRef((jobject) _native);
+            }
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
             }
 
         }
+
     }
 
     Native * NativeObject::native() {

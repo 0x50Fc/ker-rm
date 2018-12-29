@@ -14,6 +14,7 @@
 #include <ui/app.h>
 #include <objc/runtime.h>
 #import "KerApp.h"
+#import "UIImage+Ker.h"
 
 namespace kk {
     namespace ui {
@@ -55,10 +56,10 @@ namespace kk {
                 NSRange r = {4,[value length] - 5};
                 value = [value substringWithRange:r];
             }
-            UIImage * image = [app getImage:value];
+            UIImage * image = [UIImage ker_imageWithURI:value basePath:app.basePath];
             self.layer.contents = (id) [image CGImage];
         }
-    } else if([key isEqualToString:@"background-gravity"]) {
+    } else if([key isEqualToString:@"background-gravity"] || [key isEqualToString:@"gravity"]) {
         if(value == nullptr) {
             self.layer.contentsGravity = @"resize";
         } else {

@@ -193,11 +193,12 @@ namespace kk {
         class View : public EventEmitter {
         public:
             View(kk::CString name,ViewConfiguration * configuration,App * app,kk::Uint64 viewId);
-            View(kk::Native * native, App * app,kk::Uint64 viewId);
+            View(kk::Native * native,Rect & frame, App * app,kk::Uint64 viewId);
             virtual ~View();
             virtual void set(kk::CString name,kk::CString value);
             virtual void setFrame(Rect & frame);
             virtual void setFrame(Float x,Float y,Float width,Float height);
+            virtual Rect & frame();
             virtual void setContentSize(Size & size);
             virtual void setContentSize(Float width,Float height);
             virtual void setContentOffset(Point & offset,kk::Boolean animated);
@@ -237,6 +238,7 @@ namespace kk {
             Point _contentOffset;
             kk::Strong<Image> _image;
             kk::Strong<kk::TFunction<void, kk::CString, Event *>> _onImageLoadFunc;
+            Rect _frame;
         };
         
         typedef kk::Uint WebViewActionPolicy;

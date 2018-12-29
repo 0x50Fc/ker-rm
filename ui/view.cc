@@ -66,7 +66,11 @@ namespace kk {
         }
         
         Canvas::Canvas(View * view,DispatchQueue * queue,App * app,kk::Uint64 canvasId):_view(view),_queue(queue),_app(app),_canvasId(canvasId),_width(0),_height(0),_resize(false) {
-            
+            if(view != nullptr) {
+                Rect & frame = view->frame();
+                setWidth(frame.size.width);
+                setHeight(frame.size.height);
+            }
         }
         
         Canvas::Canvas(DispatchQueue * queue):Canvas(nullptr,queue,nullptr,0) {
@@ -196,7 +200,7 @@ namespace kk {
             }
         }
         
-        View::View(kk::Native * native,App * app,kk::Uint64 viewId):_app(app),_viewId(viewId) {
+        View::View(kk::Native * native,Rect & frame,App * app,kk::Uint64 viewId):_app(app),_viewId(viewId),_frame(frame) {
             
             {
                 kk::Strong<ViewNativeCreateCommand> cmd = new ViewNativeCreateCommand();
@@ -217,6 +221,10 @@ namespace kk {
                 }
                 app->removeView(_viewId);
             }
+        }
+        
+        Rect & View::frame() {
+            return _frame;
         }
         
         kk::Strong<Canvas> View::createCanvas(Worker * worker) {
@@ -303,6 +311,7 @@ namespace kk {
         }
         
         void View::setFrame(Rect & frame) {
+            _frame = frame;
             kk::Strong<ViewSetFrameCommand> cmd = new ViewSetFrameCommand();
             cmd->viewId = _viewId;
             cmd->frame = frame;
@@ -367,7 +376,25 @@ namespace kk {
         }
         
         void View::removeAllSubviews() {
+            
+            kk::Strong<ViewRemoveCommand> cmd = new ViewRemoveCommand();
+            
+            auto i = _subviews.begin();
+            
+            while(i != _subviews.end()) {
+                
+                View * view = i->second;
+                view->_parent = nullptr;
+                
+                cmd->viewId = view->viewId();
+                
+                _app->execCommand(cmd);
+                
+                i ++;
+            }
+            
             _subviews.clear();
+            
         }
         
         void View::setFrame(Float x,Float y,Float width,Float height) {
@@ -507,7 +534,7 @@ namespace kk {
                         if(vv != nullptr && vv->_image == image && app.operator->() != nullptr) {
                             kk::Strong<ViewSetImageCommand> cmd = new ViewSetImageCommand();
                             cmd->viewId = viewId;
-                            cmd->image = nullptr;
+                            cmd->image = image;
                             app->execCommand(cmd);
                         }
                     });

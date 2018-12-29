@@ -66,8 +66,8 @@ namespace kk {
             return v;
         }
         
-        kk::Strong<View> App::createView(kk::Native * native) {
-            kk::Strong<View> v = new View(native,this,++_autoId);
+        kk::Strong<View> App::createView(kk::Native * native,Rect & frame) {
+            kk::Strong<View> v = new View(native,frame,this,++_autoId);
             _views[v->viewId()] = (View *) v;
             return v;
         }

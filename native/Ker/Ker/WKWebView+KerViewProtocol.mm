@@ -271,6 +271,10 @@
             path = [path stringByAppendingPathComponent:basePath];
         }
         
+        if(![path hasSuffix:@"/"]) {
+            path = [path stringByAppendingString:@"/"];
+        }
+        
         NSURL * baseURL = [NSURL URLWithString:[KerApp relativeURI:path]];
         
         if([contentType length] == 0) {

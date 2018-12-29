@@ -15,6 +15,7 @@ namespace kk {
     namespace ui {
         extern CGImageRef GetCGImage(Image * image);
         extern NSAttributedString * GetAttributedText(AttributedText *text,kk::ui::Context * context);
+        extern CGImageRef createCGImageWithCGContext(kk::ui::CG::Context * context);
     }
 }
 
@@ -31,6 +32,19 @@ namespace kk {
         _app = app;
     }
     return self;
+}
+
+-(void) dealloc {
+    
+    NSEnumerator * keyEnum = [_views keyEnumerator];
+    
+    id key;
+    
+    while((key = [keyEnum nextObject])) {
+        UIView * view = [_views objectForKey:key];
+        [view removeFromSuperview];
+    }
+    
 }
 
 -(void) createView:(kk::ui::ViewCreateCommand *) command {
@@ -546,6 +560,30 @@ namespace kk {
     }
     
     
+}
+
+-(void) execCanvasCommand:(kk::ui::CanvasCommand *) command {
+    
+    {
+        kk::ui::CanvasDisplayCGContextCommand * cmd = dynamic_cast<kk::ui::CanvasDisplayCGContextCommand *>(command);
+        
+        if(cmd) {
+            
+            CGImageRef image = kk::ui::createCGImageWithCGContext(cmd->context);
+            
+            if(image != nil) {
+                kk::Uint64 viewId = cmd->viewId;
+                UIImage * i = [UIImage imageWithCGImage:image];
+                CGImageRelease(image);
+                __weak KerView * view = self;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [view setImage:viewId image:i];
+                });
+            }
+            
+            return ;
+        }
+    }
 }
 
 

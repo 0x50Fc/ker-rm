@@ -60,45 +60,28 @@ namespace kk {
                 
             });
             
-            {
-                kk::Strong<PageCreateCommand> cmd = new PageCreateCommand();
-                cmd->pageId = _pageId;
-                app->execCommand(cmd);
-            }
-            
         }
         
         Page::~Page() {
 
-            _app->queue()->sync([this]()->void{
-                
-                _app->off("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
-                
-                _view->removeRecycleViews();
-                _view->removeAllSubviews();
-                
-                {
-                    duk_context * ctx = _app->jsContext();
-                    duk_context * jsContext = _jsContext;
-                    
-                    JITContext::current()->remove(jsContext);
-                    
-                    duk_push_heap_stash(ctx);
-                    duk_push_sprintf(ctx, "0x%x",jsContext);
-                    duk_del_prop(ctx, -2);
-                    duk_pop(ctx);
-                    
-                    duk_gc(ctx, DUK_GC_COMPACT);
-                    
-                }
-                
-                
-            });
+            _app->off("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
+            
+            _view->removeRecycleViews();
+            _view->removeAllSubviews();
             
             {
-                kk::Strong<PageDeleteCommand> cmd = new PageDeleteCommand();
-                cmd->pageId = _pageId;
-                _app->execCommand(cmd);
+                duk_context * ctx = _app->jsContext();
+                duk_context * jsContext = _jsContext;
+                
+                JITContext::current()->remove(jsContext);
+                
+                duk_push_heap_stash(ctx);
+                duk_push_sprintf(ctx, "0x%x",jsContext);
+                duk_del_prop(ctx, -2);
+                duk_pop(ctx);
+                
+                duk_gc(ctx, DUK_GC_COMPACT);
+                
             }
             
             kk::Log("[Page] [dealloc]");

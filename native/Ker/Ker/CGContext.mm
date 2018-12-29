@@ -1211,6 +1211,20 @@ namespace kk {
             return nullptr;
         }
         
+        CGImageRef createCGImageWithCGContext(kk::ui::CG::Context * context) {
+            
+            kk::ui::CG::OSContext * v = dynamic_cast<kk::ui::CG::OSContext *>(context);
+            
+            if(v) {
+                
+                @autoreleasepool {
+                    return v->createCGImage();
+                }
+            }
+            
+            return nullptr;
+        }
+        
         kk::Strong<kk::ui::CG::Context> Canvas::createCGContext() {
             return new CG::OSContext(_width,_height);
         }

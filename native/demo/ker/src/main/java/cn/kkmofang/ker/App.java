@@ -1,18 +1,12 @@
 package cn.kkmofang.ker;
 
 import android.app.Activity;
-import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.webkit.WebSettings;
-
-import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URI;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,26 +26,18 @@ public class App {
 
         addOpenlib(new Openlib() {
             @Override
-            public void open(long jsContext, App app) {
+            public void open(App app) {
 
                 DisplayMetrics metrics = new DisplayMetrics();
                 app.activity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-                JSContext.PushObject(jsContext);
+                Map<String,Object> screen = new TreeMap<>();
 
-                JSContext.PushString(jsContext,"width");
-                JSContext.PushInt(jsContext, Math.min(metrics.widthPixels,metrics.heightPixels));
-                JSContext.PutProp(jsContext,-3);
+                screen.put("width",Math.min(metrics.widthPixels,metrics.heightPixels));
+                screen.put("height",Math.max(metrics.widthPixels,metrics.heightPixels));
+                screen.put("density",metrics.density);
 
-                JSContext.PushString(jsContext,"height");
-                JSContext.PushInt(jsContext, Math.max(metrics.widthPixels,metrics.heightPixels));
-                JSContext.PutProp(jsContext,-3);
-
-                JSContext.PushString(jsContext,"density");
-                JSContext.PushNumber(jsContext, metrics.density);
-                JSContext.PutProp(jsContext,-3);
-
-                JSContext.PutGlobalString(jsContext,"screen");
+                app.addLibrary("screen",screen);;
 
             }
         });
@@ -61,7 +47,7 @@ public class App {
     }
 
     public interface Openlib {
-        void open(long jsContext,App app);
+        void open(App app);
     }
 
     private final static List<Openlib> _openlibs;
@@ -70,9 +56,9 @@ public class App {
         _openlibs.add(openlib);
     }
 
-    public static void openlib(long jsContext,App app) {
+    private static void openlib(App app) {
         for(Openlib v : _openlibs) {
-            v.open(jsContext,app);
+            v.open(app);
         }
     }
 
@@ -92,8 +78,11 @@ public class App {
         _basePath = basePath;
         _appkey = appkey;
         _jsContext = jsContext(_ptr);
-        JSContext.openlib(_jsContext);
-        openlib(_jsContext,this);
+        openlib(this);
+    }
+
+    public void addLibrary(String name,Object object) {
+
     }
 
     protected void finalize() throws Throwable {
@@ -111,6 +100,10 @@ public class App {
 
     public void open(String uri,boolean animated) {
 
+        if(_ptr == 0) {
+            return;
+        }
+
         if(uri == null) {
             return;
         }
@@ -121,21 +114,21 @@ public class App {
 
                 URI u = URI.create("app:///" + uri.substring(9));
 
-                openPageFragment(PageFragment.TYPE_WINDOW, u.getPath().substring(1),decodeQuery(u.getQuery()),animated);
+                openPageFragment(PageFragment.TYPE_WINDOW, u.getPath().substring(1),Ker.decodeQuery(u.getQuery()),animated);
 
             } else if(uri.startsWith("ker://")) {
                 URI u = URI.create(uri);
-                App.open(activity(),"http://" + u.getHost() + u.getPath(),decodeQuery(u.getQuery()));
+                App.open(activity(),"http://" + u.getHost() + u.getPath(),Ker.decodeQuery(u.getQuery()));
             } else if(uri.startsWith("kers://")) {
                 URI u = URI.create(uri);
-                App.open(activity(),"https://" + u.getHost() + u.getPath(),decodeQuery(u.getQuery()));
+                App.open(activity(),"https://" + u.getHost() + u.getPath(),Ker.decodeQuery(u.getQuery()));
             }
 
         } else {
 
             URI u = URI.create("app:///" + uri);
 
-            openPageFragment(PageFragment.TYPE_PAGE, u.getPath().substring(1),decodeQuery(u.getQuery()),animated);
+            openPageFragment(PageFragment.TYPE_PAGE, u.getPath().substring(1),Ker.decodeQuery(u.getQuery()),animated);
 
         }
     }
@@ -163,6 +156,10 @@ public class App {
     }
 
     public void back(int delta,boolean animated) {
+        if(_ptr == 0) {
+            return ;
+        }
+
         Activity a = activity();
         if(a != null && a instanceof IAppActivity) {
             ((IAppActivity) a).back(delta, animated);
@@ -180,59 +177,6 @@ public class App {
         return _activity.get();
     }
 
-
-    public static String stringValue(Object v,String defaultValue) {
-
-        if(v != null) {
-            if(v instanceof String ){
-                return (String) v;
-            }
-            return v.toString();
-        }
-        return defaultValue;
-    }
-
-    public static String encodeQuery(Object query){
-        StringBuffer sb = new StringBuffer();
-
-        if(query != null) {
-            String dot = "";
-            if(query instanceof Map) {
-                Map<?,?> m = (Map<?,?>) query;
-                for(Object key : m.keySet()) {
-                    sb.append(dot);
-                    dot = "&";
-                    sb.append(stringValue(key,""));
-                    sb.append("=");
-                    try {
-                        sb.append(URLEncoder.encode(stringValue(m.get(key),""),"UTF-8"));
-                    } catch (UnsupportedEncodingException e) {
-                    }
-                }
-            }
-
-        }
-
-        return sb.toString();
-    }
-
-    public static Map<String,String> decodeQuery(String queryString) {
-        Map<String,String> m = new TreeMap<>();
-        if(queryString != null) {
-            String[] vs = queryString.split("&");
-            for(String v : vs) {
-                String[] kv = v.split("=");
-                if(kv.length > 1) {
-                    try {
-                        m.put(kv[0], URLDecoder.decode(kv[1],"UTF-8"));
-                    } catch (UnsupportedEncodingException e) {
-                    }
-                }
-            }
-        }
-        return m;
-    }
-
     public static Class<?> AppActivityClass = AppActivity.class;
 
     public static void open(Activity activity,String basePath,String appkey,Object query) {
@@ -241,7 +185,7 @@ public class App {
 
         i.putExtra("basePath",basePath);
         i.putExtra("appkey",appkey);
-        i.putExtra("query",encodeQuery(query));
+        i.putExtra("query",Ker.encodeQuery(query));
 
         activity.startActivity(i);
     }

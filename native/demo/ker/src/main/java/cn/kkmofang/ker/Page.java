@@ -44,7 +44,6 @@ public class Page implements PageView.PageListener{
         }
     }
 
-
     public void addLibrary(String name,Object object) {
         if(_ptr != 0) {
             addLibrary(_ptr, name, object);

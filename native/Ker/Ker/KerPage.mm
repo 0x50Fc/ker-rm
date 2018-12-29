@@ -37,24 +37,26 @@ namespace kk {
         
         kk::ui::App * a = [app CPointer];
         
-        kk::Strong<kk::ui::View> v = a->createView((__bridge kk::Native *) view);
-        
-        kk::Strong<kk::ui::Page> page = a->createPage(v);
-        
-        _page = page;
-        _page->retain();
+        kk::ui::Rect frame = {
+            {(kk::ui::Float)view.frame.origin.x,(kk::ui::Float)view.frame.origin.y},
+            {(kk::ui::Float)view.frame.size.width,(kk::ui::Float)view.frame.size.height}};
         
         KerWeak * native = [[KerWeak alloc] init];
+        
         native.object = self;
         
-        _page->setNative((__bridge kk::Native *) native);
-    
-        kk::ui::Size s = {(kk::ui::Float)view.bounds.size.width,(kk::ui::Float)view.bounds.size.height};
-        
-        _page->queue()->async([page,s]()->void{
-            page->setSize((kk::ui::Size &)s);
+        a->queue()->sync([self,native,frame,a,view]()->void{
+            
+            kk::Strong<kk::ui::View> v = a->createView((__bridge kk::Native *) view,(kk::ui::Rect &) frame);
+            
+            kk::Strong<kk::ui::Page> page = a->createPage(v);
+            _page = page;
+            _page->retain();
+            _page->setNative((__bridge kk::Native *) native);
+            page->setSize((kk::ui::Size &) frame.size);
+            
         });
-        
+    
     }
     return self;
 }
