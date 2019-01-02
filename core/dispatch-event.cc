@@ -21,28 +21,15 @@ namespace kk {
         LibeventDispatchQueue(kk::CString name) {
             _base = event_base_new();
             pthread_mutex_init(&_lock, nullptr);
-            setup();
+            _event = evtimer_new(_base,LibeventDispatchQueueLoop,this);
+            struct timeval tv = {0,17 * 1000};
+            evtimer_add(_event,&tv);
             pthread_create(&_pid, nullptr,LibeventDispatchQueueRunnable,this);
         }
 
-        LibeventDispatchQueue() {
-            _pid = 0;
-            _base = event_base_new();
-            pthread_mutex_init(&_lock, nullptr);
-            setup();
-            if(kGCDDispatchQueueKey == 0) {
-                pthread_key_create(&kGCDDispatchQueueKey, nullptr);
-            }
-            assert(pthread_getspecific(kGCDDispatchQueueKey) == nullptr);
-            pthread_setspecific(kGCDDispatchQueueKey,this);
-
-        }
-
         virtual ~LibeventDispatchQueue(){
-            if(_pid != 0) {
-                event_base_loopbreak(_base);
-                pthread_join(_pid, nullptr);
-            }
+            event_base_loopbreak(_base);
+            pthread_join(_pid, nullptr);
             evtimer_del(_event);
             event_free(_event);
             pthread_mutex_destroy(&_lock);
@@ -109,19 +96,33 @@ namespace kk {
             evtimer_add(_event,&tv);
         }
 
-    protected:
-
-        virtual void setup() {
-            _event = evtimer_new(_base,LibeventDispatchQueueLoop,this);
-            struct timeval tv = {0,17 * 1000};
-            evtimer_add(_event,&tv);
+        virtual void setSpecific(const void * key,kk::Object * object) {
+            if(object == nullptr) {
+                auto i = _objects.find(key);
+                if(i != _objects.end()) {
+                    _objects.erase(i);
+                }
+            } else {
+                _objects[key] = object;
+            }
         }
+
+        virtual kk::Object * getSpecific(const void * key) {
+            auto i = _objects.find(key);
+            if(i != _objects.end()) {
+                return i->second;
+            }
+            return nullptr;
+        }
+
+    protected:
 
         pthread_t _pid;
         struct event_base * _base;
         struct event * _event;
         std::queue<std::function<void()>> _funcs;
         pthread_mutex_t _lock;
+        std::map<const void*,kk::Strong<kk::Object>> _objects;
     };
 
     static void LibeventDispatchQueueLoop(evutil_socket_t fd, short ev, void * userData) {
@@ -154,14 +155,6 @@ namespace kk {
         return new LibeventDispatchQueue(name);
     }
 
-    DispatchQueue * mainDispatchQueue() {
-        static DispatchQueue * v = nullptr;
-        if(v == nullptr){
-            v = new LibeventDispatchQueue();
-            v->retain();
-        }
-        return v;
-    }
 
     static void LibeventDispatchSourceCB(evutil_socket_t fd, short ev, void * userData) ;
 
@@ -282,6 +275,20 @@ namespace kk {
 
     struct event_base * GetDispatchQueueEventBase(DispatchQueue * queue) {
         return ((LibeventDispatchQueue *) queue)->base();
+    }
+
+    kk::Object * getDispatchQueueSpecific(const void * key) {
+        DispatchQueue * queue = getCurrentDispatchQueue();
+        if(queue != nullptr) {
+            return queue->getSpecific(key);
+        }
+        return nullptr;
+    }
+
+    void setDispatchQueueSpecific(const void * key,kk::Object * object) {
+        DispatchQueue * queue = getCurrentDispatchQueue();
+        assert(queue != nullptr);
+        queue->setSpecific(key,object);
     }
 
 }

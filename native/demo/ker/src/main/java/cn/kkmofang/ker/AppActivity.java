@@ -45,7 +45,7 @@ public class AppActivity extends Activity implements IAppActivity {
         if(query == null && savedInstanceState != null) {
             String v = savedInstanceState.getString("query");
             if(v != null) {
-                query = App.decodeQuery(v);
+                query = Ker.decodeQuery(v);
             }
         }
 
@@ -60,7 +60,7 @@ public class AppActivity extends Activity implements IAppActivity {
         if(query == null) {
             String v = getIntent().getStringExtra("query");
             if(v != null) {
-                query = App.decodeQuery(v);
+                query = Ker.decodeQuery(v);
             }
         }
 

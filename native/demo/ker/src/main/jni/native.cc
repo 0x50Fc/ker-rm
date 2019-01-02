@@ -9,9 +9,6 @@
 #include <event.h>
 #include "KerPackage.h"
 #include "KerView.h"
-#include "KerPage.h"
-
-static pthread_t main_pid = 0;
 
 namespace kk {
     extern event_base * GetDispatchQueueEventBase(DispatchQueue * queue);
@@ -41,14 +38,14 @@ Java_cn_kkmofang_ker_Native_release(JNIEnv *env, jclass type, jlong kerObject) {
             if(v != nullptr) {
                 v->queue()->sync([v]()->void{
                     v->release();
-                    kk::Log("[JSObject] [release] 0x%x 0x%x",pthread_self(),main_pid);
+                    kk::Log("[JSObject] [release] 0x%x 0x%x",pthread_self());
                 });
                 return;
             }
         }
 
         object->release();
-        kk::Log("[Object] [release] 0x%x 0x%x",pthread_self(),main_pid);
+        kk::Log("[Object] [release] 0x%x 0x%x",pthread_self());
     }
 
 }
@@ -847,16 +844,6 @@ Java_cn_kkmofang_ker_JSContext_ToJSObject(JNIEnv *env, jclass type, jlong jsCont
     return nullptr;
 }
 
-extern "C"
-JNIEXPORT void JNICALL
-Java_cn_kkmofang_ker_Native_loop(JNIEnv *env, jclass type) {
-
-    event_base * base = kk::GetDispatchQueueEventBase(kk::mainDispatchQueue());
-    event_base_loop(base,EVLOOP_ONCE | EVLOOP_NONBLOCK);
-
-    main_pid = pthread_self();
-
-}
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -881,77 +868,24 @@ Java_cn_kkmofang_ker_App_run__JLjava_lang_Object_2(JNIEnv *env, jclass type, jlo
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_cn_kkmofang_ker_Page_alloc(JNIEnv *env, jobject instance, jobject view, jlong app) {
+Java_cn_kkmofang_ker_Page_alloc(JNIEnv *env, jobject instance, jobject view, jlong appPtr) {
 
-    kk::Strong<kk::ui::View> v = new kk::ui::OSView(view, nullptr,(kk::ui::Context *) app);
-    kk::ui::KerPage * page = new kk::ui::KerPage((kk::ui::App *) app,(kk::ui::View *) v, env->NewWeakGlobalRef(instance));
+    kk::ui::App * app = (kk::ui::App *) appPtr;
+    kk::ui::Page * page = nullptr;
 
-    page->retain();
+    app->queue()->sync([&page,env,instance,app,view]()->void{
 
-    page->on("options", new kk::TFunction<void,kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
+        kk::ui::Rect frame = {0};
 
-        jboolean isAttach = false;
+        kk::Strong<kk::ui::View> v = app->createView((kk::Native *)view,frame);
 
-        JNIEnv *env = kk_env(&isAttach);
+        kk::Strong<kk::ui::Page> p = app->createPage(v);
 
-        jweak object = page->object();
+        page = p;
+        page->retain();
+        page->setNative((kk::Native *) env->NewWeakGlobalRef(instance));
 
-        jobject v = ker_Object_to_JObject(env, event->data());
-
-        jclass isa = env->GetObjectClass(object);
-
-        jmethodID setOptions = env->GetMethodID(isa,"setOptions","(Ljava/lang/Object;)V");
-
-        env->CallVoidMethod(object,setOptions,v);
-
-        if(v != nullptr) {
-            env->DeleteLocalRef(v);
-        }
-
-        if(isAttach) {
-            gJavaVm->DetachCurrentThread();
-        }
-
-
-    }));
-
-    page->on("close", new kk::TFunction<void,kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
-
-        jboolean isAttach = false;
-
-        JNIEnv *env = kk_env(&isAttach);
-
-        jweak object = page->object();
-
-        jclass isa = env->GetObjectClass(object);
-
-        kk::JSObject * v = dynamic_cast<kk::JSObject *>(event->data());
-
-        jboolean animated = true;
-
-        if(v != nullptr) {
-            duk_context * ctx = v->jsContext();
-            void * heapptr=  v->heapptr();
-            if(ctx && heapptr) {
-                duk_push_heapptr(ctx,heapptr);
-                duk_get_prop_string(ctx,-1,"animated");
-                if(duk_is_boolean(ctx,-1)) {
-                    animated = duk_to_boolean(ctx,-1);
-                }
-                duk_pop_2(ctx);
-            }
-        }
-
-        jmethodID close = env->GetMethodID(isa,"close","(Z)V");
-
-        env->CallVoidMethod(object,close,animated);
-
-        if(isAttach) {
-            gJavaVm->DetachCurrentThread();
-        }
-
-
-    }));
+    });
 
     return (jlong) page;
 
@@ -962,22 +896,12 @@ JNIEXPORT void JNICALL
 Java_cn_kkmofang_ker_Page_dealloc(JNIEnv *env, jclass type, jlong ptr) {
 
 
-    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
+    kk::ui::Page * page = (kk::ui::Page *) ptr;
 
     page->queue()->sync([page]()->void{
         page->off();
         page->release();
     });
-
-}
-
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_cn_kkmofang_ker_Page_jsContext(JNIEnv *env, jclass type, jlong ptr) {
-
-    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
-
-    return (jlong) page->jsContext();
 
 }
 
@@ -992,8 +916,6 @@ Java_cn_kkmofang_ker_Page_run(
 
     kk::Strong<kk::TObject<kk::String,kk::String>> v = new kk::TObject<kk::String,kk::String>();
 
-    kk::TObject<kk::String,kk::String> * q = (kk::TObject<kk::String,kk::String> *) v;
-
     if(keys != nullptr && values != nullptr) {
 
         int n = env->GetArrayLength(keys);
@@ -1006,7 +928,7 @@ Java_cn_kkmofang_ker_Page_run(
             kk::CString cKey = env->GetStringUTFChars(key,0);
             kk::CString cValue = env->GetStringUTFChars(value,0);
 
-            (*q)[cKey] = cValue;
+            (*v)[cKey] = cValue;
 
             env->ReleaseStringUTFChars(key,cKey);
             env->ReleaseStringUTFChars(value,cValue);
@@ -1017,22 +939,27 @@ Java_cn_kkmofang_ker_Page_run(
 
     }
 
-    page->run(path,q);
+    kk::String p = path;
+
+    page->queue()->async([p,v,page]()->void{
+        page->run(p.c_str(),v.operator->());
+    });
 
     env->ReleaseStringUTFChars(path_, path);
 
-    env->EnsureLocalCapacity(0);
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_cn_kkmofang_ker_Page_setSize(JNIEnv *env, jclass type, jlong ptr, jint width, jint height) {
 
-    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
+    kk::ui::Page * page = (kk::ui::Page *) ptr;
 
     kk::ui::Size size(width,height);
 
-    page->setSize(size);
+    page->queue()->async([size,page]()->void{
+        page->setSize((kk::ui::Size &)size);
+    });
 
 }
 
@@ -1178,7 +1105,7 @@ Java_cn_kkmofang_ker_Native_absolutePath(JNIEnv *env, jclass type, jlong ptr, js
         {
             kk::ui::View * v = dynamic_cast<kk::ui::View *>((kk::Object *) ptr);
             if(v != nullptr) {
-                r = v->context()->absolutePath(path);
+                r = v->app()->absolutePath(path);
                 break;
             }
         }
@@ -1214,7 +1141,7 @@ Java_cn_kkmofang_ker_Page_addLibrary__JLjava_lang_String_2Ljava_lang_Object_2(JN
                                                                               jobject object) {
     const char *name = env->GetStringUTFChars(name_, 0);
 
-    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
+    kk::ui::Page * page = (kk::ui::Page *) ptr;
 
     kk::Any v = new kk::NativeObject((kk::Native *) object);
 
@@ -1443,11 +1370,13 @@ extern "C"
 JNIEXPORT jboolean JNICALL
 Java_cn_kkmofang_ker_Page_onBackPressed__J(JNIEnv *env, jclass type, jlong ptr) {
 
-    kk::ui::KerPage * page = (kk::ui::KerPage *) ptr;
+    kk::ui::Page * page = (kk::ui::Page *) ptr;
 
     kk::Strong<kk::Event> event = new kk::Event();
 
-    page->emit("backPressed",(kk::Event *) event);
+    page->queue()->sync([&event,page]()->void{
+        page->emit("backPressed",(kk::Event *) event);
+    });
 
     kk::Any & v = event->returnValue();
 

@@ -4,6 +4,7 @@
 
 #include "KerCGContext.h"
 #include "kk.h"
+#include <ui/view.h>
 
 namespace kk {
 
@@ -510,6 +511,14 @@ namespace kk {
                 gJavaVm->DetachCurrentThread();
             }
 
+        }
+
+        kk::Strong<kk::ui::CG::Context> Canvas::createCGContext() {
+            return new OSCGContext(_width,_height);
+        }
+
+        kk::Strong<kk::ui::Image> Canvas::toImage() {
+            return nullptr;
         }
 
     }
