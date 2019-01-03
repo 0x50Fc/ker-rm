@@ -67,6 +67,8 @@
 		E9A5D89121C1212C004FC729 /* KerWXObject+DeviceBattery.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A5D88F21C1212C004FC729 /* KerWXObject+DeviceBattery.m */; };
 		E9A5D89921C12426004FC729 /* KerWXObject+DeviceClipboard.h in Headers */ = {isa = PBXBuildFile; fileRef = E9A5D89721C12426004FC729 /* KerWXObject+DeviceClipboard.h */; };
 		E9A5D89A21C12426004FC729 /* KerWXObject+DeviceClipboard.m in Sources */ = {isa = PBXBuildFile; fileRef = E9A5D89821C12426004FC729 /* KerWXObject+DeviceClipboard.m */; };
+		E9C6487621D719E200DE4D78 /* KerWXObject+MediaRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = E9C6487421D719E200DE4D78 /* KerWXObject+MediaRecord.h */; };
+		E9C6487721D719E200DE4D78 /* KerWXObject+MediaRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = E9C6487521D719E200DE4D78 /* KerWXObject+MediaRecord.m */; };
 		E9D0BFA021C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = E9D0BF9E21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.h */; };
 		E9D0BFA121C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.m in Sources */ = {isa = PBXBuildFile; fileRef = E9D0BF9F21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.m */; };
 		E9FB9FE821C8C78700C39891 /* KerWXObject+DeviceIbeacon.h in Headers */ = {isa = PBXBuildFile; fileRef = E9FB9FE621C8C78700C39891 /* KerWXObject+DeviceIbeacon.h */; };
@@ -174,6 +176,8 @@
 		E9A5D88F21C1212C004FC729 /* KerWXObject+DeviceBattery.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceBattery.m"; sourceTree = "<group>"; };
 		E9A5D89721C12426004FC729 /* KerWXObject+DeviceClipboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceClipboard.h"; sourceTree = "<group>"; };
 		E9A5D89821C12426004FC729 /* KerWXObject+DeviceClipboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceClipboard.m"; sourceTree = "<group>"; };
+		E9C6487421D719E200DE4D78 /* KerWXObject+MediaRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+MediaRecord.h"; sourceTree = "<group>"; };
+		E9C6487521D719E200DE4D78 /* KerWXObject+MediaRecord.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+MediaRecord.m"; sourceTree = "<group>"; };
 		E9D0BF9E21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceBluetooth.h"; sourceTree = "<group>"; };
 		E9D0BF9F21C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+DeviceBluetooth.m"; sourceTree = "<group>"; };
 		E9FB9FE621C8C78700C39891 /* KerWXObject+DeviceIbeacon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DeviceIbeacon.h"; sourceTree = "<group>"; };
@@ -262,6 +266,8 @@
 				1A53C6EF21B90FA000170AB7 /* KerWXHttpBody.m */,
 				1A53C6F221B9103A00170AB7 /* KerWXObject+uploadFile.h */,
 				1A53C6F321B9103A00170AB7 /* KerWXObject+uploadFile.m */,
+				E9C6487421D719E200DE4D78 /* KerWXObject+MediaRecord.h */,
+				E9C6487521D719E200DE4D78 /* KerWXObject+MediaRecord.m */,
 			);
 			path = KerWX;
 			sourceTree = "<group>";
@@ -318,6 +324,7 @@
 				1AF0662C219D57C800F8F7A8 /* KerWXObject+Location.h in Headers */,
 				1A53C6F021B90FA000170AB7 /* KerWXHttpBody.h in Headers */,
 				E9D0BFA021C350FA00BFBE56 /* KerWXObject+DeviceBluetooth.h in Headers */,
+				E9C6487621D719E200DE4D78 /* KerWXObject+MediaRecord.h in Headers */,
 				E94769F321C203870007EEBF /* KerWXObject+DevicePhoneContact.h in Headers */,
 				E996A27921C9E85E00B6870C /* KerWXObject+DeviceVibrate.h in Headers */,
 				1A53C6EC21B90A4600170AB7 /* KerWXObject+Image.h in Headers */,
@@ -474,6 +481,7 @@
 				E9A5D89121C1212C004FC729 /* KerWXObject+DeviceBattery.m in Sources */,
 				1A53C6ED21B90A4600170AB7 /* KerWXObject+Image.m in Sources */,
 				E94769F421C203870007EEBF /* KerWXObject+DevicePhoneContact.m in Sources */,
+				E9C6487721D719E200DE4D78 /* KerWXObject+MediaRecord.m in Sources */,
 				1AF06629219D574100F8F7A8 /* KerWXObject.mm in Sources */,
 				1A53C66D21AFD94D00170AB7 /* KerWXObject+Analytics.m in Sources */,
 				E94769F921C2511C0007EEBF /* KerWXObject+DevicePhoneCall.m in Sources */,

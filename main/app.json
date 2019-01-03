@@ -58,6 +58,7 @@
     "page/API/pages/download-file/download-file",
     "page/API/pages/image/image",
     "page/API/pages/voice/voice",
+    "page/API/pages/record/index",
     "page/API/pages/file/file",
     "page/API/pages/accelerometer-test/index",
     "page/API/pages/canvas/canvas",

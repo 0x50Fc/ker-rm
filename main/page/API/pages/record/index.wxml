@@ -1,0 +1,6 @@
+<view class="container">
+  <button open-type='getRecorderManager' bindgetuserinfo="getRecorderManager" bindtap= "getRecorderManager">getRecorderManager</button>
+
+
+
+</view>

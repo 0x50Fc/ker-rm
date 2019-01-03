@@ -187,7 +187,12 @@ Page({
           }, {
             zh: '录音',
             url: 'voice/voice'
-          }, {
+          },
+          {
+            zh: '录音测试',
+            url: 'record/index'
+          }
+          , {
             zh: '背景音频',
             url: 'background-audio/background-audio'
           }, {
