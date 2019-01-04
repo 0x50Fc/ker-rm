@@ -62,7 +62,7 @@ WX.prototype = Object.create(Object.prototype, {
                         break;
                 }
             }
-            this.app.open("window://wx/toast.js?" + vs.join('&'));
+            this.app.open("window:///wx/toast.js?" + vs.join('&'));
             if (typeof object.success == 'function') {
                 object.success();
             }

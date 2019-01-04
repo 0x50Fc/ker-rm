@@ -141,7 +141,7 @@ static NSString * KerWXHttpBodyUrlencodedType = @"application/x-www-form-urlenco
                     }
                     [mdata appendData:[v.key dataUsingEncoding:NSUTF8StringEncoding]];
                     [mdata appendBytes:"=" length:1];
-                    [mdata appendData:[[KerApp encodeURL:v.value] dataUsingEncoding:NSUTF8StringEncoding]];
+                    [mdata appendData:[[KerUI encodeURL:v.value] dataUsingEncoding:NSUTF8StringEncoding]];
                 }
             }
         }

@@ -13,7 +13,7 @@
 #include <ui/view.h>
 #include <ui/app.h>
 #include <objc/runtime.h>
-#import "KerApp.h"
+#import "KerUI.h"
 #import "UIImage+Ker.h"
 
 namespace kk {
@@ -24,7 +24,7 @@ namespace kk {
 
 @implementation UIView (KerViewProtocol)
 
-+(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer)configuration app:(KerApp *) app {
++(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer)configuration app:(KerId) app {
     return [[self alloc] initWithFrame:CGRectZero];
 }
 
@@ -32,11 +32,11 @@ namespace kk {
     return self;
 }
 
--(void) KerViewObtain:(KerViewId) view app:(KerApp *) app {
+-(void) KerViewObtain:(KerId) view app:(KerId) app {
     
 }
 
--(void) KerView:(KerViewId) view setAttribute:(NSString *) key value:(NSString *) value app:(KerApp *) app{
+-(void) KerView:(KerId) view setAttribute:(NSString *) key value:(NSString *) value app:(KerId) app{
     
     if(key == nil) {
         return ;
@@ -56,7 +56,7 @@ namespace kk {
                 NSRange r = {4,[value length] - 5};
                 value = [value substringWithRange:r];
             }
-            UIImage * image = [UIImage ker_imageWithURI:value basePath:app.basePath];
+            UIImage * image = [UIImage ker_imageWithURI:[KerUI resolvePath:value app:app]];
             self.layer.contents = (id) [image CGImage];
         }
     } else if([key isEqualToString:@"background-gravity"] || [key isEqualToString:@"gravity"]) {
@@ -83,11 +83,11 @@ namespace kk {
     
 }
 
--(void) KerViewRecycle:(KerViewId) view app:(KerApp *) app {
+-(void) KerViewRecycle:(KerId) view app:(KerId) app {
     
 }
 
--(void) KerView:(KerViewId) view setContent:(NSString *) content contentType:(NSString *) contentType basePath:(NSString *) basePath app:(KerApp *) app {
+-(void) KerView:(KerId) view setContent:(NSString *) content contentType:(NSString *) contentType basePath:(NSString *) basePath app:(KerId) app {
     
 }
 

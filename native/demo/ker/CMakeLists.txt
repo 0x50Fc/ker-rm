@@ -26,17 +26,26 @@ add_library(md5
         src/main/jni/md5/md5.c
         )
 
+add_library(minizip
+        STATIC
+        src/main/jni/minizip/ioapi.c
+        src/main/jni/minizip/ioapi_buf.c
+        src/main/jni/minizip/ioapi_mem.c
+        src/main/jni/minizip/unzip.c
+        src/main/jni/minizip/zip.c
+        )
 
 add_library(ker
             SHARED
             src/main/jni/kk.c
+            src/main/jni/global.cc
+            src/main/jni/KerPage.cc
             src/main/jni/KerObject.cc
             src/main/jni/KerImage.cc
             src/main/jni/KerView.cc
-            src/main/jni/KerPackage.cc
-            src/main/jni/KerApp.cc
             src/main/jni/KerCGContext.cc
-            src/main/jni/native.cc
+            src/main/jni/KerUI.cc
+            src/main/jni/KerHttp.cc
             src/main/jni/core/kk.cc
             src/main/jni/core/jit.cc
             src/main/jni/core/bio.cc
@@ -46,6 +55,8 @@ add_library(ker
             src/main/jni/core/crypto.cc
             src/main/jni/core/dispatch-event.cc
             src/main/jni/core/zombies.cc
+            src/main/jni/core/uri.cc
+            src/main/jni/core/http.cc
             src/main/jni/ui/ui.cc
             src/main/jni/ui/view.cc
             src/main/jni/ui/app.cc
@@ -80,6 +91,7 @@ target_link_libraries(
                     event
                     sqlite
                     md5
+                    minizip
                     z
                     GLESv2
                     EGL

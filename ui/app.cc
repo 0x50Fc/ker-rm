@@ -12,12 +12,13 @@
 #include <ui/CGContext.h>
 #include <ui/package.h>
 #include <core/crypto.h>
+#include <core/uri.h>
 
 namespace kk {
     
     namespace ui {
     
-        App::App(kk::CString basePath,kk::CString platform,kk::CString userAgent,kk::CString appkey):Context(basePath,UIDispatchQueue()),_appkey(appkey),_autoId(0) {
+        App::App(kk::Uint64 appid,kk::CString basePath,kk::CString platform,kk::CString userAgent,kk::CString appkey):Context(basePath,UI::main()->queue()),_appkey(appkey),_appid(appid) {
 
             _queue->sync([this,userAgent,platform]()->void{
                 
@@ -30,12 +31,22 @@ namespace kk {
                 duk_push_string(_jsContext, userAgent);
                 duk_put_global_string(_jsContext, "userAgent");
                 
+            });
+            
+        }
+        
+        void App::openlib() {
+            
+            _queue->sync([this]()->void{
                 kk::Openlib<App *>::openlib(_jsContext, this);
             });
             
         }
         
         App::~App() {
+            
+            UI::main()->removeApp(_appid);
+            
             kk::Log("[App] [dealloc]");
         }
         
@@ -43,14 +54,24 @@ namespace kk {
             return _appkey.c_str();
         }
         
+        kk::Uint64 App::appid() {
+            return _appid;
+        }
+        
         void App::open(kk::CString uri,kk::Boolean animated) {
+            
             if(uri == nullptr) {
                 return;
             }
-            kk::Strong<AppOpenCommand> cmd = new AppOpenCommand();
-            cmd->uri = uri;
-            cmd->animated = animated;
-            execCommand(cmd);
+            
+            kk::URI u(uri);
+            kk::Strong<Page> page = createPage(u.scheme());
+            kk::TObject<kk::String,kk::String> & queryObject = u.queryObject();
+        
+            page->opening();
+            page->run(u.path(), &queryObject);
+            page->open(animated);
+            
         }
         
         void App::back(kk::Uint delta,kk::Boolean animated) {
@@ -61,13 +82,13 @@ namespace kk {
         }
         
         kk::Strong<View> App::createView(kk::CString name,ViewConfiguration * configuration) {
-            kk::Strong<View> v = new View(name, configuration,this,++_autoId);
+            kk::Strong<View> v = new View(name, configuration,this,UI::main()->newId());
             _views[v->viewId()] = (View *) v;
             return v;
         }
         
         kk::Strong<View> App::createView(kk::Native * native,Rect & frame) {
-            kk::Strong<View> v = new View(native,frame,this,++_autoId);
+            kk::Strong<View> v = new View(native,frame,this,UI::main()->newId());
             _views[v->viewId()] = (View *) v;
             return v;
         }
@@ -89,7 +110,7 @@ namespace kk {
         }
         
         kk::Strong<Canvas> App::createCanvas(View * view,DispatchQueue * queue) {
-            kk::Strong<Canvas> v = new Canvas(view,queue == nullptr ? this->queue() : queue,this,++_autoId);
+            kk::Strong<Canvas> v = new Canvas(view,queue == nullptr ? this->queue() : queue,this,UI::main()->newId());
             _canvas[v->canvasId()] = (Canvas *) v;
             return v;
         }
@@ -101,8 +122,8 @@ namespace kk {
             }
         }
         
-        kk::Strong<Page> App::createPage(View * view) {
-            kk::Strong<Page> v = new Page(this,view,++_autoId);
+        kk::Strong<Page> App::createPage(kk::CString type) {
+            kk::Strong<Page> v = new Page(this,UI::main()->newId(),type);
             _pages[v->pageId()] = (Page *) v;
             return v;
         }
@@ -126,19 +147,8 @@ namespace kk {
             return ::kk::ui::getAttributedTextContentSize(this, text, maxWidth);
         }
         
-        kk::Strong<Package> App::createPackage(kk::CString URI) {
-            return ::kk::ui::createPackage(this,URI);
-        }
-        
         void App::execCommand(Command * command) {
-            std::function<void(App * ,Command *)> fn = _onCommand;
-            if(fn != nullptr) {
-                fn(this,command);
-            }
-        }
-        
-        void App::setOnCommand(std::function<void(App * ,Command *)> && func) {
-            _onCommand = func;
+            UI::main()->execCommand(this, command);
         }
         
         void App::dispatchCommand(Command * command) {
@@ -154,9 +164,14 @@ namespace kk {
             }
         }
         
+        void App::run(kk::Object * query) {
+            kk::Strong<kk::TObject<kk::String, kk::Any>> librarys = new kk::TObject<kk::String, kk::Any>({{"query",query}});
+            exec("main.js", (kk::TObject<kk::String, kk::Any> *) librarys);
+        }
+        
         void App::Openlib() {
             
-            UIDispatchQueue();
+            UI::main();
             
             kk::OpenBaselib();
             kk::Event::Openlib();
@@ -181,7 +196,6 @@ namespace kk {
                     kk::PutMethod<App,void,kk::CString,kk::Boolean>(ctx, -1, "open", &App::open);
                     kk::PutMethod<App,void,kk::Uint,kk::Boolean>(ctx, -1, "back", &App::back);
                     kk::PutMethod<App,Size,AttributedText *,Float>(ctx, -1, "getAttributedTextContentSize", &App::getAttributedTextContentSize);
-                    kk::PutStrongMethod<App,Package,kk::CString>(ctx,-1,"createPackage",&App::createPackage);
                 
                     kk::PutStrongMethod<App,View,kk::CString,ViewConfiguration *>(ctx,-1,"createView",&App::createView);
                     kk::PutProperty<App,kk::CString>(ctx, -1, "appkey", &App::appkey);

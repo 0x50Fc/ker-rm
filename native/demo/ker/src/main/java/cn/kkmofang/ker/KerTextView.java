@@ -3,7 +3,6 @@ package cn.kkmofang.ker;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,12 +28,12 @@ public class KerTextView extends View implements IKerView,KerText.TextContent {
     }
 
     @Override
-    public void setViewConfiguration(long viewConfiguration) {
+    public void setViewConfiguration(long viewId,WebViewConfiguration configuration,long appid) {
 
     }
 
     @Override
-    public void setAttributeValue(long object, String key, String value) {
+    public void setAttributeValue(long viewId, String key, String value,long appid) {
 
         if("color".equals(key)) {
             _text.paint.setColor(Ker.colorValue(value,0xff000000));
@@ -54,40 +53,56 @@ public class KerTextView extends View implements IKerView,KerText.TextContent {
             setTextContent(value);
         }
 
-        KerView.setAttributeValue(this,object,key,value);
+        KerView.setAttributeValue(this,viewId,key,value,appid);
 
         _text.setNeedDisplay();
         invalidate();
     }
 
     @Override
-    public void recycle(long object) {
+    public void recycle(long viewId,long appid) {
 
     }
 
     @Override
-    public void obtain(long object) {
+    public void obtain(long viewId,long appid) {
 
     }
 
     @Override
-    public void setContent(long object, String content, String contentType, String basePath) {
+    public void setContent(long viewId, String content, String contentType, String basePath,long appid) {
 
     }
 
     @Override
-    public void evaluateJavaScript(long object, String evaluateCode) {
+    public void evaluateJavaScript(long viewId, String evaluateCodelong , long appid) {
 
     }
 
     @Override
-    public void setImage(Drawable image) {
-        setBackground(image);
+    public void setImage(long viewId,Object image,long appid) {
+        if(image instanceof Drawable) {
+            setBackground((Drawable) image);
+        } else if(image instanceof Image) {
+            setBackground(((Image) image).getDrawable());
+        } else {
+            setBackground(null);
+        }
     }
 
     @Override
-    public void setAttributedText(long object, CharSequence string) {
+    public void setAttributedText(long viewId, CharSequence string,long appid) {
         setTextContent(string);
+    }
+
+    @Override
+    public void setContentSize(long viewId, int width, int height, long appid) {
+
+    }
+
+    @Override
+    public void setContentOffset(long viewId, int x, int y, boolean animated, long appid) {
+
     }
 
     @Override

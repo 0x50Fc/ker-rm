@@ -181,7 +181,7 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
     
     KerWXHttpBody * body = [[KerWXHttpBody alloc] init];
     
-    NSString * filePath = [KerApp filePathWithURI:object.filePath basePath:self.dataPath];
+    NSString * filePath = [KerUI resolvePath:object.filePath basePath:self.dataPath];
     NSString * name = object.name;
     
     if(filePath != nil && name != nil) {
@@ -191,7 +191,7 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
             [object complete];
             return nil;
         }
-        NSString * mimeType = [KerApp mimeType:filePath data:data defaultType:@"application/octet-stream"];
+        NSString * mimeType = [KerUI mimeType:filePath data:data defaultType:@"application/octet-stream"];
         [body add:name data:data type:mimeType name:filePath.lastPathComponent];
     }
     

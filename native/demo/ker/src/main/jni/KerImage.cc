@@ -4,68 +4,27 @@
 
 #include "KerImage.h"
 #include "kk.h"
-#include "KerApp.h"
+#include "global.h"
 
 namespace kk {
 
     namespace ui {
 
-        OSImage::OSImage(kk::CString src):_state(ImageStateNone),_src(src),_object(nullptr),_width(0),_height(0) {
+        NativeImage::NativeImage(kk::DispatchQueue * queue,kk::CString src):_src(src),_state(ImageStateNone),_width(0),_height(0),_queue(queue) {
 
-        }
 
-        OSImage::OSImage(jobject object):_state(ImageStateLoaded),_object(nullptr) {
-            setImage(object);
-        }
-
-        OSImage::~OSImage() {
-
-            if(_object) {
-
-                jboolean isAttach = false;
-
-                JNIEnv *env = kk_env(&isAttach);
-
-                env->DeleteGlobalRef(_object);
-
-                if(isAttach) {
-                    gJavaVm->DetachCurrentThread();
-                }
-
-            }
-
-        }
-
-        ImageState OSImage::state() {
-            return _state;
-        }
-
-        kk::Uint OSImage::width() {
-            return _width;
-        }
-
-        kk::Uint OSImage::height() {
-            return _height;
-        }
-
-        kk::CString OSImage::src() {
-            return _src.c_str();
-        }
-
-        void OSImage::setSrc(kk::CString src) {
-            _src = src;
-        }
-
-        void OSImage::copyPixels(void * data) {
+            this->retain();
 
             jboolean isAttach = false;
 
             JNIEnv * env = kk_env(&isAttach);
 
-            if(_object && _width > 0 && _height > 0) {
+            jstring URI = src == nullptr ? nullptr : env->NewStringUTF(src);
 
+            env->CallStaticVoidMethod(G.UI.isa,G.UI.getImage,(jlong) this,URI);
 
-
+            if(URI) {
+                env->DeleteLocalRef(URI);
             }
 
             if(isAttach) {
@@ -74,45 +33,67 @@ namespace kk {
 
         }
 
-        Boolean OSImage::isCopyPixels() {
-            return _object != nullptr;
+        kk::Native * NativeImage::native() {
+            if(_native != nullptr) {
+                return _native->native();
+            }
+            return nullptr;
         }
 
-        void OSImage::setImage(jobject object) {
+        void NativeImage::setNative(kk::Native * native) {
+            setNative(native,0,0);
+        }
 
-            if(_object != object) {
+        void NativeImage::setNative(kk::Native * native,kk::Uint width,kk::Uint height) {
+            if(native == nullptr) {
+                _native = nullptr;
+                _width = 0;
+                _height = 0;
+            } else {
+                _native = new kk::NativeObject(native);
+                _width = width;
+                _height = height;
+            }
+        }
+
+
+        ImageState NativeImage::state() {
+            return _state;
+        }
+
+        kk::Uint NativeImage::width() {
+            return _width;
+        }
+
+        kk::Uint NativeImage::height() {
+            return _height;
+        }
+
+        kk::CString NativeImage::src() {
+            return _src.c_str();
+        }
+
+        void NativeImage::copyPixels(void * data) {
+
+            if(_native != nullptr && data != nullptr) {
 
                 jboolean isAttach = false;
 
-                JNIEnv *env = kk_env(&isAttach);
+                JNIEnv * env = kk_env(&isAttach);
 
-                jobject v = _object;
+                jbyteArray b = (jbyteArray) env->CallStaticObjectMethod(G.UI.isa,G.UI.copyPixels,(jobject) _native->native());
 
-                if(object) {
-                    _object = env->NewGlobalRef(object);
-                } else {
-                    _object = nullptr;
-                }
+                if(b != nullptr) {
 
-                if(v) {
-                    env->DeleteGlobalRef(v);
-                }
+                    size_t n = _width * _height * 4;
 
-                if(_object) {
+                    if(env->GetArrayLength(b) == n) {
+                        jbyte * v = env->GetByteArrayElements(b, nullptr);
+                        memcpy(data,v, n);
+                        env->ReleaseByteArrayElements(b,v,JNI_COMMIT);
+                    }
 
-                    jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-                    jmethodID getImageWidth = env->GetStaticMethodID(isa,"getImageWidth","(Ljava/lang/Object;)I");
-                    jmethodID getImageHeight = env->GetStaticMethodID(isa,"getImageHeight","(Ljava/lang/Object;)I");
-
-                    _width = (kk::Uint) env->CallStaticIntMethod(isa,getImageWidth,_object);
-                    _height = (kk::Uint) env->CallStaticIntMethod(isa,getImageHeight,_object);
-
-                    env->DeleteLocalRef(isa);
-
-                } else {
-                    _width = 0;
-                    _height = 0;
+                    env->DeleteLocalRef(b);
                 }
 
                 if(isAttach) {
@@ -121,10 +102,13 @@ namespace kk {
 
             }
 
-
         }
 
-        void OSImage::setState(ImageState state) {
+        Boolean NativeImage::isCopyPixels() {
+            return _width > 0 && _height > 0 && _native != nullptr ;
+        }
+
+        void NativeImage::setState(ImageState state) {
             if(_state != state) {
                 _state = state;
                 if(state == ImageStateError) {
@@ -137,59 +121,21 @@ namespace kk {
             }
         }
 
-        jobject OSImage::object() {
-            return _object;
+        kk::DispatchQueue * NativeImage::queue() {
+            return _queue;
         }
 
-        kk::Strong<Image> ImageCreate(Context * context,kk::CString src) {
-
-            kk::ui::KerApp * app = nullptr;
-            kk::Strong<Context> v = context;
-
-            while(v != nullptr && app == nullptr) {
-                app = dynamic_cast<kk::ui::KerApp *>((Context *) v);
-                if(app != nullptr) {
-                    break;
-                }
-                v = v->parent();
-            }
-
-            if(app == nullptr) {
+        jobject GetImageObject(Image * image) {
+            if(image == nullptr) {
                 return nullptr;
             }
-
-
-            OSImage * i = new OSImage(src);
-
-            jboolean isAttach = false;
-
-            JNIEnv * env = kk_env(&isAttach);
-
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID getImage = env->GetStaticMethodID(isa,"getImage","(Lcn/kkmofang/ker/App;JLjava/lang/String;Ljava/lang/String;J)V");
-
-            jstring URI = src == nullptr ? nullptr : env->NewStringUTF(src);
-            jstring basePath = env->NewStringUTF(context->basePath());
-
-            env->CallStaticVoidMethod(isa,getImage,app->object(),(jlong) i,URI,basePath,(jlong) context->queue());
-
-            if(URI) {
-                env->DeleteLocalRef(URI);
+            {
+                NativeImage * v = dynamic_cast<NativeImage *>(image);
+                if(v != nullptr) {
+                    return (jobject) v->native();
+                }
             }
-
-            if(basePath) {
-                env->DeleteLocalRef(basePath);
-            }
-
-            env->DeleteLocalRef(isa);
-
-            if(isAttach) {
-                gJavaVm->DetachCurrentThread();
-            }
-
-            return i;
-
+            return nullptr;
         }
     }
 }

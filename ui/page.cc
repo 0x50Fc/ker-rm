@@ -17,7 +17,7 @@ namespace kk {
             kk::Openlib<kk::ui::Page *>::add(std::move(func));
         }
         
-        Page::Page(App * app,View * view,kk::Uint64 pageId):_app(app),_view(view),_pageId(pageId),_librarys(new TObject<kk::String, kk::Any>()) {
+        Page::Page(App * app,kk::Uint64 pageId,kk::CString type):_app(app),_pageId(pageId),_librarys(new TObject<kk::String, kk::Any>()),_type(type) {
             
             app->queue()->sync([this]()->void{
                 
@@ -59,11 +59,11 @@ namespace kk {
                 kk::Openlib<kk::ui::Page *>::openlib(_jsContext, this);
                 
             });
-            
         }
         
         Page::~Page() {
 
+            _app->removePage(_pageId);
             _app->off("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
             
             _view->removeRecycleViews();
@@ -126,6 +126,10 @@ namespace kk {
             return _view;
         }
         
+        void Page::setView(View * v) {
+            _view = v;
+        }
+        
         void Page::setSize(Size & size) {
             Size v = _size;
             _size = size;
@@ -173,7 +177,7 @@ namespace kk {
             return _pageId;
         }
         
-        void Page::run(kk::CString path , kk::TObject<kk::String,kk::String> * query) {
+        void Page::run(kk::CString path , Object * query) {
 
             kk::String code("(function(app,page,path,query");
             
@@ -223,22 +227,16 @@ namespace kk {
             }
             
             duk_pop(ctx);
-            
+        
         }
         
-        Native * Page::native() {
-            if(_native != nullptr) {
-                return _native->native();
-            }
-            return nullptr;
+        void Page::ready() {
+            kk::Strong<Event> e = new Event();
+            emit("ready", e);
         }
         
-        void Page::setNative(Native * native) {
-            if(native == nullptr) {
-                _native = nullptr;
-            } else {
-                _native = new NativeObject(native);
-            }
+        kk::CString Page::type() {
+            return _type.c_str();
         }
         
         void Page::Openlib() {

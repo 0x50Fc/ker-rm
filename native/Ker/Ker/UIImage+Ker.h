@@ -14,13 +14,13 @@ typedef void (^UIImageKerCallback)(UIImage * image,NSError * err);
 
 +(NSString *) ker_keyWithURI:(NSString *) URI;
 
-+(NSString *) ker_pathWithURI:(NSString *) URI basePath:(NSString *) basePath;
++(NSString *) ker_pathWithURI:(NSString *) URI;
 
-+(UIImage *) ker_imageWithURI:(NSString *) URI basePath:(NSString *) basePath;
++(UIImage *) ker_imageWithURI:(NSString *) URI;
 
-+(UIImage *) ker_imageByCacheWithURI:(NSString *) URI basePath:(NSString *) basePath;
++(UIImage *) ker_imageByCacheWithURI:(NSString *) URI;
 
-+(void) ker_imageWithURI:(NSString *) URI basePath:(NSString *) basePath callback:(UIImageKerCallback) callback queue:(dispatch_queue_t) queue;
++(void) ker_imageWithURI:(NSString *) URI callback:(UIImageKerCallback) callback queue:(dispatch_queue_t) queue;
 
 @end
 

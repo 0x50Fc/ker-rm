@@ -9,7 +9,7 @@
 #include <core/kk.h>
 #include <pthread.h>
 #include <list>
-#include <pthread.h>
+#include <string.h>
 
 #ifdef __ANDROID_API__
 #include <backtrace/Backtrace.h>
@@ -72,7 +72,7 @@ char ** backtrace_symbols(void ** array,int size) {
 }
 
 
-
+/*
 struct ZombieObject {
     char b[32];
     size_t size;
@@ -104,7 +104,7 @@ void operator delete(void * p) {
     assert(strcmp(v->e,ZombieObjectE) == 0);
     assert(strcmp((char *) p + v->size,ZombieObjectEnd) == 0);
     free(v);
-}
+}*/
 
 
 #else

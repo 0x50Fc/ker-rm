@@ -1188,7 +1188,7 @@ namespace kk {
             }
         }
         
-        extern Strong<Image> createCGImage(CGImageRef image);
+        extern Strong<Image> createCGImage(kk::DispatchQueue * queue,CGImageRef image);
         
         kk::Strong<Image> createImageWithCGContext(kk::ui::CG::Context * context) {
         
@@ -1199,7 +1199,7 @@ namespace kk {
                     
                     CGImageRef image = v->createCGImage();
                     
-                    Strong<Image> r = createCGImage(image);
+                    Strong<Image> r = createCGImage(getCurrentDispatchQueue(),image);
                     
                     CGImageRelease(image);
                     

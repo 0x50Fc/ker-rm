@@ -9,6 +9,8 @@
 #include <ui/ui.h>
 #include <ui/view.h>
 #include <core/jit.h>
+#include <ui/app.h>
+#include <ui/package.h>
 
 namespace kk {
     
@@ -371,7 +373,7 @@ namespace kk {
             kk::String v;
             kk::String p = absolutePath(path);
             
-            FILE * fd = fopen(p.c_str(), "r");
+            FILE * fd = fopen(p.c_str(), "rb");
             
             if(fd != nullptr) {
                 char data[20480];
@@ -382,6 +384,8 @@ namespace kk {
                 }
                 
                 fclose(fd);
+            } else {
+                kk::Log("[Context::getTextContent] Not Open File: %s",p.c_str());
             }
             
             return v;
@@ -699,7 +703,16 @@ namespace kk {
         }
         
         kk::Strong<Image> Context::createImage(kk::CString src) {
-            return ImageCreate(this,src);
+            
+            if(src == nullptr) {
+                return nullptr;
+            }
+            
+            if(kk::CStringHasSubstring(src, "://")) {
+                return new NativeImage(queue(),src);
+            }
+            
+            return new NativeImage(queue(),absolutePath(src).c_str());
         }
         
         void Context::Openlib(){
@@ -741,12 +754,116 @@ namespace kk {
             
         }
         
-        kk::DispatchQueue * UIDispatchQueue() {
-            static kk::Strong<DispatchQueue> v;
+        
+        UI * UI::main() {
+            static kk::Strong<UI> v;
             if(v == nullptr) {
-                v = kk::createDispatchQueue("kk::ui::UIDispatchQueue");
+                v = new UI();
             }
             return v;
+        }
+        
+        UI::UI():_autoId(0){
+            _queue = kk::createDispatchQueue("kk::ui::UI");
+        }
+        
+        UI::~UI() {
+            
+        }
+        
+        kk::DispatchQueue * UI::queue() {
+            return _queue;
+        }
+        
+        kk::Uint64 UI::newId() {
+            return ++_autoId;
+        }
+        
+        kk::Strong<App> UI::createApp(kk::CString basePath,kk::CString appkey) {
+            kk::Strong<App> app = new App(++_autoId,basePath,appkey);
+            _apps[app->appid()] = (App *) app;
+            app->openlib();
+            return app;
+        }
+        
+        kk::Strong<App> UI::getApp(kk::Uint64 appid) {
+            kk::Strong<App> v;
+            auto i = _apps.find(appid);
+            if(i != _apps.end()) {
+                v = (App *) i->second;
+                if(v == nullptr) {
+                    _apps.erase(i);
+                }
+            }
+            return v;
+        }
+        
+        void UI::removeApp(kk::Uint64 appid) {
+            auto i = _apps.find(appid);
+            if(i != _apps.end()) {
+                _apps.erase(i);
+            }
+        }
+        
+        void UI::dispatchCommand(kk::Uint64 appid,Command * command) {
+            kk::Strong<Command> cmd = command;
+            _queue->async([appid,cmd,this]()->void{
+                kk::Strong<App> app = this->getApp(appid);
+                if(app != nullptr) {
+                    app->dispatchCommand(cmd.operator->());
+                }
+            });
+        }
+        
+        void UI::emit(kk::Uint64 appid,kk::CString name,kk::Event * event) {
+            kk::Strong<Event> e = event;
+            kk::String n = name;
+            _queue->async([appid,n,e,this]()->void{
+                kk::Strong<App> app = this->getApp(appid);
+                if(app != nullptr) {
+                    app->emit(n.c_str(), e.operator->());
+                }
+            });
+        }
+        
+        void UI::emit(kk::Uint64 appid,kk::Uint64 viewId,kk::CString name,kk::Event * event) {
+            kk::Strong<Event> e = event;
+            kk::String n = name;
+            _queue->async([appid,n,e,this,viewId]()->void{
+                kk::Strong<App> app = this->getApp(appid);
+                if(app != nullptr) {
+                    kk::Strong<View> view = app->getView(viewId);
+                    if(view != nullptr) {
+                        view->emit(n.c_str(), e.operator->());
+                    }
+                }
+            });
+        }
+        
+        void UI::open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func) {
+            kk::String u = uri;
+            kk::Strong<kk::Object> q = query;
+            _queue->async([u,q,func]()->void{
+                
+                kk::ui::Package * package = new kk::ui::Package(u.c_str());
+                
+                package->retain();
+                
+                package->on("load", new kk::TFunction<void, kk::CString,kk::Event *>([q,package,func](kk::CString name,kk::Event * event)->void{
+                    kk::Uint64 appid = package->run(q.operator->());
+                    func(appid,nullptr);
+                    package->off();
+                    package->release();
+                }));
+                
+                package->on("error", new kk::TFunction<void, kk::CString,kk::Event *>([q,package,u,func](kk::CString name,kk::Event * event)->void{
+                    kk::Log("[App] [ERROR] %s",u.c_str());
+                    func(0,"错误的应用包");
+                    package->off();
+                    package->release();
+                }));
+                
+            });
         }
         
     }

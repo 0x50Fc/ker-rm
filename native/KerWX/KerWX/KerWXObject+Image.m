@@ -73,7 +73,7 @@
         }
         NSString * path  = [NSTemporaryDirectory() stringByAppendingFormat:@"KerWXObjectChooseImage.png"];
         
-        NSString * uri = [KerApp relativeURI:path];
+        NSString * uri = [KerUI resolveURI:path];
         
         if([sizeType isEqualToString:@"compressed"]) {
             CGSize size = image.size;

@@ -15,19 +15,11 @@ namespace kk {
     class GCDDispatchQueue;
     
     static kk::CString kGCDDispatchQueueKey = "kGCDDispatchQueueKey";
-
-    static void GCDDispatchQueueSpecificObjectRelease(void * v) {
-        if(v == nullptr) {
-            return;
-        }
-        kk::Object * object = (kk::Object *) v;
-        delete object;
-    }
     
     class GCDDispatchQueue : public DispatchQueue {
     public:
         
-        GCDDispatchQueue(kk::CString name) {
+        GCDDispatchQueue(kk::CString name):DispatchQueue() {
             _queue = ::dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL);
             dispatch_queue_set_specific(_queue, kGCDDispatchQueueKey, this, nullptr);
         }
@@ -64,24 +56,11 @@ namespace kk {
             }
         }
         
-        virtual void setSpecific(const void * key,kk::Object * object) {
-            _objects[key] = object;
-        }
-        
-        virtual kk::Object * getSpecific(const void * key) {
-            auto i = _objects.find(key);
-            if(i != _objects.end()) {
-                return i->second;
-            }
-            return nullptr;
-        }
-        
         virtual ::dispatch_queue_t queue() {
             return _queue;
         }
         
-    protected:
-        std::map<const void *,kk::Strong<kk::Object>> _objects;
+
     protected:
         ::dispatch_queue_t _queue;
     };

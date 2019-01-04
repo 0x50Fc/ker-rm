@@ -8,6 +8,7 @@
 
 #include <core/kk.h>
 #include <typeinfo>
+#include <string.h>
 
 namespace kk {
     
@@ -269,6 +270,20 @@ namespace kk {
             }
             _size = size;
         }
+    }
+    
+    void Buffer::append(const void * p, size_t size) {
+        kk::Uint n = size > 1024 ? (kk::Uint) size : 1024;
+        capacity(byteLength() + n);
+        kk::Ubyte * b = data();
+        memcpy(b + byteLength(), p, size);
+        setByteLength(byteLength() + (kk::Uint) size);
+    }
+    
+    kk::String Buffer::toString() {
+        kk::String v;
+        v.append((char *) data(),byteLength());
+        return v;
     }
     
     Ref::Ref():_object(nullptr) {

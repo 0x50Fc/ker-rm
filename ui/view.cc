@@ -221,6 +221,7 @@ namespace kk {
                 }
                 app->removeView(_viewId);
             }
+            kk::Log("[View] [dealloc]");
         }
         
         Rect & View::frame() {

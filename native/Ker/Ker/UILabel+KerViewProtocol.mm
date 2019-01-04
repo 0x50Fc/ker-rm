@@ -9,16 +9,16 @@
 #import "UILabel+KerViewProtocol.h"
 #import "UIColor+Ker.h"
 #import "UIFont+Ker.h"
-#import "KerApp.h"
+#import "KerUI.h"
 
 @implementation UILabel (KerViewProtocol)
 
--(void) KerViewObtain:(KerViewId) viewId app:(KerApp *)app {
+-(void) KerViewObtain:(KerId) viewId app:(KerId)app {
     [super KerViewObtain:viewId app:app];
     self.numberOfLines = 0;
 }
 
--(void) KerView:(KerViewId)viewId setAttribute:(NSString *)key value:(NSString *)value app:(KerApp *)app {
+-(void) KerView:(KerId)viewId setAttribute:(NSString *)key value:(NSString *)value app:(KerId)app {
     [super KerView:viewId setAttribute:key value:value app:app];
     
     if(key == nil) {

@@ -1,6 +1,7 @@
 package cn.kkmofang.ker;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.View;
 import java.lang.ref.WeakReference;
@@ -22,14 +23,14 @@ public class Page implements PageView.PageListener{
         if(_layoutWidth != width || _layoutHeight != height) {
             _layoutWidth = width;
             _layoutHeight = height;
-            if(_ptr != 0 && _app != null) {
+            if(_ptr != 0) {
                 setSize(_ptr, _layoutWidth, _layoutHeight);
             }
         }
     }
 
     public interface Openlib {
-        void open(long jsContext,Page page);
+        void open(Page page);
     }
 
     private static List<Openlib> _openlibs = new ArrayList<>();
@@ -38,11 +39,6 @@ public class Page implements PageView.PageListener{
         _openlibs.add(openlib);
     }
 
-    public static void openlib(long jsContext,Page page) {
-        for(Openlib v : _openlibs) {
-            v.open(jsContext,page);
-        }
-    }
 
     public void addLibrary(String name,Object object) {
         if(_ptr != 0) {
@@ -50,24 +46,24 @@ public class Page implements PageView.PageListener{
         }
     }
 
+    public final long pageId;
     private long _ptr;
-    private long _jsContext;
-    private App _app;
     private PageView _view;
     private final Handler _handler;
+    private Object _options;
+    protected boolean _backPressed = false;
 
     public long ptr() {
         return _ptr;
     }
 
-    public Page(PageView view, App app) {
-        _ptr = alloc(view,app.ptr());
-        _jsContext = jsContext(_ptr);
-        _app = app;
-        _view = view;
-        _view.setPageListener(this);
-        _handler = new Handler();
-        openlib(_jsContext,this);
+    Page(long pageId,long ptr) {
+        this.pageId = pageId;
+        _ptr = ptr;
+        _handler = new Handler(Looper.getMainLooper());
+        for(Openlib v : _openlibs) {
+            v.open(this);
+        }
     }
 
     public void recycle() {
@@ -75,68 +71,82 @@ public class Page implements PageView.PageListener{
             dealloc(_ptr);
             _ptr = 0;
         }
-        _app = null;
-        _view = null;
+        if(_view != null) {
+            _view.setPageListener(null);
+            _view = null;
+        }
+        KerUI.removePage(pageId);
     }
 
-    public void setOptions(Object options) {
+    public void setOptions(final Object options) {
+
+        if(options != null) {
+            Object v = Ker.get(options,"backPressed");
+            if(v != null) {
+                _backPressed = Ker.booleanValue(v,false);
+            }
+        }
+
+        _options = options;
         if(_listener != null) {
             Listener v = _listener.get();
             if(v != null) {
                 v.onOptions(options);
             }
         }
+
     }
 
     public void close(final boolean animated) {
         if(_listener != null) {
-            final Listener v = _listener.get();
+            Listener v = _listener.get();
             if(v != null) {
-                _handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        v.onClose(animated);
-                    }
-                });
-
+                v.onClose(animated);
             }
         }
     }
 
-    public boolean onBackPressed() {
-        if(_ptr != 0) {
-            return onBackPressed(_ptr);
-        }
-        return true;
+    public boolean isBackPressed() {
+        return _backPressed;
     }
+
+    public void emit(String name,Object data) {
+        if(_ptr != 0) {
+            emit(_ptr,name,data);
+        }
+    }
+
 
     public View view() {
         return _view;
     }
 
-    public App app() {
-        return _app;
-    }
-
-    public void run(String path,Map<String,String> query) {
-        int n = query == null ? 0 : query.size();
-        String[] keys = new String[n];
-        String[] values = new String[n];
-        if(n >0) {
-            int i = 0;
-            for (Map.Entry<String, String> e : query.entrySet()) {
-                keys[i] = e.getKey();
-                values[i] = e.getValue();
-                i++;
+    public void open(PageView view) {
+        if(_view != view) {
+            if(_view != null) {
+                _view.setPageListener(null);
+            }
+            _view = view;
+            if(_view != null) {
+                _view.setPageListener(this);
             }
         }
-        run(_ptr,path,keys,values);
+
+        if(_listener != null && _options != null) {
+            Listener v = _listener.get();
+            if(v != null) {
+                v.onOptions(_options);
+            }
+        }
+
+        if(_ptr != 0 && _view != null) {
+            open(_ptr,_view,_view.getWidth(),_view.getHeight());
+        }
+
     }
 
     protected void finalize() throws Throwable {
-        if(_ptr != 0) {
-            dealloc(_ptr);
-        }
+        recycle();
         super.finalize();
     }
 
@@ -155,11 +165,9 @@ public class Page implements PageView.PageListener{
         void onClose(boolean animated);
     }
 
-    private native long alloc(View view,long app);
     private static native void dealloc(long ptr);
-    private static native long jsContext(long ptr);
-    private static native void run(long ptr,String path,String[] keys,String[] values);
+    private static native void open(long ptr,View view,int width,int height);
     private static native void setSize(long ptr,int width,int height);
     private static native void addLibrary(long ptr,String name,Object object);
-    private static native boolean onBackPressed(long ptr);
+    private static native void emit(long ptr,String name,Object data);
 }

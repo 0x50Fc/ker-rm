@@ -5,6 +5,7 @@
 #include "KerCGContext.h"
 #include "kk.h"
 #include <ui/view.h>
+#include "global.h"
 
 namespace kk {
 
@@ -489,7 +490,7 @@ namespace kk {
 
         }
 
-        void displayCGContext(kk::ui::CG::Context * context,jobject view) {
+        void displayCGContext(kk::ui::CG::Context * context,jlong viewId,jlong appid) {
 
             OSCGContext * v = dynamic_cast<OSCGContext *>(context);
 
@@ -501,11 +502,7 @@ namespace kk {
 
             JNIEnv *env = kk_env(&isAttach);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            jmethodID displayCanvas = env->GetStaticMethodID(isa,"displayCanvas","(Lcn/kkmofang/ker/KerCanvas;Ljava/lang/Object;)V");
-
-            env->CallStaticVoidMethod(isa,displayCanvas, v->object(),view);
+            env->CallStaticVoidMethod(G.UI.isa,G.UI.displayCanvas, v->object(),viewId,appid);
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
@@ -514,7 +511,28 @@ namespace kk {
         }
 
         kk::Strong<kk::ui::CG::Context> Canvas::createCGContext() {
-            return new OSCGContext(_width,_height);
+
+            if(_width == 0 || _height == 0) {
+                return nullptr;
+            }
+
+            kk::Strong<kk::ui::CG::Context> v;
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jobject object = env->NewObject(G.Canvas.isa,G.Canvas.init,(jint) _width, (jint) _height);
+
+            v = new OSCGContext(env,object,_width,_height);
+
+            env->DeleteLocalRef(object);
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
+            return v;
         }
 
         kk::Strong<kk::ui::Image> Canvas::toImage() {

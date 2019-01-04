@@ -18,7 +18,7 @@ namespace kk {
     class LibeventDispatchQueue : public DispatchQueue {
     public:
 
-        LibeventDispatchQueue(kk::CString name) {
+        LibeventDispatchQueue(kk::CString name):DispatchQueue() {
             _base = event_base_new();
             pthread_mutex_init(&_lock, nullptr);
             _event = evtimer_new(_base,LibeventDispatchQueueLoop,this);
@@ -96,25 +96,6 @@ namespace kk {
             evtimer_add(_event,&tv);
         }
 
-        virtual void setSpecific(const void * key,kk::Object * object) {
-            if(object == nullptr) {
-                auto i = _objects.find(key);
-                if(i != _objects.end()) {
-                    _objects.erase(i);
-                }
-            } else {
-                _objects[key] = object;
-            }
-        }
-
-        virtual kk::Object * getSpecific(const void * key) {
-            auto i = _objects.find(key);
-            if(i != _objects.end()) {
-                return i->second;
-            }
-            return nullptr;
-        }
-
     protected:
 
         pthread_t _pid;
@@ -122,7 +103,6 @@ namespace kk {
         struct event * _event;
         std::queue<std::function<void()>> _funcs;
         pthread_mutex_t _lock;
-        std::map<const void*,kk::Strong<kk::Object>> _objects;
     };
 
     static void LibeventDispatchQueueLoop(evutil_socket_t fd, short ev, void * userData) {

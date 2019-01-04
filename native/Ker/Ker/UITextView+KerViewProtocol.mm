@@ -15,12 +15,12 @@
 #include <ui/view.h>
 #include <objc/runtime.h>
 
-#import "KerApp.h"
+#import "KerUI.h"
 
 @interface UITextViewKKViewProtocol : NSObject<UITextViewDelegate>
 
 @property(nonatomic,assign) kk::Uint64 viewId;
-@property(nonatomic,weak) KerApp * app;
+@property(nonatomic,assign) KerId app;
 
 @end
 
@@ -28,9 +28,9 @@
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)string {
     
-    if(_viewId != 0) {
+    if(_viewId != 0 && _app) {
         NSString * text = [textView.text stringByReplacingCharactersInRange:range withString:string];
-        [_app emit:@"change" viewId:_viewId data:@{@"value":text}];
+        [KerUI app:_app emit:@"change" viewId:_viewId data:@{@"value":text}];
     }
     
     return YES;
@@ -38,8 +38,8 @@
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
     
-    if(_viewId != 0) {
-        [_app emit:@"focus" viewId:_viewId data:nil];
+    if(_viewId != 0 && _app) {
+        [KerUI app:_app emit:@"focus" viewId:_viewId data:nil];
     }
     
     return YES;
@@ -47,8 +47,8 @@
 
 - (BOOL)textViewShouldEndEditing:(UITextView *)textView {
     
-    if(_viewId != 0) {
-        [_app emit:@"blur" viewId:_viewId data:nil];
+    if(_viewId != 0 && _app) {
+        [KerUI app:_app emit:@"blur" viewId:_viewId data:nil];
     }
     
     return YES;
@@ -59,7 +59,7 @@
 
 @implementation UITextView (KerViewProtocol)
 
--(void) KerViewObtain:(KerViewId) viewId app:(KerApp *)app {
+-(void) KerViewObtain:(KerId) viewId app:(KerId)app {
     [super KerViewObtain:viewId app:app];
     UITextViewKKViewProtocol * object = [[UITextViewKKViewProtocol alloc] init];
     object.viewId = viewId;
@@ -68,16 +68,18 @@
     objc_setAssociatedObject(self, "__UITextViewKKViewProtocol", object, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
--(void) KerViewRecycle:(KerViewId) viewId app:(KerApp *)app {
+-(void) KerViewRecycle:(KerId) viewId app:(KerId)app {
     [super KerViewRecycle:viewId app:app];
     UITextViewKKViewProtocol * object = objc_getAssociatedObject(self, "__UITextViewKKViewProtocol");
     if(object) {
+        object.app = 0;
+        object.viewId = 0;
         self.delegate = nil;
         objc_setAssociatedObject(self, "__UITextViewKKViewProtocol", nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
 
--(void) KerView:(KerViewId) viewId setAttribute:(NSString *) key value:(NSString *) value app:(KerApp *)app {
+-(void) KerView:(KerId) viewId setAttribute:(NSString *) key value:(NSString *) value app:(KerId)app {
     
     [super KerView:viewId setAttribute:key value:value app:app];
     

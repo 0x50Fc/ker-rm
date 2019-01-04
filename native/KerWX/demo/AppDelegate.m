@@ -18,7 +18,7 @@
 
 +(void) initialize {
     
-    [KerApp openlib];
+    [KerUI openlib];
     [KerWXObject openlib];
     
 }

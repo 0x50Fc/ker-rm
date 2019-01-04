@@ -157,6 +157,8 @@ static const kk::Class * Class() { \
         virtual kk::Uint size();
         virtual kk::Ubyte * data();
         virtual void capacity(kk::Uint size);
+        virtual void append(const void * p, size_t size);
+        virtual kk::String toString();
     protected:
         kk::Ubyte _buf[2048];
         Ubyte * _data;

@@ -20,7 +20,6 @@ import java.util.Map;
 
 public class AppActivity extends Activity implements IAppActivity {
 
-    protected App _app;
 
     protected void onCreateContentView() {
         setContentView(R.layout.app);
@@ -29,55 +28,7 @@ public class AppActivity extends Activity implements IAppActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         onCreateContentView();
-
-        String basePath = null;
-        String appkey = null;
-        Map<String,String> query = null;
-
-        if(basePath == null && savedInstanceState != null) {
-            basePath = savedInstanceState.getString("basePath");
-        }
-
-        if(appkey == null && savedInstanceState != null) {
-            appkey = savedInstanceState.getString("appkey");
-        }
-
-        if(query == null && savedInstanceState != null) {
-            String v = savedInstanceState.getString("query");
-            if(v != null) {
-                query = Ker.decodeQuery(v);
-            }
-        }
-
-        if(basePath == null) {
-            basePath = getIntent().getStringExtra("basePath");
-        }
-
-        if(appkey == null) {
-            appkey = getIntent().getStringExtra("appkey");
-        }
-
-        if(query == null) {
-            String v = getIntent().getStringExtra("query");
-            if(v != null) {
-                query = Ker.decodeQuery(v);
-            }
-        }
-
-        if(_app != null) {
-            _app.recycle();
-        }
-
-        if(basePath != null && appkey != null ) {
-            _app = new App(this,basePath,appkey);
-            _app.run(query);
-        }
-
-    }
-
-    @Override
-    public App app() {
-        return _app;
+        KerUI.setAppActivity(this);
     }
 
     private List<Fragment> _fragments = new ArrayList<>();

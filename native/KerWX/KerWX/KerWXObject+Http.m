@@ -88,7 +88,7 @@ static NSURLSession * gKerWXObjectNSURLSession = nil;
             NSEnumerator * keyEnum = [data keyEnumerator];
             NSString * key;
             while((key = [keyEnum nextObject])) {
-                [vs addObject:[NSString stringWithFormat:@"%@=%@",key,[KerApp encodeURL:[data ker_getString:key]]]];
+                [vs addObject:[NSString stringWithFormat:@"%@=%@",key,[KerUI encodeURL:[data ker_getString:key]]]];
             }
         }
         
@@ -150,7 +150,7 @@ static NSURLSession * gKerWXObjectNSURLSession = nil;
                     if([string length]) {
                         [string appendString:@"&"];
                     }
-                    [string appendFormat:@"%@=%@",key,[KerApp encodeURL:[data ker_getString:key]]];
+                    [string appendFormat:@"%@=%@",key,[KerUI encodeURL:[data ker_getString:key]]];
                 }
                 [r setHTTPBody:[string dataUsingEncoding:NSUTF8StringEncoding]];
             }

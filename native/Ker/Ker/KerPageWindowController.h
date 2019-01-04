@@ -8,14 +8,13 @@
 
 #import <Foundation/Foundation.h>
 #import <Ker/KerPage.h>
-#import <Ker/KerApp.h>
+#import <ker/KerViewProtocol.h>
 
 @interface KerPageWindowController : NSObject<KerPageDelegate>
 
-@property(nonatomic,strong) KerApp * app;
-@property(nonatomic,strong) NSString * path;
-@property(nonatomic,strong,readonly) KerPage * page;
-@property(nonatomic,strong) NSDictionary<NSString *,NSString *> * query;
+@property(nonatomic,assign,readonly) KerId pageId;
+
+-(instancetype) initWithPageId:(KerId) pageId;
 
 -(void) showInView:(UIView *) view animated:(BOOL) animated;
 

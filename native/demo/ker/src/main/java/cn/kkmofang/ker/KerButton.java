@@ -25,13 +25,14 @@ public class KerButton extends KerView implements IKerView {
         super(context, attrs);
     }
 
-    private long _kerObject = 0;
+    private long _viewId = 0;
+    private long _appid = 0;
     private float _touchX = 0;
     private float _touchY = 0;
 
     protected boolean touch(MotionEvent event) {
 
-        if(_kerObject == 0) {
+        if(_viewId == 0 || _appid == 0) {
             return false;
         }
 
@@ -85,18 +86,18 @@ public class KerButton extends KerView implements IKerView {
 
         data.put("touches",touches);
 
-        Native.emit(_kerObject,type,data);
+        KerUI.emit(_appid,type,_viewId,data);
 
         if(hasTap) {
-            Native.emit(_kerObject,"tap",data);
+            KerUI.emit(_appid,"tap",_viewId,data);
         }
 
         return true;
     }
 
     @Override
-    public void setViewConfiguration(long viewConfiguration) {
-        super.setViewConfiguration(viewConfiguration);
+    public void setViewConfiguration(long viewId,WebViewConfiguration configuration,long appid) {
+        super.setViewConfiguration(viewId,configuration,appid);
 
         final WeakReference<KerButton> v = new WeakReference<>(this);
 
@@ -113,16 +114,18 @@ public class KerButton extends KerView implements IKerView {
 
     }
 
-    public void recycle(long object) {
-        if(_kerObject == object) {
-            _kerObject = 0;
+    public void recycle(long viewId,long appid) {
+        if(_viewId == viewId) {
+            _viewId = 0;
+            _appid = 0;
         }
-        super.recycle(object);
+        super.recycle(viewId,appid);
     }
 
-    public void obtain(long object) {
-        _kerObject = object;
-        super.obtain(object);
+    public void obtain(long viewId,long appid) {
+        _viewId = viewId;
+        _appid = appid;
+        super.obtain(viewId,appid);
     }
 
 }

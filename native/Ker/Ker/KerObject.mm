@@ -10,6 +10,7 @@
 #include <objc/runtime.h>
 #include <ui/page.h>
 #include <ui/app.h>
+#include <core/uri.h>
 
 void KerAddOpenlibInterface(Class isa) {
     
@@ -83,6 +84,29 @@ void KerAddAppOpenlib(KerAddOpenlibFunction func) {
 namespace kk {
 
     extern ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue);
+    
+    
+    kk::String GetDirectory(kk::CString name) {
+        kk::String v;
+        
+        if(kk::CStringEqual(name, kTemporaryDirectory)) {
+            @autoreleasepool {
+                v = [NSTemporaryDirectory() UTF8String];
+            }
+        } else if(kk::CStringEqual(name, kNativeDirectory)) {
+            @autoreleasepool {
+                v = [[[NSBundle mainBundle] resourcePath] UTF8String];
+            }
+        } else {
+            @autoreleasepool {
+                NSString * p = [[NSHomeDirectory() stringByAppendingPathComponent:@"Library/ker-"] stringByAppendingFormat:@"%s",name];
+                v = [p UTF8String];
+                [[NSFileManager defaultManager] createDirectoryAtPath:p withIntermediateDirectories:YES attributes:nil error:nil];
+            }
+        }
+        
+        return v;
+    }
     
     void LogV(const char * format, va_list va) {
         NSLogv([NSString stringWithFormat:@"[Ker] %s",format], va);

@@ -5,7 +5,7 @@
 #include "KerView.h"
 #include "kk.h"
 #include "KerImage.h"
-#include "KerApp.h"
+#include "global.h"
 
 namespace kk {
 
@@ -13,17 +13,7 @@ namespace kk {
 
         jobject getAttributedTextString(JNIEnv * env, AttributedText * text) {
 
-            jclass isa = env->FindClass("android/text/SpannableStringBuilder");
-            jmethodID init = env->GetMethodID(isa,"<init>","()V");
-            jobject v = env->NewObject(isa,init);
-
-            jclass native = env->FindClass("cn/kkmofang/ker/Native");
-
-            //public static void appendText(SpannableStringBuilder string,String text,String family,float size,boolean bold,boolean italic,int color)
-            jmethodID appendText = env->GetStaticMethodID(native,"appendText","(Landroid/text/SpannableStringBuilder;Ljava/lang/String;Ljava/lang/String;FZZI)V");
-
-            //public static void appendImage(SpannableStringBuilder string,Object image,int width,int height,int left,int top,int right,int bottom)
-            jmethodID appendImage = env->GetStaticMethodID(native,"appendImage","(Landroid/text/SpannableStringBuilder;Ljava/lang/Object;IIIIII)V");
+            jobject v = env->NewObject(G.SpannableStringBuilder.isa,G.SpannableStringBuilder.init);
 
             if(text != nullptr) {
                 auto& m = text->spans();
@@ -33,8 +23,8 @@ namespace kk {
                     if(span.type == AttributedTextSpanTypeText) {
                         jstring family = env->NewStringUTF(span.font.family.c_str());
                         jstring text = env->NewStringUTF(span.text.c_str());
-                        env->CallStaticVoidMethod(native,
-                                                  appendText,
+                        env->CallStaticVoidMethod(G.UI.isa,
+                                                  G.UI.appendText,
                                                   v,
                                                   text,
                                                   family,
@@ -45,12 +35,12 @@ namespace kk {
                         env->DeleteLocalRef(family);
                         env->DeleteLocalRef(text);
                     } else if(span.type == AttributedTextSpanTypeImage) {
-                        kk::ui::OSImage * image = span.image;
-                        if(image != nullptr && image->object() != nullptr) {
-                            env->CallStaticVoidMethod(native,
-                                                      appendImage,
+                        jobject image = GetImageObject(span.image);
+                        if(image != nullptr ) {
+                            env->CallStaticVoidMethod(G.UI.isa,
+                                                      G.UI.appendImage,
                                                       v,
-                                                      image->object(),
+                                                      image,
                                                       (jint)span.width,
                                                       (jint)span.height,
                                                       (jint)span.margin.left,
@@ -63,9 +53,6 @@ namespace kk {
                 }
             }
 
-            env->DeleteLocalRef(isa);
-            env->DeleteLocalRef(native);
-
             return v;
         }
 
@@ -77,18 +64,11 @@ namespace kk {
 
             jobject v = getAttributedTextString(env,text);
 
-            jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-
-            //public static float[] getAttributedTextSize(CharSequence string,float maxWidth)
-            jmethodID getAttributedTextSize = env->GetStaticMethodID(isa,"getAttributedTextSize","(Ljava/lang/CharSequence;F)[F");
-
-            jobject r = env->CallStaticObjectMethod(isa,getAttributedTextSize,v,(jfloat) maxWidth);
+            jobject r = env->CallStaticObjectMethod(G.UI.isa,G.UI.getAttributedTextSize,v,(jfloat) maxWidth);
 
             if(v != nullptr) {
                 env->DeleteLocalRef(v);
             }
-
-            env->DeleteLocalRef(isa);
 
             Size rr;
 

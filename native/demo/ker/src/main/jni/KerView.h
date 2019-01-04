@@ -14,6 +14,8 @@ namespace kk {
     namespace ui {
 
 
+        jobject getAttributedTextString(JNIEnv * env, AttributedText * text);
+
     }
 
 }

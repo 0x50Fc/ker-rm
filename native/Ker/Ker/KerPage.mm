@@ -11,115 +11,48 @@
 #include <ui/ui.h>
 #include <ui/page.h>
 #import "KerWeak.h"
-
-namespace kk {
-    namespace ui {
-        extern kk::Strong<View> createView(CFTypeRef view,kk::ui::ViewConfiguration * config,kk::ui::Context * context);
-    }
-}
+#import "KerUI.h"
 
 @interface KerPage() {
-    kk::ui::Page * _page;
+    id _options;
 }
-
--(void) setOptions:(id) options;
-
--(void) close:(BOOL) animated;
 
 @end
 
 @implementation KerPage
 
--(instancetype) initWithView:(UIView *) view app:(KerApp *) app{
+-(instancetype) initWithPage:(KerPageCPointer) page {
     if((self = [super init])) {
-        _app = app;
-        _view = view;
-        
-        kk::ui::App * a = [app CPointer];
-        
-        kk::ui::Rect frame = {
-            {(kk::ui::Float)view.frame.origin.x,(kk::ui::Float)view.frame.origin.y},
-            {(kk::ui::Float)view.frame.size.width,(kk::ui::Float)view.frame.size.height}};
-        
-        KerWeak * native = [[KerWeak alloc] init];
-        
-        native.object = self;
-        
-        a->queue()->sync([self,native,frame,a,view]()->void{
-            
-            kk::Strong<kk::ui::View> v = a->createView((__bridge kk::Native *) view,(kk::ui::Rect &) frame);
-            
-            kk::Strong<kk::ui::Page> page = a->createPage(v);
-            _page = page;
-            _page->retain();
-            _page->setNative((__bridge kk::Native *) native);
-            page->setSize((kk::ui::Size &) frame.size);
-            
-        });
-    
+        _page = page;
+        _page->retain();
     }
     return self;
 }
 
--(void) dealloc{
+-(void) dealloc {
     if(_page) {
         kk::ui::Page * page = _page;
         _page = nullptr;
         page->queue()->async([page]()->void{
-            page->off();
             page->release();
         });
     }
 }
 
 -(void) recycle {
-    self.delegate = nil;
     if(_page) {
+        
         kk::ui::Page * page = _page;
         _page = nullptr;
+        [KerUI removePage:page->pageId()];
         page->queue()->async([page]()->void{
-            page->off();
             page->release();
         });
     }
 }
 
--(KerPageCPointer) CPointer {
-    return _page;
-}
-
--(void) run:(NSString *) path query:(NSDictionary<NSString *,NSString *> *) query {
-    if(_page == nullptr) {
-        return;
-    }
-    kk::Strong<kk::TObject<kk::String, kk::String>> q = new kk::TObject<kk::String, kk::String>();
-    NSEnumerator * keyEnum = [query keyEnumerator];
-    NSString * key;
-    while((key = [keyEnum nextObject])) {
-        NSString * value = [query valueForKey:key];
-        (*q)[[key UTF8String]] = [value UTF8String];
-    }
-    kk::String p = [path UTF8String];
-    kk::ui::Page * page = _page;
-    
-    _page->queue()->async([p,q,page]()->void{
-        page->run(p.c_str(), q.operator->());
-    });
-    
-}
-
--(void) setSize:(CGSize) size {
-    if(_page == nullptr) {
-        return;
-    }
-    kk::ui::Size s = {(kk::ui::Float)size.width,(kk::ui::Float)size.height};
-    kk::ui::Page * page = _page;
-    _page->queue()->async([s,page]()->void{
-        page->setSize((kk::ui::Size &) s);
-    });
-}
-
--(void) setOptions:(id) options {
+-(void) setOptions:(id) options  {
+    _options = options;
     if([(id)_delegate respondsToSelector:@selector(KerPage:setOptions:)]) {
         [_delegate KerPage:self setOptions:options];
     }
@@ -130,5 +63,66 @@ namespace kk {
         [_delegate KerPage:self close:animated];
     }
 }
+
+-(void) setSize:(CGSize) size {
+    if(_page) {
+        kk::Weak<kk::ui::Page> p = _page;
+        kk::ui::Size s = { (kk::ui::Float) size.width,  (kk::ui::Float) size.height };
+        _page->queue()->async([s,p]()->void{
+            kk::Strong<kk::ui::Page> page = p.operator->();
+            if(page !=nullptr) {
+                if(page->view() != nullptr) {
+                    page->setSize((kk::ui::Size &) s);
+                }
+            }
+        });
+    }
+}
+
+-(void) open:(UIView *) view {
+    
+    _view = view;
+    
+    if(_page) {
+        kk::Strong<kk::NativeObject> vv = new kk::NativeObject((__bridge kk::Native *) view);
+        kk::Weak<kk::ui::Page> p = _page;
+        CGSize size = view.bounds.size;
+        kk::ui::Rect r = { {0,0} ,{(kk::ui::Float) size.width,  (kk::ui::Float) size.height} };
+        if(_options != nil) {
+            if([(id)_delegate respondsToSelector:@selector(KerPage:setOptions:)]) {
+                [_delegate KerPage:self setOptions:_options];
+            }
+        }
+        _page->queue()->async([r,p,vv]()->void{
+            @autoreleasepool {
+                kk::Strong<kk::ui::Page> page = p.operator->();
+                if(page !=nullptr) {
+                    kk::Strong<kk::ui::View> v = page->app()->createView(vv.operator->()->native(), (kk::ui::Rect &) r);
+                    page->setView(v);
+                    page->setSize((kk::ui::Size &) r.size);
+                    page->ready();
+                }
+            }
+        });
+    }
+    
+}
+
+-(void) viewDidLayoutSubviews {
+    if(_page && _view) {
+        kk::ui::Size s = {(kk::ui::Float) _view.bounds.size.width,(kk::ui::Float)_view.bounds.size.height};
+        kk::Weak<kk::ui::Page> p = _page;
+        _page->queue()->async([s,p]()->void{
+            @autoreleasepool {
+                kk::Strong<kk::ui::Page> page = p.operator->();
+                if(page !=nullptr) {
+                    page->setSize((kk::ui::Size&) s);
+                }
+            }
+        });
+    }
+}
+
+
 
 @end

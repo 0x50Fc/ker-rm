@@ -19,11 +19,6 @@ namespace kk {
         class Package;
         class Page;
         
-        class AppOpenCommand : public Command {
-        public:
-            kk::String uri;
-            kk::Boolean animated;
-        };
         
         class AppBackCommand : public Command {
         public:
@@ -34,13 +29,17 @@ namespace kk {
         class App : public Context {
         public:
             
-            App(kk::CString basePath,kk::CString platform,kk::CString userAgent,kk::CString appkey);
+            App(kk::Uint64 appid,kk::CString basePath,kk::CString platform,kk::CString userAgent,kk::CString appkey);
+            
+            App(kk::Uint64 appid,kk::CString basePath,kk::CString appkey);
             
             virtual ~App();
             
             virtual void open(kk::CString uri,kk::Boolean animated);
             
             virtual void back(kk::Uint delta,kk::Boolean animated);
+            
+            virtual void run(kk::Object * query);
             
             virtual kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration);
             
@@ -54,7 +53,7 @@ namespace kk {
             
             virtual void removeCanvas(kk::Uint64 canvasId);
             
-            virtual kk::Strong<Page> createPage(View * view);
+            virtual kk::Strong<Page> createPage(kk::CString type);
             
             virtual kk::Strong<Page> getPage(kk::Uint64 pageId);
             
@@ -62,15 +61,15 @@ namespace kk {
             
             virtual Size getAttributedTextContentSize(AttributedText * text,Float maxWidth);
             
-            virtual kk::Strong<Package> createPackage(kk::CString URI);
-            
             virtual kk::CString appkey();
+            
+            virtual kk::Uint64 appid();
             
             virtual void execCommand(Command * command);
             
             virtual void dispatchCommand(Command * command);
             
-            virtual void setOnCommand(std::function<void(App * ,Command *)> && func);
+            virtual void openlib();
             
             static void Openlib();
             
@@ -78,11 +77,10 @@ namespace kk {
     
         protected:
             kk::String _appkey;
-            std::function<void(App * ,Command *)> _onCommand;
-            kk::Uint64 _autoId;
             std::map<kk::Uint64,kk::Weak<View>> _views;
             std::map<kk::Uint64,kk::Weak<Canvas>> _canvas;
             std::map<kk::Uint64,kk::Weak<Page>> _pages;
+            kk::Uint64 _appid;
         };
         
         

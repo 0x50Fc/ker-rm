@@ -18,10 +18,67 @@ namespace kk {
 
     class DispatchQueue : public Object {
     public:
+        DispatchQueue():_autoId(0){}
         virtual void async(std::function<void()> && func) = 0;
         virtual void sync(std::function<void()> && func) = 0;
-        virtual void setSpecific(const void * key,kk::Object * object) = 0;
-        virtual kk::Object * getSpecific(const void * key) = 0;
+        virtual void setSpecific(const void * key,kk::Object * object) {
+            _specifics[key] = object;
+        }
+        virtual kk::Object * getSpecific(const void * key) {
+            auto i = _specifics.find(key);
+            if(i != _specifics.end()) {
+                return i->second;
+            }
+            return nullptr;
+        }
+        virtual kk::Object * get(kk::Uint64 key) {
+            {
+                auto i = _strongs.find(key);
+                if(i != _strongs.end()) {
+                    return i->second;
+                }
+            }
+            {
+                auto i = _weaks.find(key);
+                if(i != _weaks.end()) {
+                    kk::Object * v = i->second;
+                    if(v == nullptr) {
+                        _weaks.erase(i);
+                    }
+                    return v;
+                }
+            }
+            return nullptr;
+        }
+        virtual kk::Uint64 strong(kk::Object * object) {
+            kk::Uint64 key = ++ _autoId;
+            _strongs[key] = object;
+            return key;
+        }
+        virtual kk::Uint64 weak(kk::Object * object) {
+            kk::Uint64 key = ++ _autoId;
+            _weaks[key] = object;
+            return key;
+        }
+        virtual void remove(kk::Uint64 key) {
+            {
+                auto i = _strongs.find(key);
+                if(i != _strongs.end()) {
+                    _strongs.erase(i);
+                }
+            }
+            {
+                auto i = _weaks.find(key);
+                if(i != _weaks.end()) {
+                    _weaks.erase(i);
+                }
+            }
+        }
+    protected:
+        kk::Uint64 _autoId;
+        std::map<const void * ,kk::Strong<kk::Object>> _specifics;
+        std::map<kk::Uint64,kk::Strong<kk::Object>> _strongs;
+        std::map<kk::Uint64,kk::Weak<kk::Object>> _weaks;
     };
     
     enum DispatchSourceType {

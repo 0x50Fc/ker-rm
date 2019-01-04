@@ -162,7 +162,7 @@ namespace kk {
 
         kk::Strong<kk::ui::CG::Context> createCGContext(kk::Uint width,kk::Uint height);
 
-        void displayCGContext(kk::ui::CG::Context * context,jobject view);
+        void displayCGContext(kk::ui::CG::Context * context,jlong viewId,jlong appid);
 
     }
 

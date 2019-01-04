@@ -10,10 +10,17 @@ import static java.lang.reflect.Proxy.newProxyInstance;
  * Created by zhanghailong on 2018/12/11.
  */
 
-public final class JSObject extends KerObject implements InvocationHandler {
+public final class JSObject extends Object implements InvocationHandler {
+
+    protected long _ptr;
 
     JSObject(long ptr) {
-        super(ptr);
+        _ptr = ptr;
+        retain(_ptr);
+    }
+
+    public long ptr() {
+        return _ptr;
     }
 
     public Object get(String key) {
@@ -71,10 +78,20 @@ public final class JSObject extends KerObject implements InvocationHandler {
         return (T) Proxy.newProxyInstance(isa.getClassLoader(), interfaces, this);
     }
 
+    public void recycle() {
+        if(_ptr != 0) {
+            release(_ptr);
+            _ptr = 0;
+        }
+    }
+
     protected void finalize() throws Throwable {
+        recycle();
         super.finalize();
     }
 
+    private final static native void retain(long ptr);
+    private final static native void release(long ptr);
     private final static native Object get(long ptr,String key);
     private final static native void set(long ptr,String key,Object value);
     private final static native Object call(long ptr,Object[] args);

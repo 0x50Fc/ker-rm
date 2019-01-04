@@ -12,14 +12,14 @@
 #include <ui/view.h>
 #include <objc/runtime.h>
 
-#import "KerApp.h"
+#import "KerUI.h"
 
 @interface KerButton() {
     
 }
 
 @property(nonatomic,assign) kk::Uint64 viewId;
-@property(nonatomic,weak) KerApp * app;
+@property(nonatomic,assign) KerId app;
 
 @end
 
@@ -42,7 +42,7 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
 
 - (void) event:(NSString *) name touches:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     
-    if(_viewId == 0 || _app == nil) {
+    if(_viewId == 0 || _app == 0) {
         return;
     }
     NSMutableDictionary * data = [NSMutableDictionary dictionaryWithCapacity:4];
@@ -65,7 +65,7 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
         [items addObject:item];
     }
     
-    [_app emit:name viewId:_viewId data:data];
+    [KerUI app:_app emit:name viewId:_viewId data:data];
     
 }
 
@@ -89,16 +89,16 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
     [self event:@"touchcancel" touches:touches withEvent:event];
 }
 
--(void) KerViewObtain:(KerViewId) viewId app:(KerApp *) app {
+-(void) KerViewObtain:(KerId) viewId app:(KerId) app {
     [super KerViewObtain:viewId app:app];
     _viewId = viewId;
     _app = app;
 }
 
--(void) KerViewRecycle:(KerViewId) viewId app:(KerApp *) app {
+-(void) KerViewRecycle:(KerId) viewId app:(KerId) app {
     [super KerViewRecycle:viewId app:app];
     _viewId = 0;
-    _app = nil;
+    _app = 0;
 }
 
 - (void)endTrackingWithTouch:(nullable UITouch *)touch withEvent:(nullable UIEvent *)event {

@@ -3,7 +3,7 @@ package cn.kkmofang.wx;
 import cn.kkmofang.ker.JSMethod;
 import cn.kkmofang.ker.JSObject;
 import cn.kkmofang.ker.JSPrototype;
-import cn.kkmofang.ker.App;
+import cn.kkmofang.ker.KerUI;
 import cn.kkmofang.ker.Page;
 
 /**
@@ -14,29 +14,20 @@ public class WXObject {
 
     static {
 
-        JSContext.addOpenlib(new JSContext.Openlib() {
-            @Override
-            public void open(long jsContext) {
-
-                JSContext.PushPrototype(jsContext,WXObject.class);
-                JSContext.PushPrototype(jsContext,WXRequestTask.class);
-
-            }
-        });
-
         Page.addOpenlib(new Page.Openlib() {
             @Override
-            public void open(long jsContext, Page page) {
+            public void open(Page page) {
                 page.addLibrary("wx",new WXObject());
             }
         });
 
-        App.addOpenlib(new App.Openlib() {
+        KerUI.addOpenlib(new KerUI.Openlib() {
 
             @Override
-            public void open(long jsContext, App app) {
-                JSContext.PushObject(jsContext,new WXObject());
-                JSContext.PutGlobalString(jsContext,"wx");
+            public void open(long appid) {
+                KerUI.addPrototype(appid,WXObject.class);
+                KerUI.addPrototype(appid,WXRequestTask.class);
+                KerUI.addLibrary(appid,"wx",new WXObject());
             }
 
         });

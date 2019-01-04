@@ -79,13 +79,13 @@ public class KerView extends ViewGroup implements IKerView {
     }
 
     @Override
-    public void setViewConfiguration(long viewConfiguration) {
+    public void setViewConfiguration(long viewId,WebViewConfiguration viewConfiguration,long appid) {
 
     }
 
     @Override
-    public void setAttributeValue(long object, String key, String value) {
-        setAttributeValue(this,object,key,value);
+    public void setAttributeValue(long viewId, String key, String value,long appid) {
+        setAttributeValue(this,viewId,key,value,appid);
     }
 
     private static void updateViewBackground(View view) {
@@ -108,7 +108,7 @@ public class KerView extends ViewGroup implements IKerView {
         view.setBackground(bg);
     }
 
-    public static void setAttributeValue(View view,long object, String key, String value) {
+    public static void setAttributeValue(View view,long viewId, String key, String value,long appid) {
 
         if("background-color".equals(key)) {
             view.setTag(R.id.ker_background_color,Ker.colorValue(value,0));
@@ -133,37 +133,53 @@ public class KerView extends ViewGroup implements IKerView {
     }
 
     @Override
-    public void recycle(long object) {
+    public void recycle(long viewId,long appid) {
 
     }
 
     @Override
-    public void obtain(long object) {
+    public void obtain(long viewId,long appid) {
 
     }
 
     @Override
-    public void setContent(long object, String content, String contentType, String basePath) {
+    public void setContent(long viewId, String content, String contentType, String basePath,long appid) {
 
     }
 
     @Override
-    public void evaluateJavaScript(long object, String evaluateCode) {
+    public void evaluateJavaScript(long viewId, String evaluateCode,long appid) {
 
     }
 
     @Override
-    public void setImage(Drawable image) {
-        setBackground(image);
+    public void setImage(long viewId,Object image,long appid) {
+        if(image instanceof Drawable) {
+            setBackground((Drawable) image);
+        } else if(image instanceof Image) {
+            setBackground(((Image) image).getDrawable());
+        } else {
+            setBackground(null);
+        }
     }
 
     @Override
-    public void setAttributedText(long object, CharSequence string) {
+    public void setAttributedText(long viewId, CharSequence string,long appid) {
 
+    }
+
+    @Override
+    public void setContentSize(long viewId, int width, int height, long appid) {
+
+    }
+
+    @Override
+    public void setContentOffset(long viewId, int x, int y,boolean animated, long appid) {
+        scrollTo(x,y);
     }
 
     @Override
     public ViewGroup contentView() {
-        return null;
+        return this;
     }
 }

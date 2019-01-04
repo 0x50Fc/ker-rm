@@ -9,16 +9,17 @@
 #import "WKWebView+KerViewProtocol.h"
 #import "KerURLProtocol.h"
 #import "KerObject.h"
-#import "KerApp.h"
+#import "KerUI.h"
 #include <ui/ui.h>
 #include <ui/view.h>
+#include <core/uri.h>
 #include <objc/runtime.h>
-#import "KerApp.h"
+#import "KerUI.h"
 
 @interface WKWebViewKKViewProtocol : NSObject<WKScriptMessageHandler,WKNavigationDelegate>
 
 @property(nonatomic,assign) kk::Uint64 viewId;
-@property(nonatomic,weak) KerApp * app;
+@property(nonatomic,assign) KerId app;
 @property(nonatomic,assign) kk::ui::WebViewConfiguration * configuration;
 @end
 
@@ -44,8 +45,8 @@
 
 - (void) userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     
-    if(_viewId != 0) {
-        [_app emit:@"data" viewId:_viewId data:message.body];
+    if(_viewId != 0 && _app != 0) {
+        [KerUI app:_app emit:@"data" viewId:_viewId data:message.body];
     }
     
 }
@@ -82,7 +83,9 @@
         
         if(i != m.end()) {
             
-            [_app emit:@"action" viewId:_viewId data:@{@"url":u}];
+            if(_app != 0) {
+                [KerUI app:_app emit:@"action" viewId:_viewId data:@{@"url":u}];
+            }
             
             decisionHandler(policy);
             
@@ -99,21 +102,21 @@
 
 - (void)webView:(WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
     
-    if(_viewId != 0) {
-        [_app emit:@"loading" viewId:_viewId data:nil];
+    if(_viewId != 0 && _app != 0) {
+        [KerUI app:_app emit:@"loading" viewId:_viewId data:nil];
     }
     
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
-    if(_viewId != 0) {
-        [_app emit:@"load" viewId:_viewId data:nil];
+    if(_viewId != 0 && _app != 0) {
+        [KerUI app:_app emit:@"load" viewId:_viewId data:nil];
     }
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error {
-    if(_viewId != 0) {
-        [_app emit:@"error" viewId:_viewId data:@{@"errmsg":[error localizedDescription]}];
+    if(_viewId != 0 && _app != 0) {
+        [KerUI app:_app emit:@"error" viewId:_viewId data:@{@"errmsg":[error localizedDescription]}];
     }
 }
 
@@ -122,8 +125,8 @@
     if([object isKindOfClass:[WKWebView class]]) {
         if([keyPath isEqualToString:@"estimatedProgress"]) {
             
-            if(_viewId != 0) {
-                [_app emit:@"progress" viewId:_viewId data:@{@"value":@([(WKWebView *) object estimatedProgress])}];
+            if(_viewId != 0 && _app != 0) {
+                [KerUI app:_app emit:@"progress" viewId:_viewId data:@{@"value":@([(WKWebView *) object estimatedProgress])}];
             }
             
         }
@@ -136,7 +139,7 @@
 
 @implementation WKWebView (KerViewProtocol)
 
-+(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer *) config app:(KerApp *) app {
++(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer *) config app:(KerId) app {
     
     kk::ui::WebViewConfiguration * v = dynamic_cast<kk::ui::WebViewConfiguration *>((kk::ui::ViewConfiguration *) config);
     
@@ -198,16 +201,22 @@
     return view;
 }
 
--(void) KerViewObtain:(KerViewId) viewId app:(KerApp *)app {
+-(void) KerViewObtain:(KerId) viewId app:(KerId)app {
     [super KerViewObtain:viewId app:app];
     WKWebViewKKViewProtocol * object = (WKWebViewKKViewProtocol *) objc_getAssociatedObject(self, "__WKWebViewKerViewProtocol");
     object.viewId = viewId;
+    object.app = app;
     [self.scrollView KerViewObtain:viewId app:app];
 }
 
--(void) KerViewRecycle:(KerViewId) viewId app:(KerApp *) app {
+-(void) KerViewRecycle:(KerId) viewId app:(KerId) app {
     [super KerViewRecycle:viewId app:app];
-    objc_setAssociatedObject(self, "__WKWebViewKerViewProtocol", nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    WKWebViewKKViewProtocol * object = (WKWebViewKKViewProtocol *) objc_getAssociatedObject(self, "__WKWebViewKerViewProtocol");
+    if(object != nil) {
+        object.viewId = 0;
+        object.app = 0;
+        objc_setAssociatedObject(self, "__WKWebViewKerViewProtocol", nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
     [self.scrollView KerViewRecycle:viewId app:app];
 }
 
@@ -215,7 +224,7 @@
     return self.scrollView;
 }
 
--(void) KerView:(KerViewId) viewId setAttribute:(NSString *) key value:(NSString *) value app:(KerApp *)app {
+-(void) KerView:(KerId) viewId setAttribute:(NSString *) key value:(NSString *) value app:(KerId)app {
     
     [super KerView:viewId setAttribute:key value:value app:app];
     
@@ -229,9 +238,9 @@
             
             if([value rangeOfString:@"://"].location == NSNotFound) {
                 
-                NSString * basePath = app.basePath;
+                NSString * basePath = [KerUI basePathWithApp:app];
                 
-                NSURL * baseURL = [NSURL URLWithString:[KerApp relativeURI:basePath]];
+                NSURL * baseURL = [NSURL URLWithString:[KerUI resolveURI:basePath]];
                 
                 [self loadFileURL:[NSURL URLWithString:value relativeToURL:baseURL] allowingReadAccessToURL:baseURL];
                 
@@ -250,9 +259,9 @@
         
         if(value != nil) {
             
-            NSString * basePath = app.basePath;
+            NSString * basePath = [KerUI basePathWithApp:app];
             
-            NSURL * baseURL = [NSURL URLWithString:[KerApp relativeURI:basePath]];
+            NSURL * baseURL = [NSURL URLWithString:[KerUI resolveURI:basePath]];
             
             [self loadHTMLString:value baseURL:baseURL];
             
@@ -261,11 +270,11 @@
     
 }
 
--(void) KerView:(KerViewId) viewId setContent:(NSString *) content contentType:(NSString *) contentType basePath:(NSString *) basePath app:(KerApp *)app {
+-(void) KerView:(KerId) viewId setContent:(NSString *) content contentType:(NSString *) contentType basePath:(NSString *) basePath app:(KerId)app {
     
     if(content != nil) {
         
-        NSString * path = [app basePath];
+        NSString * path = [KerUI basePathWithApp:app];
         
         if([basePath length] != 0) {
             path = [path stringByAppendingPathComponent:basePath];
@@ -275,7 +284,7 @@
             path = [path stringByAppendingString:@"/"];
         }
         
-        NSURL * baseURL = [NSURL URLWithString:[KerApp relativeURI:path]];
+        NSURL * baseURL = [NSURL URLWithString:[KerUI resolveURI:path]];
         
         if([contentType length] == 0) {
             [self loadData:[content dataUsingEncoding:NSUTF8StringEncoding] MIMEType:contentType characterEncodingName:@"utf-8" baseURL:baseURL];

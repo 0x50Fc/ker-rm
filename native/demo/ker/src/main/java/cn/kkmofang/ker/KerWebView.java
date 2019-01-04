@@ -52,12 +52,10 @@ public class KerWebView extends WebView implements IKerView {
 
     @SuppressLint("JavascriptInterface")
     @Override
-    public void setViewConfiguration(long viewConfiguration) {
+    public void setViewConfiguration(long viewId, final WebViewConfiguration configuration,long appid) {
 
         final Handler handler =  new Handler();
         final WeakReference<KerWebView> webView = new WeakReference<>(this);
-
-        final WebViewConfiguration configuration = Native.getWebViewConfiguration(viewConfiguration);
 
         WebSettings settings = getSettings();
 
@@ -111,12 +109,11 @@ public class KerWebView extends WebView implements IKerView {
 
                             KerWebView v = webView.get();
 
-                            if(v != null && v._kerObject != 0) {
+                            if(v != null && v._viewId != 0 && v._appid !=0 ) {
                                 Map<String,Object> data = new TreeMap<>();
                                 data.put("url",url);
-                                Native.emit(v._kerObject,"action",data);
+                                KerUI.emit(v._appid,"action",v._viewId,data);
                             }
-
 
                             if(ua.policy == WebViewConfiguration.USER_ACTION_POLICY_ALLOW) {
                                 return true;
@@ -145,12 +142,12 @@ public class KerWebView extends WebView implements IKerView {
 
             public WebResourceResponse handleRequest(WebView view,String url,String method) {
                 if(url.startsWith("ker-data://") || url.startsWith("ker-tmp://") || url.startsWith("ker-app://")) {
-                    String path = Package.resolvePath(getContext(),url);
-                    String mimeType = Package.mimeType(path,null,"application/o-stream");
+                    String path = KerUI.resolvePath(url);
+                    String mimeType = KerUI.mimeType(path,null,"application/o-stream");
                     try {
                         return new WebResourceResponse(mimeType,null,new FileInputStream(path));
                     } catch (FileNotFoundException e) {
-                        Log.e("ker",Log.getStackTraceString(e));
+                        Log.d("ker",Log.getStackTraceString(e));
                         return null;
                     }
                 }
@@ -188,15 +185,10 @@ public class KerWebView extends WebView implements IKerView {
             @JavascriptInterface
             public void postMessage(final String text) {
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        KerWebView b = webView.get();
-                        if(b != null && b._kerObject != 0) {
-                            Native.emit(b._kerObject, "data", new JSONString(text));
-                        }
-                    }
-                });
+            KerWebView b = webView.get();
+            if(b != null && b._viewId != 0 && b._appid != 0) {
+                KerUI.emit(b._appid, "data", b._viewId,new JSONString(text));
+            }
 
             }
 
@@ -204,44 +196,46 @@ public class KerWebView extends WebView implements IKerView {
 
     }
 
+
     @Override
-    public void setAttributeValue(long object, String key, String value) {
+    public void setAttributeValue(long viewId, String key, String value,long appid) {
 
         if("src".equals(key)) {
             if(value != null) {
                 if(value.contains("://")) {
                     loadUrl(value);
                 } else {
-                    loadUrl(Package.resolveURI(getContext(),Native.absolutePath(object,value)));
+                    loadUrl(KerUI.resolveURI(value,appid));
                 }
             }
         } else if("#text".equals(key)) {
             if(value != null) {
-                loadDataWithBaseURL(Package.resolveURI(getContext(),Native.absolutePath(object,"/")),value,"text/html","utf-8",null);
+                loadDataWithBaseURL(KerUI.resolveURI("/",appid),value,"text/html","utf-8",null);
             }
         }
 
-        KerView.setAttributeValue(this,object,key,value);
+        KerView.setAttributeValue(this,viewId,key,value,appid);
     }
 
-    private long _kerObject = 0;
+    private long _viewId = 0;
+    private long _appid = 0;
 
     @Override
-    public void recycle(long object) {
-        if(_kerObject == object) {
-            _kerObject = 0;
+    public void recycle(long viewId,long appid) {
+        if(_viewId == viewId) {
+            _viewId = 0;
+            _appid = 0;
         }
     }
 
     @Override
-    public void obtain(long object) {
-
-        _kerObject = object;
-
+    public void obtain(long viewId,long appid) {
+        _viewId = viewId;
+        _appid = appid;
     }
 
     @Override
-    public void setContent(long object, String content, String contentType, String basePath) {
+    public void setContent(long viewId, String content, String contentType, String basePath,long appid) {
 
         if(contentType == null) {
             contentType = "text/html";
@@ -251,18 +245,14 @@ public class KerWebView extends WebView implements IKerView {
             content = "";
         }
 
-        String baseURL = Package.resolveURI(getContext(),Native.absolutePath(object,basePath));
-
-        if(!baseURL.endsWith("/")) {
-            baseURL = baseURL + "/";
-        }
+        String baseURL = KerUI.resolveURI(basePath,appid);
 
         loadDataWithBaseURL(baseURL,content,contentType,"utf-8",null);
 
     }
 
     @Override
-    public void evaluateJavaScript(long object, String evaluateCode) {
+    public void evaluateJavaScript(long object, String evaluateCode,long appid) {
 
         if(evaluateCode == null) {
             return ;
@@ -277,16 +267,32 @@ public class KerWebView extends WebView implements IKerView {
     }
 
     @Override
-    public void setImage(Drawable image) {
-        setBackground(image);
+    public void setImage(long viewId,Object image,long appid) {
+        if(image instanceof Drawable) {
+            setBackground((Drawable) image);
+        } else if(image instanceof Image) {
+            setBackground(((Image) image).getDrawable());
+        } else {
+            setBackground(null);
+        }
     }
 
     @Override
-    public void setAttributedText(long object, CharSequence string) {
+    public void setAttributedText(long object, CharSequence string,long appid) {
         if(string == null) {
             return;
         }
-        setContent(object,string.toString(),"text/html","");
+        setContent(object,string.toString(),"text/html","",appid);
+    }
+
+    @Override
+    public void setContentSize(long viewId, int width, int height, long appid) {
+
+    }
+
+    @Override
+    public void setContentOffset(long viewId, int x, int y, boolean animated, long appid) {
+        scrollTo(x,y);
     }
 
     @Override

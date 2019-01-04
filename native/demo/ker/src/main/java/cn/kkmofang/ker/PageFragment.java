@@ -21,17 +21,24 @@ public class PageFragment extends Fragment implements Page.Listener{
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if(savedInstanceState != null) {
+            _type = savedInstanceState.getString("type",TYPE_PAGE);
+            _pageId = savedInstanceState.getLong("pageId",0);
+        } else {
+            Bundle b = getArguments();
+            if(b != null) {
+                _type = b.getString("type",TYPE_PAGE);
+                _pageId = b.getLong("pageId",0);
+            }
+        }
     }
 
-    public String type = TYPE_PAGE;
-    public String path;
-    public Map<String,String> query;
+    protected String _type;
+    protected long _pageId;
 
-    protected Page _page;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if(TYPE_WINDOW.equals(type)) {
+        if(TYPE_WINDOW.equals(_type)) {
             return new PageView(inflater.getContext());
         }
         return inflater.inflate(R.layout.page,null);
@@ -71,7 +78,7 @@ public class PageFragment extends Fragment implements Page.Listener{
 
         Activity a = getActivity();
 
-        if(a instanceof IAppActivity && path != null) {
+        if(a instanceof IAppActivity && _pageId != 0) {
             View view = getView();
             PageView pageView;
             if(view instanceof PageView) {
@@ -79,11 +86,16 @@ public class PageFragment extends Fragment implements Page.Listener{
             } else {
                 pageView = view.findViewById(R.id.ker_contentView);
             }
-            _page = new Page(pageView,((IAppActivity) a).app());
-            _page.setListener(this);
-            onWillPageLoad(_page);
-            _page.run(path,query);
-            onDidPageLoad(_page);
+
+            if(pageView != null) {
+                Page page = KerUI.getPage(_pageId);
+                if(page != null) {
+                    page.setListener(this);;
+                    onWillPageLoad(page);
+                    page.open(pageView);
+                    onDidPageLoad(page);
+                }
+            }
         }
 
     }
@@ -111,11 +123,16 @@ public class PageFragment extends Fragment implements Page.Listener{
     @Override
     public void onDestroy() {
 
-        if(_page != null) {
-            onWillPageUnLoad(_page);
-            _page.setListener(null);
-            _page.recycle();
-            _page = null;
+        if(_pageId != 0) {
+
+            Page page = KerUI.getPage(_pageId);
+
+            if(page != null) {
+                onWillPageUnLoad(page);
+                KerUI.removePage(_pageId);
+            }
+
+            _pageId = 0;
         }
 
         super.onDestroy();
@@ -127,7 +144,7 @@ public class PageFragment extends Fragment implements Page.Listener{
         Activity a = getActivity();
 
         if(a != null && a instanceof IAppActivity) {
-            if(TYPE_WINDOW.equals(type)) {
+            if(TYPE_WINDOW.equals(_type)) {
                 ((IAppActivity) a).close(this,animated);
             } else {
                 ((IAppActivity) a).back(1,animated);
@@ -136,9 +153,23 @@ public class PageFragment extends Fragment implements Page.Listener{
     }
 
     public boolean onBackPressed() {
-        if(_page != null) {
-            return _page.onBackPressed();
+
+        if(_pageId != 0) {
+
+            Page page = KerUI.getPage(_pageId);
+
+            if(page != null) {
+
+                if(page.isBackPressed()) {
+
+                    page.emit("backPressed",null);
+
+                    return false;
+                }
+
+            }
         }
+
         return true;
     }
 }

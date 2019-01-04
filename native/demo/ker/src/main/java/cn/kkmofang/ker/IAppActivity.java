@@ -7,7 +7,6 @@ import android.app.Fragment;
  */
 
 public interface IAppActivity {
-    App app();
     void open(Fragment fragment,boolean animated);
     void back(int delta,boolean animated);
     void show(Fragment fragment,boolean animated);

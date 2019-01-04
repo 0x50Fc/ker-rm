@@ -85,7 +85,7 @@ didFinishDownloadingToURL:(NSURL *)location {
         NSFileManager * fm = [NSFileManager defaultManager];
         [fm removeItemAtPath:path error:nil];
         [fm moveItemAtURL:location toURL:[NSURL fileURLWithPath:path] error:nil];
-        res.tempFilePath = [KerApp relativeURI:path];
+        res.tempFilePath = [KerUI resolveURI:path];
     }
     
     res.statusCode = (int) [(NSHTTPURLResponse *) downloadTask.response statusCode];

@@ -40,7 +40,7 @@ namespace kk {
             
             NSMutableAttributedString * string = [[NSMutableAttributedString alloc] init];
             
-            auto sp = text->spans();
+            auto & sp = text->spans();
             auto i = sp.begin();
             
             while (i != sp.end()) {
@@ -49,13 +49,20 @@ namespace kk {
                 
                 if(span.type == AttributedTextSpanTypeText) {
                     
-                    NSMutableDictionary * attrs = [NSMutableDictionary dictionaryWithCapacity:4];
-                    
-                    attrs[NSFontAttributeName] = [UIFont fontWithKerUIFont:&span.font];
-                    attrs[NSForegroundColorAttributeName] = [UIColor colorWithKerUIColor:&span.color];
-                   
-                    
-                    [string appendAttributedString:[[NSAttributedString alloc] initWithString:[NSString stringWithCString:span.text.c_str() encoding:NSUTF8StringEncoding] attributes:attrs]];
+                    if(!span.text.empty()) {
+                        
+                        NSMutableDictionary * attrs = [NSMutableDictionary dictionaryWithCapacity:4];
+                        
+                        attrs[NSFontAttributeName] = [UIFont fontWithKerUIFont:&span.font];
+                        attrs[NSForegroundColorAttributeName] = [UIColor colorWithKerUIColor:&span.color];
+                       
+                        NSString * v = [NSString stringWithCString:span.text.c_str() encoding:NSUTF8StringEncoding];
+                        
+                        if(v != nil) {
+                            [string appendAttributedString:[[NSAttributedString alloc] initWithString:v attributes:attrs]];
+                        }
+                        
+                    }
                     
                 } else if(span.type == AttributedTextSpanTypeImage) {
                     if(span.image != nullptr) {
