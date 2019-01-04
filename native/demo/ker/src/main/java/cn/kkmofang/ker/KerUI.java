@@ -88,8 +88,6 @@ public final class KerUI {
 
         if(_pages.containsKey(pageId)) {
             Page page = _pages.get(pageId);
-            page.setListener(null);
-            page.recycle();;
             _pages.remove(pageId);
         }
 

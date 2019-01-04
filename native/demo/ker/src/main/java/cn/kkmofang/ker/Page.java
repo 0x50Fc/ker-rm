@@ -75,6 +75,7 @@ public class Page implements PageView.PageListener{
             _view.setPageListener(null);
             _view = null;
         }
+        _listener = null;
         KerUI.removePage(pageId);
     }
 
