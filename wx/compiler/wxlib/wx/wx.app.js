@@ -13,7 +13,7 @@ module.exports = function (options) {
     (function (__CODE__, App, app) {
         eval(__CODE__);
     })(
-        app.getTextContent("app.wx.js"),
+        app.getTextContent("app.js"),
         function (object) {
             __appObject = object;
         },

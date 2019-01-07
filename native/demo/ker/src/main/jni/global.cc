@@ -42,7 +42,7 @@ void globalInit(JNIEnv  * env) {
         G.UI.setImage = env->GetStaticMethodID(isa,"setImage","(JLjava/lang/Object;J)V");
         G.UI.evaluateJavaScript = env->GetStaticMethodID(isa,"evaluateJavaScript","(JLjava/lang/String;J)V");
         G.UI.setAttributedText = env->GetStaticMethodID(isa,"setAttributedText","(JLjava/lang/CharSequence;J)V");
-
+        G.UI.commit = env->GetStaticMethodID(isa,"commit","()V");
 
         {
             jmethodID v = env->GetStaticMethodID(isa,"userAgent","()Ljava/lang/String;");
@@ -90,6 +90,12 @@ void globalInit(JNIEnv  * env) {
             G.WebViewConfiguration.UserAction.policy = env->GetFieldID(isa,"policy","I");
             env->DeleteLocalRef(isa);
         }
+    }
+
+    {
+        jclass isa = env->FindClass("java/lang/Object");
+        G.Object.isa = (jclass) env->NewGlobalRef(isa);
+        env->DeleteLocalRef(isa);
     }
 
     {
@@ -254,5 +260,14 @@ void globalInit(JNIEnv  * env) {
         G.SessionTask.cancel = env->GetMethodID(isa,"cancel","()V");
         env->DeleteLocalRef(isa);
     }
+
+    G.ParameterTypes["java/lang/Integer"] = G.Integer.isa;
+    G.ParameterTypes["java/lang/Long"] = G.Long.isa;
+    G.ParameterTypes["java/lang/Boolean"] = G.Boolean.isa;
+    G.ParameterTypes["java/lang/Float"] = G.Float.isa;
+    G.ParameterTypes["java/lang/Double"] = G.Double.isa;
+    G.ParameterTypes["java/lang/String"] = G.String.isa;
+    G.ParameterTypes["java/lang/Object"] = G.Object.isa;
+    G.ParameterTypes["cn/kkmofang/ker/JSObject"] = G.JSObject.isa;
 
 }

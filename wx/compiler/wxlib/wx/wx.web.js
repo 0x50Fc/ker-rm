@@ -1206,7 +1206,7 @@ class InputElement extends NViewElement_1.NViewElement {
             this._placeholderView.className = value;
         }
         else if (key == 'value') {
-            this.value = value || '';
+            this.setValue(value || '');
         }
     }
     set value(value) {
@@ -1224,6 +1224,7 @@ class InputElement extends NViewElement_1.NViewElement {
     onEvent(name, data) {
         if (name == "change") {
             this.value = data.value || '';
+            this.doElementEvent("input", data);
         }
     }
     getValue() {

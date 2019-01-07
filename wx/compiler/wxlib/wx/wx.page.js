@@ -18,12 +18,12 @@ module.exports = function (options, path, page, app, padding) {
         page.setOptions(options);
     }
 
-    var ready = function(){
-        
+    var ready = function () {
+
         var view = page.view;
 
         if (padding === undefined) {
-            
+
             padding = { top: 64, left: 0, bottom: 0, right: 0 };
 
             if (platform == 'Android') {
@@ -57,11 +57,11 @@ module.exports = function (options, path, page, app, padding) {
 
         view.addSubview(webview);
 
-        var resize = function(){
+        var resize = function () {
             webview.setFrame(padding.left, padding.top, page.width - padding.left - padding.right, page.height - padding.top - padding.bottom);
         };
-        
-        page.on("resize",resize);
+
+        page.on("resize", resize);
 
         resize();
 
@@ -86,7 +86,7 @@ module.exports = function (options, path, page, app, padding) {
                     },
                     undefined,
                     undefined,
-                    new WX(context, page, app, wx, webview),
+                    new WX(context, page, app, wx, webview, basePath),
                     function (fn, v) {
                         setInterval(function () {
                             fn.call(pageObject);
@@ -233,9 +233,9 @@ module.exports = function (options, path, page, app, padding) {
         return webview;
     };
 
-    if(page.view) {
+    if (page.view) {
         return ready();
     } else {
-        page.on("ready",ready);
+        page.on("ready", ready);
     }
 };

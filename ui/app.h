@@ -11,6 +11,7 @@
 
 #include <ui/ui.h>
 #include <ui/view.h>
+#include <core/storage.h>
 
 namespace kk {
     
@@ -61,6 +62,8 @@ namespace kk {
             
             virtual Size getAttributedTextContentSize(AttributedText * text,Float maxWidth);
             
+            virtual kk::Strong<Sqlite> createSqlite(kk::CString path);
+            
             virtual kk::CString appkey();
             
             virtual kk::Uint64 appid();
@@ -70,6 +73,8 @@ namespace kk {
             virtual void dispatchCommand(Command * command);
             
             virtual void openlib();
+            
+            virtual Storage * storage();
             
             static void Openlib();
             
@@ -81,6 +86,7 @@ namespace kk {
             std::map<kk::Uint64,kk::Weak<Canvas>> _canvas;
             std::map<kk::Uint64,kk::Weak<Page>> _pages;
             kk::Uint64 _appid;
+            kk::Strong<Storage> _storage;
         };
         
         

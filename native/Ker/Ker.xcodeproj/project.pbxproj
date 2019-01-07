@@ -111,6 +111,9 @@
 		1AF4CE3A21A56DF600AE1249 /* UILabel+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */; };
 		1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE3B21A5719800AE1249 /* KerButton.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3C21A5719800AE1249 /* KerButton.mm */; };
+		1AFDAD2A21E327C7000FAAE9 /* storage.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2921E327C7000FAAE9 /* storage.cc */; };
+		1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */; };
+		1AFDAD2F21E355BD000FAAE9 /* duk_config_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -221,6 +224,11 @@
 		1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UILabel+KerViewProtocol.mm"; sourceTree = "<group>"; };
 		1AF4CE3B21A5719800AE1249 /* KerButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerButton.h; sourceTree = "<group>"; };
 		1AF4CE3C21A5719800AE1249 /* KerButton.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerButton.mm; sourceTree = "<group>"; };
+		1AFDAD2821E327B1000FAAE9 /* storage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = storage.h; sourceTree = "<group>"; };
+		1AFDAD2921E327C7000FAAE9 /* storage.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = storage.cc; sourceTree = "<group>"; };
+		1AFDAD2B21E34FB0000FAAE9 /* debugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
+		1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = debugger.cc; sourceTree = "<group>"; };
+		1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = duk_config_debug.h; path = "../../../../kk-duktape/lib/duktape/src/duk_config_debug.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -352,6 +360,10 @@
 				1AE91CCC21DC92290055C932 /* http.cc */,
 				1AE91CCE21DCA05D0055C932 /* uri.h */,
 				1AE91CCF21DCA1660055C932 /* uri.cc */,
+				1AFDAD2821E327B1000FAAE9 /* storage.h */,
+				1AFDAD2921E327C7000FAAE9 /* storage.cc */,
+				1AFDAD2B21E34FB0000FAAE9 /* debugger.h */,
+				1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */,
 			);
 			name = core;
 			path = ../../../core;
@@ -360,6 +372,7 @@
 		1AF065B2219D51A000F8F7A8 /* duktape */ = {
 			isa = PBXGroup;
 			children = (
+				1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */,
 				1AF065B5219D51C000F8F7A8 /* duk_config.h */,
 				1AF065B4219D51C000F8F7A8 /* duktape.c */,
 				1AF065B3219D51C000F8F7A8 /* duktape.h */,
@@ -420,6 +433,7 @@
 				1AF06601219D555E00F8F7A8 /* WKWebView+KerViewProtocol.h in Headers */,
 				1AF065C8219D52AC00F8F7A8 /* app.h in Headers */,
 				1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */,
+				1AFDAD2F21E355BD000FAAE9 /* duk_config_debug.h in Headers */,
 				1AF065A7219D518200F8F7A8 /* container.h in Headers */,
 				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
@@ -555,6 +569,7 @@
 				1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */,
 				1AA4AC3C21BFBC3A00C636F5 /* unzip.c in Sources */,
 				1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */,
+				1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */,
 				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
 				1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */,
 				1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */,
@@ -581,6 +596,7 @@
 				1AE91CCD21DC92290055C932 /* http.cc in Sources */,
 				1AA4AC4021BFBC3A00C636F5 /* ioapi.c in Sources */,
 				1AF065D7219D537600F8F7A8 /* View.mm in Sources */,
+				1AFDAD2A21E327C7000FAAE9 /* storage.cc in Sources */,
 				1AF065CB219D52AC00F8F7A8 /* CGContext.cc in Sources */,
 				1AA4AC3E21BFBC3A00C636F5 /* zip.c in Sources */,
 				1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */,

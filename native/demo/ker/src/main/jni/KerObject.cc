@@ -404,12 +404,14 @@ static jobject KerToJObject(JNIEnv * env,duk_context * ctx,duk_idx_t idx,kk::CSt
     }
 
     if(v != nullptr) {
-        jclass isa = env->FindClass(type);
-        if(!env->IsInstanceOf(v,isa)) {
-            env->DeleteLocalRef(v);
-            v = nullptr;
+        auto i = G.ParameterTypes.find(type);
+        if(i != G.ParameterTypes.end()) {
+            jclass isa = i->second;
+            if(!env->IsInstanceOf(v,isa)) {
+                env->DeleteLocalRef(v);
+                v = nullptr;
+            }
         }
-        env->DeleteLocalRef(isa);
     }
 
     return v;
@@ -870,7 +872,7 @@ jobject duk_to_JObject(JNIEnv * env,duk_context * ctx, duk_idx_t idx) {
 
     switch (duk_get_type(ctx,idx)) {
         case DUK_TYPE_STRING:
-            return env->NewStringUTF(duk_to_string(ctx,-idx));
+            return env->NewStringUTF(duk_to_string(ctx,idx));
         case DUK_TYPE_BOOLEAN:
             return env->NewObject(G.Boolean.isa,G.Boolean.init,(jboolean) duk_to_boolean(ctx,idx));
         case DUK_TYPE_NUMBER:
@@ -894,25 +896,69 @@ jobject duk_to_JObject(JNIEnv * env,duk_context * ctx, duk_idx_t idx) {
             env->SetByteArrayRegion(r,0,n,(jbyte *) data);
             return r;
         }
-        case DUK_TYPE_OBJECT:
         case DUK_TYPE_LIGHTFUNC:
+        case DUK_TYPE_OBJECT:
         {
-            kk::Object * object = kk::GetObject(ctx,idx);
+            kk::Object *object = kk::GetObject(ctx, idx);
+
             {
-                kk::JSObject * v = dynamic_cast<kk::JSObject *>(object);
-                if(v) {
-                    return env->CallStaticObjectMethod(G.UI.isa,G.UI.allocJSObject,(jlong) v);
+                kk::JSObject *v = dynamic_cast<kk::JSObject *>(object);
+                if (v) {
+                    return env->CallStaticObjectMethod(G.UI.isa, G.UI.allocJSObject, (jlong) v);
                 }
             }
+
             {
-                kk::NativeObject * v = dynamic_cast<kk::NativeObject *>(object);
-                if(v) {
+                kk::NativeObject *v = dynamic_cast<kk::NativeObject *>(object);
+                if (v) {
                     return env->NewLocalRef((jobject) v->native());
                 }
             }
-            kk::Strong<kk::JSObject>  v = new kk::JSObject(ctx,duk_get_heapptr(ctx,idx));
-            return env->CallStaticObjectMethod(G.UI.isa,G.UI.allocJSObject,(jlong) v.get());
+
+            if(duk_is_function(ctx,idx)) {
+                kk::Strong<kk::JSObject> v = new kk::JSObject(ctx, duk_get_heapptr(ctx, idx));
+                return env->CallStaticObjectMethod(G.UI.isa, G.UI.allocJSObject, (jlong) v.get());
+            }
+
+            if(duk_is_array(ctx,idx)) {
+                jobject a = env->NewObject(G.ArrayList.isa,G.ArrayList.init);
+                duk_enum(ctx,idx,DUK_ENUM_ARRAY_INDICES_ONLY);
+                while(duk_next(ctx,-1,1)) {
+                    jobject vv = duk_to_JObject(env,ctx,-1);
+                    env->CallBooleanMethod(a,G.ArrayList.add,vv);
+                    if(vv != nullptr) {
+                        env->DeleteLocalRef(vv);
+                    }
+                    duk_pop_2(ctx);
+                }
+                duk_pop(ctx);
+                return a;
+            } else {
+                jobject a = env->NewObject(G.TreeMap.isa,G.TreeMap.init);
+                duk_enum(ctx,idx,DUK_ENUM_INCLUDE_SYMBOLS);
+                while(duk_next(ctx,-1,1)) {
+                    jobject key = duk_to_JObject(env,ctx ,- 2);
+                    jobject vv = duk_to_JObject(env,ctx,-1);
+                    if(key && vv) {
+                        jobject vvv = env->CallObjectMethod(a,G.TreeMap.put,key,vv);
+                        if(vvv != nullptr) {
+                            env->DeleteLocalRef(vvv);
+                        }
+                    }
+                    if(key != nullptr) {
+                        env->DeleteLocalRef(key);
+                    }
+                    if(vv != nullptr) {
+                        env->DeleteLocalRef(vv);
+                    }
+                    duk_pop_2(ctx);
+                }
+                duk_pop(ctx);
+                return a;
+            }
+
         }
+
     }
 
     return nullptr;

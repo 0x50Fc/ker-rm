@@ -122,7 +122,6 @@ public class WXHttp {
         }
 
         final WXRequestTask task = new WXRequestTask();
-        final Handler handler = new Handler();
         final String dataType = object.getDataType();
 
         task.setTask(Session.getDefaultSession().dataTask(req, new Callback() {
@@ -140,12 +139,7 @@ public class WXHttp {
 
                 final Map<String,String> header = _res.headers;
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        task.onResponseHeader(header);
-                    }
-                });
+                task.onResponseHeader(header);
 
             }
 
@@ -191,26 +185,16 @@ public class WXHttp {
 
                 final WXRequestRes res = _res;
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        object.success(res);
-                        object.complete();
-                    }
-                });
+                object.success(res);
+                object.complete();
 
             }
 
             @Override
             public void onError(Throwable ex) {
                 final String errmsg = ex.getLocalizedMessage();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        object.fail(errmsg);
-                        object.complete();
-                    }
-                });
+                object.fail(errmsg);
+                object.complete();
             }
 
         }));

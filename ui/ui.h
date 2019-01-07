@@ -262,7 +262,6 @@ namespace kk {
             virtual kk::Strong<Worker> createWorker(kk::CString path);
             virtual kk::Strong<Canvas> createCanvas();
             virtual kk::Strong<Image> createImage(kk::CString src);
-            virtual kk::Strong<Sqlite> createSqlite(kk::CString path);
             virtual kk::Strong<Context> parent();
             virtual void setParent(Context * v);
             static void Openlib();
@@ -281,6 +280,7 @@ namespace kk {
             
         };
         
+        
         class App;
         
         class UI : public Object {
@@ -298,13 +298,19 @@ namespace kk {
             virtual void emit(kk::Uint64 appid,kk::CString name,kk::Event * event);
             virtual void emit(kk::Uint64 appid,kk::Uint64 viewId,kk::CString name,kk::Event * event);
             virtual void open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func);
+            virtual void startTransaction();
+            virtual kk::Sqlite * database();
+            
             static UI * main();
             
         protected:
-
+            
+            virtual void commitTransaction();
+            kk::Strong<kk::Sqlite> _database;
             kk::Strong<kk::DispatchQueue> _queue;
             kk::Uint64 _autoId;
             std::map<kk::Uint64,kk::Weak<App>> _apps;
+            kk::Boolean _transaction;
         };
         
     }

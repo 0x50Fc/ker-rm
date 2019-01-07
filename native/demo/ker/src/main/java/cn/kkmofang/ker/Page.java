@@ -18,11 +18,18 @@ public class Page implements PageView.PageListener{
     private int _layoutWidth = -1;
     private int _layoutHeight = -1;
 
+    protected boolean _opened;
+
     @Override
     public void onPageLayout(PageView view, int width, int height) {
         if(_layoutWidth != width || _layoutHeight != height) {
             _layoutWidth = width;
             _layoutHeight = height;
+            if(!_opened && _ptr != 0) {
+                open(_ptr,_view,width,height);
+                _opened = true;
+                onOpened();
+            }
             if(_ptr != 0) {
                 setSize(_ptr, _layoutWidth, _layoutHeight);
             }
@@ -123,6 +130,11 @@ public class Page implements PageView.PageListener{
     }
 
     public void open(PageView view) {
+
+        if(_opened) {
+            return;
+        }
+
         if(_view != view) {
             if(_view != null) {
                 _view.setPageListener(null);
@@ -140,10 +152,19 @@ public class Page implements PageView.PageListener{
             }
         }
 
-        if(_ptr != 0 && _view != null) {
+        if(_ptr != 0 && _view != null && _view.getWidth() != 0 && _view.getHeight() != 0) {
             open(_ptr,_view,_view.getWidth(),_view.getHeight());
+            _opened = true;
+            onOpened();
         }
 
+    }
+
+    protected void onOpened() {
+        Listener v = _listener.get();
+        if(v != null) {
+            v.onOpened();
+        }
     }
 
     protected void finalize() throws Throwable {
@@ -164,6 +185,7 @@ public class Page implements PageView.PageListener{
     public interface Listener {
         void onOptions(Object options);
         void onClose(boolean animated);
+        void onOpened();
     }
 
     private static native void dealloc(long ptr);

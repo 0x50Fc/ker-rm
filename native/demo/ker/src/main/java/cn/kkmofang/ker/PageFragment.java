@@ -36,7 +36,6 @@ public class PageFragment extends Fragment implements Page.Listener{
     protected String _type;
     protected long _pageId;
 
-
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(TYPE_WINDOW.equals(_type)) {
             return new PageView(inflater.getContext());
@@ -61,6 +60,22 @@ public class PageFragment extends Fragment implements Page.Listener{
 
     }
 
+    protected void onWillPageAppear(Page page) {
+        page.emit("willAppear",null);
+    }
+
+    protected void onDidPageAppear(Page page) {
+        page.emit("didAppear",null);
+    }
+
+    protected void onWillPageDisappear(Page page) {
+        page.emit("willDisappear",null);
+    }
+
+    protected void onDidPageDisappear(Page page) {
+        page.emit("didDisappear",null);
+    }
+
     protected void onWillPageLoad(Page page) {
 
     }
@@ -76,11 +91,12 @@ public class PageFragment extends Fragment implements Page.Listener{
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Activity a = getActivity();
+        if(_pageId != 0) {
 
-        if(a instanceof IAppActivity && _pageId != 0) {
             View view = getView();
+
             PageView pageView;
+
             if(view instanceof PageView) {
                 pageView = (PageView) view;
             } else {
@@ -89,8 +105,8 @@ public class PageFragment extends Fragment implements Page.Listener{
 
             if(pageView != null) {
                 Page page = KerUI.getPage(_pageId);
-                if(page != null) {
-                    page.setListener(this);;
+                if (page != null) {
+                    page.setListener(this);
                     onWillPageLoad(page);
                     page.open(pageView);
                     onDidPageLoad(page);
@@ -98,6 +114,36 @@ public class PageFragment extends Fragment implements Page.Listener{
             }
         }
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if(_pageId != 0) {
+            Page page = KerUI.getPage(_pageId);
+            if (page != null) {
+                onWillPageAppear(page);
+                onDidPageAppear(page);
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+
+        if(_pageId != 0) {
+
+            Page page = KerUI.getPage(_pageId);
+
+            if (page != null) {
+                onWillPageDisappear(page);
+                onDidPageDisappear(page);
+            }
+
+        }
+
+        super.onStop();
     }
 
     @Override
@@ -150,6 +196,11 @@ public class PageFragment extends Fragment implements Page.Listener{
                 ((IAppActivity) a).back(1,animated);
             }
         }
+    }
+
+    @Override
+    public void onOpened() {
+
     }
 
     public boolean onBackPressed() {

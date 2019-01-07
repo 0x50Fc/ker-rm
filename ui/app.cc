@@ -13,6 +13,13 @@
 #include <ui/package.h>
 #include <core/crypto.h>
 #include <core/uri.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+#ifdef KER_DEBUG
+#include <core/debugger.h>
+#endif
 
 namespace kk {
     
@@ -169,7 +176,36 @@ namespace kk {
             exec("main.js", (kk::TObject<kk::String, kk::Any> *) librarys);
         }
         
+        kk::Strong<Sqlite> App::createSqlite(kk::CString path) {
+            if(path == nullptr) {
+                return nullptr;
+            }
+            kk::String u;
+            u.append("ker-data:///");
+            u.append(_appkey);
+            u.append("/");
+            kk::String p = kk::ResolvePath(u.c_str());
+            mkdir(p.c_str(), 0777);
+            p.append(path);
+            kk::Strong<Sqlite> v = new Sqlite();
+            v->open(p.c_str());
+            return v;
+        }
+        
+        Storage * App::storage(){
+            if(_storage == nullptr) {
+                kk::String p = _appkey;
+                p.append("_");
+                _storage = new SqliteStorage(UI::main()->database(),p.c_str());
+            }
+            return _storage;
+        }
+        
         void App::Openlib() {
+            
+#ifdef KER_DEBUG
+            kk::Debugger::start(9091);
+#endif
             
             UI::main();
             
@@ -179,6 +215,7 @@ namespace kk {
             kk::Timer::Openlib();
             kk::Sqlite::Openlib();
             kk::Crypto::Openlib();
+            kk::Storage::Openlib();
             kk::ui::Context::Openlib();
             kk::ui::View::Openlib();
             kk::ui::Canvas::Openlib();
@@ -196,9 +233,11 @@ namespace kk {
                     kk::PutMethod<App,void,kk::CString,kk::Boolean>(ctx, -1, "open", &App::open);
                     kk::PutMethod<App,void,kk::Uint,kk::Boolean>(ctx, -1, "back", &App::back);
                     kk::PutMethod<App,Size,AttributedText *,Float>(ctx, -1, "getAttributedTextContentSize", &App::getAttributedTextContentSize);
+                    kk::PutStrongMethod<App,kk::Sqlite,kk::CString>(ctx, -1, "createSqlite", &App::createSqlite);
                 
                     kk::PutStrongMethod<App,View,kk::CString,ViewConfiguration *>(ctx,-1,"createView",&App::createView);
                     kk::PutProperty<App,kk::CString>(ctx, -1, "appkey", &App::appkey);
+                    kk::PutProperty<App,kk::Storage *>(ctx, -1, "storage", &App::storage);
                     
                 });
                 

@@ -39,8 +39,10 @@ import java.lang.reflect.Method;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TreeMap;
 
 import cn.kkmofang.ker.http.SessionTask;
@@ -174,9 +176,33 @@ public final class KerUI {
         _viewClass.put(name,isa);
     }
 
+    protected static List<Runnable> _tasks = new LinkedList<>();
+
+    public static void post(Runnable runnable) {
+        _tasks.add(runnable);
+    }
+
+    public static void commit() {
+        final List<Runnable> tasks;
+        synchronized (_tasks) {
+            tasks = new ArrayList<>(_tasks);
+            _tasks.clear();
+        }
+        if(tasks != null && tasks.size() > 0) {
+            _handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    for(Runnable i : tasks) {
+                        i.run();
+                    }
+                }
+            });
+        }
+    }
+
     public static void createView(final String name, final WebViewConfiguration configuration, final long viewId, final long appid) {
 
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
 
@@ -214,7 +240,7 @@ public final class KerUI {
 
     public static void createView(final View view,final long viewId, final long appid) {
 
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
 
@@ -230,7 +256,7 @@ public final class KerUI {
     }
 
     public static void deleteView(final long viewId,final long appid) {
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(_views.containsKey(viewId)) {
@@ -245,7 +271,7 @@ public final class KerUI {
     }
 
     public static void setAttribute(final long viewId,final String name,final String value,final long appid) {
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(_views.containsKey(viewId)) {
@@ -266,7 +292,7 @@ public final class KerUI {
         frame.y = y;
         frame.width = width;
         frame.height = height;
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(_views.containsKey(viewId)) {
@@ -282,7 +308,7 @@ public final class KerUI {
     }
 
     public static void setContentSize(final long viewId, final int width, final int height,final long appid) {
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(_views.containsKey(viewId)) {
@@ -296,7 +322,7 @@ public final class KerUI {
     }
 
     public static void setContentOffset(final long viewId, final int x, final int y,final boolean animated,final long appid) {
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(_views.containsKey(viewId)) {
@@ -310,7 +336,7 @@ public final class KerUI {
     }
 
     public static void setContent(final long viewId, final String content, final String contentType, final String basePath, final long appid) {
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(_views.containsKey(viewId)) {
@@ -325,95 +351,95 @@ public final class KerUI {
 
     public static void setImage(final long viewId, final Object image, final long appid) {
 
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
-                if(_views.containsKey(viewId)) {
-                    View view = _views.get(viewId);
-                    if(view instanceof IKerView) {
-                        ((IKerView) view).setImage(viewId,image,appid);
-                    } else if(image instanceof Drawable) {
-                        view.setBackground((Drawable) image);
-                    } else if(image instanceof Image) {
-                        view.setBackground(((Image) image).getDrawable());
-                    }
+            if(_views.containsKey(viewId)) {
+                View view = _views.get(viewId);
+                if(view instanceof IKerView) {
+                    ((IKerView) view).setImage(viewId,image,appid);
+                } else if(image instanceof Drawable) {
+                    view.setBackground((Drawable) image);
+                } else if(image instanceof Image) {
+                    view.setBackground(((Image) image).getDrawable());
                 }
+            }
             }
         });
     }
 
     public static void evaluateJavaScript(final long viewId, final String evaluateCode, final long appid) {
 
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
-                if(_views.containsKey(viewId)) {
-                    View view = _views.get(viewId);
-                    if(view instanceof IKerView) {
-                        ((IKerView) view).evaluateJavaScript(viewId,evaluateCode,appid);
-                    } else if(view instanceof WebView) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                            ((WebView) view).evaluateJavascript(evaluateCode,null);
-                        } else {
-                            ((WebView) view).loadUrl("javascript:(function(){" +evaluateCode+ "})();");
-                        }
+            if(_views.containsKey(viewId)) {
+                View view = _views.get(viewId);
+                if(view instanceof IKerView) {
+                    ((IKerView) view).evaluateJavaScript(viewId,evaluateCode,appid);
+                } else if(view instanceof WebView) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        ((WebView) view).evaluateJavascript(evaluateCode,null);
+                    } else {
+                        ((WebView) view).loadUrl("javascript:(function(){" +evaluateCode+ "})();");
                     }
                 }
+            }
             }
         });
 
     }
 
     public static void setAttributedText(final long viewId, final CharSequence string, final long appid) {
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
-                if(_views.containsKey(viewId)) {
-                    View view = _views.get(viewId);
-                    if(view instanceof IKerView) {
-                        ((IKerView) view).setAttributedText(viewId,string,appid);
-                    } else if(view instanceof TextView) {
-                        ((TextView)view).setText(string);
-                    }
+            if(_views.containsKey(viewId)) {
+                View view = _views.get(viewId);
+                if(view instanceof IKerView) {
+                    ((IKerView) view).setAttributedText(viewId,string,appid);
+                } else if(view instanceof TextView) {
+                    ((TextView)view).setText(string);
                 }
+            }
             }
         });
     }
 
     public static void addSubview(final long viewId, final long subviewId, final int position, final long appid) {
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
-                if(_views.containsKey(viewId) && _views.containsKey(subviewId)) {
-                    View view = _views.get(viewId);
-                    View subview = _views.get(subviewId);
-                    if(view instanceof IKerView) {
-                        view = ((IKerView) view).contentView();
-                    }
-                    if(view != null && view instanceof ViewGroup) {
-                        if(position == 0) {
-                            ((ViewGroup) view).addView(subview);
-                        } else {
-                            ((ViewGroup) view).addView(subview,0);
-                        }
+            if(_views.containsKey(viewId) && _views.containsKey(subviewId)) {
+                View view = _views.get(viewId);
+                View subview = _views.get(subviewId);
+                if(view instanceof IKerView) {
+                    view = ((IKerView) view).contentView();
+                }
+                if(view != null && view instanceof ViewGroup) {
+                    if(position == 0) {
+                        ((ViewGroup) view).addView(subview);
+                    } else {
+                        ((ViewGroup) view).addView(subview,0);
                     }
                 }
+            }
             }
         });
 
     }
 
     public static void removeView(final long viewId, final long appid) {
-        _handler.post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
-                if(_views.containsKey(viewId) ) {
-                    View view = _views.get(viewId);
-                    ViewParent p = view.getParent();
-                    if(p instanceof ViewGroup){
-                        ((ViewGroup) p).removeView(view);
-                    }
+            if(_views.containsKey(viewId) ) {
+                View view = _views.get(viewId);
+                ViewParent p = view.getParent();
+                if(p instanceof ViewGroup){
+                    ((ViewGroup) p).removeView(view);
                 }
+            }
             }
         });
     }

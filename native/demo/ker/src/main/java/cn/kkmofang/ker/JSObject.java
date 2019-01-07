@@ -10,7 +10,7 @@ import static java.lang.reflect.Proxy.newProxyInstance;
  * Created by zhanghailong on 2018/12/11.
  */
 
-public final class JSObject extends Object implements InvocationHandler {
+public class JSObject extends Object implements InvocationHandler {
 
     protected long _ptr;
 

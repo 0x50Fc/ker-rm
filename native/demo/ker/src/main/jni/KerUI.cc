@@ -60,7 +60,23 @@ namespace kk {
         {
         }
 
+        void UI::commitTransaction() {
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            env->CallStaticVoidMethod(G.UI.isa,G.UI.commit);
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
+
+        }
+
         void UI::execCommand(App * app,Command * command) {
+            startTransaction();
 
             {
                 kk::ui::AppBackCommand * cmd = dynamic_cast<kk::ui::AppBackCommand *>(command);
@@ -621,7 +637,7 @@ Java_cn_kkmofang_ker_JSObject_release(JNIEnv *env, jclass type, jlong ptr) {
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_cn_kkmofang_ker_JSObject_get__JLjava_lang_String_2(JNIEnv *env, jclass type, jlong ptr,
+Java_cn_kkmofang_ker_JSObject_get(JNIEnv *env, jclass type, jlong ptr,
                                                         jstring key_) {
     const char *key = env->GetStringUTFChars(key_, 0);
 
@@ -670,7 +686,7 @@ Java_cn_kkmofang_ker_JSObject_get__JLjava_lang_String_2(JNIEnv *env, jclass type
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_cn_kkmofang_ker_JSObject_set__JLjava_lang_String_2Ljava_lang_Object_2(JNIEnv *env, jclass type,
+Java_cn_kkmofang_ker_JSObject_set(JNIEnv *env, jclass type,
                                                                            jlong ptr, jstring key_,
                                                                            jobject value) {
     const char *key = env->GetStringUTFChars(key_, 0);
@@ -707,7 +723,7 @@ Java_cn_kkmofang_ker_JSObject_set__JLjava_lang_String_2Ljava_lang_Object_2(JNIEn
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_cn_kkmofang_ker_JSObject_call__JLjava_lang_Object_3_093_2(JNIEnv *env, jclass type, jlong ptr,
+Java_cn_kkmofang_ker_JSObject_call(JNIEnv *env, jclass type, jlong ptr,
                                                                jobjectArray args) {
 
     kk::JSObject * v = (kk::JSObject *) ptr;
@@ -781,7 +797,7 @@ Java_cn_kkmofang_ker_JSObject_call__JLjava_lang_Object_3_093_2(JNIEnv *env, jcla
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_cn_kkmofang_ker_JSObject_invoke__JLjava_lang_String_2Ljava_lang_Object_3_093_2(JNIEnv *env,
+Java_cn_kkmofang_ker_JSObject_invoke(JNIEnv *env,
                                                                                     jclass type,
                                                                                     jlong ptr,
                                                                                     jstring name_,
@@ -965,32 +981,82 @@ Java_cn_kkmofang_ker_KerUI_addPrototype__JLjava_lang_String_2Ljava_lang_String_2
         }
     }
 
-    kk::ui::UI::main()->queue()->async([appid,p]()->void{
+    kk::Strong<kk::ui::App> app = kk::ui::UI::main()->getApp(appid);
 
-        kk::Strong<kk::ui::App> app = kk::ui::UI::main()->getApp(appid);
+    if(app != nullptr) {
 
-        if(app != nullptr) {
+        duk_context * ctx = app->jsContext();
 
-            duk_context * ctx = app->jsContext();
+        duk_push_c_function(ctx,[](duk_context * ctx)->duk_ret_t{
+            return 0;
+        },0);
 
-            duk_push_c_function(ctx,[](duk_context * ctx)->duk_ret_t{
-                return 0;
-            },0);
+        duk_push_object(ctx);
 
-            duk_push_object(ctx);
+        if(!p.base.empty()) {
+            kk::SetPrototype(ctx,-1,p.base.c_str());
+        }
 
-            if(!p.base.empty()) {
-                kk::SetPrototype(ctx,-1,p.base.c_str());
-            }
+        {
+            auto i = p.propertys.begin();
+            auto e = p.propertys.end();
+            while(i != e) {
 
-            {
-                auto i = p.propertys.begin();
-                auto e = p.propertys.end();
-                while(i != e) {
+                const KerProperty & prop = * i;
 
-                    const KerProperty & prop = * i;
+                duk_push_string(ctx,prop.name.c_str());
 
-                    duk_push_string(ctx,prop.name.c_str());
+                duk_push_c_function(ctx,[](duk_context * ctx)->duk_ret_t{
+
+                    duk_push_this(ctx);
+
+                    kk::NativeObject * object = dynamic_cast<kk::NativeObject *>(kk::GetObject(ctx,-1));
+
+                    duk_pop(ctx);
+
+                    duk_push_current_function(ctx);
+
+                    duk_get_prop_string(ctx,-1,"__field");
+
+                    jfieldID fd = (jfieldID) duk_to_pointer(ctx,-1);
+
+                    duk_pop(ctx);
+
+                    duk_get_prop_string(ctx,-1,"__type");
+
+                    kk::CString type = duk_to_string(ctx,-1);
+
+                    duk_pop(ctx);
+
+                    duk_pop(ctx);
+
+                    if(fd && type && object) {
+
+                        jboolean isAttach = false;
+
+                        JNIEnv *env = kk_env(&isAttach);
+
+                        duk_ret_t r = JObjectGetProperty(env,(jobject) object->native(),fd,type,ctx);
+
+                        if(isAttach) {
+                            gJavaVm->DetachCurrentThread();
+                        }
+
+                        return r;
+                    }
+
+                    return 0;
+                },0);
+
+                duk_push_pointer(ctx,prop.field);
+                duk_put_prop_string(ctx,-2,"__field");
+
+                duk_push_string(ctx,prop.type.c_str());
+                duk_put_prop_string(ctx,-2,"__type");
+
+                if(prop.readonly) {
+                    duk_def_prop(ctx,-3,DUK_DEFPROP_SET_CONFIGURABLE | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_HAVE_GETTER);
+                } else {
 
                     duk_push_c_function(ctx,[](duk_context * ctx)->duk_ret_t{
 
@@ -1022,7 +1088,14 @@ Java_cn_kkmofang_ker_KerUI_addPrototype__JLjava_lang_String_2Ljava_lang_String_2
 
                             JNIEnv *env = kk_env(&isAttach);
 
-                            duk_ret_t r = JObjectGetProperty(env,(jobject) object->native(),fd,type,ctx);
+                            duk_ret_t r = JObjectSetProperty(env,(jobject) object->native(),fd,type,ctx);
+
+                            {
+                                jclass isa = env->FindClass("cn/kkmofang/ker/Native");
+                                jmethodID gc = env->GetStaticMethodID(isa,"gc","()V");
+                                env->CallStaticVoidMethod(isa,gc);
+                                env->DeleteLocalRef(isa);
+                            }
 
                             if(isAttach) {
                                 gJavaVm->DetachCurrentThread();
@@ -1040,141 +1113,81 @@ Java_cn_kkmofang_ker_KerUI_addPrototype__JLjava_lang_String_2Ljava_lang_String_2
                     duk_push_string(ctx,prop.type.c_str());
                     duk_put_prop_string(ctx,-2,"__type");
 
-                    if(prop.readonly) {
-                        duk_def_prop(ctx,-3,DUK_DEFPROP_SET_CONFIGURABLE | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_HAVE_GETTER);
-                    } else {
-
-                        duk_push_c_function(ctx,[](duk_context * ctx)->duk_ret_t{
-
-                            duk_push_this(ctx);
-
-                            kk::NativeObject * object = dynamic_cast<kk::NativeObject *>(kk::GetObject(ctx,-1));
-
-                            duk_pop(ctx);
-
-                            duk_push_current_function(ctx);
-
-                            duk_get_prop_string(ctx,-1,"__field");
-
-                            jfieldID fd = (jfieldID) duk_to_pointer(ctx,-1);
-
-                            duk_pop(ctx);
-
-                            duk_get_prop_string(ctx,-1,"__type");
-
-                            kk::CString type = duk_to_string(ctx,-1);
-
-                            duk_pop(ctx);
-
-                            duk_pop(ctx);
-
-                            if(fd && type && object) {
-
-                                jboolean isAttach = false;
-
-                                JNIEnv *env = kk_env(&isAttach);
-
-                                duk_ret_t r = JObjectSetProperty(env,(jobject) object->native(),fd,type,ctx);
-
-                                {
-                                    jclass isa = env->FindClass("cn/kkmofang/ker/Native");
-                                    jmethodID gc = env->GetStaticMethodID(isa,"gc","()V");
-                                    env->CallStaticVoidMethod(isa,gc);
-                                    env->DeleteLocalRef(isa);
-                                }
-
-                                if(isAttach) {
-                                    gJavaVm->DetachCurrentThread();
-                                }
-
-                                return r;
-                            }
-
-                            return 0;
-                        },0);
-
-                        duk_push_pointer(ctx,prop.field);
-                        duk_put_prop_string(ctx,-2,"__field");
-
-                        duk_push_string(ctx,prop.type.c_str());
-                        duk_put_prop_string(ctx,-2,"__type");
-
-                        duk_def_prop(ctx,-4,DUK_DEFPROP_SET_CONFIGURABLE | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_HAVE_GETTER | DUK_DEFPROP_HAVE_SETTER);
-                    }
-
-                    i ++;
+                    duk_def_prop(ctx,-4,DUK_DEFPROP_SET_CONFIGURABLE | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_HAVE_GETTER | DUK_DEFPROP_HAVE_SETTER);
                 }
+
+                i ++;
             }
+        }
 
-            {
-                auto i = p.methods.begin();
-                auto e = p.methods.end();
-                while(i != e) {
+        {
+            auto i = p.methods.begin();
+            auto e = p.methods.end();
+            while(i != e) {
 
-                    const KerMethod & method = * i;
+                const KerMethod & method = * i;
 
-                    duk_push_string(ctx,method.name.c_str());
+                duk_push_string(ctx,method.name.c_str());
 
-                    duk_push_c_function(ctx,[](duk_context * ctx)->duk_ret_t{
+                duk_push_c_function(ctx,[](duk_context * ctx)->duk_ret_t{
 
-                        duk_push_this(ctx);
+                    duk_push_this(ctx);
 
-                        kk::NativeObject * object = dynamic_cast<kk::NativeObject *>(kk::GetObject(ctx,-1));
+                    kk::NativeObject * object = dynamic_cast<kk::NativeObject *>(kk::GetObject(ctx,-1));
 
-                        duk_pop(ctx);
+                    duk_pop(ctx);
 
-                        duk_push_current_function(ctx);
+                    duk_push_current_function(ctx);
 
-                        duk_get_prop_string(ctx,-1,"__method");
+                    duk_get_prop_string(ctx,-1,"__method");
 
-                        jmethodID m = (jmethodID) duk_to_pointer(ctx,-1);
+                    jmethodID m = (jmethodID) duk_to_pointer(ctx,-1);
 
-                        duk_pop(ctx);
+                    duk_pop(ctx);
 
-                        duk_get_prop_string(ctx,-1,"__type");
+                    duk_get_prop_string(ctx,-1,"__type");
 
-                        kk::CString type = duk_to_string(ctx,-1);
+                    kk::CString type = duk_to_string(ctx,-1);
 
-                        duk_pop(ctx);
+                    duk_pop(ctx);
 
-                        duk_pop(ctx);
+                    duk_pop(ctx);
 
-                        if(m && type && object) {
+                    if(m && type && object) {
 
-                            jboolean isAttach = false;
+                        jboolean isAttach = false;
 
-                            JNIEnv *env = kk_env(&isAttach);
+                        JNIEnv *env = kk_env(&isAttach);
 
-                            duk_ret_t r = JObjectInvoke(env,(jobject) object->native(),m,type,ctx,duk_get_top(ctx));
+                        duk_ret_t r = JObjectInvoke(env,(jobject) object->native(),m,type,ctx,duk_get_top(ctx));
 
-                            if(isAttach) {
-                                gJavaVm->DetachCurrentThread();
-                            }
-
-                            return r;
+                        if(isAttach) {
+                            gJavaVm->DetachCurrentThread();
                         }
 
-                        return 0;
-                    }, JObjectMethodTypeArgumentCount(method.type.c_str()));
+                        return r;
+                    }
 
-                    duk_push_pointer(ctx,method.method);
-                    duk_put_prop_string(ctx,-2,"__method");
+                    return 0;
+                }, JObjectMethodTypeArgumentCount(method.type.c_str()));
 
-                    duk_push_string(ctx,method.type.c_str());
-                    duk_put_prop_string(ctx,-2,"__type");
+                duk_push_pointer(ctx,method.method);
+                duk_put_prop_string(ctx,-2,"__method");
 
-                    duk_def_prop(ctx,-3,DUK_DEFPROP_SET_CONFIGURABLE | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_CLEAR_WRITABLE );
+                duk_push_string(ctx,method.type.c_str());
+                duk_put_prop_string(ctx,-2,"__type");
+
+                duk_def_prop(ctx,-3,DUK_DEFPROP_SET_CONFIGURABLE | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_CLEAR_WRITABLE );
 
 
-                    i ++;
-                }
+                i ++;
             }
-
-            duk_set_prototype(ctx,-2);
-            duk_put_global_string(ctx,p.name.c_str());
-
         }
-    });
+
+        duk_set_prototype(ctx,-2);
+        duk_put_global_string(ctx,p.name.c_str());
+
+    }
 
     // TODO
 

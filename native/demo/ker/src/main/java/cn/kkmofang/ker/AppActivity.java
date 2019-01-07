@@ -104,7 +104,7 @@ public class AppActivity extends Activity implements IAppActivity {
             FragmentManager fm = getFragmentManager();
             FragmentTransaction tr = fm.beginTransaction().add(R.id.ker_contentView, fragment);
             if (animated) {
-                tr.setCustomAnimations(R.anim.show, 0);
+//                tr.setCustomAnimations(R.anim.show, 0);
             }
             tr.commit();
             _showFragments.add(fragment);

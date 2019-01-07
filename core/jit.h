@@ -757,61 +757,6 @@ namespace kk {
             return (T) r;
         }
         
-        template<typename T,typename ... TArgs,typename std::enable_if<std::is_void<T>::value>::type = 0>
-        operator std::function<T(TArgs...)>() {
-            Strong<JSObject> object = this;
-            return [object](TArgs ... args) -> T {
-                duk_context * ctx = object->jsContext();
-                void * heapptr = object->heapptr();
-                if(ctx && heapptr) {
-                    
-                    duk_push_heapptr(ctx, heapptr);
-                    
-                    if(duk_is_function(ctx, -1)) {
-                        
-                        details::Arguments<sizeof...(TArgs)>::template Set(ctx,args...);
-                        
-                        if(duk_pcall(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
-                            
-                        } else {
-                            Error(ctx, -1, "[JSObject]");
-                        }
-                        
-                    }
-                    
-                    duk_pop(ctx);
-                }
-            };
-        }
-        template<typename T,typename ... TArgs,typename std::enable_if<!std::is_void<T>::value>::type = 0>
-        operator std::function<T(TArgs...)>() {
-            Strong<JSObject> object = this;
-            return [object](TArgs ... args) -> T {
-                Any r;
-                duk_context * ctx = object->jsContext();
-                void * heapptr = object->heapptr();
-                if(ctx && heapptr) {
-                    
-                    duk_push_heapptr(ctx, heapptr);
-                    
-                    if(duk_is_function(ctx, -1)) {
-                        
-                        details::Arguments<sizeof...(TArgs)>::template Set(ctx,args...);
-                        
-                        if(duk_pcall(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
-                            GetAny(ctx, -1, r);
-                        } else {
-                            Error(ctx, -1, "[JSObject]");
-                        }
-                        
-                    }
-                    
-                    duk_pop(ctx);
-                }
-                return (T) r;
-            };
-        }
-        
         operator kk::Strong<TObject<kk::String,kk::Any>>();
         operator kk::Strong<Array<kk::Any>>();
         
@@ -876,8 +821,9 @@ namespace kk {
     
     void duk_pcall_method(duk_context * ctx,Signature returnSignature,std::vector<Signature> & arguments);
     
-    
+
     duk_ret_t duk_json_decode(duk_context * ctx,void * data,size_t size);
+   
 }
 
 #endif /* jit_h */

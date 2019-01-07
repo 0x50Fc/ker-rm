@@ -480,7 +480,7 @@ static const kk::Class * Class() { \
                 i ++;
             }
         }
-        virtual void push(T & v) {
+        virtual void push(const T & v) {
             _items.push_back(v);
         }
     private:

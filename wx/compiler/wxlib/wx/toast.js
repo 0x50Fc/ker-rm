@@ -6,8 +6,8 @@ page.on("app.toast.hide", function (e) {
     isClosed = true;
 });
 
-page.on('backPressed',function(e){
-    e.returnValue = false;
+page.setOptions({
+    backPressed : true
 });
 
 page.on("ready",function(){

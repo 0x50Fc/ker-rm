@@ -65,9 +65,11 @@ namespace kk {
 
             _app->removePage(_pageId);
             _app->off("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
-            
-            _view->removeRecycleViews();
-            _view->removeAllSubviews();
+
+            if(_view != nullptr) {
+                _view->removeRecycleViews();
+                _view->removeAllSubviews();
+            }
             
             {
                 duk_context * ctx = _app->jsContext();

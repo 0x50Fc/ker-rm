@@ -6,12 +6,13 @@ import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 /**
  * Created by zhanghailong on 2018/12/14.
  */
 
-public class KerView extends ViewGroup implements IKerView {
+public class KerView extends FrameLayout implements IKerView {
 
     public KerView(Context context) {
         super(context);
@@ -69,8 +70,6 @@ public class KerView extends ViewGroup implements IKerView {
 
                 if(frame != null) {
                     v.layout(frame.x,frame.y,frame.x + frame.width,frame.y + frame.height);
-                } else {
-                    v.layout(l,t,r,b);
                 }
 
             }

@@ -1001,7 +1001,7 @@ namespace kk {
             if(_size == 0) {
                 _size = len + 1;
                 _data = malloc(_size);
-            } else if(_size < length + 1) {
+            } else if(_size < len + 1) {
                 _size = len + 1;
                 _data = realloc(_data, _size);
             }

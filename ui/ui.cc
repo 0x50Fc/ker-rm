@@ -11,6 +11,12 @@
 #include <core/jit.h>
 #include <ui/app.h>
 #include <ui/package.h>
+#include <core/uri.h>
+#include <core/storage.h>
+
+#ifdef KER_DEBUG
+#include <core/debugger.h>
+#endif
 
 namespace kk {
     
@@ -322,6 +328,9 @@ namespace kk {
         Context::Context(kk::CString basePath,kk::DispatchQueue * queue):EventEmitter(), _basePath(basePath),_queue(queue) {
             _jsContext = duk_create_heap(nullptr, nullptr, nullptr, nullptr, Context_duk_fatal_function);
             _queue->sync([this]()->void{
+#ifdef KER_DEBUG
+                kk::Debugger::debug(_jsContext);
+#endif
                 kk::Openlib<>::openlib(_jsContext);
                 kk::Openlib<kk::Container *>::openlib(_jsContext, this);
             });
@@ -538,16 +547,11 @@ namespace kk {
             
         }
         
-        kk::Strong<Sqlite> Context::createSqlite(kk::CString path) {
-            kk::String p = absolutePath(path);
-            kk::Strong<Sqlite> v = new Sqlite();
-            v->open(p.c_str());
-            return v;
-        }
-        
         Worker::Worker(Context * main,kk::CString path):_main(main),_context(nullptr),_queue(nullptr) {
             
-            _queue = createDispatchQueue("kk::ui::Worker");
+            kk::Strong<DispatchQueue> v = createDispatchQueue("kk::ui::Worker");
+            
+            _queue = v;
             _queue->retain();
             
             kk::String p = path;
@@ -735,8 +739,6 @@ namespace kk {
                     
                     kk::PutStrongMethod<Context,Image,kk::CString>(ctx, -1, "createImage", &Context::createImage);
                     
-                    kk::PutStrongMethod<Context,Sqlite,kk::CString>(ctx, -1, "createSqlite", &Context::createSqlite);
-                    
                 });
                 
                 kk::PushInterface<Image>(ctx, [](duk_context * ctx)->void{
@@ -763,7 +765,7 @@ namespace kk {
             return v;
         }
         
-        UI::UI():_autoId(0){
+        UI::UI():_autoId(0),_transaction(false){
             _queue = kk::createDispatchQueue("kk::ui::UI");
         }
         
@@ -838,6 +840,26 @@ namespace kk {
                     }
                 }
             });
+        }
+        
+        void UI::startTransaction() {
+            if(!_transaction) {
+                _transaction = true;
+                _queue->async([this]()->void{
+                    this->_transaction = false;
+                    this->commitTransaction();
+                });
+            }
+        }
+        
+        kk::Sqlite * UI::database() {
+            if(_database == nullptr) {
+                kk::String p = kk::ResolvePath("ker-data:///data.db");
+                _database = new Sqlite();
+                _database->open(p.c_str());
+                SqliteStorage::install(_database);
+            }
+            return _database;
         }
         
         void UI::open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func) {

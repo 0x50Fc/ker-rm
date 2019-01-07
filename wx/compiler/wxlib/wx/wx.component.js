@@ -24,7 +24,7 @@ var Component = function (id, path, page, webview, viewContext, wx) {
             },
             undefined,
             undefined,
-            new WX(viewContext, page, app, wx, webview),
+            new WX(viewContext, page, app, wx, webview, basePath),
             function (fn, v) {
                 setInterval(function () {
                     fn.call(component.object);
@@ -37,7 +37,7 @@ var Component = function (id, path, page, webview, viewContext, wx) {
             },
             function (path) {
                 var p = func.relativePath(path, basePath);
-                if(!p.endsWith(".js")) {
+                if (!p.endsWith(".js")) {
                     p = p + ".js";
                 }
                 return require(p);

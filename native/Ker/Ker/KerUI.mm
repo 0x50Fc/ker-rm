@@ -53,9 +53,12 @@ namespace kk {
         {
         }
         
+        void UI::commitTransaction() {
+            
+        }
+        
         void UI::execCommand(App * app,Command * command) {
-            
-            
+            startTransaction();
             
             {
                 kk::ui::AppBackCommand * cmd = dynamic_cast<kk::ui::AppBackCommand *>(command);

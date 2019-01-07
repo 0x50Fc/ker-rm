@@ -10,7 +10,7 @@
 
 namespace kk {
     
-    SqliteResultSet::SqliteResultSet(sqlite3_stmt * stmt) {
+    SqliteResultSet::SqliteResultSet(sqlite3_stmt * stmt):_stmt(stmt) {
         
     }
     

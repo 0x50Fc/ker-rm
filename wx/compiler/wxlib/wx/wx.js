@@ -1,11 +1,12 @@
 
 
-function WX(viewContext, page, app, wx, webview) {
+function WX(viewContext, page, app, wx, webview, basePath) {
     this.viewContext = viewContext;
     this.page = page;
     this.app = app;
     this.wx = wx;
     this.webview = webview;
+    this._basePath = basePath;
     for (var key in wx) {
         var v = wx[key];
         if (typeof v == 'function') {
@@ -107,7 +108,137 @@ WX.prototype = Object.create(Object.prototype, {
                 object.complete();
             }
         }, writable: false
+    },
+
+    getStorageInfoSync: {
+        value: function () {
+            return {
+                keys: app.storage.keys()
+            }
+        }, writable: false
+    },
+
+    getStorageInfo: {
+        value: function (object) {
+            app.storage.loadKeys(function (keys) {
+                if (typeof object.success == 'function') {
+                    object.success({ keys: keys });
+                }
+                if (typeof object.complete == 'function') {
+                    object.complete();
+                }
+            });
+        }, writable: false
+    },
+
+    clearStorageSync: {
+        value: function () {
+            app.storage.clear();
+        }, writable: false
+    },
+
+    clearStorage: {
+        value: function (object) {
+            app.storage.clear();
+            setTimeout(function () {
+                if (typeof object.success == 'function') {
+                    object.success({});
+                }
+                if (typeof object.complete == 'function') {
+                    object.complete();
+                }
+            }, 0);
+        }, writable: false
+    },
+
+    removeStorageSync: {
+        value: function (key) {
+            app.storage.set(key, undefined);
+        }, writable: false
+    },
+    removeStorage: {
+        value: function (object) {
+            app.storage.set(object.key, undefined);
+            setTimeout(function () {
+                if (typeof object.success == 'function') {
+                    object.success({});
+                }
+                if (typeof object.complete == 'function') {
+                    object.complete();
+                }
+            }, 0);
+        }, writable: false
+    },
+
+    setStorageSync: {
+        value: function (key, value) {
+            app.storage.set(key, JSON.stringify(value));
+        }, writable: false
+    },
+
+    setStorage: {
+        value: function (object) {
+            app.storage.set(object.key, JSON.stringify(object.data));
+            setTimeout(function () {
+                if (typeof object.success == 'function') {
+                    object.success({});
+                }
+                if (typeof object.complete == 'function') {
+                    object.complete();
+                }
+            }, 0);
+        }, writable: false
+    },
+
+    getStorageSync: {
+        value: function (key) {
+            var v = app.storage.get(key);
+            if (typeof v == 'string' && v != '') {
+                return JSON.parse(v);
+            }
+        }, writable: false
+    },
+
+    getStorage: {
+        value: function (object) {
+            app.storage.load(key, function (value) {
+                if (typeof object.success == 'function') {
+                    if (typeof value == 'string' && value != '') {
+                        object.success({ data: JSON.parse(value) });
+                    } else {
+                        object.success({});
+                    }
+
+                }
+                if (typeof object.complete == 'function') {
+                    object.complete();
+                }
+            });
+        }, writable: false
+    },
+
+    navigateTo: {
+        value: function (object) {
+            if (object.url) {
+                app.open(this._basePath + "/" + object.url + ".page.js", true);
+                setTimeout(function () {
+                    if (typeof object.success == 'function') {
+                        object.success({});
+                    }
+                    if (typeof object.complete == 'function') {
+                        object.complete();
+                    }
+                }, 0);
+            }
+        }, writable: false
+    },
+
+    createWorker : {
+        value: function (path) {
+            return app.createWorker(path);
+        }, writable: false
     }
+
 
 });
 

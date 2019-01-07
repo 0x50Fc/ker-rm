@@ -48,7 +48,7 @@ export class InputElement extends NViewElement {
         } else if (key == 'placeholder-class') {
             this._placeholderView!.className = value as string;
         } else if (key == 'value') {
-            this.value = value || '';
+            this.setValue(value || '');
         }
     }
 
@@ -69,6 +69,7 @@ export class InputElement extends NViewElement {
     public onEvent(name: string, data: any): void {
         if (name == "change") {
             this.value = data.value || '';
+            this.doElementEvent("input",data);
         }
     }
 

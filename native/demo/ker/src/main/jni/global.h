@@ -6,6 +6,8 @@
 #define KER_GLOBAL_H
 
 #include <jni.h>
+#include <string>
+#include <map>
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +45,7 @@ struct _Global {
         jmethodID setImage;
         jmethodID evaluateJavaScript;
         jmethodID setAttributedText;
+        jmethodID commit;
         struct {
             jclass isa;
             jmethodID onOpen;
@@ -68,6 +71,10 @@ struct _Global {
             jfieldID policy;
         } UserAction;
     } WebViewConfiguration;
+
+    struct {
+        jclass isa;
+    } Object;
 
     struct {
         jclass isa;
@@ -191,10 +198,10 @@ struct _Global {
         jmethodID cancel;
     } SessionTask;
 
+    std::map<std::string,jclass> ParameterTypes;
 };
 
 extern struct _Global G;
-
 
 void globalInit(JNIEnv  * env);
 
