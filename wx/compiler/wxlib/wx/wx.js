@@ -1,5 +1,4 @@
 
-
 function WX(viewContext, page, app, wx, webview, basePath) {
     this.viewContext = viewContext;
     this.page = page;
@@ -220,7 +219,11 @@ WX.prototype = Object.create(Object.prototype, {
     navigateTo: {
         value: function (object) {
             if (object.url) {
-                app.open(this._basePath + "/" + object.url + ".page.js", true);
+                var p = object.url;
+                if (this._basePath) {
+                    p = this._basePath + '/' + p;
+                }
+                app.open(p + ".page.js", true);
                 setTimeout(function () {
                     if (typeof object.success == 'function') {
                         object.success({});
@@ -233,7 +236,7 @@ WX.prototype = Object.create(Object.prototype, {
         }, writable: false
     },
 
-    createWorker : {
+    createWorker: {
         value: function (path) {
             return app.createWorker(path);
         }, writable: false

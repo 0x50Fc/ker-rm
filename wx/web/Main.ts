@@ -29,6 +29,7 @@ import { CanvasElement } from './CanvasElement';
 import { once } from './once';
 import { BlockElement } from './BlockElement';
 import { ComponentElement } from './ComponentElement';
+import { ModalElement } from './ModalElement';
 
 function getComponentId(element: Element | undefined): number | undefined {
 
@@ -436,6 +437,7 @@ page.document.addElementClass("navigator", NavigatorElement);
 page.document.addElementClass("canvas", CanvasElement);
 page.document.addElementClass("block", BlockElement);
 page.document.addElementClass("component", ComponentElement);
+page.document.addElementClass("modal", ModalElement);
 
 export function Page(view: PageView, styleSheet: StyleSheet, options: PageOptions): void {
     postMessage({ page: 'readying' });
@@ -444,13 +446,36 @@ export function Page(view: PageView, styleSheet: StyleSheet, options: PageOption
     once((): void => { postMessage({ page: 'ready' }); });
 }
 
+interface KeySet {
+    [key: string]: boolean
+}
+
+function setPageData(page: PageData, data: Data): void {
+    let changedKeySet: KeySet = {};
+    let changedKeys: string[] = [];
+
+    for (var key in page) {
+        let ks = key.split(".");
+        if (!changedKeySet[ks[0]]) {
+            changedKeys.push(ks[0]);
+        }
+        data.set(ks, page[key], false);
+    }
+
+    if (changedKeys.length == 0) {
+        data.changedKeys([]);
+    } else {
+        for (let key of changedKeys) {
+            data.changedKeys([key]);
+        }
+    }
+}
+
 export function setData(data: PageData, componentId: number | undefined): void {
 
     if (componentId === undefined) {
 
-        for (var key in data) {
-            page.data.set([key], data[key]);
-        }
+        setPageData(data, page.data);
 
         console.info("[DATA]", data);
 
@@ -459,13 +484,7 @@ export function setData(data: PageData, componentId: number | undefined): void {
         let e = page.document.element(componentId);
 
         if (e !== undefined && e instanceof ComponentElement) {
-
-            let v = e.data;
-
-            for (var key in data) {
-                v.set([key], data[key]);
-            }
-
+            setPageData(data, e.data);
             console.info("[COMPONENT] [DATA]", data);
         }
 
