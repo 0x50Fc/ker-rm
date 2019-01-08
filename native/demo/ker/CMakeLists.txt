@@ -57,6 +57,7 @@ add_library(ker
             src/main/jni/core/zombies.cc
             src/main/jni/core/uri.cc
             src/main/jni/core/http.cc
+            src/main/jni/core/storage.cc
             src/main/jni/ui/ui.cc
             src/main/jni/ui/view.cc
             src/main/jni/ui/app.cc
