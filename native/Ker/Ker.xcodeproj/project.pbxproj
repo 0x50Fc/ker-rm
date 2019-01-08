@@ -114,6 +114,8 @@
 		1AFDAD2A21E327C7000FAAE9 /* storage.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2921E327C7000FAAE9 /* storage.cc */; };
 		1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */; };
 		1AFDAD2F21E355BD000FAAE9 /* duk_config_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */; };
+		1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAF7021E4AC8A000FAAE9 /* net.cc */; };
+		1AFDAF7321E4AC8A000FAAE9 /* net.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAF7121E4AC8A000FAAE9 /* net.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -229,6 +231,8 @@
 		1AFDAD2B21E34FB0000FAAE9 /* debugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
 		1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = debugger.cc; sourceTree = "<group>"; };
 		1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = duk_config_debug.h; path = "../../../../kk-duktape/lib/duktape/src/duk_config_debug.h"; sourceTree = "<group>"; };
+		1AFDAF7021E4AC8A000FAAE9 /* net.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = net.cc; sourceTree = "<group>"; };
+		1AFDAF7121E4AC8A000FAAE9 /* net.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = net.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -364,6 +368,8 @@
 				1AFDAD2921E327C7000FAAE9 /* storage.cc */,
 				1AFDAD2B21E34FB0000FAAE9 /* debugger.h */,
 				1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */,
+				1AFDAF7121E4AC8A000FAAE9 /* net.h */,
+				1AFDAF7021E4AC8A000FAAE9 /* net.cc */,
 			);
 			name = core;
 			path = ../../../core;
@@ -437,6 +443,7 @@
 				1AF065A7219D518200F8F7A8 /* container.h in Headers */,
 				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
+				1AFDAF7321E4AC8A000FAAE9 /* net.h in Headers */,
 				1AF4CE3521A56B5A00AE1249 /* UIColor+Ker.h in Headers */,
 				1AA4AC3D21BFBC3A00C636F5 /* unzip.h in Headers */,
 				1AF0658D219D516000F8F7A8 /* Ker.h in Headers */,
@@ -569,6 +576,7 @@
 				1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */,
 				1AA4AC3C21BFBC3A00C636F5 /* unzip.c in Sources */,
 				1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */,
+				1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */,
 				1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */,
 				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
 				1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */,

@@ -13,7 +13,6 @@
 #include <list>
 
 
-
 namespace kk {
 
     class DispatchQueue : public Object {
@@ -103,6 +102,8 @@ namespace kk {
     
     DispatchQueue * IODispatchQueue();
     
+    DispatchQueue * NetDispatchQueue();
+
     DispatchQueue * getCurrentDispatchQueue();
     
     kk::Object * getDispatchQueueSpecific(const void * key);

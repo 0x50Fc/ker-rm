@@ -7,7 +7,6 @@
 //
 
 #include <core/dispatch.h>
-#include <future>
 #include <dispatch/dispatch.h>
 
 namespace kk {
@@ -154,6 +153,15 @@ namespace kk {
         static DispatchQueue * v = nullptr;
         if(v == nullptr) {
             v = new kk::GCDDispatchQueue("kk::IODispatchQueue");
+            v->retain();
+        }
+        return v;
+    }
+    
+    DispatchQueue * NetDispatchQueue() {
+        static DispatchQueue * v = nullptr;
+        if(v == nullptr) {
+            v = new kk::GCDDispatchQueue("kk::NetDispatchQueue");
             v->retain();
         }
         return v;

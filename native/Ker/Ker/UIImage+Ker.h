@@ -2,7 +2,7 @@
 //  UIImage+Ker.h
 //  Ker
 //
-//  Created by hailong11 on 2018/12/10.
+//  Created by zhanghailong on 2018/12/10.
 //  Copyright © 2018 kkmofang.cn. All rights reserved.
 //
 
