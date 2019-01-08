@@ -36,10 +36,8 @@
     [UIPasteboard generalPasteboard].string = v.data;
     
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"setClipboardData:ok"];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
     
 }
 
@@ -49,10 +47,8 @@
     WXGetClipboardRes * res = [[WXGetClipboardRes alloc] initWithData:data errMsg:@"getClipboardData:ok"];
     
     id<WXGetClipboardDataObject> v = [object implementProtocol:@protocol(WXGetClipboardDataObject)];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
     
 }
 

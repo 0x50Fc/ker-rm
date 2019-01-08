@@ -27,21 +27,18 @@
         if (@available(iOS 10.0, *)) {
             
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:callPhone] options:@{} completionHandler:^(BOOL success) {
+                
                 if (success) {
                     
                     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"makePhoneCall:ok"];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [object success:res];
-                        [object complete:res];
-                    });
+                    [object success:res];
+                    [object complete:res];
                     
                 }else{
                     
                     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"makePhoneCall:fail unknow"];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [object fail:res];
-                        [object complete:res];
-                    });
+                    [object fail:res];
+                    [object complete:res];
 
                 }
             }];
@@ -50,20 +47,16 @@
             // Fallback on earlier versions
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:callPhone]];
             WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"makePhoneCall:ok"];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [object success:res];
-                [object complete:res];
-            });
+            [object success:res];
+            [object complete:res];
         }
     }];
     
     UIAlertAction *action2 = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
 
-         WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"makePhoneCall:fail cancel"];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [object fail:res];
-            [object complete:res];
-        });
+        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"makePhoneCall:fail cancel"];
+        [object fail:res];
+        [object complete:res];
         
     }];
     

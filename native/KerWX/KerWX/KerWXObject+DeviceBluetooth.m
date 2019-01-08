@@ -399,28 +399,22 @@
     if (self.centralManager == nil) {
 
         WXGetBluetoothAdapterStateRes * res = [[WXGetBluetoothAdapterStateRes alloc] initWithErrMsg: @"getBluetoothAdapterState:fail ble adapter need open first. need open bluetooth adapter" errCode:10000 discovering:NO available:NO];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
 
     }else {
 
         if (self.centralManager.state == CBCentralManagerStatePoweredOn) {
 
             WXGetBluetoothAdapterStateRes * res = [[WXGetBluetoothAdapterStateRes alloc] initWithErrMsg: @"getBluetoothAdapterState:ok" errCode:0 discovering:self.centralManager.isScanning available:YES];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v complete:res];
-            });
+            [v success:res];
+            [v complete:res];
 
         }else {
 
             WXGetBluetoothAdapterStateRes * res = [[WXGetBluetoothAdapterStateRes alloc] initWithErrMsg: @"getBluetoothAdapterState:fail ble adapter need open first. bluetooth state err" errCode:10008 discovering:NO available:NO];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
 
         }
     }
@@ -433,10 +427,8 @@
     
     if (self.centralManager) {
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"openBluetoothAdapter:fail bluetooth already started" errCode:10008];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
     }else {
         self.centralManager = [[CBCentralManager alloc]initWithDelegate:self queue:nil];
     }
@@ -451,10 +443,8 @@
     WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"closeBluetoothAdapter:ok" errCode:0];
     if (object) {
         id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-        });
+        [v success:res];
+        [v complete:res];
     }
 
 }
@@ -466,10 +456,8 @@
     if (self.centralManager == nil) {
 
         WXStartBluetoothDevicesDiscoveryRes * res = [[WXStartBluetoothDevicesDiscoveryRes alloc] initWithErrMsg:@"startBluetoothDevicesDiscovery:fail need openBluetoothAdapter" ErrCode:10000 isDiscovering:NO];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
 
     }else {
 
@@ -489,19 +477,14 @@
             [self.centralManager scanForPeripheralsWithServices:services options:options];
 
             WXStartBluetoothDevicesDiscoveryRes * res = [[WXStartBluetoothDevicesDiscoveryRes alloc] initWithErrMsg:@"startBluetoothDevicesDiscovery:ok" ErrCode:0 isDiscovering:YES];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v complete:res];
-            });
+            [v success:res];
+            [v complete:res];
 
         }else {
 
             WXStartBluetoothDevicesDiscoveryRes * res = [[WXStartBluetoothDevicesDiscoveryRes alloc] initWithErrMsg:[NSString stringWithFormat:@"startBluetoothDevicesDiscovery:fail openBluetoothAdapter state = %ld", (long)self.centralManager.state] ErrCode:10000 isDiscovering:NO];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
-
+            [v fail:res];
+            [v complete:res];
         }
     }
 
@@ -514,20 +497,16 @@
     if (self.centralManager == nil || self.centralManager.state != CBCentralManagerStatePoweredOn) {
 
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"stopBluetoothDevicesDiscovery:fail ble adapter hans't been opened or ble is unavailable." errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
 
     }else {
 
         [self.centralManager stopScan];
         self.sartBluetoothDevicesDiscoveryObject = nil;
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"stopBluetoothDevicesDiscovery:ok" errCode:0];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
 
     }
 
@@ -540,18 +519,14 @@
     if (self.centralManager == nil) {
 
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"getBluetoothDevices:fail ble adapter hans't been opened or ble is unavailable." errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
 
     }else {
 
         WXGetBluetoothDevicesRes * res = [[WXGetBluetoothDevicesRes alloc] initWithErrMsg:@"getBluetoothDevices:ok" ErrCode:0 devices:self.peripherArray];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-        });
+        [v success:res];
+        [v complete:res];
 
     }
 
@@ -564,10 +539,8 @@
     if (self.centralManager == nil) {
         
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"getConnectedBluetoothDevices:fail ble adapter hans't been opened or ble is unavailable." errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
 
     }else {
 
@@ -582,10 +555,8 @@
         }
         
         WXGetConnectedBluetoothDevicesRes * res = [[WXGetConnectedBluetoothDevicesRes alloc] initWithDevices:devices errMsg:@"getConnectedBluetoothDevices:ok" errCode:0];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-        });
+        [v success:res];
+        [v complete:res];
 
     }
 }
@@ -598,10 +569,8 @@
     if (self.centralManager == nil) {
         
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"createBLEConnection:fail createBLEConnection error 10000." errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
 
     }else{
         
@@ -627,10 +596,8 @@
         }else {
             
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"createBLEConnection:fail createBLEConnection error 10002 device not found" errCode:10002];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
             
         }
     }
@@ -643,10 +610,8 @@
     if (self.centralManager == nil) {
         
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"closeBLEConnection:fail closeBLEConnection error 10000" errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
         
     }else{
         
@@ -659,10 +624,8 @@
         }else{
             
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"closeBLEConnection:fail closeBLEConnection error 10002 device not find" errCode:10002];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
             
         }
     }
@@ -676,10 +639,8 @@
     if (self.centralManager == nil) {
         
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"getBLEDeviceServices:fail closeBLEConnection error 10000" errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
         
     }else {
         
@@ -691,10 +652,8 @@
         }else{
             //没找到设备
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"getBLEDeviceServices:fail getBLEDeviceServices error 10002" errCode:10002];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
 
         }
     }
@@ -706,10 +665,8 @@
     if (self.centralManager == nil) {
         //未初始化
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"getBLEDeviceCharacteristics:fail getBLEDeviceCharacteristics error 10000" errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
         
     }else{
         
@@ -724,20 +681,16 @@
             }else{
                 //服务未找到
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"getBLEDeviceCharacteristics:fail getBLEDeviceCharacteristics error 10004 need find services" errCode:10004];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }
             
         }else{
             
             //设备未找到
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"getBLEDeviceCharacteristics:fail getBLEDeviceCharacteristics error 10002 need connect device" errCode:10002];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
             
         }
     }
@@ -749,10 +702,8 @@
     if (self.centralManager == nil) {
         //未初始化
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10000" errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
         
     }else {
         
@@ -768,26 +719,20 @@
                 }else{
                     //特征值未找到
                     WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10005 charcteristics not found" errCode:10005];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [v fail:res];
-                        [v complete:res];
-                    });
+                    [v fail:res];
+                    [v complete:res];
                 }
             }else {
                 //服务未找到
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10004 service not found" errCode:10004];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }
         }else{
             //设备未找到
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10002 device not found" errCode:10002];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
         }
     }
 }
@@ -798,10 +743,8 @@
     if (self.centralManager == nil) {
         //未初始化
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10000" errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
         
     }else {
         
@@ -818,28 +761,22 @@
                 }else {
                     //特征值未找到
                     WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10005" errCode:10005];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [v fail:res];
-                        [v complete:res];
-                    });
+                    [v fail:res];
+                    [v complete:res];
                 }
             }else {
                 //服务未找到
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10004" errCode:10004];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }
             
         }else {
             
             //设备未找到
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10002" errCode:10002];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
             
         }
     }
@@ -853,10 +790,8 @@
         
         //未初始化
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10000" errCode:10000];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
 
     }else {
         
@@ -873,30 +808,24 @@
                 }else {
                     //特征值未找到
                     WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10005" errCode:10005];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [v fail:res];
-                        [v complete:res];
-                    });
+                    [v fail:res];
+                    [v complete:res];
                 }
                 
             }else {
                 
                 //服务未找到
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10004" errCode:10004];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }
             
         }else {
             
             //设备未找到
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10002" errCode:10002];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
             
         }
     }
@@ -925,11 +854,9 @@
         
         id<WXCreateBLEConnectionObject> v = [self.createBLEConnectionObject implementProtocol:@protocol(WXCreateBLEConnectionObject)];
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"createBLEConnection:fail connect time out." errCode:10003];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-            self.createBLEConnectionObject = nil;
-        });
+        [v fail:res];
+        [v complete:res];
+        self.createBLEConnectionObject = nil;
         
     }
 }
@@ -962,9 +889,7 @@
     
     if (self.onBluetoothAdapterStateChange) {
         WXOnBluetoothAdapterStateChangeRes * res = [[WXOnBluetoothAdapterStateChangeRes alloc] initWithDiscovering:available available:discovering];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.onBluetoothAdapterStateChange callWithArguments:@[res]];
-        });
+        [self.onBluetoothAdapterStateChange callWithArguments:@[res]];
     }
     
     
@@ -973,17 +898,13 @@
         if (central && central.state == CBCentralManagerStatePoweredOn) {
             //成功
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"openBluetoothAdapter:ok" errCode:0];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v complete:res];
-            });
+            [v success:res];
+            [v complete:res];
         }else {
             //失败
             WXBOpenBluetoothAdapterRes * res = [[WXBOpenBluetoothAdapterRes alloc] initWithErrMsg:@"openBluetoothAdapter:fail" errCode:1001 state:central.state];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
         }
     }
 
@@ -1011,10 +932,8 @@
 
         if (v.interval == 0) {
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                WXOnBluetoothDeviceFoundRes * res = [[WXOnBluetoothDeviceFoundRes alloc] initWithDevices:@[p]];
-                [self.onBluetoothDeviceFound callWithArguments:@[res]];
-            });
+            WXOnBluetoothDeviceFoundRes * res = [[WXOnBluetoothDeviceFoundRes alloc] initWithDevices:@[p]];
+            [self.onBluetoothDeviceFound callWithArguments:@[res]];
             
         }else {
 
@@ -1022,11 +941,9 @@
             long nowTime = [[NSDate date] timeIntervalSince1970] * 1000;
             if (nowTime - [self.starScanTime longLongValue] > v.interval) {
                 
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.onBluetoothDeviceFound callWithArguments:@[[[WXOnBluetoothDeviceFoundRes alloc] initWithDevices:self.discoveredPeripherArray]]];
-                    [self.discoveredPeripherArray removeAllObjects];
-                    self.starScanTime = [NSNumber numberWithLong:nowTime];
-                });
+                [self.onBluetoothDeviceFound callWithArguments:@[[[WXOnBluetoothDeviceFoundRes alloc] initWithDevices:self.discoveredPeripherArray]]];
+                [self.discoveredPeripherArray removeAllObjects];
+                self.starScanTime = [NSNumber numberWithLong:nowTime];
                 
             }
         }
@@ -1042,19 +959,15 @@
         
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"createBLEConnection:ok" errCode:0];
         id<WXCreateBLEConnectionObject> v = [self.createBLEConnectionObject implementProtocol:@protocol(WXCreateBLEConnectionObject)];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-            self.createBLEConnectionObject = nil;
-        });
+        [v success:res];
+        [v complete:res];
+        self.createBLEConnectionObject = nil;
         
     }
     
     if (self.onBLEConnectionStateChange) {
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.onBLEConnectionStateChange callWithArguments:@[[[WXOnBLEConnectionStateChangeRes alloc]initWithPeripheral:peripheral Connected:YES ErrMsg:@"connect success" ErrCode:0]]];
-        });
+       [self.onBLEConnectionStateChange callWithArguments:@[[[WXOnBLEConnectionStateChangeRes alloc]initWithPeripheral:peripheral Connected:YES ErrMsg:@"connect success" ErrCode:0]]];
         
     }
     
@@ -1068,26 +981,20 @@
         //主动断开连接
         id<WXCloseBLEConnectionObject> v = [self.closeBLEConnectionObject implementProtocol:@protocol(WXCloseBLEConnectionObject)];
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"closeBLEConnectionObject:ok" errCode:0];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-            self.closeBLEConnectionObject = nil;
-        });
+        [v success:res];
+        [v complete:res];
+        self.closeBLEConnectionObject = nil;
 
         //主动断开
         if (self.onBLEConnectionStateChange) {
-            dispatch_async(dispatch_get_main_queue(), ^{
             [self.onBLEConnectionStateChange callWithArguments:@[[[WXOnBLEConnectionStateChangeRes alloc]initWithPeripheral:peripheral Connected:NO ErrMsg:@"disconnect success" ErrCode:0]]];
-            });
         }
         
     }else {
         
         //被动断开
         if (self.onBLEConnectionStateChange) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.onBLEConnectionStateChange callWithArguments:@[[[WXOnBLEConnectionStateChangeRes alloc]initWithPeripheral:peripheral Connected:NO ErrMsg:@"disconnect 10006" ErrCode:10006]]];
-            });
+            [self.onBLEConnectionStateChange callWithArguments:@[[[WXOnBLEConnectionStateChangeRes alloc]initWithPeripheral:peripheral Connected:NO ErrMsg:@"disconnect 10006" ErrCode:10006]]];
         }
         
     }
@@ -1100,10 +1007,8 @@
         
         id<WXCreateBLEConnectionObject> v = [self.createBLEConnectionObject implementProtocol:@protocol(WXCreateBLEConnectionObject)];
         WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"createBLEConnection:fail errCode 10003 连接失败" errCode:10003];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
 
     }
 
@@ -1120,11 +1025,9 @@
     if (self.getBLEDeviceServicesObject) {
         WXGetBLEDeviceServicesRes * res = [[WXGetBLEDeviceServicesRes alloc] initWithErrMsg:@"getBLEDeviceServices:ok" errCode:0 peripheral:peripheral];
         id<WXGetBLEDeviceServicesObject> v = [self.getBLEDeviceServicesObject implementProtocol:@protocol(WXGetBLEDeviceServicesObject)];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-            self.getBLEDeviceServicesObject = nil;
-        });
+        [v success:res];
+        [v complete:res];
+        self.getBLEDeviceServicesObject = nil;
     }
 }
 
@@ -1136,18 +1039,14 @@
         id<WXGetBLEDeviceServicesObject> v = [self.getBLEDeviceServicesObject implementProtocol:@protocol(WXGetBLEDeviceServicesObject)];
         if (error) {
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"getBLEDeviceCharacteristics:fail getBLEDeviceCharacteristics error 10008" errCode:10008];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-                self.getBLEDeviceCharacteristicsObject = nil;
-            });
+            [v fail:res];
+            [v complete:res];
+            self.getBLEDeviceCharacteristicsObject = nil;
         }else{
             WXGetBLEDeviceCharacteristicsRes * res = [[WXGetBLEDeviceCharacteristicsRes alloc] initWithService:service ErrMsg:@"getBLEDeviceCharacteristics:ok" ErrCode:0];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v complete:res];
-                self.getBLEDeviceCharacteristicsObject = nil;
-            });
+            [v success:res];
+            [v complete:res];
+            self.getBLEDeviceCharacteristicsObject = nil;
         }
     }
     
@@ -1162,25 +1061,19 @@
             if (error.code == 6) {
                 //特征不支持 notify
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10007" errCode:10007];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }else {
                 //其他错误
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:fail setNotifyOnCharacteristics error 10008" errCode:10008];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }
         }else {
             //成功
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"notifyBLECharacteristicValueChange:ok" errCode:0];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v complete:res];
-            });
+            [v success:res];
+            [v complete:res];
         }
         self.notifyBLECharacteristicValueChangeObject = nil;
     }
@@ -1196,27 +1089,21 @@
         if (error == nil) {
             //成功
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:ok" errCode:0];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v complete:res];
-            });
+            [v success:res];
+            [v complete:res];
 
         }else {
             
             if (error.code == 2) {
                 //特征不支持读取操作
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail characteristic not support read errCode 10007" errCode:10007];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }else {
                 //其他错误
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"readBLECharacteristicValue:fail errCode 10008" errCode:10008];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }
         }
         
@@ -1226,9 +1113,7 @@
 
     if (self.onBLECharacteristicValueChange) {
         WXOnBLECharacteristicValueChangeRes * res = [[WXOnBLECharacteristicValueChangeRes alloc] initWithPeripheral:peripheral Characteristic:characteristic];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.onBLECharacteristicValueChange callWithArguments:@[res]];
-        });
+        [self.onBLECharacteristicValueChange callWithArguments:@[res]];
     }
 }
 
@@ -1242,27 +1127,21 @@
             
             //写成功
             WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:ok" errCode:0];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v complete:res];
-            });
+            [v success:res];
+            [v complete:res];
             
         }else {
             
             if (error.code == 3) {
                 //特征不支持写
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail not support write errCode 10007" errCode:10007];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }else {
                 //其他错误
                 WXBluetoothRes * res = [[WXBluetoothRes alloc] initWithErrMsg:@"writeBLECharacteristicValue:fail errCode 10008" errCode:10008];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v fail:res];
-                    [v complete:res];
-                });
+                [v fail:res];
+                [v complete:res];
             }
             
         }

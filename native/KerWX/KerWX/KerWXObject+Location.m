@@ -103,10 +103,10 @@
         //未开启定位
         WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail auth deny"];
         id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        
+        [v fail:res];
+        [v complete:res];
+
     }else {
         //开始定位
         [self.locationManager startUpdatingLocation];
@@ -120,10 +120,9 @@
     
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startCompass:ok"];
     id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    
+    [v success:res];
+    [v complete:res];
     
 }
 
@@ -133,10 +132,9 @@
     
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"stopCompass:ok"];
     id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    
+    [v success:res];
+    [v complete:res];
     
 }
 
@@ -148,10 +146,9 @@
         //getLocation:fail auth deny
         id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
         WXGetLocationRes * res = [[WXGetLocationRes alloc] initWithCLLocation:locations.lastObject type:v.type errMsg:@"getLocation:ok"];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-        });
+        
+        [v success:res];
+        [v complete:res];
     }
     
     [self.locationManager stopUpdatingLocation];
@@ -162,10 +159,10 @@
     if (status == kCLAuthorizationStatusDenied && self.getLocationObject) {
         WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail auth deny"];
         id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        
+        [v fail:res];
+        [v complete:res];
+        
     }
     
 }
@@ -175,10 +172,9 @@
     //未知错误
     id<WXGetLocationObject> v = [self.getLocationObject implementProtocol:@protocol(WXGetLocationObject)];
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"getLocation:fail"];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v fail:res];
-        [v complete:res];
-    });
+    
+    [v fail:res];
+    [v complete:res];
     
     [self.locationManager stopUpdatingLocation];
 }

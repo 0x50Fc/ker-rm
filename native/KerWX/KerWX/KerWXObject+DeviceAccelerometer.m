@@ -109,29 +109,23 @@
     if (!self.motionManager.isAccelerometerAvailable) {
         
         // Accelerometer 不可用
-        dispatch_async(dispatch_get_main_queue(), ^{
-            WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startAccelerometer:err - magnetometer is not active"];
-            [v fail:res];
-            [v complete:res];
-        });
-        
+        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startAccelerometer:err - magnetometer is not active"];
+        [v fail:res];
+        [v complete:res];
         
     } else {
         
         //成功回调
         self.motionManager.magnetometerUpdateInterval = [v.interval ker_toInterval];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startAccelerometer:ok"];
-            [v success:res];
-            [v complete:res];
-        });
+        
+        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startAccelerometer:ok"];
+        [v success:res];
+        [v complete:res];
 
         [self.motionManager startAccelerometerUpdatesToQueue: [NSOperationQueue mainQueue] withHandler:^(CMAccelerometerData * _Nullable accelerometerData, NSError * _Nullable error) {
 
             if (self.onAccelerometerChange) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.onAccelerometerChange callWithArguments:@[[[WXOnAccelerometerChangeRes alloc] initWithCMAccelerometerData:accelerometerData]]];
-                });
+                [self.onAccelerometerChange callWithArguments:@[[[WXOnAccelerometerChangeRes alloc] initWithCMAccelerometerData:accelerometerData]]];
             }
         }];
         
@@ -144,10 +138,9 @@
     
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"stopAccelerometer:ok"];
     id<WXStopAccelerometerObject> v = [object implementProtocol:@protocol(WXStopAccelerometerObject)];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    
+    [v success:res];
+    [v complete:res];
 
 }
 
@@ -158,25 +151,21 @@
     if (!self.motionManager.isGyroAvailable) {
         
         WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startGyroscope:err - gyroscope is not active"];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        
+        [v fail:res];
+        [v complete:res];
         
     }else{
         
         self.motionManager.gyroUpdateInterval = [v.interval ker_toInterval];
         WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startGyroscope:ok"];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-        });
+        
+        [v success:res];
+        [v complete:res];
 
         [self.motionManager startGyroUpdatesToQueue: [NSOperationQueue mainQueue] withHandler:^(CMGyroData * _Nullable gyroData, NSError * _Nullable error) {
             if (self.onGyroscopeChange) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.onGyroscopeChange callWithArguments:@[[[WXOnGyroscopeChangeRes alloc] initWithCMGyroData:gyroData]]];
-                });
+                [self.onGyroscopeChange callWithArguments:@[[[WXOnGyroscopeChangeRes alloc] initWithCMGyroData:gyroData]]];
             }
         }];
     }
@@ -189,10 +178,9 @@
     
     id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"stopGyroscope:ok"];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
+
 }
 
 -(void) startDeviceMotionListening:(KerJSObject *) object{
@@ -202,28 +190,22 @@
     if (!self.motionManager.isDeviceMotionAvailable) {
         
         WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startDeviceMotionListening:fail DeviceMotion 不可用"];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
         
     }else {
         
         self.motionManager.deviceMotionUpdateInterval = [v.interval ker_toInterval];
         [self.motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:^(CMDeviceMotion * _Nullable motion, NSError * _Nullable error) {
             if (self.onDeviceMotionChange) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    //还不会计算 三个值
-                    [self.onDeviceMotionChange callWithArguments:@[[[WXOnDeviceMotionChangeRes alloc] initWithCMDeviceMotion:motion]]];
-                });
+                [self.onDeviceMotionChange callWithArguments:@[[[WXOnDeviceMotionChangeRes alloc] initWithCMDeviceMotion:motion]]];
             }
         }];
         
         WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"startDeviceMotionListening:ok"];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-        });
+        [v success:res];
+        [v complete:res];
+
     }
     
 }
@@ -233,10 +215,8 @@
     id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
     [self.motionManager stopDeviceMotionUpdates];
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"stopDeviceMotionListening:ok"];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
     
 }
 

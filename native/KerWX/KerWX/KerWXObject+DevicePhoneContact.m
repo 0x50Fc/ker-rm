@@ -38,10 +38,8 @@
             
             id<WXAddPhoneContactObject> v = [object implementProtocol:@protocol(WXAddPhoneContactObject)];
             WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"addPhoneContact: request contact access fail cancel"];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
             
         }
     }];
@@ -101,16 +99,12 @@
         id<WXAddPhoneContactObject> v = [self.addPhoneContactObject implementProtocol:@protocol(WXAddPhoneContactObject)];
         if (contact == nil) {
             WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"addPhoneContact:fail cancel"];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
         }else {
             WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"addPhoneContact:fail ok"];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v complete:res];
-            });
+            [v success:res];
+            [v complete:res];
         }
     }
     
@@ -127,10 +121,8 @@
         if (self.addPhoneContactObject) {
             id<WXAddPhoneContactObject> v = [self.addPhoneContactObject implementProtocol:@protocol(WXAddPhoneContactObject)];
             WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"addPhoneContact:fail cancel"];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
         }
     }];
     

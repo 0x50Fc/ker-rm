@@ -43,10 +43,7 @@
     [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationUserDidTakeScreenshotNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
         
         if (self.onUserCaptureScreen) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.onUserCaptureScreen callWithArguments:@[@"12d"]];
-            });
-            
+            [self.onUserCaptureScreen callWithArguments:@[@"12d"]];
         }
     }];
 }
@@ -55,10 +52,8 @@
     
     id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
     WXGetScreenBrightnessRes * res = [[WXGetScreenBrightnessRes alloc] initWithValue:[UIScreen mainScreen].brightness errMsg:@"getScreenBrightness:ok"];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
 }
 
 -(void) setScreenBrightness:(KerJSObject *) object{
@@ -66,10 +61,8 @@
     id<WXSetScreenBrightnessObject> v = [object implementProtocol:@protocol(WXSetScreenBrightnessObject)];
     [[UIScreen mainScreen] setBrightness:v.value];
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"setScreenBrightness:ok"];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
 
 }
 
@@ -78,10 +71,9 @@
     id<WXSetKeepScreenOnObject> v = [object implementProtocol:@protocol(WXSetKeepScreenOnObject)];
     [[UIApplication sharedApplication] setIdleTimerDisabled:v.keepScreenOn];
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"setKeepScreenOn:ok"];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
+
 }
 
 @end

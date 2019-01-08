@@ -203,10 +203,8 @@
             if (self.kerScanCodeObject) {
                 WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"scanCode:error init AVCaptureDeviceInpute fail !"];
                 id<WXScanCodeObject> v = [self.kerScanCodeObject implementProtocol:@protocol(WXScanCodeObject)];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v success:res];
-                    [v fail:res];
-                });
+                [v success:res];
+                [v fail:res];
             }
             return nil;
         }
@@ -326,10 +324,8 @@
         if (self.kerScanCodeObject) {
             WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"scanCode:error no album permissions!"];
             id<WXScanCodeObject> v = [self.kerScanCodeObject implementProtocol:@protocol(WXScanCodeObject)];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v fail:res];
-            });
+            [v success:res];
+            [v fail:res];
         }
         return;
     }
@@ -353,10 +349,8 @@
         if (self.kerScanCodeObject) {
             WXScanCodeRes * res = [[WXScanCodeRes alloc] initWithReadableCodeObject:metadataObject];
             id<WXScanCodeObject> v = [self.kerScanCodeObject implementProtocol:@protocol(WXScanCodeObject)];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v success:res];
-                [v complete:res];
-            });
+            [v success:res];
+            [v complete:res];
         }
     }
     
@@ -395,10 +389,8 @@
                 res.rawData = [data base64EncodedStringWithOptions:0];
                 
                 id<WXScanCodeObject> v = [self.kerScanCodeObject implementProtocol:@protocol(WXScanCodeObject)];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [v success:res];
-                    [v complete:res];
-                });
+                [v success:res];
+                [v complete:res];
                 
                 
                 UIViewController * topViewController = [[UIApplication sharedApplication] keyWindow].rootViewController;

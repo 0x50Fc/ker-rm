@@ -168,30 +168,22 @@
             [self.locationManager startRangingBeaconsInRegion:region];
         }
         WXIBeaconRes * res = [[WXIBeaconRes alloc] initWithErrMsg:@"startBeaconDiscovery:ok" errCode:0];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-        });
+        [v success:res];
+        [v complete:res];
         
         self.beaconDiscovering = @YES;
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            WXOnBeaconServiceChangeRes * changeRes = [[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering];
-            [self.onBeaconServiceChang callWithArguments:@[changeRes]];
-        });
+        WXOnBeaconServiceChangeRes * changeRes = [[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering];
+        [self.onBeaconServiceChang callWithArguments:@[changeRes]];
 
     }else {
         
         WXIBeaconRes * res = [[WXIBeaconRes alloc] initWithErrMsg:@"startBeaconDiscovery:fail fail: location service unavailable" errCode:11002];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v fail:res];
-            [v complete:res];
-        });
+        [v fail:res];
+        [v complete:res];
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            WXOnBeaconServiceChangeRes * changeRes = [[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering];
-            [self.onBeaconServiceChang callWithArguments:@[changeRes]];
-        });
+        WXOnBeaconServiceChangeRes * changeRes = [[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering];
+        [self.onBeaconServiceChang callWithArguments:@[changeRes]];
         
     }
     
@@ -228,16 +220,12 @@
     [self.beaconArrayDic removeAllObjects];
     
     WXIBeaconRes * res = [[WXIBeaconRes alloc] initWithErrMsg:@"stopBeaconDiscovery:ok" errCode:0];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
     
     self.beaconDiscovering =  @NO;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        WXOnBeaconServiceChangeRes * res = [[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering];
-        [self.onBeaconServiceChang callWithArguments:@[res]];
-    });
+    WXOnBeaconServiceChangeRes * res = [[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering];
+    [self.onBeaconServiceChang callWithArguments:@[res]];
 
 }
 
@@ -245,10 +233,8 @@
     
     id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
     WXGetBeaconsRes * res = [[WXGetBeaconsRes alloc] initWithBeacons:[self collectBeacons] ErrMsg:@"getBeacons:ok" ErrCode:0];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
 
 }
 
@@ -275,9 +261,7 @@
     //NSLog(@"didRangeBeacons");
     [self.beaconArrayDic setObject:beacons forKey:region.proximityUUID.UUIDString];
     WXOnBeaconUpdateRes * res = [[WXOnBeaconUpdateRes alloc] initWithBeacons:[self collectBeacons]];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.onBeaconUpdate callWithArguments:@[res]];
-    });
+    [self.onBeaconUpdate callWithArguments:@[res]];
     
 }
 
@@ -295,10 +279,8 @@
         }else{
             
             WXIBeaconRes * res = [[WXIBeaconRes alloc] initWithErrMsg:@"startBeaconDiscovery:fail fail:bluetooth power off" errCode:11000];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [v fail:res];
-                [v complete:res];
-            });
+            [v fail:res];
+            [v complete:res];
             
         }
         
@@ -307,10 +289,8 @@
     
     self.beaconAvailable = peripheral.state == CBCentralManagerStatePoweredOn ? @YES : @NO;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        WXOnBeaconServiceChangeRes * res = [[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering];
-        [self.onBeaconServiceChang callWithArguments:@[res]];
-    });
+    WXOnBeaconServiceChangeRes * res = [[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering];
+    [self.onBeaconServiceChang callWithArguments:@[res]];
 
 }
 

@@ -43,11 +43,9 @@
     device.batteryMonitoringEnabled = YES;
     
     WXGetBatteryInfoRes * res = [[WXGetBatteryInfoRes alloc] initWithLevel:device.batteryLevel BatteryState:device.batteryState errMsg:@"getBatteryInfo:ok"];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
+
 }
 
 @end

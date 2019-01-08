@@ -15,10 +15,8 @@
     AudioServicesPlaySystemSoundWithCompletion(kSystemSoundID_Vibrate, ^{
         WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"vibrateLong:ok"];
         id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [v success:res];
-            [v complete:res];
-        });
+        [v success:res];
+        [v complete:res];
     });
 }
 
@@ -35,9 +33,7 @@
     
     WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"vibrateShort:ok"];
     id<WXCallbackFunction> v = [object implementProtocol:@protocol(WXCallbackFunction)];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [v success:res];
-        [v complete:res];
-    });
+    [v success:res];
+    [v complete:res];
 }
 @end
