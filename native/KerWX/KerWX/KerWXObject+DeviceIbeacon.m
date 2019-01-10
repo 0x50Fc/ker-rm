@@ -224,8 +224,7 @@
     [v complete:res];
     
     self.beaconDiscovering =  @NO;
-    WXOnBeaconServiceChangeRes * res = [[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering];
-    [self.onBeaconServiceChang callWithArguments:@[res]];
+    [self.onBeaconServiceChang callWithArguments:@[[[WXOnBeaconServiceChangeRes alloc] initWithAvailable:self.beaconAvailable Discovering:self.beaconDiscovering]]];
 
 }
 
