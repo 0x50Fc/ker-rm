@@ -8,13 +8,26 @@
 
 #import "KerWXObject+MediaRecord.h"
 
-@implementation RecorderManager : KerWXObject
 
--(void) start{
-    NSLog(@"123");
+@interface KerWXRecorderManager : NSObject<KerWXRecorderManager>
+
+
+
+@end
+
+@implementation KerWXRecorderManager
+
+
+-(void) dealloc {
+    NSLog(@"[KerWXRecorderManager] [dealloc]");
+}
+
+-(void) start:(KerJSObject *)object{
+    NSLog(@"KerWXRecorderManager star");
 }
 
 @end
+
 
 @implementation KerWXObject (MediaRecord)
 
@@ -26,8 +39,8 @@
     
 }
 
--(KerWXObject *) getRecorderManager{
-    return [[RecorderManager alloc] init];
+-(id<KerWXRecorderManager>) getRecorderManager{
+    return [[KerWXRecorderManager alloc] init];
 }
 
 @end
