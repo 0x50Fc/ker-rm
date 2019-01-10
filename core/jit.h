@@ -14,6 +14,7 @@
 #include <tuple>
 #include <list>
 #include <set>
+#include <core/dispatch.h>
 
 namespace kk {
     
@@ -200,7 +201,13 @@ namespace kk {
     duk_ret_t Call(std::function<TReturn(TArgs...)> && func,duk_context * ctx,typename std::enable_if<std::is_void<TReturn>::value>::type* = 0) {
         std::vector<std::shared_ptr<Any>> vs;
         std::tuple<TArgs...> args = details::Arguments<sizeof...(TArgs)>::template Get<TArgs...>(ctx, std::move(vs));
-        details::Call<sizeof...(TArgs)>::template T<>::template Apply<TReturn,TArgs...>(std::move(func),args);
+        try {
+            details::Call<sizeof...(TArgs)>::template T<>::template Apply<TReturn,TArgs...>(std::move(func),args);
+        }
+        catch(kk::CString errmsg){
+            duk_push_error_object(ctx, DUK_ERR_ERROR, "%s", errmsg);
+            return duk_throw(ctx);
+        }
         return 0;
     }
     
@@ -208,8 +215,14 @@ namespace kk {
     duk_ret_t Call(std::function<TReturn(TArgs...)> && func,duk_context * ctx,typename std::enable_if<!std::is_void<TReturn>::value>::type* = 0) {
         std::vector<std::shared_ptr<Any>> vs;
         std::tuple<TArgs...> args = details::Arguments<sizeof...(TArgs)>::template Get<TArgs...>(ctx, std::move(vs));
-        Any v = details::Call<sizeof...(TArgs)>::template T<>::template Apply<TReturn,TArgs...>(std::move(func),args);
-        PushAny(ctx, v);
+        try {
+            Any v = details::Call<sizeof...(TArgs)>::template T<>::template Apply<TReturn,TArgs...>(std::move(func),args);
+            PushAny(ctx, v);
+        }
+        catch(kk::CString errmsg){
+            duk_push_error_object(ctx, DUK_ERR_ERROR, "%s", errmsg);
+            return duk_throw(ctx);
+        }
         return 1;
     }
     
@@ -663,6 +676,7 @@ namespace kk {
         virtual void recycle();
         virtual duk_context * jsContext();
         virtual void * heapptr();
+        virtual DispatchQueue * queue();
         template<typename T,typename ... TArgs>
         T invoke(JSObject * object,TArgs ... args,typename std::enable_if<std::is_void<T>::value>::type* = 0) {
             
@@ -743,66 +757,12 @@ namespace kk {
             return (T) r;
         }
         
-        template<typename T,typename ... TArgs,typename std::enable_if<std::is_void<T>::value>::type = 0>
-        operator std::function<T(TArgs...)>() {
-            Strong<JSObject> object = this;
-            return [object](TArgs ... args) -> T {
-                duk_context * ctx = object->jsContext();
-                void * heapptr = object->heapptr();
-                if(ctx && heapptr) {
-                    
-                    duk_push_heapptr(ctx, heapptr);
-                    
-                    if(duk_is_function(ctx, -1)) {
-                        
-                        details::Arguments<sizeof...(TArgs)>::template Set(ctx,args...);
-                        
-                        if(duk_pcall(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
-                            
-                        } else {
-                            Error(ctx, -1, "[JSObject]");
-                        }
-                        
-                    }
-                    
-                    duk_pop(ctx);
-                }
-            };
-        }
-        template<typename T,typename ... TArgs,typename std::enable_if<!std::is_void<T>::value>::type = 0>
-        operator std::function<T(TArgs...)>() {
-            Strong<JSObject> object = this;
-            return [object](TArgs ... args) -> T {
-                Any r;
-                duk_context * ctx = object->jsContext();
-                void * heapptr = object->heapptr();
-                if(ctx && heapptr) {
-                    
-                    duk_push_heapptr(ctx, heapptr);
-                    
-                    if(duk_is_function(ctx, -1)) {
-                        
-                        details::Arguments<sizeof...(TArgs)>::template Set(ctx,args...);
-                        
-                        if(duk_pcall(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
-                            GetAny(ctx, -1, r);
-                        } else {
-                            Error(ctx, -1, "[JSObject]");
-                        }
-                        
-                    }
-                    
-                    duk_pop(ctx);
-                }
-                return (T) r;
-            };
-        }
-        
         operator kk::Strong<TObject<kk::String,kk::Any>>();
         operator kk::Strong<Array<kk::Any>>();
         
     protected:
         duk_context * _ctx;
+        kk::Strong<DispatchQueue> _queue;
     };
     
     
@@ -861,8 +821,9 @@ namespace kk {
     
     void duk_pcall_method(duk_context * ctx,Signature returnSignature,std::vector<Signature> & arguments);
     
-    
+
     duk_ret_t duk_json_decode(duk_context * ctx,void * data,size_t size);
+   
 }
 
 #endif /* jit_h */

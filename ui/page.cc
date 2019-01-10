@@ -1,5 +1,5 @@
 //
-//  page.cc
+//  app.cc
 //  KK
 //
 //  Created by zhanghailong on 2018/10/31.
@@ -7,6 +7,7 @@
 //
 
 #include <ui/page.h>
+#include <typeinfo>
 
 namespace kk {
 
@@ -16,50 +17,73 @@ namespace kk {
             kk::Openlib<kk::ui::Page *>::add(std::move(func));
         }
         
-        Page::Page(App * app,View * view):_app(app),_view(view),_librarys(new TObject<kk::String, kk::Any>()) {
-            duk_context * ctx = app->jsContext();
-            duk_idx_t idx = duk_push_thread(ctx);
-            _jsContext = duk_get_context(ctx, idx);
+        Page::Page(App * app,kk::Uint64 pageId,kk::CString type):_app(app),_pageId(pageId),_librarys(new TObject<kk::String, kk::Any>()),_type(type) {
             
-            duk_push_heap_stash(ctx);
-            duk_push_sprintf(ctx, "0x%x",_jsContext);
-            duk_dup(ctx, -3);
-            duk_put_prop(ctx, -3);
-            duk_pop_2(ctx);
-            
-            Page * page = this;
-            
-            _func = new kk::TFunction<void, kk::CString,kk::Event *>([page](kk::CString name,kk::Event * event)->void{
-                kk::String v("app.");
-                v.append(name);
-                page->emit(v.c_str(), event);
+            app->queue()->sync([this]()->void{
+                
+                duk_context * ctx = _app->jsContext();
+                
+                duk_idx_t idx = duk_push_thread_new_globalenv(ctx);
+                
+                _jsContext = duk_get_context(ctx, idx);
+                
+                duk_push_heap_stash(ctx);
+                duk_push_sprintf(ctx, "0x%x",_jsContext);
+                duk_dup(ctx, -3);
+                duk_put_prop(ctx, -3);
+                duk_pop_2(ctx);
+                
+                duk_push_global_object(_jsContext);
+                
+                duk_push_global_object(ctx);
+                duk_enum(ctx, -1, DUK_ENUM_INCLUDE_SYMBOLS);
+                
+                while(duk_next(ctx, -1, 1)) {
+                    duk_xmove_top(_jsContext, ctx, 2);
+                    duk_put_prop(_jsContext, -3);
+                }
+                
+                duk_pop_2(ctx);
+                
+                duk_pop(_jsContext);
+                
+                _func = new kk::TFunction<void, kk::CString,kk::Event *>([this](kk::CString name,kk::Event * event)->void{
+                    kk::String v("app.");
+                    v.append(name);
+                    emit(v.c_str(), event);
+                });
+                
+                _app->on("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
+                
+                kk::Openlib<kk::Container *>::openlib(_jsContext, this);
+                kk::Openlib<kk::ui::Page *>::openlib(_jsContext, this);
+                
             });
-            
-            app->on("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
-            
-            kk::Openlib<kk::Container *>::openlib(_jsContext, this);
-            kk::Openlib<kk::ui::Page *>::openlib(_jsContext, this);
         }
         
         Page::~Page() {
-          
+
+            _app->removePage(_pageId);
             _app->off("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
-            
-            _view->removeRecycleViews();
-            _view->removeAllSubviews();
+
+            if(_view != nullptr) {
+                _view->removeRecycleViews();
+                _view->removeAllSubviews();
+            }
             
             {
                 duk_context * ctx = _app->jsContext();
+                duk_context * jsContext = _jsContext;
                 
-                JITContext::current()->remove(_jsContext);
- 
+                JITContext::current()->remove(jsContext);
+                
                 duk_push_heap_stash(ctx);
-                duk_push_sprintf(ctx, "0x%x",_jsContext);
+                duk_push_sprintf(ctx, "0x%x",jsContext);
                 duk_del_prop(ctx, -2);
                 duk_pop(ctx);
                 
                 duk_gc(ctx, DUK_GC_COMPACT);
-        
+                
             }
             
             kk::Log("[Page] [dealloc]");
@@ -104,12 +128,17 @@ namespace kk {
             return _view;
         }
         
+        void Page::setView(View * v) {
+            _view = v;
+        }
+        
         void Page::setSize(Size & size) {
-            if(_size.width != size.width || _size.height != size.height) {
+            Size v = _size;
+            _size = size;
+            if(v.width != size.width || v.height != size.height) {
                 Strong<Event> e = new Event();
                 emit("resize", e);
             }
-            _size = size;
         }
         
         Size Page::size() {
@@ -125,9 +154,12 @@ namespace kk {
         }
         
         void Page::setOptions(kk::Object * data) {
-            Strong<Event> e = new Event();
-            e->setData(data);
-            emit("options", e);
+            {
+                kk::Strong<PageSetOptionsCommand> cmd = new PageSetOptionsCommand();
+                cmd->pageId = _pageId;
+                cmd->data = data;
+                _app->execCommand(cmd);
+            }
         }
         
         void Page::addLibrary(kk::CString name,kk::Any & value) {
@@ -135,13 +167,19 @@ namespace kk {
         }
         
         void Page::close(kk::Boolean animated) {
-            kk::Strong<Event> e = new Event();
-            kk::Strong<kk::TObject<kk::String, kk::Any>> data = new kk::TObject<kk::String, kk::Any>({{"animated",kk::Any(animated)}});
-            e->setData((kk::TObject<kk::String, kk::Any> *) data);
-            emit("close", e);
+            {
+                kk::Strong<PageCloseCommand> cmd = new PageCloseCommand();
+                cmd->pageId = _pageId;
+                cmd->animated = animated;
+                _app->execCommand(cmd);
+            }
         }
         
-        void Page::run(kk::CString path , kk::TObject<kk::String,kk::String> * query) {
+        kk::Uint64 Page::pageId() {
+            return _pageId;
+        }
+        
+        void Page::run(kk::CString path , Object * query) {
 
             kk::String code("(function(app,page,path,query");
             
@@ -191,7 +229,16 @@ namespace kk {
             }
             
             duk_pop(ctx);
-            
+        
+        }
+        
+        void Page::ready() {
+            kk::Strong<Event> e = new Event();
+            emit("ready", e);
+        }
+        
+        kk::CString Page::type() {
+            return _type.c_str();
         }
         
         void Page::Openlib() {

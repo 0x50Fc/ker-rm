@@ -15,7 +15,7 @@ DUK_INTERNAL DUK_COLD void duk_err_handle_error_fmt(duk_hthread *thr, const char
 	(void) DUK_VSNPRINTF(msg, sizeof(msg), fmt, ap);
 	msg[sizeof(msg) - 1] = (char) 0;
 	duk_err_create_and_throw(thr, (duk_errcode_t) (line_and_code >> 24), msg, filename, (duk_int_t) (line_and_code & 0x00ffffffL));
-	va_end(ap);  /* dead code, but ensures portability (see Linux man page notes) */
+	va_end(ap);  /* dead code, but ensures portability (see Linux man app notes) */
 }
 
 DUK_INTERNAL DUK_COLD void duk_err_handle_error(duk_hthread *thr, const char *filename, duk_uint_t line_and_code, const char *msg) {

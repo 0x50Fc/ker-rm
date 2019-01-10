@@ -9,6 +9,14 @@
 #include <ui/ui.h>
 #include <ui/view.h>
 #include <core/jit.h>
+#include <ui/app.h>
+#include <ui/package.h>
+#include <core/uri.h>
+#include <core/storage.h>
+
+#ifdef KER_DEBUG
+#include <core/debugger.h>
+#endif
 
 namespace kk {
     
@@ -319,13 +327,20 @@ namespace kk {
         
         Context::Context(kk::CString basePath,kk::DispatchQueue * queue):EventEmitter(), _basePath(basePath),_queue(queue) {
             _jsContext = duk_create_heap(nullptr, nullptr, nullptr, nullptr, Context_duk_fatal_function);
-            kk::Openlib<>::openlib(_jsContext);
-            kk::Openlib<kk::Container *>::openlib(_jsContext, this);
+            _queue->sync([this]()->void{
+#ifdef KER_DEBUG
+                kk::Debugger::debug(_jsContext);
+#endif
+                kk::Openlib<>::openlib(_jsContext);
+                kk::Openlib<kk::Container *>::openlib(_jsContext, this);
+            });
         }
         
         Context::~Context() {
-            JITContext::current()->remove(_jsContext);
-            duk_destroy_heap(_jsContext);
+            _queue->sync([this]()->void{
+                JITContext::current()->remove(_jsContext);
+                duk_destroy_heap(_jsContext);
+            });
         }
         
         void Context::set(kk::Object * object) {
@@ -367,7 +382,7 @@ namespace kk {
             kk::String v;
             kk::String p = absolutePath(path);
             
-            FILE * fd = fopen(p.c_str(), "r");
+            FILE * fd = fopen(p.c_str(), "rb");
             
             if(fd != nullptr) {
                 char data[20480];
@@ -378,6 +393,8 @@ namespace kk {
                 }
                 
                 fclose(fd);
+            } else {
+                kk::Log("[Context::getTextContent] Not Open File: %s",p.c_str());
             }
             
             return v;
@@ -428,17 +445,21 @@ namespace kk {
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
                     duk_idx_t n =0;
-                    
-                    auto i = librarys->begin();
-                    
-                    while(i != librarys->end()) {
-                        
-                        PushAny(ctx, i->second);
-                        
-                        i ++;
-                        n ++;
+
+                    if(librarys != nullptr) {
+
+                        auto i = librarys->begin();
+
+                        while(i != librarys->end()) {
+
+                            PushAny(ctx, i->second);
+
+                            i ++;
+                            n ++;
+                        }
+
                     }
-                    
+
                     if(duk_pcall(ctx, n) != DUK_EXEC_SUCCESS) {
                         Error(ctx, -1, "[Context::exec] ");
                     }
@@ -528,7 +549,9 @@ namespace kk {
         
         Worker::Worker(Context * main,kk::CString path):_main(main),_context(nullptr),_queue(nullptr) {
             
-            _queue = createDispatchQueue("kk::ui::Worker", DispatchQueueTypeSerial);
+            kk::Strong<DispatchQueue> v = createDispatchQueue("kk::ui::Worker");
+            
+            _queue = v;
             _queue->retain();
             
             kk::String p = path;
@@ -538,6 +561,8 @@ namespace kk {
             _queue->sync([this,p,main,weak]()->void{
                 
                 Context * v = this->_context = new Context(main->basePath(),this->_queue);
+                
+                v->setParent(main);
                 
                 v->retain();
                 
@@ -605,14 +630,16 @@ namespace kk {
         }
         
         Worker::~Worker() {
-            if(_context != nullptr) {
-                _context->release();
-                _context = nullptr;
-            }
+            
             if(_queue != nullptr) {
+                _queue->sync([this]()->void{
+                    this->_context->release();
+                    this->_context = nullptr;
+                });
                 _queue->release();
                 _queue = nullptr;
             }
+            
         }
         
         void Worker::postMessage(Any data) {
@@ -647,18 +674,28 @@ namespace kk {
         }
         
         void Worker::terminate() {
-            if(_context != nullptr) {
-                _context->release();
-                _context = nullptr;
-            }
+            
             if(_queue != nullptr) {
+                _queue->sync([this]()->void{
+                    this->_context->release();
+                    this->_context = nullptr;
+                });
                 _queue->release();
                 _queue = nullptr;
             }
+            
             if(_main != nullptr) {
                 _main->remove(this);
                 _main = nullptr;
             }
+        }
+        
+        kk::Strong<Context> Context::parent() {
+            return (Context *) _parent;
+        }
+        
+        void Context::setParent(Context * v) {
+            _parent = v;
         }
         
         kk::Strong<Worker> Context::createWorker(kk::CString cpath) {
@@ -666,11 +703,20 @@ namespace kk {
         }
         
         kk::Strong<Canvas> Context::createCanvas() {
-            return kk::ui::createCanvas((DispatchQueue *) _queue);
+            return new Canvas(_queue);
         }
         
         kk::Strong<Image> Context::createImage(kk::CString src) {
-            return ImageCreate(this,src);
+            
+            if(src == nullptr) {
+                return nullptr;
+            }
+            
+            if(kk::CStringHasSubstring(src, "://")) {
+                return new NativeImage(queue(),src);
+            }
+            
+            return new NativeImage(queue(),absolutePath(src).c_str());
         }
         
         void Context::Openlib(){
@@ -708,6 +754,138 @@ namespace kk {
                 
             });
             
+        }
+        
+        
+        UI * UI::main() {
+            static kk::Strong<UI> v;
+            if(v == nullptr) {
+                v = new UI();
+            }
+            return v;
+        }
+        
+        UI::UI():_autoId(0),_transaction(false){
+            _queue = kk::createDispatchQueue("kk::ui::UI");
+        }
+        
+        UI::~UI() {
+            
+        }
+        
+        kk::DispatchQueue * UI::queue() {
+            return _queue;
+        }
+        
+        kk::Uint64 UI::newId() {
+            return ++_autoId;
+        }
+        
+        kk::Strong<App> UI::createApp(kk::CString basePath,kk::CString appkey) {
+            kk::Strong<App> app = new App(++_autoId,basePath,appkey);
+            _apps[app->appid()] = (App *) app;
+            app->openlib();
+            return app;
+        }
+        
+        kk::Strong<App> UI::getApp(kk::Uint64 appid) {
+            kk::Strong<App> v;
+            auto i = _apps.find(appid);
+            if(i != _apps.end()) {
+                v = (App *) i->second;
+                if(v == nullptr) {
+                    _apps.erase(i);
+                }
+            }
+            return v;
+        }
+        
+        void UI::removeApp(kk::Uint64 appid) {
+            auto i = _apps.find(appid);
+            if(i != _apps.end()) {
+                _apps.erase(i);
+            }
+        }
+        
+        void UI::dispatchCommand(kk::Uint64 appid,Command * command) {
+            kk::Strong<Command> cmd = command;
+            _queue->async([appid,cmd,this]()->void{
+                kk::Strong<App> app = this->getApp(appid);
+                if(app != nullptr) {
+                    app->dispatchCommand(cmd.operator->());
+                }
+            });
+        }
+        
+        void UI::emit(kk::Uint64 appid,kk::CString name,kk::Event * event) {
+            kk::Strong<Event> e = event;
+            kk::String n = name;
+            _queue->async([appid,n,e,this]()->void{
+                kk::Strong<App> app = this->getApp(appid);
+                if(app != nullptr) {
+                    app->emit(n.c_str(), e.operator->());
+                }
+            });
+        }
+        
+        void UI::emit(kk::Uint64 appid,kk::Uint64 viewId,kk::CString name,kk::Event * event) {
+            kk::Strong<Event> e = event;
+            kk::String n = name;
+            _queue->async([appid,n,e,this,viewId]()->void{
+                kk::Strong<App> app = this->getApp(appid);
+                if(app != nullptr) {
+                    kk::Strong<View> view = app->getView(viewId);
+                    if(view != nullptr) {
+                        view->emit(n.c_str(), e.operator->());
+                    }
+                }
+            });
+        }
+        
+        void UI::startTransaction() {
+            if(!_transaction) {
+                _transaction = true;
+                _queue->async([this]()->void{
+                    this->_transaction = false;
+                    this->commitTransaction();
+                });
+            }
+        }
+        
+        kk::Sqlite * UI::database() {
+            if(_database == nullptr) {
+                kk::String p = kk::ResolvePath("ker-data:///data.db");
+                _database = new Sqlite();
+                _database->open(p.c_str());
+                SqliteStorage::install(_database);
+            }
+            return _database;
+        }
+        
+        void UI::open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func) {
+            kk::String u = uri;
+            kk::Strong<kk::Object> q = query;
+            _queue->async([u,q,func]()->void{
+                
+                kk::ui::Package * package = new kk::ui::Package(u.c_str());
+                
+                package->retain();
+                
+                package->on("load", new kk::TFunction<void, kk::CString,kk::Event *>([q,package,func](kk::CString name,kk::Event * event)->void{
+                    kk::Uint64 appid = package->run(q.operator->());
+                    func(appid,nullptr);
+                    package->off();
+                    package->release();
+                }));
+                
+                package->on("error", new kk::TFunction<void, kk::CString,kk::Event *>([q,package,u,func](kk::CString name,kk::Event * event)->void{
+                    kk::Log("[App] [ERROR] %s",u.c_str());
+                    func(0,"错误的应用包");
+                    package->off();
+                    package->release();
+                }));
+                
+            });
         }
         
     }

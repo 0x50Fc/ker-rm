@@ -7,9 +7,22 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Ker/KerApp.h>
+
+#if defined(__cplusplus)
+
+namespace kk {
+    namespace ui {
+        class Page;
+    }
+}
+
+typedef kk::ui::Page * KerPageCPointer;
+
+#else
 
 typedef void * KerPageCPointer;
+
+#endif
 
 @class KerPage;
 
@@ -26,18 +39,22 @@ typedef void * KerPageCPointer;
 @interface KerPage : NSObject
 
 @property(nonatomic,weak) id<KerPageDelegate> delegate;
-@property(nonatomic,readonly,strong) KerApp  * app;
-@property(nonatomic,readonly,strong) UIView * view;
-@property(nonatomic,assign,readonly) KerPageCPointer CPointer;
-@property(nonatomic,readonly,strong) NSMutableDictionary * librarys;
+@property(nonatomic,assign,readonly) KerPageCPointer page;
+@property(nonatomic,strong,readonly) UIView * view;
 
--(instancetype) initWithView:(UIView *) view app:(KerApp *) app;
+-(instancetype) initWithPage:(KerPageCPointer) page;
 
--(void) run:(NSString *) path query:(NSDictionary<NSString *,NSString *> *) query;
+-(void) recycle;
+
+-(void) setOptions:(id) options ;
+
+-(void) close:(BOOL) animated;
 
 -(void) setSize:(CGSize) size;
 
--(void) recycle;
+-(void) open:(UIView *) view;
+
+-(void) viewDidLayoutSubviews;
 
 @end
 

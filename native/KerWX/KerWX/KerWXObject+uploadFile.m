@@ -35,6 +35,7 @@
 @property(nonatomic,strong) NSString * filePath;
 @property(nonatomic,weak) KerWXUploadTask * task;
 @property(nonatomic,strong) id<KerWXUploadFileObject> object;
+@property(nonatomic,strong) dispatch_queue_t queue;
 
 @end
 
@@ -47,7 +48,7 @@ didCompleteWithError:(nullable NSError *)error {
     
     if(error != nil ){
     
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(_queue, ^{
             
             [object fail:[error localizedDescription]];
             
@@ -58,14 +59,14 @@ didCompleteWithError:(nullable NSError *)error {
         
         res.data = _data == nil ? nil :  [[NSString alloc] initWithData:_data encoding:NSUTF8StringEncoding];
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_async(_queue, ^{
             [object success:res];
         });
     }
     
     [session finishTasksAndInvalidate];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_async(_queue, ^{
         [object complete];
     });
 
@@ -180,7 +181,7 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
     
     KerWXHttpBody * body = [[KerWXHttpBody alloc] init];
     
-    NSString * filePath = [KerApp filePathWithURI:object.filePath basePath:self.dataPath];
+    NSString * filePath = [KerUI resolvePath:object.filePath basePath:self.dataPath];
     NSString * name = object.name;
     
     if(filePath != nil && name != nil) {
@@ -190,7 +191,7 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
             [object complete];
             return nil;
         }
-        NSString * mimeType = [KerApp mimeType:filePath data:data defaultType:@"application/octet-stream"];
+        NSString * mimeType = [KerUI mimeType:filePath data:data defaultType:@"application/octet-stream"];
         [body add:name data:data type:mimeType name:filePath.lastPathComponent];
     }
     
@@ -215,6 +216,7 @@ totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
     delegate.task = task;
     delegate.filePath = filePath;
     delegate.object  = object;
+    delegate.queue = jsObject.queue;
     
     NSURLSession * session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:delegate delegateQueue:[NSOperationQueue currentQueue]];
     

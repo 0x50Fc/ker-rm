@@ -3,6 +3,7 @@ import { Element as KKElement, Element } from './Element';
 import { postMessage } from './IPC';
 import { once } from './once';
 import { Document as KKDocument } from './Document';
+import { nativePixelValue } from './V';
 
 var _elements: ElementMap = {};
 
@@ -105,10 +106,10 @@ export class NViewElement extends ViewElement {
         postMessage({
             view: 'setFrame',
             id: this._id,
-            x: x,
-            y: y,
-            width: this._displayFrame.width,
-            height: this._displayFrame.height
+            x: nativePixelValue(x),
+            y: nativePixelValue(y),
+            width: nativePixelValue(this._displayFrame.width),
+            height: nativePixelValue(this._displayFrame.height)
         });
 
         this._displaying = false;

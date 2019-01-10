@@ -2,12 +2,13 @@
 //  UIImage+Ker.m
 //  Ker
 //
-//  Created by hailong11 on 2018/12/10.
+//  Created by zhanghailong on 2018/12/10.
 //  Copyright © 2018 kkmofang.cn. All rights reserved.
 //
 
 #import "UIImage+Ker.h"
 #import <CommonCrypto/CommonCrypto.h>
+#import "KerUI.h"
 
 #include <core/dispatch.h>
 
@@ -160,21 +161,8 @@ namespace kk {
             ,md[8],md[9],md[10],md[11],md[12],md[13],md[14],md[15]];
 }
 
-+(NSString *) ker_pathWithURI:(NSString *) URI basePath:(NSString *) basePath {
-    
-    if([URI hasPrefix:@"ker-tmp://"]) {
-        return [NSTemporaryDirectory() stringByAppendingPathComponent:[URI substringFromIndex:10]];
-    }
-    
-    if([URI hasPrefix:@"ker-data://"]) {
-        return [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/ker"] stringByAppendingPathComponent:[URI substringFromIndex:11]];
-    }
-    
-    if([URI hasPrefix:@"http://"] || [URI hasPrefix:@"https://"]) {
-        return [[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/ker"] stringByAppendingPathComponent:[self ker_keyWithURI:URI]];
-    }
-    
-    return [basePath stringByAppendingPathComponent:URI];
++(NSString *) ker_pathWithURI:(NSString *) URI {
+    return [KerUI resolvePath:URI];
     
 }
 
@@ -187,8 +175,8 @@ namespace kk {
     return v;
 }
 
-+(UIImage *) ker_imageWithURI:(NSString *) URI basePath:(NSString *) basePath {
-    NSString * path = [self ker_pathWithURI:URI basePath:basePath];
++(UIImage *) ker_imageWithURI:(NSString *) URI {
+    NSString * path = [self ker_pathWithURI:URI];
     UIImageKerCache * cache = [self ker_imageCache];
     UIImage * image = [cache imageWithPath:path];
     if(image == nil) {
@@ -200,15 +188,15 @@ namespace kk {
     return image;
 }
 
-+(UIImage *) ker_imageByCacheWithURI:(NSString *) URI basePath:(NSString *) basePath {
-    NSString * path = [self ker_pathWithURI:URI basePath:basePath];
++(UIImage *) ker_imageByCacheWithURI:(NSString *) URI {
+    NSString * path = [self ker_pathWithURI:URI];
     UIImageKerCache * cache = [self ker_imageCache];
     UIImage * image = [cache imageWithPath:path];
     return image;
 }
 
-+(void) ker_imageWithURI:(NSString *) URI basePath:(NSString *) basePath callback:(UIImageKerCallback) callback queue:(dispatch_queue_t) queue {
-    NSString * path = [self ker_pathWithURI:URI basePath:basePath];
++(void) ker_imageWithURI:(NSString *) URI callback:(UIImageKerCallback) callback queue:(dispatch_queue_t) queue {
+    NSString * path = [self ker_pathWithURI:URI];
     UIImageKerCache * cache = [self ker_imageCache];
     UIImage * image = [cache imageWithPath:path];
     

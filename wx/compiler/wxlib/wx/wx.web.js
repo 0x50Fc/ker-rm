@@ -82,7 +82,7 @@ class BlockElement extends Element_1.Element {
 }
 exports.BlockElement = BlockElement;
 
-},{"./Element":9,"./ViewElement":36}],3:[function(require,module,exports){
+},{"./Element":9,"./ViewElement":37}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -159,7 +159,7 @@ class ButtonElement extends ViewElement_1.ViewElement {
 }
 exports.ButtonElement = ButtonElement;
 
-},{"./FormElement":12,"./ViewElement":36}],4:[function(require,module,exports){
+},{"./FormElement":12,"./ViewElement":37}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const NViewElement_1 = require("./NViewElement");
@@ -167,7 +167,7 @@ class CanvasElement extends NViewElement_1.NViewElement {
 }
 exports.CanvasElement = CanvasElement;
 
-},{"./NViewElement":20}],5:[function(require,module,exports){
+},{"./NViewElement":21}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -286,7 +286,7 @@ class CheckboxElement extends ViewElement_1.ViewElement {
 }
 exports.CheckboxElement = CheckboxElement;
 
-},{"./Element":9,"./V":35,"./ViewElement":36}],6:[function(require,module,exports){
+},{"./Element":9,"./V":36,"./ViewElement":37}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const BlockElement_1 = require("./BlockElement");
@@ -676,7 +676,7 @@ class Document extends events_1.EventEmitter {
 }
 exports.Document = Document;
 
-},{"./Element":9,"events":39}],9:[function(require,module,exports){
+},{"./Element":9,"events":40}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Event_1 = require("./Event");
@@ -1079,16 +1079,47 @@ class FormElement extends ViewElement_1.ViewElement {
 }
 exports.FormElement = FormElement;
 
-},{"./CheckboxElement":5,"./InputElement":16,"./PickerElement":23,"./RadioElement":26,"./SliderElement":29,"./SwitchElement":32,"./ViewElement":36,"./once":37}],13:[function(require,module,exports){
+},{"./CheckboxElement":5,"./InputElement":16,"./PickerElement":24,"./RadioElement":27,"./SliderElement":30,"./SwitchElement":33,"./ViewElement":37,"./once":38}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+let readys = [];
+window.addEventListener("ker", function () {
+    let w = window;
+    while (readys.length > 0) {
+        let func = readys.shift();
+        if (func !== undefined) {
+            func();
+        }
+    }
+});
 function postMessage(data) {
     let w = window;
-    if (w.webkit && w.webkit.messageHandlers && w.webkit.messageHandlers.kk) {
-        w.webkit.messageHandlers.kk.postMessage(data);
+    if (w.webkit && w.webkit.messageHandlers && w.webkit.messageHandlers.ker) {
+        w.webkit.messageHandlers.ker.postMessage(data);
+    }
+    else if (w.ker) {
+        w.ker.postMessage(JSON.stringify(data));
+    }
+    else {
+        ready(() => {
+            w.ker.postMessage(JSON.stringify(data));
+        });
     }
 }
 exports.postMessage = postMessage;
+function ready(func) {
+    let w = window;
+    if (w.webkit && w.webkit.messageHandlers && w.webkit.messageHandlers.ker) {
+        func();
+    }
+    else if (w.ker) {
+        func();
+    }
+    else {
+        readys.push(func);
+    }
+}
+exports.ready = ready;
 
 },{}],14:[function(require,module,exports){
 "use strict";
@@ -1098,7 +1129,7 @@ class IconElement extends ViewElement_1.ViewElement {
 }
 exports.IconElement = IconElement;
 
-},{"./ViewElement":36}],15:[function(require,module,exports){
+},{"./ViewElement":37}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1126,7 +1157,7 @@ class ImageElement extends ViewElement_1.ViewElement {
 }
 exports.ImageElement = ImageElement;
 
-},{"./ViewElement":36}],16:[function(require,module,exports){
+},{"./ViewElement":37}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const NViewElement_1 = require("./NViewElement");
@@ -1175,7 +1206,7 @@ class InputElement extends NViewElement_1.NViewElement {
             this._placeholderView.className = value;
         }
         else if (key == 'value') {
-            this.value = value || '';
+            this.setValue(value || '');
         }
     }
     set value(value) {
@@ -1193,6 +1224,7 @@ class InputElement extends NViewElement_1.NViewElement {
     onEvent(name, data) {
         if (name == "change") {
             this.value = data.value || '';
+            this.doElementEvent("input", data);
         }
     }
     getValue() {
@@ -1210,7 +1242,7 @@ class InputElement extends NViewElement_1.NViewElement {
 }
 exports.InputElement = InputElement;
 
-},{"./IPC":13,"./NViewElement":20}],17:[function(require,module,exports){
+},{"./IPC":13,"./NViewElement":21}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1235,7 +1267,7 @@ class LabelElement extends ViewElement_1.ViewElement {
 }
 exports.LabelElement = LabelElement;
 
-},{"./ButtonElement":3,"./CheckboxElement":5,"./RadioElement":26,"./SwitchElement":32,"./ViewElement":36}],18:[function(require,module,exports){
+},{"./ButtonElement":3,"./CheckboxElement":5,"./RadioElement":27,"./SwitchElement":33,"./ViewElement":37}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Data_1 = require("./Data");
@@ -1267,6 +1299,7 @@ const CanvasElement_1 = require("./CanvasElement");
 const once_1 = require("./once");
 const BlockElement_1 = require("./BlockElement");
 const ComponentElement_1 = require("./ComponentElement");
+const ModalElement_1 = require("./ModalElement");
 function getComponentId(element) {
     if (element === undefined) {
         return undefined;
@@ -1605,6 +1638,7 @@ page.document.addElementClass("navigator", NavigatorElement_1.NavigatorElement);
 page.document.addElementClass("canvas", CanvasElement_1.CanvasElement);
 page.document.addElementClass("block", BlockElement_1.BlockElement);
 page.document.addElementClass("component", ComponentElement_1.ComponentElement);
+page.document.addElementClass("modal", ModalElement_1.ModalElement);
 function Page(view, styleSheet, options) {
     IPC_1.postMessage({ page: 'readying' });
     view(page.document.documentElement, page.data, new Page_1.PageViewContext(page));
@@ -1612,20 +1646,34 @@ function Page(view, styleSheet, options) {
     once_1.once(() => { IPC_1.postMessage({ page: 'ready' }); });
 }
 exports.Page = Page;
+function setPageData(page, data) {
+    let changedKeySet = {};
+    let changedKeys = [];
+    for (var key in page) {
+        let ks = key.split(".");
+        if (!changedKeySet[ks[0]]) {
+            changedKeys.push(ks[0]);
+        }
+        data.set(ks, page[key], false);
+    }
+    if (changedKeys.length == 0) {
+        data.changedKeys([]);
+    }
+    else {
+        for (let key of changedKeys) {
+            data.changedKeys([key]);
+        }
+    }
+}
 function setData(data, componentId) {
     if (componentId === undefined) {
-        for (var key in data) {
-            page.data.set([key], data[key]);
-        }
+        setPageData(data, page.data);
         console.info("[DATA]", data);
     }
     else {
         let e = page.document.element(componentId);
         if (e !== undefined && e instanceof ComponentElement_1.ComponentElement) {
-            let v = e.data;
-            for (var key in data) {
-                v.set([key], data[key]);
-            }
+            setPageData(data, e.data);
             console.info("[COMPONENT] [DATA]", data);
         }
     }
@@ -1639,7 +1687,78 @@ function sendEvent(id, name, data) {
 }
 exports.sendEvent = sendEvent;
 
-},{"./BlockElement":2,"./ButtonElement":3,"./CanvasElement":4,"./CheckboxElement":5,"./ComponentElement":6,"./Data":7,"./Element":9,"./FormElement":12,"./IPC":13,"./IconElement":14,"./ImageElement":15,"./InputElement":16,"./LabelElement":17,"./MovableViewElement":19,"./NavigatorElement":21,"./Page":22,"./PickerElement":23,"./PickerViewElement":24,"./ProgressElement":25,"./RadioElement":26,"./RichTextElement":27,"./ScrollViewElement":28,"./SliderElement":29,"./SwiperElement":31,"./SwitchElement":32,"./TextElement":33,"./TextareaElement":34,"./ViewElement":36,"./once":37}],19:[function(require,module,exports){
+},{"./BlockElement":2,"./ButtonElement":3,"./CanvasElement":4,"./CheckboxElement":5,"./ComponentElement":6,"./Data":7,"./Element":9,"./FormElement":12,"./IPC":13,"./IconElement":14,"./ImageElement":15,"./InputElement":16,"./LabelElement":17,"./ModalElement":19,"./MovableViewElement":20,"./NavigatorElement":22,"./Page":23,"./PickerElement":24,"./PickerViewElement":25,"./ProgressElement":26,"./RadioElement":27,"./RichTextElement":28,"./ScrollViewElement":29,"./SliderElement":30,"./SwiperElement":32,"./SwitchElement":33,"./TextElement":34,"./TextareaElement":35,"./ViewElement":37,"./once":38}],19:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const ViewElement_1 = require("./ViewElement");
+const V_1 = require("./V");
+//<modal title="{{dialog.title}}" hidden="{{dialog.hidden}}" no-cancel bindconfirm="confirm">{{dialog.content}}</modal>
+class ModalElement extends ViewElement_1.ViewElement {
+    constructor(document, name, id) {
+        super(document, name, id);
+    }
+    createView() {
+        let v = super.createView();
+        this._boxView = document.createElement("div");
+        this._boxView.className = "wx-modal-box";
+        this._titleView = document.createElement("div");
+        this._titleView.className = "wx-modal-title";
+        this._contentView = document.createElement("div");
+        this._contentView.className = "wx-modal-content";
+        this._bottomView = document.createElement("div");
+        this._bottomView.className = "wx-modal-bottom";
+        this._cancelView = document.createElement("div");
+        this._cancelView.className = "wx-modal-cancel";
+        this._confirmView = document.createElement("div");
+        this._confirmView.className = "wx-modal-confirm";
+        v.appendChild(this._boxView);
+        this._boxView.appendChild(this._titleView);
+        this._boxView.appendChild(this._contentView);
+        this._boxView.appendChild(this._bottomView);
+        this._bottomView.appendChild(this._cancelView);
+        this._bottomView.appendChild(this._confirmView);
+        this._cancelView.innerText = '取消';
+        this._confirmView.innerText = '确定';
+        let element = this;
+        this._confirmView.addEventListener("mouseup", (event) => {
+            element.doEvent(event, "confirm", {});
+            element.view.style.display = 'none';
+        });
+        this._cancelView.addEventListener("mouseup", (event) => {
+            element.doEvent(event, "cancel", {});
+            element.view.style.display = 'none';
+        });
+        return v;
+    }
+    set(key, value) {
+        if (key == "title") {
+            this._titleView.innerText = value || '';
+            this._titleView.style.display = value ? 'block' : 'none';
+        }
+        else if (key == '#text') {
+            this._contentView.innerText = value || '';
+            this._contentView.style.display = value ? 'block' : 'none';
+        }
+        else if (key == 'no-cancel') {
+            this._cancelView.style.display = 'none';
+            this._confirmView.style.width = '100%';
+        }
+        else if (key == 'hidden') {
+            if (V_1.booleanValue(value)) {
+                this.view.style.display = 'none';
+            }
+            else {
+                this.view.style.display = 'block';
+            }
+        }
+        else {
+            super.set(key, value);
+        }
+    }
+}
+exports.ModalElement = ModalElement;
+
+},{"./V":36,"./ViewElement":37}],20:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1647,12 +1766,13 @@ class MovableViewElement extends ViewElement_1.ViewElement {
 }
 exports.MovableViewElement = MovableViewElement;
 
-},{"./ViewElement":36}],20:[function(require,module,exports){
+},{"./ViewElement":37}],21:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
 const IPC_1 = require("./IPC");
 const once_1 = require("./once");
+const V_1 = require("./V");
 var _elements = {};
 function add(element) {
     _elements[element.id] = element;
@@ -1719,10 +1839,10 @@ class NViewElement extends ViewElement_1.ViewElement {
         IPC_1.postMessage({
             view: 'setFrame',
             id: this._id,
-            x: x,
-            y: y,
-            width: this._displayFrame.width,
-            height: this._displayFrame.height
+            x: V_1.nativePixelValue(x),
+            y: V_1.nativePixelValue(y),
+            width: V_1.nativePixelValue(this._displayFrame.width),
+            height: V_1.nativePixelValue(this._displayFrame.height)
         });
         this._displaying = false;
     }
@@ -1782,7 +1902,7 @@ class NViewElement extends ViewElement_1.ViewElement {
 }
 exports.NViewElement = NViewElement;
 
-},{"./IPC":13,"./ViewElement":36,"./once":37}],21:[function(require,module,exports){
+},{"./IPC":13,"./V":36,"./ViewElement":37,"./once":38}],22:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1804,7 +1924,7 @@ class NavigatorElement extends ViewElement_1.ViewElement {
 }
 exports.NavigatorElement = NavigatorElement;
 
-},{"./IPC":13,"./ViewElement":36}],22:[function(require,module,exports){
+},{"./IPC":13,"./ViewElement":37}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Data_1 = require("./Data");
@@ -1852,7 +1972,7 @@ class Page {
 }
 exports.Page = Page;
 
-},{"./Data":7,"./Document":8}],23:[function(require,module,exports){
+},{"./Data":7,"./Document":8}],24:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1860,7 +1980,7 @@ class PickerElement extends ViewElement_1.ViewElement {
 }
 exports.PickerElement = PickerElement;
 
-},{"./ViewElement":36}],24:[function(require,module,exports){
+},{"./ViewElement":37}],25:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1868,7 +1988,7 @@ class PickerViewElement extends ViewElement_1.ViewElement {
 }
 exports.PickerViewElement = PickerViewElement;
 
-},{"./ViewElement":36}],25:[function(require,module,exports){
+},{"./ViewElement":37}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -1927,7 +2047,7 @@ class ProgressElement extends ViewElement_1.ViewElement {
 }
 exports.ProgressElement = ProgressElement;
 
-},{"./V":35,"./ViewElement":36}],26:[function(require,module,exports){
+},{"./V":36,"./ViewElement":37}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2044,7 +2164,7 @@ class RadioElement extends ViewElement_1.ViewElement {
 }
 exports.RadioElement = RadioElement;
 
-},{"./Element":9,"./V":35,"./ViewElement":36}],27:[function(require,module,exports){
+},{"./Element":9,"./V":36,"./ViewElement":37}],28:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2052,7 +2172,7 @@ class RichTextElement extends ViewElement_1.ViewElement {
 }
 exports.RichTextElement = RichTextElement;
 
-},{"./ViewElement":36}],28:[function(require,module,exports){
+},{"./ViewElement":37}],29:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2223,7 +2343,7 @@ class ScrollViewElement extends ViewElement_1.ViewElement {
 }
 exports.ScrollViewElement = ScrollViewElement;
 
-},{"./Anim":1,"./V":35,"./ViewElement":36}],29:[function(require,module,exports){
+},{"./Anim":1,"./V":36,"./ViewElement":37}],30:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2365,11 +2485,11 @@ class SliderElement extends ViewElement_1.ViewElement {
 }
 exports.SliderElement = SliderElement;
 
-},{"./V":35,"./ViewElement":36,"./once":37}],30:[function(require,module,exports){
+},{"./V":36,"./ViewElement":37,"./once":38}],31:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2734,7 +2854,7 @@ class SwiperElement extends ViewElement_1.ViewElement {
 }
 exports.SwiperElement = SwiperElement;
 
-},{"./Anim":1,"./BlockElement":2,"./V":35,"./ViewElement":36,"./once":37}],32:[function(require,module,exports){
+},{"./Anim":1,"./BlockElement":2,"./V":36,"./ViewElement":37,"./once":38}],33:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2801,7 +2921,7 @@ class SwitchElement extends ViewElement_1.ViewElement {
 }
 exports.SwitchElement = SwitchElement;
 
-},{"./V":35,"./ViewElement":36}],33:[function(require,module,exports){
+},{"./V":36,"./ViewElement":37}],34:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ViewElement_1 = require("./ViewElement");
@@ -2809,7 +2929,7 @@ class TextElement extends ViewElement_1.ViewElement {
 }
 exports.TextElement = TextElement;
 
-},{"./ViewElement":36}],34:[function(require,module,exports){
+},{"./ViewElement":37}],35:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const InputElement_1 = require("./InputElement");
@@ -2817,7 +2937,7 @@ class TextareaElement extends InputElement_1.InputElement {
 }
 exports.TextareaElement = TextareaElement;
 
-},{"./InputElement":16}],35:[function(require,module,exports){
+},{"./InputElement":16}],36:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function booleanValue(v) {
@@ -2835,6 +2955,13 @@ function pixelValue(v) {
     return 0;
 }
 exports.pixelValue = pixelValue;
+function nativePixelValue(v) {
+    if (/Android/i.test(navigator.userAgent)) {
+        return v * window.devicePixelRatio;
+    }
+    return v;
+}
+exports.nativePixelValue = nativePixelValue;
 function pixelStringValue(v) {
     if (v && v.endsWith("rpx")) {
         return (parseFloat(v) * 0.05) + 'rem';
@@ -2852,7 +2979,7 @@ function parseStyleValue(v) {
 }
 exports.parseStyleValue = parseStyleValue;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Element_1 = require("./Element");
@@ -3090,7 +3217,7 @@ class ViewElement extends Element_1.Element {
 }
 exports.ViewElement = ViewElement;
 
-},{"./BlockElement":2,"./Element":9,"./V":35}],37:[function(require,module,exports){
+},{"./BlockElement":2,"./Element":9,"./V":36}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var _running = false;
@@ -3113,7 +3240,7 @@ function once(func) {
 }
 exports.once = once;
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 
 require('./bin/Data.js');
 require('./bin/V.js');
@@ -3149,6 +3276,7 @@ require('./bin/NavigatorElement.js');
 require('./bin/CanvasElement.js');
 require('./bin/BlockElement.js');
 require('./bin/ComponentElement.js');
+require('./bin/ModalElement.js');
 
 require('./bin/Document.js');
 require('./bin/Page.js');
@@ -3156,7 +3284,7 @@ require('./bin/Page.js');
 kk = require('./bin/Main.js');
 
 
-},{"./bin/Anim.js":1,"./bin/BlockElement.js":2,"./bin/ButtonElement.js":3,"./bin/CanvasElement.js":4,"./bin/CheckboxElement.js":5,"./bin/ComponentElement.js":6,"./bin/Data.js":7,"./bin/Document.js":8,"./bin/Element.js":9,"./bin/Event.js":10,"./bin/EventEmitter.js":11,"./bin/FormElement.js":12,"./bin/IPC.js":13,"./bin/IconElement.js":14,"./bin/ImageElement.js":15,"./bin/InputElement.js":16,"./bin/LabelElement.js":17,"./bin/Main.js":18,"./bin/MovableViewElement.js":19,"./bin/NViewElement.js":20,"./bin/NavigatorElement.js":21,"./bin/Page.js":22,"./bin/PickerElement.js":23,"./bin/PickerViewElement.js":24,"./bin/ProgressElement.js":25,"./bin/RadioElement.js":26,"./bin/RichTextElement.js":27,"./bin/ScrollViewElement.js":28,"./bin/SliderElement.js":29,"./bin/Style.js":30,"./bin/SwiperElement.js":31,"./bin/SwitchElement.js":32,"./bin/TextElement.js":33,"./bin/TextareaElement.js":34,"./bin/V.js":35,"./bin/ViewElement.js":36,"./bin/once.js":37}],39:[function(require,module,exports){
+},{"./bin/Anim.js":1,"./bin/BlockElement.js":2,"./bin/ButtonElement.js":3,"./bin/CanvasElement.js":4,"./bin/CheckboxElement.js":5,"./bin/ComponentElement.js":6,"./bin/Data.js":7,"./bin/Document.js":8,"./bin/Element.js":9,"./bin/Event.js":10,"./bin/EventEmitter.js":11,"./bin/FormElement.js":12,"./bin/IPC.js":13,"./bin/IconElement.js":14,"./bin/ImageElement.js":15,"./bin/InputElement.js":16,"./bin/LabelElement.js":17,"./bin/Main.js":18,"./bin/ModalElement.js":19,"./bin/MovableViewElement.js":20,"./bin/NViewElement.js":21,"./bin/NavigatorElement.js":22,"./bin/Page.js":23,"./bin/PickerElement.js":24,"./bin/PickerViewElement.js":25,"./bin/ProgressElement.js":26,"./bin/RadioElement.js":27,"./bin/RichTextElement.js":28,"./bin/ScrollViewElement.js":29,"./bin/SliderElement.js":30,"./bin/Style.js":31,"./bin/SwiperElement.js":32,"./bin/SwitchElement.js":33,"./bin/TextElement.js":34,"./bin/TextareaElement.js":35,"./bin/V.js":36,"./bin/ViewElement.js":37,"./bin/once.js":38}],40:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3677,4 +3805,4 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}]},{},[38]);
+},{}]},{},[39]);

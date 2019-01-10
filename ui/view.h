@@ -18,6 +18,9 @@ namespace kk {
     
     namespace ui {
         
+        class App;
+        class View;
+        
         enum AttributedTextSpanType {
             AttributedTextSpanTypeText,
             AttributedTextSpanTypeImage
@@ -58,24 +61,48 @@ namespace kk {
         extern kk::CString kCanvasCGContext;
         extern kk::CString kCanvasWebGLContext;
         
+        class CanvasCommand : public Command {
+        public:
+            kk::Uint64 canvasId;
+        };
+        
+        class CanvasDisplayCGContextCommand : public CanvasCommand {
+        public:
+            kk::Uint64 viewId;
+            kk::Strong<kk::ui::CG::Context> context;
+        };
+        
         class Canvas : public EventEmitter {
         public:
+            Canvas(View * view,DispatchQueue * queue,App * app,kk::Uint64 canvasId);
             Canvas(DispatchQueue * queue);
-            virtual Strong<Object> getContext(kk::CString name) = 0;
+            virtual ~Canvas();
+            virtual Strong<Object> getContext(kk::CString name);
             virtual Uint width();
             virtual void setWidth(Uint v);
             virtual Uint height();
             virtual void setHeight(Uint v);
-            virtual Strong<Image> toImage() = 0;
+            virtual Strong<Image> toImage();
             virtual DispatchQueue * queue();
+            virtual App * app();
+            virtual View * view();
+            virtual kk::Uint64 canvasId();
             
             Ker_CLASS(Canvas, EventEmitter, "UICanvas");
             
             static void Openlib();
         protected:
+            
+            virtual kk::Strong<kk::ui::CG::Context> createCGContext();
+            
+            kk::Strong<Object> _context;
             kk::Strong<DispatchQueue> _queue;
+            kk::Weak<App> _app;
+            kk::Weak<View> _view;
             kk::Uint _width;
             kk::Uint _height;
+            kk::Uint64 _canvasId;
+            kk::Boolean _resize;
         };
         
         kk::Strong<Canvas> createCanvas(DispatchQueue * queue);
@@ -90,18 +117,94 @@ namespace kk {
             
         };
         
+        class ViewCommand : public Command {
+        public:
+            kk::Uint64 viewId;
+        };
+        
+        class ViewCreateCommand : public ViewCommand {
+        public:
+            kk::String name;
+            kk::Strong<ViewConfiguration> configuration;
+        };
+        
+        class ViewNativeCreateCommand : public ViewCommand {
+        public:
+            kk::Native * native;
+        };
+        
+        class ViewDeleteCommand : public ViewCommand {
+        public:
+        };
+        
+        class ViewSetCommand : public ViewCommand {
+        public:
+            kk::String name;
+            kk::String value;
+        };
+        
+        class ViewSetFrameCommand : public ViewCommand {
+        public:
+            Rect frame;
+        };
+        
+        class ViewAddsubviewCommand : public ViewCommand {
+        public:
+            kk::Uint64 subviewId;
+            SubviewPosition position;
+        };
+        
+        class ViewRemoveCommand : public ViewCommand {
+        };
+        
+        class ViewSetContentSizeCommand : public ViewCommand {
+        public:
+            Size size;
+        };
+        
+        class ViewSetContentOffsetCommand : public ViewCommand {
+        public:
+            Point offset;
+            kk::Boolean animated;
+        };
+        
+        class ViewEvaluateJavaScriptCommand : public ViewCommand {
+        public:
+            kk::String code;
+        };
+        
+        class ViewSetContentCommand : public ViewCommand {
+        public:
+            kk::String content;
+            kk::String contentType;
+            kk::String basePath;
+        };
+        
+        class ViewSetAttributedTextCommand : public ViewCommand {
+        public:
+            kk::Strong<AttributedText> text;
+        };
+        
+        class ViewSetImageCommand : public ViewCommand {
+        public:
+            kk::Strong<Image> image;
+        };
+        
         class View : public EventEmitter {
         public:
-            View(ViewConfiguration * configuration,Context * context);
-            virtual void set(kk::CString name,kk::CString value) = 0;
-            virtual void setFrame(Rect & frame) = 0;
+            View(kk::CString name,ViewConfiguration * configuration,App * app,kk::Uint64 viewId);
+            View(kk::Native * native,Rect & frame, App * app,kk::Uint64 viewId);
+            virtual ~View();
+            virtual void set(kk::CString name,kk::CString value);
+            virtual void setFrame(Rect & frame);
             virtual void setFrame(Float x,Float y,Float width,Float height);
-            virtual void setContentSize(Size & size) = 0;
+            virtual Rect & frame();
+            virtual void setContentSize(Size & size);
             virtual void setContentSize(Float width,Float height);
-            virtual void setContentOffset(Point & offset,kk::Boolean animated) = 0;
+            virtual void setContentOffset(Point & offset,kk::Boolean animated);
             virtual void setContentOffset(Float x,Float y,kk::Boolean animated);
-            virtual Point contentOffset() = 0;
-            virtual kk::Strong<Canvas> createCanvas(Worker * worker) = 0;
+            virtual Point contentOffset();
+            virtual kk::Strong<Canvas> createCanvas(Worker * worker);
             virtual void addSubview(View * view,SubviewPosition position);
             virtual void removeView();
             virtual void removeAllSubviews();
@@ -109,15 +212,18 @@ namespace kk {
             virtual void recycleView(View * view,kk::CString reuse);
             virtual void removeRecycleViews();
             
-            virtual void evaluateJavaScript(kk::CString code) = 0;
+            virtual void evaluateJavaScript(kk::CString code);
             virtual ViewConfiguration * configuration();
-            virtual void setContent(kk::CString content,kk::CString contentType,kk::CString basePath) = 0;
+            virtual void setContent(kk::CString content,kk::CString contentType,kk::CString basePath);
             
-            virtual void setAttributedText(AttributedText * text) = 0;
+            virtual void setAttributedText(AttributedText * text);
             virtual void setImage(Image * image);
-            virtual void setGravity(kk::CString gravity) = 0;
             
-            virtual Context * context();
+            virtual kk::Uint64 viewId();
+            
+            virtual App * app();
+            
+            virtual void dispatchCommand(ViewCommand * command);
             
             Ker_CLASS(View, EventEmitter, "UIView");
             
@@ -127,11 +233,13 @@ namespace kk {
             std::map<View *,Strong<View>> _subviews;
             Weak<View> _parent;
             Strong<ViewConfiguration> _configuration;
-            Weak<Context> _context;
-            Strong<Image> _image;
+            Weak<App> _app;
+            kk::Uint64 _viewId;
+            Point _contentOffset;
+            kk::Strong<Image> _image;
+            kk::Strong<kk::TFunction<void, kk::CString, Event *>> _onImageLoadFunc;
+            Rect _frame;
         };
-        
-        kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration,Context * context);
         
         typedef kk::Uint WebViewActionPolicy;
         
@@ -153,14 +261,13 @@ namespace kk {
         
         struct WebViewUserAction {
             kk::String pattern;
-            kk::String name;
             WebViewActionPolicy policy;
         };
         
         class WebViewConfiguration : public ViewConfiguration {
         public:
             virtual void addUserScript(kk::CString code,WebViewUserScriptInjectionTime injectionTime);
-            virtual void addUserAction(kk::CString pattern,kk::CString name,WebViewActionPolicy policy);
+            virtual void addUserAction(kk::CString pattern,WebViewActionPolicy policy);
             virtual std::vector<WebViewUserScript> & userScripts();
             virtual std::vector<WebViewUserAction> & userActions();
             

@@ -14,6 +14,7 @@
 #include <core/dispatch.h>
 #include <core/jit.h>
 #include <core/timer.h>
+#include <core/sqlite.h>
 
 namespace kk {
     
@@ -80,6 +81,9 @@ namespace kk {
                 b = c.b;
                 a = c.a;
                 return * this;
+            }
+            kk::Int intValue() {
+                return ((kk::Int) (a * 0x0ff) << 24) | ((kk::Int) (r * 0x0ff) << 16) | ((kk::Int) (g * 0x0ff) << 8) | ((kk::Int) (b * 0x0ff));
             }
         };
         
@@ -192,6 +196,28 @@ namespace kk {
             Ker_CLASS(Image,EventEmitter,"Image")
         };
         
+        class NativeImage : public Image {
+        public:
+            NativeImage(kk::DispatchQueue * queue,kk::CString src);
+            virtual kk::Native * native();
+            virtual void setNative(kk::Native * native);
+            virtual void setNative(kk::Native * native,kk::Uint width,kk::Uint height);
+            virtual ImageState state();
+            virtual void setState(ImageState state);
+            virtual kk::Uint width();
+            virtual kk::Uint height();
+            virtual kk::CString src();
+            virtual void copyPixels(void * data);
+            virtual Boolean isCopyPixels();
+            virtual kk::DispatchQueue * queue();
+        protected:
+            kk::Strong<kk::DispatchQueue> _queue;
+            kk::Strong<kk::NativeObject> _native;
+            kk::String _src;
+            kk::Uint _width;
+            kk::Uint _height;
+            ImageState _state;
+        };
         
         class Context;
         
@@ -236,23 +262,56 @@ namespace kk {
             virtual kk::Strong<Worker> createWorker(kk::CString path);
             virtual kk::Strong<Canvas> createCanvas();
             virtual kk::Strong<Image> createImage(kk::CString src);
-            
+            virtual kk::Strong<Context> parent();
+            virtual void setParent(Context * v);
             static void Openlib();
             
             Ker_CLASS(Context, EventEmitter, "UIContext");
             
         protected:
+            kk::Weak<Context> _parent;
             kk::String _basePath;
             kk::Strong<kk::DispatchQueue> _queue;
             duk_context * _jsContext;
             std::map<void *,kk::Strong<kk::Object>> _objects;
         };
         
-        kk::Strong<Image> ImageCreate(Context * context,kk::CString src);
+        class Command : public Object {
+            
+        };
         
-        std::function<void(Context * ,Image *)> & getImageLoader();
         
-        void setImageLoader(std::function<void(Context * ,Image *)> && func);
+        class App;
+        
+        class UI : public Object {
+        protected:
+            UI();
+        public:
+            virtual ~UI();
+            virtual kk::DispatchQueue * queue();
+            virtual kk::Uint64 newId();
+            virtual kk::Strong<App> createApp(kk::CString basePath,kk::CString appkey);
+            virtual void removeApp(kk::Uint64 appid);
+            virtual kk::Strong<App> getApp(kk::Uint64 appid);
+            virtual void execCommand(App * app,Command * command);
+            virtual void dispatchCommand(kk::Uint64 appid,Command * command);
+            virtual void emit(kk::Uint64 appid,kk::CString name,kk::Event * event);
+            virtual void emit(kk::Uint64 appid,kk::Uint64 viewId,kk::CString name,kk::Event * event);
+            virtual void open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func);
+            virtual void startTransaction();
+            virtual kk::Sqlite * database();
+            
+            static UI * main();
+            
+        protected:
+            
+            virtual void commitTransaction();
+            kk::Strong<kk::Sqlite> _database;
+            kk::Strong<kk::DispatchQueue> _queue;
+            kk::Uint64 _autoId;
+            std::map<kk::Uint64,kk::Weak<App>> _apps;
+            kk::Boolean _transaction;
+        };
         
     }
     

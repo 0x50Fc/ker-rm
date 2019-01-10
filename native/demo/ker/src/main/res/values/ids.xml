@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="ker_contentView" type="id"></item>
+    <item name="ker_frame" type="id"></item>
+    <item name="ker_border_width" type="id"></item>
+    <item name="ker_border_color" type="id"></item>
+    <item name="ker_border_radius" type="id"></item>
+    <item name="ker_background_color" type="id"></item>
+</resources>

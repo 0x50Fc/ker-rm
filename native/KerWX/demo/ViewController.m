@@ -22,7 +22,7 @@
 
 - (IBAction)doTapAction:(id)sender {
     
-    [KerApp run:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"1.0"] query:@{}];
+    [KerUI open:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"1.0"] query:@{} callback:nil];
     
 //    [KerApp run:@"http://10.222.96.92:8080/1.0.ker" query:@{}];
     

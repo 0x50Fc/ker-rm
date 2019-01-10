@@ -20,6 +20,7 @@ id ker_to_NSObject(duk_context * ctx,duk_idx_t idx);
 
 kk::Any KerObjectToAny(id object);
 id KerObjectFromAny(kk::Any & v);
+id KerObjectFromObject(kk::Object * v);
 
 namespace kk {
     
@@ -53,6 +54,7 @@ typedef void * KerJSObjectRef;
 @interface KerJSObject : NSObject
 
 @property(nonatomic,readonly,assign) KerJSObjectRef JSObject;
+@property(nonatomic,readonly,strong) dispatch_queue_t queue;
 
 -(id) propertyForKey:(NSString *) key;
 
@@ -80,4 +82,23 @@ typedef void * KerJSObjectRef;
 @protocol KerJSExport
 
 @end
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
+    void KerAddOpenlibInterface(Class isa);
+    void KerAddOpenlibProtocol(Protocol * protocol);
+    
+    typedef void (^KerOpenlibSetLibrary)(NSString * name,id object);
+    
+    typedef void (^KerAddOpenlibFunction)(NSString * basePath,NSString * appkey,KerOpenlibSetLibrary setLibrary);
+    
+    void KerAddPageOpenlib(KerAddOpenlibFunction func);
+    
+    void KerAddAppOpenlib(KerAddOpenlibFunction func);
+    
+#ifdef __cplusplus
+}
+#endif
 

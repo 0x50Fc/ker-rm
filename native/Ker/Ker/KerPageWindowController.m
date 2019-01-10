@@ -2,15 +2,16 @@
 //  KerPageWindowController.m
 //  Ker
 //
-//  Created by hailong11 on 2018/12/6.
+//  Created by zhanghailong on 2018/12/6.
 //  Copyright © 2018 kkmofang.cn. All rights reserved.
 //
 
 #import "KerPageWindowController.h"
+#import "KerUI.h"
 
 @interface KerPageWindowController () {
-    CGSize _layoutSize;
 }
+
 
 @end
 
@@ -28,63 +29,52 @@
     return v;
 }
 
+@synthesize pageId = _pageId;
+
+-(instancetype) initWithPageId:(KerId) pageId {
+    if((self = [super init])) {
+        _pageId = pageId;
+        [[KerUI getPage:pageId] setDelegate:self];
+    }
+    return self;
+}
+
 -(void) dealloc {
-    [_page recycle];
+    [KerUI removePage:_pageId];
 }
 
 -(void) showInView:(UIView *) view animated:(BOOL) animated {
-    
-    if(_page != nil) {
-        return;
-    }
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(doUIApplicationWillChangeStatusBarOrientationNotification) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     
     [(NSMutableArray *)[KerPageWindowController pageControllers] addObject:self];
     
-    if(_app != nil && _path != nil) {
-        _page = [[KerPage alloc] initWithView:view app:_app];
-        _page.delegate = self;
-        [_page run:_path query:_query];
-    }
+    [[KerUI getPage:_pageId] open:view];
     
-    [self viewDidLayoutSubviews];
     
+}
+
+-(void) doUIApplicationWillChangeStatusBarOrientationNotification {
+    [[KerUI getPage:_pageId] viewDidLayoutSubviews];
 }
 
 -(void) showAnimated:(BOOL) animated {
     [self showInView:[UIApplication sharedApplication].keyWindow animated:animated];
 }
 
--(void) viewDidLayoutSubviews {
-    
-    if(_page == nil) {
-        return;
-    }
-    
-    UIView * view = _page.view;
-    
-    if(CGSizeEqualToSize(_layoutSize, view.bounds.size)) {
-        _layoutSize = view.bounds.size;
-        [_page setSize:_layoutSize];
-    }
-    
-}
-
 -(void) _close {
     
-    if(_page == nil) {
-        return;
-    }
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     
-    KerPage * page = _page;
-    _page.delegate = nil;
-    _page = nil;
+    KerId pageId = _pageId;
     
     [(NSMutableArray *)[KerPageWindowController pageControllers] removeObject:self];
     
-    [page recycle];
+    [KerUI removePage:pageId];
+    
 }
 
--(void) KerPage:(KerPage *) page close:(BOOL) animated {
+-(void) KerPage:(KerPage *)pageController close:(BOOL)animated {
     
     if(animated) {
         __weak KerPageWindowController * v = self;

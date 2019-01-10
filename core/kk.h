@@ -16,6 +16,9 @@
 #include <set>
 #include <thread>
 #include <queue>
+#include <stdlib.h>
+#include <assert.h>
+#include <pthread.h>
 
 namespace kk {
     
@@ -72,6 +75,34 @@ static const kk::Class * Class() { \
     return & isa; \
 };
 
+    class Object;
+    
+    class Atomic {
+    public:
+        Atomic();
+        virtual ~Atomic();
+        virtual void lock();
+        virtual void unlock();
+        virtual void addObject(Object * object);
+        static Atomic * current();
+    protected:
+        pthread_mutex_t _lock;
+        pthread_mutex_t _objectLock;
+        std::queue<Object *> _objects;
+    };
+    
+    class Zombies {
+    public:
+        virtual void alloc(Object * object) = 0;
+        virtual void dealloc(Object * object) = 0;
+        virtual void retain(Object * object) = 0;
+        virtual void release(Object * object) = 0;
+        virtual void weak(Object * object, Object ** ptr) = 0;
+        virtual void unWeak(Object * object, Object ** ptr) = 0;
+        virtual void dump() = 0;
+        static Zombies * current();
+    };
+    
     class Object {
         
     private:
@@ -103,19 +134,7 @@ static const kk::Class * Class() { \
         };
     };
     
-    class Atomic {
-    public:
-        Atomic();
-        virtual ~Atomic();
-        virtual void lock();
-        virtual void unlock();
-        virtual void addObject(Object * object);
-        static Atomic * current();
-    protected:
-        std::mutex _lock;
-        std::mutex _objectLock;
-        std::queue<Object *> _objects;
-    };
+   
     
     class ArrayBuffer : public Object {
     public:
@@ -138,6 +157,8 @@ static const kk::Class * Class() { \
         virtual kk::Uint size();
         virtual kk::Ubyte * data();
         virtual void capacity(kk::Uint size);
+        virtual void append(const void * p, size_t size);
+        virtual kk::String toString();
     protected:
         kk::Ubyte _buf[2048];
         Ubyte * _data;
@@ -308,7 +329,8 @@ static const kk::Class * Class() { \
         NativeObject(Native * native);
         virtual ~NativeObject();
         virtual Native * native();
-        static kk::CString getPrototype(Native * native);
+        static kk::String getPrototype(Native * native);
+
     protected:
         Native * _native;
     };
@@ -320,7 +342,7 @@ static const kk::Class * Class() { \
 
     class Any {
     public:
-        Any(void);
+        Any();
         Any(Function * v);
         Any(Object * v);
         Any(Int8 v);
@@ -436,7 +458,7 @@ static const kk::Class * Class() { \
     class Array : public _Array {
     public:
         Array(){}
-        Array(std::initializer_list<T> v):_items(v){}
+        Array(std::initializer_list<T> && v):_items(std::move(v)){}
         T & operator[](kk::Int i) {
             return _items[i];
         }
@@ -458,7 +480,7 @@ static const kk::Class * Class() { \
                 i ++;
             }
         }
-        virtual void push(T & v) {
+        virtual void push(const T & v) {
             _items.push_back(v);
         }
     private:
@@ -474,7 +496,7 @@ static const kk::Class * Class() { \
     class TObject : public _TObject {
     public:
         TObject(){}
-        TObject(std::initializer_list<std::pair<const TKey,TValue>> &&v):_items(v){}
+        TObject(std::initializer_list<std::pair<const TKey,TValue>> && v):_items(std::move(v)){}
         
         TValue & operator[](TKey key) {
             return _items[key];
@@ -523,6 +545,7 @@ static const kk::Class * Class() { \
     String CStringPathAppend(CString basePath,CString path);
     String CStringPathDeleteLast(CString path);
     String CStringPathDeleteExtension(CString path);
+    Boolean CStringHasSubstring(CString string,CString substr);
     
 }
 

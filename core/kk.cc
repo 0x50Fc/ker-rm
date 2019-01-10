@@ -8,13 +8,24 @@
 
 #include <core/kk.h>
 #include <typeinfo>
+#include <string.h>
 
 namespace kk {
     
     Object::Object(): _retainCount(0) {
+        Zombies * z = Zombies::current();
+        if(z != nullptr) {
+            z->alloc(this);
+        }
     }
     
     Object::~Object(){
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->dealloc(this);
+        }
         
         Atomic * a = Atomic::current();
         
@@ -43,6 +54,13 @@ namespace kk {
     }
     
     void Object::release() {
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->release(this);
+        }
+        
         Atomic * a = Atomic::current();
         if(a != nullptr) {
             a->lock();
@@ -61,6 +79,13 @@ namespace kk {
     }
     
     void Object::retain() {
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->retain(this);
+        }
+        
         Atomic * a = Atomic::current();
         if(a != nullptr) {
             a->lock();
@@ -76,6 +101,15 @@ namespace kk {
     }
     
     void Object::weak(Object ** ptr) {
+        
+        assert(ptr != nullptr);
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->weak(this, ptr);
+        }
+        
         Atomic * a = Atomic::current();
         if(a != nullptr) {
             a->lock();
@@ -87,6 +121,13 @@ namespace kk {
     }
     
     void Object::unWeak(Object ** ptr) {
+        
+        Zombies * z = Zombies::current();
+        
+        if(z != nullptr) {
+            z->unWeak(this, ptr);
+        }
+        
         Atomic * a = Atomic::current();
         if(a != nullptr) {
             a->lock();
@@ -100,28 +141,36 @@ namespace kk {
         }
     }
     
+#ifndef KER_ZOMBIES
+    Zombies * Zombies::current() {
+        return nullptr;
+    }
+#endif
+    
     Atomic::Atomic(){
-        
+        pthread_mutex_init(&_lock, NULL);
+        pthread_mutex_init(&_objectLock, NULL);
     }
     
     
     Atomic::~Atomic() {
-        
+        pthread_mutex_destroy(&_lock);
+        pthread_mutex_destroy(&_objectLock);
     }
     
     void Atomic::lock() {
-        _lock.lock();
+        pthread_mutex_lock(&_lock);
     }
     
     void Atomic::unlock() {
         
-        _lock.unlock();
+        pthread_mutex_unlock(&_lock);
         
         Object * v = nullptr;
         
         do {
             
-            _objectLock.lock();
+            pthread_mutex_lock(&_objectLock);
             
             if(_objects.empty()) {
                 v = nullptr;
@@ -130,7 +179,7 @@ namespace kk {
                 _objects.pop();
             }
             
-            _objectLock.unlock();
+            pthread_mutex_unlock(&_objectLock);
             
             if(v != nullptr && v->retainCount() == 0) {
                 delete v;
@@ -140,9 +189,9 @@ namespace kk {
     }
     
     void Atomic::addObject(Object * object) {
-        _objectLock.lock();
+        pthread_mutex_lock(&_objectLock);
         _objects.push(object);
-        _objectLock.unlock();
+        pthread_mutex_unlock(&_objectLock);
     }
    
     
@@ -221,6 +270,20 @@ namespace kk {
             }
             _size = size;
         }
+    }
+    
+    void Buffer::append(const void * p, size_t size) {
+        kk::Uint n = size > 1024 ? (kk::Uint) size : 1024;
+        capacity(byteLength() + n);
+        kk::Ubyte * b = data();
+        memcpy(b + byteLength(), p, size);
+        setByteLength(byteLength() + (kk::Uint) size);
+    }
+    
+    kk::String Buffer::toString() {
+        kk::String v;
+        v.append((char *) data(),byteLength());
+        return v;
     }
     
     Ref::Ref():_object(nullptr) {
@@ -938,7 +1001,7 @@ namespace kk {
             if(_size == 0) {
                 _size = len + 1;
                 _data = malloc(_size);
-            } else if(_size < length + 1) {
+            } else if(_size < len + 1) {
                 _size = len + 1;
                 _data = realloc(_data, _size);
             }
@@ -1013,6 +1076,45 @@ namespace kk {
         size_t n2 = strlen(prefix);
         
         return n1 >= n2 && strncmp(string, prefix, n2) == 0;
+    }
+
+    Boolean CStringHasSubstring(CString string,CString substr) {
+
+        if(string == substr) {
+            return true;
+        }
+
+        if(substr == nullptr) {
+            return true;
+        }
+
+        if(string == nullptr) {
+            return true;
+        }
+
+        size_t n1 = strlen(string);
+        size_t n2 = strlen(substr);
+
+        if(n1 < n2) {
+            return false;
+        }
+
+        char * p = (char *) string;
+
+        while(p && *p) {
+            char * b = (char *) substr;
+            char * i = p;
+            while(*b && *i && *b == *i) {
+                b ++;
+                i ++;
+            }
+            if(*b == 0) {
+                return true;
+            }
+            p ++;
+        }
+
+        return false;
     }
     
     Boolean CStringHasSuffix(CString string,CString suffix) {

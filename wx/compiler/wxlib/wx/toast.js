@@ -1,53 +1,85 @@
 
+var isClosed = false;
+
 page.on("app.toast.hide", function (e) {
     page.close();
+    isClosed = true;
 });
 
-var view = page.view;
+page.setOptions({
+    backPressed : true
+});
 
-var title = new UIAttributedText();
-title.appendText(query.title || '', '14px', '#fff');
+page.on("ready",function(){
 
-var titleSize = app.getAttributedTextContentSize(title, 200);
+    if(isClosed) {
+        page.close();
+        return;
+    }
 
-if (titleSize.width < 80) {
-    titleSize.width = 80;
-} else {
-    titleSize.width = Math.ceil(titleSize.width);
-}
+    var view = page.view;
 
-if (titleSize.height < 20) {
-    titleSize.height = 20;
-} else {
-    titleSize.height = Math.ceil(titleSize.height);
-}
+    var title = new UIAttributedText();
+    var fontSize = 14;
+    var maxWidth = 200;
+    var minWidth = 80;
+    var minHeight = 20;
+    var padding = 20;
+    var borderRadius = 5;
 
-var bgView = app.createView("UIView");
-var bgSize = { width: titleSize.width + 20, height: titleSize.height + 20 };
+    if(typeof screen == 'object' && screen.density !== undefined) {
+        fontSize = fontSize * screen.density;
+        maxWidth = maxWidth * screen.density;
+        minWidth = minWidth * screen.density;
+        minHeight = minHeight * screen.density;
+        padding = padding * screen.density;
+        borderRadius = borderRadius * screen.density;
+    }
 
-bgView.set('background-color', 'rgba(0,0,0,0.65)');
-bgView.set('border-radius', '5');
-bgView.set('overflow', 'hidden');
+    title.appendText(query.title || '', fontSize + 'px', '#fff');
 
-view.addSubview(bgView);
+    var titleSize = app.getAttributedTextContentSize(title, maxWidth);
 
-var titleView = app.createView("UILabel");
+    if (titleSize.width < minWidth) {
+        titleSize.width = minWidth;
+    } else {
+        titleSize.width = Math.ceil(titleSize.width);
+    }
 
-titleView.set('text-align', 'center');
-titleView.setFrame((bgSize.width - titleSize.width) * 0.5, (bgSize.height - titleSize.height) * 0.5, titleSize.width, titleSize.height)
+    if (titleSize.height < minHeight) {
+        titleSize.height = minHeight;
+    } else {
+        titleSize.height = Math.ceil(titleSize.height);
+    }
 
-titleView.setAttributedText(title);
+    var bgView = app.createView("UIView");
+    var bgSize = { width: titleSize.width + padding, height: titleSize.height + padding };
 
-bgView.addSubview(titleView);
+    bgView.set('background-color', 'rgba(0,0,0,0.65)');
+    bgView.set('border-radius', borderRadius + '');
+    bgView.set('overflow', 'hidden');
 
-var resize = function () {
-    bgView.setFrame((page.width - bgSize.width) * 0.5, (page.height - bgSize.height) * 0.5, bgSize.width, bgSize.height);
-};
+    view.addSubview(bgView);
 
-page.on('resize', resize);
+    var titleView = app.createView("UILabel");
 
-resize();
+    titleView.set('text-align', 'center');
+    titleView.setFrame((bgSize.width - titleSize.width) * 0.5, (bgSize.height - titleSize.height) * 0.5, titleSize.width, titleSize.height)
 
-setTimeout(function () {
-    page.close();
-}, query.duration || 1500);
+    titleView.setAttributedText(title);
+
+    bgView.addSubview(titleView);
+
+    var resize = function () {
+        bgView.setFrame((page.width - bgSize.width) * 0.5, (page.height - bgSize.height) * 0.5, bgSize.width, bgSize.height);
+    };
+
+    page.on('resize', resize);
+
+    resize();
+
+    setTimeout(function () {
+        page.close();
+    }, query.duration || 1500);
+
+});

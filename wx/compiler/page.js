@@ -251,14 +251,15 @@ function compileAttributes(attrs, vs) {
 Page.prototype = Object.create(Object.prototype, {
     compile: {
         value: function () {
-
+            mkdirs(path.dirname(this.path.page));
             fs.writeFileSync(this.path.page, 'require("wx/wx.page.js")({path: path,query: query}, ' + JSON.stringify(path.relative(this.basePath, this.base)) + ', page, app);');
             var vs = [];
             vs.push('<style type="text/css">\n');
             this.compileUsingComponentsCSS(vs);
             this.compilePageCSS(vs);
             vs.push('</style></head><body><script type="text/javascript">\n');
-            vs.push("(function(){\n");
+            vs.push("(function(ready){ if(window.kk) { ready(); } else { window.addEventListener('ker',ready); }  })(")
+            vs.push("function(){\n");
             vs.push("var __CC = {};\n");
             vs.push("var __V = kk.CreateElement;\n");
             vs.push("var __T = kk.CreateTElement;\n");
@@ -271,7 +272,7 @@ Page.prototype = Object.create(Object.prototype, {
 
             this.compilePageView(vs);
 
-            vs.push(");})();\n");
+            vs.push(");});\n");
             vs.push('</script></body>');
 
             fs.writeFileSync(this.path.html, vs.join(''));

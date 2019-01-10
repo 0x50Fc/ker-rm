@@ -13,33 +13,46 @@
 
 namespace kk {
     namespace ui {
+        class App;
         class View;
         class ViewConfiguration;
+        class Page;
+        class Command;
+        class PageCommand;
     }
 }
 
-typedef kk::ui::View * KerViewCPointer;
+typedef unsigned long long KerId;
+typedef kk::ui::App * KerAppCPointer;
 typedef kk::ui::ViewConfiguration * KerViewConfigurationCPointer;
+typedef kk::ui::Page * KerPageCPointer;
+typedef kk::ui::Command * KerCommandCPointer;
+typedef kk::ui::PageCommand * KerPageCommandCPointer;
 
 #else
 
-typedef void * KerViewCPointer;
-
+typedef unsigned long long KerId;
+typedef void * KerAppCPointer;
 typedef void * KerViewConfigurationCPointer;
+typedef void * KerPageCPointer;
+typedef void * KerCommandCPointer;
+typedef void * KerPageCommandCPointer;
 
 #endif
 
+@class KerApp;
+
 @protocol KerViewProtocol <NSObject>
 
-+(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer) configuration;
++(instancetype) KerViewCreateWithConfiguration:(KerViewConfigurationCPointer) configuration app:(KerId) appId;
 
--(void) KerViewObtain:(KerViewCPointer) view;
+-(void) KerViewObtain:(KerId) viewId app:(KerId) appId;
 
--(void) KerView:(KerViewCPointer) view setAttribute:(const char *) key value:(const char *) value;
+-(void) KerView:(KerId) viewId setAttribute:(NSString *) key value:(NSString *) value app:(KerId) appId;
 
--(void) KerView:(KerViewCPointer) view setContent:(const char *) content contentType:(const char *) contentType basePath:(const char *) basePath;
+-(void) KerView:(KerId) viewId setContent:(NSString *) content contentType:(NSString *) contentType basePath:(NSString *) basePath app:(KerId) appId;
 
--(void) KerViewRecycle:(KerViewCPointer) view;
+-(void) KerViewRecycle:(KerId) viewId app:(KerId) appId;
 
 -(UIView *) KerViewContentView;
 

@@ -7,7 +7,6 @@
 //
 
 #include <core/jit.h>
-#include <thread>
 
 namespace kk {
     
@@ -196,23 +195,17 @@ namespace kk {
         }
     }
     
-    static pthread_key_t gJITContextKey = 0;
-    
-    static void gJITContextKeyDealloc(void * p) {
-        JITContext * v = (JITContext *) p;
-        v->release();
-    }
+    static kk::CString kJITContextKey = "kJITContextKey";
     
     JITContext * JITContext::current(){
-        if(gJITContextKey == 0) {
-            pthread_key_create(&gJITContextKey, gJITContextKeyDealloc);
-        }
-        JITContext * v = (JITContext *) pthread_getspecific(gJITContextKey);
+        
+        JITContext * v = (JITContext *) getDispatchQueueSpecific(kJITContextKey);
+        
         if(v == nullptr) {
             v = new JITContext();
-            v->retain();
-            pthread_setspecific(gJITContextKey, v);
+            setDispatchQueueSpecific(kJITContextKey, v);
         }
+        
         return v;
     }
     
@@ -366,8 +359,11 @@ namespace kk {
         {
             NativeObject * v = dynamic_cast<NativeObject *>(object);
             if(v != nullptr) {
-                SetPrototype(ctx, -1, NativeObject::getPrototype(v->native()));
-                return;
+                kk::String s = NativeObject::getPrototype(v->native());
+                if(s != "") {
+                    SetPrototype(ctx, -1, s.c_str());
+                    return;
+                }
             }
         }
         
@@ -488,6 +484,10 @@ namespace kk {
         
         JITContext::current()->weak(ctx, heapptr, this);
         
+        _queue = getCurrentDispatchQueue();
+        
+        assert(_queue != nullptr);
+        
     }
     
     void Error(duk_context * ctx, duk_idx_t idx, kk::CString prefix) {
@@ -507,29 +507,38 @@ namespace kk {
         }
     }
     
+    DispatchQueue * JSObject::queue() {
+        return _queue;
+    }
+    
     JSObject::~JSObject() {
         
-        if(_ctx) {
+        duk_context * ctx = _ctx;
+        Object * object = this;
+        
+        if(ctx) {
             
-            void * heapptr = JITContext::current()->get(this, _ctx);
-            
-            if(heapptr) {
+            _queue->sync([ctx,object]()->void{
                 
-                duk_context * ctx = _ctx;
+                void * heapptr = JITContext::current()->get(object, ctx);
                 
-                duk_push_heapptr(ctx, heapptr);
-                duk_push_undefined(ctx);
-                duk_set_finalizer(ctx, -2);
-                duk_pop(ctx);
+                if(heapptr) {
+                    
+                    duk_push_heapptr(ctx, heapptr);
+                    duk_push_undefined(ctx);
+                    duk_set_finalizer(ctx, -2);
+                    duk_pop(ctx);
+                    
+                    duk_push_heap_stash(ctx);
+                    duk_push_sprintf(ctx, "0x%x",(long) heapptr);
+                    duk_del_prop(ctx, -2);
+                    duk_pop(ctx);
+                    
+                }
                 
-                duk_push_heap_stash(ctx);
-                duk_push_sprintf(ctx, "0x%x",(long) heapptr);
-                duk_del_prop(ctx, -2);
-                duk_pop(ctx);
+                JITContext::current()->remove(object);
                 
-            }
-            
-            JITContext::current()->remove(this);
+            });
             
         }
 

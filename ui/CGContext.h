@@ -146,6 +146,8 @@ namespace kk {
                 
                 virtual void clearRect(Float x, Float y,Float width,Float height) = 0;
                 
+                virtual void clear() = 0;
+                
                 virtual void fill() = 0;
                 
                 virtual void stroke() = 0;
@@ -266,6 +268,8 @@ namespace kk {
                 static void Openlib();
                 
             };
+            
+
         }
         
     }

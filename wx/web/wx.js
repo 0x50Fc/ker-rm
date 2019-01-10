@@ -33,6 +33,7 @@ require('./bin/NavigatorElement.js');
 require('./bin/CanvasElement.js');
 require('./bin/BlockElement.js');
 require('./bin/ComponentElement.js');
+require('./bin/ModalElement.js');
 
 require('./bin/Document.js');
 require('./bin/Page.js');

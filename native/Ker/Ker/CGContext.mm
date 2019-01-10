@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
+#include <ui/view.h>
 #include <ui/CGContext.h>
 #import "UI.h"
 
@@ -16,6 +17,7 @@ namespace kk {
 
     namespace ui {
     
+        
         namespace CG {
             
             class OSImageData : public ImageData, public CGImageGetter {
@@ -220,6 +222,11 @@ namespace kk {
                 
                 virtual void clearRect(Float x, Float y,Float width,Float height) {
                     CGContextClearRect(_ctx, CGRectMake(x, y, width, height));
+                }
+                
+                virtual void clear() {
+                    void * data = CGBitmapContextGetData(_ctx);
+                    memset(data, 0, _width * _height * 4);
                 }
                 
                 virtual void fill() {
@@ -1181,7 +1188,7 @@ namespace kk {
             }
         }
         
-        extern Strong<Image> createCGImage(CGImageRef image);
+        extern Strong<Image> createCGImage(kk::DispatchQueue * queue,CGImageRef image);
         
         kk::Strong<Image> createImageWithCGContext(kk::ui::CG::Context * context) {
         
@@ -1192,7 +1199,7 @@ namespace kk {
                     
                     CGImageRef image = v->createCGImage();
                     
-                    Strong<Image> r = createCGImage(image);
+                    Strong<Image> r = createCGImage(getCurrentDispatchQueue(),image);
                     
                     CGImageRelease(image);
                     
@@ -1203,6 +1210,35 @@ namespace kk {
             
             return nullptr;
         }
+        
+        CGImageRef createCGImageWithCGContext(kk::ui::CG::Context * context) {
+            
+            kk::ui::CG::OSContext * v = dynamic_cast<kk::ui::CG::OSContext *>(context);
+            
+            if(v) {
+                
+                @autoreleasepool {
+                    return v->createCGImage();
+                }
+            }
+            
+            return nullptr;
+        }
+        
+        kk::Strong<kk::ui::CG::Context> Canvas::createCGContext() {
+            return new CG::OSContext(_width,_height);
+        }
+        
+        kk::Strong<kk::ui::Image> Canvas::toImage() {
+            {
+                kk::ui::CG::Context * v =dynamic_cast<kk::ui::CG::Context *>(_context.get());
+                if(v) {
+                    return createImageWithCGContext(v);
+                }
+            }
+            return nullptr;
+        }
+        
         
     }
     

@@ -1,14 +1,11 @@
 
 
 var viewClass = {
-
+    input : 'UITextField',
+    textarea : 'UITextView',
+    canvas : 'UICanvasView'
 };
 
-if (platform == 'iOS') {
-    viewClass['input'] = 'UITextField';
-    viewClass['textarea'] = 'UITextView';
-    viewClass['canvas'] = 'UIView';
-}
 
 function Context(view) {
     this._view = view;
@@ -63,16 +60,21 @@ Context.prototype = Object.create(Object.prototype, {
         value: function (canvasId) {
             var v = this._canvas[canvasId];
             if (v === undefined) {
-                v = this._canvasViews[canvasId];
-                if (v !== undefined) {
-                    v = v.createCanvas();
+                var view = this._canvasViews[canvasId];
+                if (view !== undefined) {
+                    v = view.createCanvas();
                     this._canvas[canvasId] = v;
                 }
             }
             if (v !== undefined) {
                 v = v.getContext('2d');
                 if (v !== undefined) {
-                    v.draw = function () { };
+                    if(v.draw === undefined) {
+                        if (typeof screen == 'object' && screen.density !== undefined) {
+                            v.scale(screen.density,screen.density);
+                        }
+                        v.draw = function () { };
+                    }
                 }
                 return v;
             }
@@ -87,6 +89,8 @@ Context.prototype = Object.create(Object.prototype, {
             var v = this._views[id];
             if (v) {
                 v.setFrame(x, y, width, height);
+                v.width = width;
+                v.height = height;
             }
         },
         writable: false,

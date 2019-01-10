@@ -29,17 +29,29 @@
 		1A53C6F821BE154300170AB7 /* UIImage+Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6F621BE154300170AB7 /* UIImage+Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A53C6F921BE154300170AB7 /* UIImage+Ker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6F721BE154300170AB7 /* UIImage+Ker.mm */; };
 		1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB4421BE30BC00C636F5 /* package.cc */; };
-		1AA4AB6221BE31AB00C636F5 /* mztools.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5621BE31AA00C636F5 /* mztools.c */; };
-		1AA4AB6421BE31AB00C636F5 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5821BE31AA00C636F5 /* unzip.c */; };
-		1AA4AB6521BE31AB00C636F5 /* unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB5921BE31AA00C636F5 /* unzip.h */; };
-		1AA4AB6621BE31AB00C636F5 /* zip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5A21BE31AA00C636F5 /* zip.c */; };
-		1AA4AB6721BE31AB00C636F5 /* zip.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB5B21BE31AA00C636F5 /* zip.h */; };
-		1AA4AB6821BE31AB00C636F5 /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5C21BE31AA00C636F5 /* ioapi.c */; };
-		1AA4AB6921BE31AB00C636F5 /* minizip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB5D21BE31AA00C636F5 /* minizip.c */; };
-		1AA4AB6A21BE31AB00C636F5 /* mztools.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB5E21BE31AA00C636F5 /* mztools.h */; };
-		1AA4AB6B21BE31AB00C636F5 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB5F21BE31AB00C636F5 /* ioapi.h */; };
-		1AA4AB6C21BE31AB00C636F5 /* crypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AB6021BE31AB00C636F5 /* crypt.h */; };
-		1AA4AB6E21BE344700C636F5 /* Package.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB6D21BE344700C636F5 /* Package.mm */; };
+		1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC0821BF5B3600C636F5 /* sqlite.cc */; };
+		1AA4AC0B21BF65E300C636F5 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AA4AC0A21BF65E300C636F5 /* libsqlite3.tbd */; };
+		1AA4AC3A21BFBC3A00C636F5 /* mztools.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC2E21BFBC3900C636F5 /* mztools.c */; };
+		1AA4AC3C21BFBC3A00C636F5 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC3021BFBC3900C636F5 /* unzip.c */; };
+		1AA4AC3D21BFBC3A00C636F5 /* unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3121BFBC3900C636F5 /* unzip.h */; };
+		1AA4AC3E21BFBC3A00C636F5 /* zip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC3221BFBC3A00C636F5 /* zip.c */; };
+		1AA4AC3F21BFBC3A00C636F5 /* zip.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3321BFBC3A00C636F5 /* zip.h */; };
+		1AA4AC4021BFBC3A00C636F5 /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC3421BFBC3A00C636F5 /* ioapi.c */; };
+		1AA4AC4121BFBC3A00C636F5 /* minizip.c in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC3521BFBC3A00C636F5 /* minizip.c */; };
+		1AA4AC4221BFBC3A00C636F5 /* mztools.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3621BFBC3A00C636F5 /* mztools.h */; };
+		1AA4AC4321BFBC3A00C636F5 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3721BFBC3A00C636F5 /* ioapi.h */; };
+		1AA4AC4421BFBC3A00C636F5 /* crypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3821BFBC3A00C636F5 /* crypt.h */; };
+		1AA4AC4721C21B2A00C636F5 /* crypto.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC4621C21B2A00C636F5 /* crypto.cc */; };
+		1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CBE21CB7AC80055C932 /* zombies.cc */; };
+		1AE91CC921D741C90055C932 /* KerWeak.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE91CC721D741C90055C932 /* KerWeak.h */; };
+		1AE91CCA21D741C90055C932 /* KerWeak.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CC821D741C90055C932 /* KerWeak.m */; };
+		1AE91CCD21DC92290055C932 /* http.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CCC21DC92290055C932 /* http.cc */; };
+		1AE91CD021DCA1660055C932 /* uri.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CCF21DCA1660055C932 /* uri.cc */; };
+		1AE91CD221DCB2510055C932 /* KerHttp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CD121DCB2510055C932 /* KerHttp.mm */; };
+		1AE91CD521DDB84D0055C932 /* KerStrong.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE91CD321DDB84D0055C932 /* KerStrong.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1AE91CD621DDB84D0055C932 /* KerStrong.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CD421DDB84D0055C932 /* KerStrong.mm */; };
+		1AE91CDC21DE00770055C932 /* KerUI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CDB21DE00770055C932 /* KerUI.mm */; };
+		1AE91CDF21DE0A6C0055C932 /* KerUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE91CDD21DE0A6C0055C932 /* KerUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF0658D219D516000F8F7A8 /* Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF0658B219D516000F8F7A8 /* Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */; };
 		1AF065A4219D518200F8F7A8 /* bio.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF06595219D518200F8F7A8 /* bio.h */; };
@@ -76,14 +88,11 @@
 		1AF065DC219D53DA00F8F7A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF065DB219D53DA00F8F7A8 /* CoreGraphics.framework */; };
 		1AF065DF219D53EB00F8F7A8 /* KerObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065DD219D53EA00F8F7A8 /* KerObject.mm */; };
 		1AF065E0219D53EB00F8F7A8 /* KerObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065DE219D53EA00F8F7A8 /* KerObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		1AF065E3219D547000F8F7A8 /* KerApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065E1219D547000F8F7A8 /* KerApp.mm */; };
-		1AF065E4219D547000F8F7A8 /* KerApp.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065E2219D547000F8F7A8 /* KerApp.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF065E7219D54AC00F8F7A8 /* KerPage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065E5219D54AC00F8F7A8 /* KerPage.mm */; };
 		1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065E6219D54AC00F8F7A8 /* KerPage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF065EB219D54E600F8F7A8 /* KerPageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065E9219D54E600F8F7A8 /* KerPageViewController.m */; };
 		1AF065EC219D54E600F8F7A8 /* KerPageViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065EA219D54E600F8F7A8 /* KerPageViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065ED219D555C00F8F7A8 /* UIScrollView+KerViewProtocol.h */; };
-		1AF065FA219D555E00F8F7A8 /* KerCanvas.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065EE219D555C00F8F7A8 /* KerCanvas.m */; };
 		1AF065FB219D555E00F8F7A8 /* UITextField+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065EF219D555C00F8F7A8 /* UITextField+KerViewProtocol.h */; };
 		1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F0219D555D00F8F7A8 /* UITextView+KerViewProtocol.mm */; };
 		1AF065FD219D555E00F8F7A8 /* UIView+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065F1219D555D00F8F7A8 /* UIView+KerViewProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -92,7 +101,6 @@
 		1AF06600219D555E00F8F7A8 /* UIScrollView+KKViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F4219D555D00F8F7A8 /* UIScrollView+KKViewProtocol.mm */; };
 		1AF06601219D555E00F8F7A8 /* WKWebView+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065F5219D555D00F8F7A8 /* WKWebView+KerViewProtocol.h */; };
 		1AF06602219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F6219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm */; };
-		1AF06603219D555E00F8F7A8 /* KerCanvas.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF065F7219D555E00F8F7A8 /* KerCanvas.h */; };
 		1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF065F8219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm */; };
 		1AF06606219D567400F8F7A8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06605219D567400F8F7A8 /* WebKit.framework */; };
 		1AF4CE3121A56A2000AE1249 /* UIFont+Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE2F21A56A2000AE1249 /* UIFont+Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -103,6 +111,11 @@
 		1AF4CE3A21A56DF600AE1249 /* UILabel+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */; };
 		1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE3B21A5719800AE1249 /* KerButton.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3C21A5719800AE1249 /* KerButton.mm */; };
+		1AFDAD2A21E327C7000FAAE9 /* storage.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2921E327C7000FAAE9 /* storage.cc */; };
+		1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */; };
+		1AFDAD2F21E355BD000FAAE9 /* duk_config_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */; };
+		1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAF7021E4AC8A000FAAE9 /* net.cc */; };
+		1AFDAF7321E4AC8A000FAAE9 /* net.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAF7121E4AC8A000FAAE9 /* net.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -125,17 +138,33 @@
 		1A53C6F721BE154300170AB7 /* UIImage+Ker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIImage+Ker.mm"; sourceTree = "<group>"; };
 		1AA4AB4321BE30A400C636F5 /* package.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = package.h; sourceTree = "<group>"; };
 		1AA4AB4421BE30BC00C636F5 /* package.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = package.cc; sourceTree = "<group>"; };
-		1AA4AB5621BE31AA00C636F5 /* mztools.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mztools.c; path = ../../../../lib/minizip/mztools.c; sourceTree = "<group>"; };
-		1AA4AB5821BE31AA00C636F5 /* unzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unzip.c; path = ../../../../lib/minizip/unzip.c; sourceTree = "<group>"; };
-		1AA4AB5921BE31AA00C636F5 /* unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unzip.h; path = ../../../../lib/minizip/unzip.h; sourceTree = "<group>"; };
-		1AA4AB5A21BE31AA00C636F5 /* zip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zip.c; path = ../../../../lib/minizip/zip.c; sourceTree = "<group>"; };
-		1AA4AB5B21BE31AA00C636F5 /* zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zip.h; path = ../../../../lib/minizip/zip.h; sourceTree = "<group>"; };
-		1AA4AB5C21BE31AA00C636F5 /* ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ioapi.c; path = ../../../../lib/minizip/ioapi.c; sourceTree = "<group>"; };
-		1AA4AB5D21BE31AA00C636F5 /* minizip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip.c; path = ../../../../lib/minizip/minizip.c; sourceTree = "<group>"; };
-		1AA4AB5E21BE31AA00C636F5 /* mztools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mztools.h; path = ../../../../lib/minizip/mztools.h; sourceTree = "<group>"; };
-		1AA4AB5F21BE31AB00C636F5 /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ioapi.h; path = ../../../../lib/minizip/ioapi.h; sourceTree = "<group>"; };
-		1AA4AB6021BE31AB00C636F5 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crypt.h; path = ../../../../lib/minizip/crypt.h; sourceTree = "<group>"; };
-		1AA4AB6D21BE344700C636F5 /* Package.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Package.mm; sourceTree = "<group>"; };
+		1AA4AC0721BF5AA200C636F5 /* sqlite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sqlite.h; sourceTree = "<group>"; };
+		1AA4AC0821BF5B3600C636F5 /* sqlite.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sqlite.cc; sourceTree = "<group>"; };
+		1AA4AC0A21BF65E300C636F5 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		1AA4AC2E21BFBC3900C636F5 /* mztools.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mztools.c; path = ../../lib/minizip/mztools.c; sourceTree = SOURCE_ROOT; };
+		1AA4AC3021BFBC3900C636F5 /* unzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = unzip.c; path = ../../lib/minizip/unzip.c; sourceTree = SOURCE_ROOT; };
+		1AA4AC3121BFBC3900C636F5 /* unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unzip.h; path = ../../lib/minizip/unzip.h; sourceTree = SOURCE_ROOT; };
+		1AA4AC3221BFBC3A00C636F5 /* zip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zip.c; path = ../../lib/minizip/zip.c; sourceTree = SOURCE_ROOT; };
+		1AA4AC3321BFBC3A00C636F5 /* zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zip.h; path = ../../lib/minizip/zip.h; sourceTree = SOURCE_ROOT; };
+		1AA4AC3421BFBC3A00C636F5 /* ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ioapi.c; path = ../../lib/minizip/ioapi.c; sourceTree = SOURCE_ROOT; };
+		1AA4AC3521BFBC3A00C636F5 /* minizip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip.c; path = ../../lib/minizip/minizip.c; sourceTree = SOURCE_ROOT; };
+		1AA4AC3621BFBC3A00C636F5 /* mztools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mztools.h; path = ../../lib/minizip/mztools.h; sourceTree = SOURCE_ROOT; };
+		1AA4AC3721BFBC3A00C636F5 /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ioapi.h; path = ../../lib/minizip/ioapi.h; sourceTree = SOURCE_ROOT; };
+		1AA4AC3821BFBC3A00C636F5 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crypt.h; path = ../../lib/minizip/crypt.h; sourceTree = SOURCE_ROOT; };
+		1AA4AC4521C21A9400C636F5 /* crypto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = crypto.h; sourceTree = "<group>"; };
+		1AA4AC4621C21B2A00C636F5 /* crypto.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = crypto.cc; sourceTree = "<group>"; };
+		1AE91CBE21CB7AC80055C932 /* zombies.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = zombies.cc; sourceTree = "<group>"; };
+		1AE91CC721D741C90055C932 /* KerWeak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerWeak.h; sourceTree = "<group>"; };
+		1AE91CC821D741C90055C932 /* KerWeak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerWeak.m; sourceTree = "<group>"; };
+		1AE91CCB21DC920F0055C932 /* http.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = http.h; sourceTree = "<group>"; };
+		1AE91CCC21DC92290055C932 /* http.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = http.cc; sourceTree = "<group>"; };
+		1AE91CCE21DCA05D0055C932 /* uri.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = uri.h; sourceTree = "<group>"; };
+		1AE91CCF21DCA1660055C932 /* uri.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = uri.cc; sourceTree = "<group>"; };
+		1AE91CD121DCB2510055C932 /* KerHttp.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerHttp.mm; sourceTree = "<group>"; };
+		1AE91CD321DDB84D0055C932 /* KerStrong.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerStrong.h; sourceTree = "<group>"; };
+		1AE91CD421DDB84D0055C932 /* KerStrong.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerStrong.mm; sourceTree = "<group>"; };
+		1AE91CDB21DE00770055C932 /* KerUI.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerUI.mm; sourceTree = "<group>"; };
+		1AE91CDD21DE0A6C0055C932 /* KerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerUI.h; sourceTree = "<group>"; };
 		1AF06588219D516000F8F7A8 /* Ker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF0658B219D516000F8F7A8 /* Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Ker.h; sourceTree = "<group>"; };
 		1AF0658C219D516000F8F7A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -174,14 +203,11 @@
 		1AF065DB219D53DA00F8F7A8 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		1AF065DD219D53EA00F8F7A8 /* KerObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KerObject.mm; sourceTree = "<group>"; };
 		1AF065DE219D53EA00F8F7A8 /* KerObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerObject.h; sourceTree = "<group>"; };
-		1AF065E1219D547000F8F7A8 /* KerApp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KerApp.mm; sourceTree = "<group>"; };
-		1AF065E2219D547000F8F7A8 /* KerApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerApp.h; sourceTree = "<group>"; };
 		1AF065E5219D54AC00F8F7A8 /* KerPage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KerPage.mm; sourceTree = "<group>"; };
 		1AF065E6219D54AC00F8F7A8 /* KerPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerPage.h; sourceTree = "<group>"; };
 		1AF065E9219D54E600F8F7A8 /* KerPageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KerPageViewController.m; sourceTree = "<group>"; };
 		1AF065EA219D54E600F8F7A8 /* KerPageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerPageViewController.h; sourceTree = "<group>"; };
 		1AF065ED219D555C00F8F7A8 /* UIScrollView+KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+KerViewProtocol.h"; sourceTree = "<group>"; };
-		1AF065EE219D555C00F8F7A8 /* KerCanvas.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KerCanvas.m; sourceTree = "<group>"; };
 		1AF065EF219D555C00F8F7A8 /* UITextField+KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextField+KerViewProtocol.h"; sourceTree = "<group>"; };
 		1AF065F0219D555D00F8F7A8 /* UITextView+KerViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UITextView+KerViewProtocol.mm"; sourceTree = "<group>"; };
 		1AF065F1219D555D00F8F7A8 /* UIView+KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+KerViewProtocol.h"; sourceTree = "<group>"; };
@@ -190,7 +216,6 @@
 		1AF065F4219D555D00F8F7A8 /* UIScrollView+KKViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIScrollView+KKViewProtocol.mm"; sourceTree = "<group>"; };
 		1AF065F5219D555D00F8F7A8 /* WKWebView+KerViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+KerViewProtocol.h"; sourceTree = "<group>"; };
 		1AF065F6219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "WKWebView+KerViewProtocol.mm"; sourceTree = "<group>"; };
-		1AF065F7219D555E00F8F7A8 /* KerCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KerCanvas.h; sourceTree = "<group>"; };
 		1AF065F8219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UITextField+KerViewProtocol.mm"; sourceTree = "<group>"; };
 		1AF06605219D567400F8F7A8 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		1AF4CE2F21A56A2000AE1249 /* UIFont+Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIFont+Ker.h"; sourceTree = "<group>"; };
@@ -201,6 +226,13 @@
 		1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UILabel+KerViewProtocol.mm"; sourceTree = "<group>"; };
 		1AF4CE3B21A5719800AE1249 /* KerButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerButton.h; sourceTree = "<group>"; };
 		1AF4CE3C21A5719800AE1249 /* KerButton.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerButton.mm; sourceTree = "<group>"; };
+		1AFDAD2821E327B1000FAAE9 /* storage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = storage.h; sourceTree = "<group>"; };
+		1AFDAD2921E327C7000FAAE9 /* storage.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = storage.cc; sourceTree = "<group>"; };
+		1AFDAD2B21E34FB0000FAAE9 /* debugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
+		1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = debugger.cc; sourceTree = "<group>"; };
+		1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = duk_config_debug.h; path = "../../../../kk-duktape/lib/duktape/src/duk_config_debug.h"; sourceTree = "<group>"; };
+		1AFDAF7021E4AC8A000FAAE9 /* net.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = net.cc; sourceTree = "<group>"; };
+		1AFDAF7121E4AC8A000FAAE9 /* net.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = net.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -208,6 +240,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AA4AC0B21BF65E300C636F5 /* libsqlite3.tbd in Frameworks */,
 				1AF06606219D567400F8F7A8 /* WebKit.framework in Frameworks */,
 				1AF065DC219D53DA00F8F7A8 /* CoreGraphics.framework in Frameworks */,
 				1AF065DA219D53CC00F8F7A8 /* UIKit.framework in Frameworks */,
@@ -220,18 +253,18 @@
 		1AA4AB4621BE311F00C636F5 /* minizip */ = {
 			isa = PBXGroup;
 			children = (
-				1AA4AB6021BE31AB00C636F5 /* crypt.h */,
-				1AA4AB5C21BE31AA00C636F5 /* ioapi.c */,
-				1AA4AB5F21BE31AB00C636F5 /* ioapi.h */,
-				1AA4AB5D21BE31AA00C636F5 /* minizip.c */,
-				1AA4AB5621BE31AA00C636F5 /* mztools.c */,
-				1AA4AB5E21BE31AA00C636F5 /* mztools.h */,
-				1AA4AB5821BE31AA00C636F5 /* unzip.c */,
-				1AA4AB5921BE31AA00C636F5 /* unzip.h */,
-				1AA4AB5A21BE31AA00C636F5 /* zip.c */,
-				1AA4AB5B21BE31AA00C636F5 /* zip.h */,
+				1AA4AC3821BFBC3A00C636F5 /* crypt.h */,
+				1AA4AC3421BFBC3A00C636F5 /* ioapi.c */,
+				1AA4AC3721BFBC3A00C636F5 /* ioapi.h */,
+				1AA4AC3521BFBC3A00C636F5 /* minizip.c */,
+				1AA4AC2E21BFBC3900C636F5 /* mztools.c */,
+				1AA4AC3621BFBC3A00C636F5 /* mztools.h */,
+				1AA4AC3021BFBC3900C636F5 /* unzip.c */,
+				1AA4AC3121BFBC3900C636F5 /* unzip.h */,
+				1AA4AC3221BFBC3A00C636F5 /* zip.c */,
+				1AA4AC3321BFBC3A00C636F5 /* zip.h */,
 			);
-			path = minizip;
+			name = minizip;
 			sourceTree = "<group>";
 		};
 		1AF0657E219D516000F8F7A8 = {
@@ -261,22 +294,19 @@
 				1AF0658B219D516000F8F7A8 /* Ker.h */,
 				1AF065CE219D52E200F8F7A8 /* KerViewProtocol.h */,
 				1AF065D2219D536700F8F7A8 /* UI.h */,
+				1AE91CDD21DE0A6C0055C932 /* KerUI.h */,
+				1AE91CDB21DE00770055C932 /* KerUI.mm */,
 				1AF065D0219D535A00F8F7A8 /* CGContext.mm */,
 				1AF065D4219D536D00F8F7A8 /* Image.mm */,
 				1AF065D6219D537600F8F7A8 /* View.mm */,
-				1AA4AB6D21BE344700C636F5 /* Package.mm */,
 				1AF065DE219D53EA00F8F7A8 /* KerObject.h */,
 				1AF065DD219D53EA00F8F7A8 /* KerObject.mm */,
-				1AF065E2219D547000F8F7A8 /* KerApp.h */,
-				1AF065E1219D547000F8F7A8 /* KerApp.mm */,
 				1AF065E6219D54AC00F8F7A8 /* KerPage.h */,
 				1AF065E5219D54AC00F8F7A8 /* KerPage.mm */,
 				1AF065EA219D54E600F8F7A8 /* KerPageViewController.h */,
 				1AF065E9219D54E600F8F7A8 /* KerPageViewController.m */,
 				1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */,
 				1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */,
-				1AF065F7219D555E00F8F7A8 /* KerCanvas.h */,
-				1AF065EE219D555C00F8F7A8 /* KerCanvas.m */,
 				1AF065ED219D555C00F8F7A8 /* UIScrollView+KerViewProtocol.h */,
 				1AF065F4219D555D00F8F7A8 /* UIScrollView+KKViewProtocol.mm */,
 				1AF065EF219D555C00F8F7A8 /* UITextField+KerViewProtocol.h */,
@@ -300,6 +330,11 @@
 				1AF0658C219D516000F8F7A8 /* Info.plist */,
 				1A53C6F621BE154300170AB7 /* UIImage+Ker.h */,
 				1A53C6F721BE154300170AB7 /* UIImage+Ker.mm */,
+				1AE91CC721D741C90055C932 /* KerWeak.h */,
+				1AE91CC821D741C90055C932 /* KerWeak.m */,
+				1AE91CD121DCB2510055C932 /* KerHttp.mm */,
+				1AE91CD321DDB84D0055C932 /* KerStrong.h */,
+				1AE91CD421DDB84D0055C932 /* KerStrong.mm */,
 			);
 			path = Ker;
 			sourceTree = "<group>";
@@ -320,6 +355,21 @@
 				1AF0659E219D518200F8F7A8 /* timer.cc */,
 				1AF0659F219D518200F8F7A8 /* dispatch.h */,
 				1AF06594219D518200F8F7A8 /* dispatch-GCD.cc */,
+				1AA4AC0721BF5AA200C636F5 /* sqlite.h */,
+				1AA4AC0821BF5B3600C636F5 /* sqlite.cc */,
+				1AA4AC4521C21A9400C636F5 /* crypto.h */,
+				1AA4AC4621C21B2A00C636F5 /* crypto.cc */,
+				1AE91CBE21CB7AC80055C932 /* zombies.cc */,
+				1AE91CCB21DC920F0055C932 /* http.h */,
+				1AE91CCC21DC92290055C932 /* http.cc */,
+				1AE91CCE21DCA05D0055C932 /* uri.h */,
+				1AE91CCF21DCA1660055C932 /* uri.cc */,
+				1AFDAD2821E327B1000FAAE9 /* storage.h */,
+				1AFDAD2921E327C7000FAAE9 /* storage.cc */,
+				1AFDAD2B21E34FB0000FAAE9 /* debugger.h */,
+				1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */,
+				1AFDAF7121E4AC8A000FAAE9 /* net.h */,
+				1AFDAF7021E4AC8A000FAAE9 /* net.cc */,
 			);
 			name = core;
 			path = ../../../core;
@@ -328,6 +378,7 @@
 		1AF065B2219D51A000F8F7A8 /* duktape */ = {
 			isa = PBXGroup;
 			children = (
+				1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */,
 				1AF065B5219D51C000F8F7A8 /* duk_config.h */,
 				1AF065B4219D51C000F8F7A8 /* duktape.c */,
 				1AF065B3219D51C000F8F7A8 /* duktape.h */,
@@ -358,6 +409,7 @@
 		1AF065D8219D53CC00F8F7A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1AA4AC0A21BF65E300C636F5 /* libsqlite3.tbd */,
 				1A53C63B21AF99F400170AB7 /* Security.framework */,
 				1AF06605219D567400F8F7A8 /* WebKit.framework */,
 				1AF065DB219D53DA00F8F7A8 /* CoreGraphics.framework */,
@@ -376,42 +428,45 @@
 				1AF065D3219D536700F8F7A8 /* UI.h in Headers */,
 				1AF065B8219D51C000F8F7A8 /* duk_config.h in Headers */,
 				1AF4CE3121A56A2000AE1249 /* UIFont+Ker.h in Headers */,
-				1AA4AB6A21BE31AB00C636F5 /* mztools.h in Headers */,
+				1AA4AC4221BFBC3A00C636F5 /* mztools.h in Headers */,
 				1AF065FE219D555E00F8F7A8 /* UITextView+KerViewProtocol.h in Headers */,
 				1AF065AE219D518200F8F7A8 /* dispatch.h in Headers */,
 				1AF065AB219D518200F8F7A8 /* timer.h in Headers */,
 				1AF065A8219D518200F8F7A8 /* kk.h in Headers */,
-				1AF065E4219D547000F8F7A8 /* KerApp.h in Headers */,
-				1AA4AB6B21BE31AB00C636F5 /* ioapi.h in Headers */,
+				1AE91CDF21DE0A6C0055C932 /* KerUI.h in Headers */,
+				1AA4AC4321BFBC3A00C636F5 /* ioapi.h in Headers */,
+				1AE91CD521DDB84D0055C932 /* KerStrong.h in Headers */,
 				1AF06601219D555E00F8F7A8 /* WKWebView+KerViewProtocol.h in Headers */,
 				1AF065C8219D52AC00F8F7A8 /* app.h in Headers */,
 				1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */,
+				1AFDAD2F21E355BD000FAAE9 /* duk_config_debug.h in Headers */,
 				1AF065A7219D518200F8F7A8 /* container.h in Headers */,
 				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
+				1AFDAF7321E4AC8A000FAAE9 /* net.h in Headers */,
 				1AF4CE3521A56B5A00AE1249 /* UIColor+Ker.h in Headers */,
-				1AA4AB6521BE31AB00C636F5 /* unzip.h in Headers */,
+				1AA4AC3D21BFBC3A00C636F5 /* unzip.h in Headers */,
 				1AF0658D219D516000F8F7A8 /* Ker.h in Headers */,
 				1AF065CF219D52E200F8F7A8 /* KerViewProtocol.h in Headers */,
+				1AE91CC921D741C90055C932 /* KerWeak.h in Headers */,
 				1AF4CE3921A56DF600AE1249 /* UILabel+KerViewProtocol.h in Headers */,
 				1AF065FD219D555E00F8F7A8 /* UIView+KerViewProtocol.h in Headers */,
 				1AF065E0219D53EB00F8F7A8 /* KerObject.h in Headers */,
 				1AF065AC219D518200F8F7A8 /* jit.h in Headers */,
 				1AF065C5219D52AC00F8F7A8 /* ui.h in Headers */,
 				1AF065EC219D54E600F8F7A8 /* KerPageViewController.h in Headers */,
-				1AF06603219D555E00F8F7A8 /* KerCanvas.h in Headers */,
 				1AF065C4219D52AC00F8F7A8 /* page.h in Headers */,
 				1AF065A4219D518200F8F7A8 /* bio.h in Headers */,
 				1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */,
 				1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */,
-				1AA4AB6721BE31AB00C636F5 /* zip.h in Headers */,
+				1AA4AC3F21BFBC3A00C636F5 /* zip.h in Headers */,
 				1AF065FB219D555E00F8F7A8 /* UITextField+KerViewProtocol.h in Headers */,
 				1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */,
 				1AF065B6219D51C000F8F7A8 /* duktape.h in Headers */,
 				1AF065CD219D52AC00F8F7A8 /* CGContext.h in Headers */,
 				1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */,
 				1A53C6F821BE154300170AB7 /* UIImage+Ker.h in Headers */,
-				1AA4AB6C21BE31AB00C636F5 /* crypt.h in Headers */,
+				1AA4AC4421BFBC3A00C636F5 /* crypt.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,39 +565,48 @@
 				1AF065DF219D53EB00F8F7A8 /* KerObject.mm in Sources */,
 				1AF06600219D555E00F8F7A8 /* UIScrollView+KKViewProtocol.mm in Sources */,
 				1AF065CC219D52AC00F8F7A8 /* page.cc in Sources */,
-				1AA4AB6221BE31AB00C636F5 /* mztools.c in Sources */,
+				1AE91CDC21DE00770055C932 /* KerUI.mm in Sources */,
 				1AF4CE3A21A56DF600AE1249 /* UILabel+KerViewProtocol.mm in Sources */,
 				1AF06602219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm in Sources */,
-				1AF065FA219D555E00F8F7A8 /* KerCanvas.m in Sources */,
+				1AE91CD221DCB2510055C932 /* KerHttp.mm in Sources */,
 				1AF4CE3621A56B5A00AE1249 /* UIColor+Ker.mm in Sources */,
 				1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */,
 				1AF065B7219D51C000F8F7A8 /* duktape.c in Sources */,
 				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
-				1AA4AB6621BE31AB00C636F5 /* zip.c in Sources */,
+				1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */,
+				1AA4AC3C21BFBC3A00C636F5 /* unzip.c in Sources */,
 				1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */,
+				1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */,
+				1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */,
 				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
 				1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */,
 				1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */,
 				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
-				1AA4AB6E21BE344700C636F5 /* Package.mm in Sources */,
+				1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */,
+				1AA4AC4721C21B2A00C636F5 /* crypto.cc in Sources */,
 				1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */,
-				1AA4AB6421BE31AB00C636F5 /* unzip.c in Sources */,
-				1AA4AB6821BE31AB00C636F5 /* ioapi.c in Sources */,
 				1AF065EB219D54E600F8F7A8 /* KerPageViewController.m in Sources */,
 				1AF065B0219D518200F8F7A8 /* jit.cc in Sources */,
 				1AF065C7219D52AC00F8F7A8 /* app.cc in Sources */,
+				1AA4AC4121BFBC3A00C636F5 /* minizip.c in Sources */,
 				1AF065AF219D518200F8F7A8 /* event.cc in Sources */,
 				1AF065FF219D555E00F8F7A8 /* UIView+KerViewProtocol.mm in Sources */,
-				1AF065E3219D547000F8F7A8 /* KerApp.mm in Sources */,
+				1AA4AC3A21BFBC3A00C636F5 /* mztools.c in Sources */,
+				1AE91CCA21D741C90055C932 /* KerWeak.m in Sources */,
 				1A53C6F921BE154300170AB7 /* UIImage+Ker.mm in Sources */,
 				1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */,
 				1AF4CE3221A56A2000AE1249 /* UIFont+Ker.mm in Sources */,
 				1AF065AA219D518200F8F7A8 /* kk.cc in Sources */,
+				1AE91CD621DDB84D0055C932 /* KerStrong.mm in Sources */,
 				1AF065C6219D52AC00F8F7A8 /* view.cc in Sources */,
 				1AF065AD219D518200F8F7A8 /* timer.cc in Sources */,
+				1AE91CD021DCA1660055C932 /* uri.cc in Sources */,
+				1AE91CCD21DC92290055C932 /* http.cc in Sources */,
+				1AA4AC4021BFBC3A00C636F5 /* ioapi.c in Sources */,
 				1AF065D7219D537600F8F7A8 /* View.mm in Sources */,
+				1AFDAD2A21E327C7000FAAE9 /* storage.cc in Sources */,
 				1AF065CB219D52AC00F8F7A8 /* CGContext.cc in Sources */,
-				1AA4AB6921BE31AB00C636F5 /* minizip.c in Sources */,
+				1AA4AC3E21BFBC3A00C636F5 /* zip.c in Sources */,
 				1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */,
 				1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */,
 			);
@@ -711,7 +775,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../lib/duktape/src,
 					../../,
-					../../lib/minizip,
+					../../lib,
 				);
 				INFOPLIST_FILE = Ker/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -722,6 +786,7 @@
 					"@loader_path/Frameworks",
 				);
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.Ker;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -743,7 +808,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../lib/duktape/src,
 					../../,
-					../../lib/minizip,
+					../../lib,
 				);
 				INFOPLIST_FILE = Ker/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -753,6 +818,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.kkmofang.Ker;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;

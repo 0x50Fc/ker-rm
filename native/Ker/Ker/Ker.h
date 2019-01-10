@@ -2,14 +2,13 @@
 //  Ker.h
 //  Ker
 //
-//  Created by hailong11 on 2018/11/15.
+//  Created by zhanghailong on 2018/11/15.
 //  Copyright © 2018 kkmofang.cn. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 #import <Ker/KerObject.h>
-#import <Ker/KerApp.h>
-#import <Ker/KerButton.h>
+#import <Ker/KerUI.h>
 
 //! Project version number for Ker.
 FOUNDATION_EXPORT double KerVersionNumber;

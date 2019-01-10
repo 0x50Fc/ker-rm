@@ -11,11 +11,13 @@
 #include <ui/ui.h>
 #include <ui/view.h>
 #include <objc/runtime.h>
+#import "KerUI.h"
 
 @interface UIScrollViewKKViewProtocol : NSObject
 
 @property(nonatomic,assign) CGPoint contentOffset;
-@property(nonatomic,assign) kk::ui::View * view;
+@property(nonatomic,assign) kk::Uint64 viewId;
+@property(nonatomic,assign) KerId app;
 
 @end
 
@@ -32,12 +34,15 @@
 
 -(void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
     
-    if([object isKindOfClass:[UIScrollView class]] && [keyPath isEqualToString:@"contentOffset"] && _view) {
+    if([object isKindOfClass:[UIScrollView class]] && [keyPath isEqualToString:@"contentOffset"]
+       && _viewId != 0 && _app != 0) {
         
-        if(!CGPointEqualToPoint(_contentOffset, [object contentOffset])) {
-            kk::Strong<kk::Event> e = new kk::Event();
-            _view->emit("scroll", e);
-            _contentOffset = [object contentOffset];
+        CGPoint offset = [object contentOffset];
+        
+        if(!CGPointEqualToPoint(_contentOffset, offset)) {
+            _contentOffset = offset;
+            [KerUI app:_app setContentOffset:offset viewId:_viewId];
+            [KerUI app:_app emit:@"scroll" viewId:_viewId data:nil];
         }
         
     }
@@ -48,18 +53,21 @@
 
 @implementation UIScrollView (KerViewProtocol)
 
--(void) KerViewObtain:(KerViewCPointer) view {
-    [super KerViewObtain:view];
+-(void) KerViewObtain:(KerId) viewId app:(KerId) app {
+    [super KerViewObtain:viewId app:app];
     UIScrollViewKKViewProtocol * object = [[UIScrollViewKKViewProtocol alloc] init];
-    object.view = (kk::ui::View *) view;
+    object.viewId = viewId;
+    object.app = app;
     [self addObserver:object forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     objc_setAssociatedObject(self, "__UIScrollViewKKViewProtocol", object, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
--(void) KerViewRecycle:(KerViewCPointer) view {
-    [super KerViewRecycle:view];
+-(void) KerViewRecycle:(KerId) viewId app:(KerId) app{
+    [super KerViewRecycle:viewId app:app];
     UIScrollViewKKViewProtocol * object = objc_getAssociatedObject(self, "__UIScrollViewKKViewProtocol");
     if(object) {
+        object.viewId = 0;
+        object.app = 0;
         [self removeObserver:object forKeyPath:@"contentOffset"];
         objc_setAssociatedObject(self, "__UIScrollViewKKViewProtocol", nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }

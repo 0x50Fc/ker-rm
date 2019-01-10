@@ -7,14 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Ker/KerViewProtocol.h>
 #import <Ker/KerPage.h>
-#import <Ker/KerApp.h>
 
 @interface KerPageViewController : UIViewController<KerPageDelegate>
 
-@property(nonatomic,strong) KerApp * app;
-@property(nonatomic,strong) NSString * path;
-@property(nonatomic,strong,readonly) KerPage * page;
-@property(nonatomic,strong) NSDictionary<NSString *,NSString *> * query;
+@property(nonatomic,assign,readonly) KerId pageId;
+
+-(instancetype) initWithPageId:(KerId) pageId;
 
 @end

@@ -18,12 +18,22 @@ namespace kk {
         _data = data;
     }
     
+    
+    Any & Event::returnValue() {
+        return _returnValue;
+    }
+    
+    void Event::setReturnValue(Any& v) {
+        _returnValue = v;
+    }
+    
     void Event::Openlib() {
         
         kk::Openlib<>::add([](duk_context * ctx)->void{
             
             kk::PushClass<Event>(ctx, [](duk_context * ctx)->void{
                 kk::PutProperty<Event,Object *>(ctx, -1, "data", &Event::data,&Event::setData);
+                kk::PutProperty<Event,Any&>(ctx, -1, "returnValue", &Event::returnValue,&Event::setReturnValue);
             });
             
         });
@@ -87,6 +97,9 @@ namespace kk {
                         }
                         n ++ ;
                     }
+                    if(vs.size() == 0) {
+                        _prefixs.erase(i);
+                    }
                 }
             }
         } else {
@@ -103,6 +116,9 @@ namespace kk {
                             continue;
                         }
                         n ++ ;
+                    }
+                    if(vs.size() == 0) {
+                        _events.erase(i);
                     }
                 }
             }

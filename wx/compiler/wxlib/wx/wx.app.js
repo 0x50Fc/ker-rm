@@ -1,4 +1,7 @@
 
+var WX = require("wx/wx.js");
+var func = require("wx/func.js");
+
 __appObject = {};
 __appOptions = {};
 __cssContext = '';
@@ -10,14 +13,31 @@ module.exports = function (options) {
     __appOptions = options;
     __cssContext = app.getTextContent("app.css");
 
-    (function (__CODE__, App, app) {
+    (function (__CODE__, App, app, wx, setInterval, setTimeout, require) {
         eval(__CODE__);
     })(
-        app.getTextContent("app.wx.js"),
+        app.getTextContent("app.js"),
         function (object) {
             __appObject = object;
         },
-        undefined
+        undefined,
+        new WX(undefined, undefined, app, wx, undefined, ''),
+        function (fn, v) {
+            setInterval(function () {
+                fn.call(__appObject);
+            }, v);
+        },
+        function (fn, v) {
+            setTimeout(function () {
+                fn.call(__appObject);
+            }, v);
+        },
+        function (p) {
+            if (!p.endsWith(".js")) {
+                p = p + ".js";
+            }
+            return require(p);
+        }
     );
 
     app.on("foreground", function () {

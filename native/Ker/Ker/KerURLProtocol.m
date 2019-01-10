@@ -2,15 +2,15 @@
 //  KerURLProtocol.m
 //  Ker
 //
-//  Created by hailong11 on 2018/12/6.
+//  Created by zhanghailong on 2018/12/6.
 //  Copyright © 2018 kkmofang.cn. All rights reserved.
 //
 
-#import "KerApp.h"
+#import "KerUI.h"
 #import "KerURLProtocol.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 
-@protocol KerAppWKBrowsingContextController  <NSObject>
+@protocol KerUIWKBrowsingContextController  <NSObject>
 
 -(void) registerSchemeForCustomProtocol:(NSString *) scheme;
 
@@ -32,6 +32,7 @@ static NSString * kKerURLProtocolKey = @"kKerURLProtocolKey";
         [confirguration setURLSchemeHandler:v forURLScheme:@"ker-app"];
         [confirguration setURLSchemeHandler:v forURLScheme:@"ker-tmp"];
         [confirguration setURLSchemeHandler:v forURLScheme:@"ker-data"];
+        [confirguration setURLSchemeHandler:v forURLScheme:@"ker-native"];
     } else {
 
     }
@@ -46,9 +47,10 @@ static NSString * kKerURLProtocolKey = @"kKerURLProtocolKey";
             Class cls = NSClassFromString(@"WKBrowsingContextController");
             SEL sel = @selector(registerSchemeForCustomProtocol:);
             if([cls respondsToSelector:sel]) {
-                [(id<KerAppWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-tmp"];
-                [(id<KerAppWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-data"];
-                [(id<KerAppWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-app"];
+                [(id<KerUIWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-tmp"];
+                [(id<KerUIWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-data"];
+                [(id<KerUIWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-app"];
+                [(id<KerUIWKBrowsingContextController>)cls registerSchemeForCustomProtocol:@"ker-native"];
             }
         }
     }
@@ -60,7 +62,7 @@ static NSString * kKerURLProtocolKey = @"kKerURLProtocolKey";
         return NO;
     }
     NSString * scheme = [request.URL scheme];
-    return [scheme isEqualToString:@"ker-tmp"] || [scheme isEqualToString:@"ker-data"] || [scheme isEqualToString:@"ker-app"];
+    return [scheme isEqualToString:@"ker-tmp"] || [scheme isEqualToString:@"ker-data"] || [scheme isEqualToString:@"ker-app"] || [scheme isEqualToString:@"ker-native"];
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request {
@@ -79,12 +81,8 @@ static NSString * kKerURLProtocolKey = @"kKerURLProtocolKey";
     
     NSString * scheme = [URL scheme];
     
-    if([scheme isEqualToString:@"ker-tmp"]) {
-        filePath = [KerApp pathWithURI:URL.absoluteString];
-    } else if([scheme isEqualToString:@"ker-data"]) {
-        filePath = [KerApp pathWithURI:URL.absoluteString];
-    } else if([scheme isEqualToString:@"ker-app"]) {
-        filePath = [KerApp pathWithURI:URL.absoluteString];
+    if([scheme hasPrefix:@"ker-"]) {
+        filePath = [KerUI resolvePath:URL.absoluteString];
     } else {
         * error = [NSError errorWithDomain:@"KerURLProtocol" code:0 userInfo:@{NSLocalizedDescriptionKey:@"Not Found File Path"}];
         return;
@@ -97,7 +95,7 @@ static NSString * kKerURLProtocolKey = @"kKerURLProtocolKey";
         return;
     }
     
-    NSString * mimeType = [KerApp mimeType:filePath data:* data defaultType:@"application/octet-stream"];
+    NSString * mimeType = [KerUI mimeType:filePath data:* data defaultType:@"application/octet-stream"];
     
     * resp = [[NSURLResponse alloc] initWithURL:URL MIMEType:mimeType expectedContentLength:(* data).length textEncodingName:nil];
     

@@ -2,7 +2,7 @@
 //  package.h
 //  Ker
 //
-//  Created by hailong11 on 2018/12/10.
+//  Created by zhanghailong on 2018/12/10.
 //  Copyright © 2018 kkmofang.cn. All rights reserved.
 //
 
@@ -12,10 +12,13 @@
 
 #include <ui/ui.h>
 #include <core/event.h>
+#include <core/http.h>
 
 namespace kk {
     
     namespace ui {
+        
+        class App;
         
         typedef kk::Uint PackageState;
         
@@ -31,10 +34,12 @@ namespace kk {
             
             Package(kk::CString URI);
             
+            virtual ~Package();
+            
             virtual kk::CString URI();
             virtual PackageState state();
             virtual void setState(PackageState state);
-            virtual void run(kk::Object * query);
+            virtual kk::Uint64 run(kk::Object * query);
             
             Ker_CLASS(Package,EventEmitter,"UIPackage")
             
@@ -43,10 +48,11 @@ namespace kk {
         protected:
             PackageState _state;
             kk::String _URI;
+            kk::String _path;
+            kk::String _appkey;
+            kk::Strong<HTTPRequest> _http;
         };
         
-        
-        kk::Strong<Package> createPackage(Context * context,kk::CString URI);
         
     }
 }
