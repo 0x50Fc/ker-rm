@@ -25,11 +25,19 @@
     if((self = [super init])) {
         _page = page;
         _page->retain();
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardVisible:) name:UIKeyboardWillShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardHidden:) name:UIKeyboardWillHideNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardVisible:) name:UIKeyboardWillChangeFrameNotification object:nil];
     }
     return self;
 }
 
 -(void) dealloc {
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillChangeFrameNotification object:nil];
+    
     if(_page) {
         kk::ui::Page * page = _page;
         _page = nullptr;
@@ -37,6 +45,50 @@
             page->release();
         });
     }
+}
+
+-(void) keyboard:(CGRect) frame visible:(BOOL) visible {
+    
+    if(_page == nullptr) {
+        return;
+    }
+    
+    if(_view == nil) {
+        return;
+    }
+    
+    kk::Strong<kk::Event> e = new kk::Event();
+    
+    e->setData(new kk::NativeValue((__bridge kk::Native *) @{@"width":@(frame.size.width),
+                                                             @"height":@(frame.size.height),
+                                                             @"x":@(frame.origin.x),
+                                                             @"y":@(frame.origin.y),
+                                                             @"visible":@(visible)
+                                                             } ));
+    
+    kk::Weak<kk::ui::Page> v = _page;
+    
+    _page->queue()->async([v,e]()->void{
+        kk::Strong<kk::ui::Page> p = v.operator->();
+        if(p != nullptr) {
+            p->emit("keyboard", e.operator->());
+        }
+    });
+}
+
+-(void) keyboardVisible:(NSNotification *) notification {
+    
+    CGRect frame = [[[notification userInfo] valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    
+    [self keyboard:frame visible:YES];
+    
+}
+
+-(void) keyboardHidden:(NSNotification *) notification {
+    
+    CGRect frame = [[[notification userInfo] valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    
+    [self keyboard:frame visible:NO];
 }
 
 -(void) recycle {

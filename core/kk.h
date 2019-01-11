@@ -134,37 +134,6 @@ static const kk::Class * Class() { \
         };
     };
     
-   
-    
-    class ArrayBuffer : public Object {
-    public:
-        ArrayBuffer(void * data,kk::Uint size);
-        ArrayBuffer(kk::Uint size);
-        virtual ~ArrayBuffer();
-        virtual kk::Uint byteLength();
-        virtual void * data();
-    protected:
-        void * _data;
-        kk::Uint _size;
-    };
-    
-    class Buffer {
-    public:
-        Buffer();
-        virtual ~Buffer();
-        virtual kk::Uint byteLength();
-        virtual void setByteLength(kk::Uint length);
-        virtual kk::Uint size();
-        virtual kk::Ubyte * data();
-        virtual void capacity(kk::Uint size);
-        virtual void append(const void * p, size_t size);
-        virtual kk::String toString();
-    protected:
-        kk::Ubyte _buf[2048];
-        Ubyte * _data;
-        kk::Uint _size;
-        kk::Uint _length;
-    };
     
     class Ref {
     public:
@@ -338,6 +307,16 @@ static const kk::Class * Class() { \
     class NativeValue : public NativeObject {
     public:
         NativeValue(Native * native);
+    };
+    
+    class PointerObject : public Object {
+    public:
+        PointerObject(void * pointer,std::function<void(void*)> && release);
+        virtual ~PointerObject();
+        virtual void * pointer();
+    protected:
+        void * _pointer;
+        std::function<void(void*)> _release;
     };
 
     class Any {
@@ -527,6 +506,40 @@ static const kk::Class * Class() { \
         std::map<TKey,TValue> _items;
     };
     
+    class ArrayBuffer : public Object {
+    public:
+        ArrayBuffer(void * data,kk::Uint size);
+        ArrayBuffer(kk::Uint size);
+        virtual ~ArrayBuffer();
+        virtual kk::Uint byteLength();
+        virtual kk::Ubyte * data();
+    protected:
+        kk::Ubyte * _data;
+        kk::Uint _size;
+    };
+    
+    class Buffer : public Object {
+    public:
+        Buffer();
+        virtual ~Buffer();
+        virtual kk::Uint byteLength();
+        virtual void setByteLength(kk::Uint length);
+        virtual kk::Uint size();
+        virtual kk::Ubyte * data();
+        virtual void capacity(kk::Uint size);
+        virtual void append(const void * p, kk::Uint size);
+        virtual void append(Any v);
+        virtual void drain(kk::Uint length);
+        virtual kk::String toString();
+        
+        Ker_CLASS(Buffer,Object,"Buffer");
+        
+    protected:
+        kk::Ubyte _buf[2048];
+        Ubyte * _data;
+        kk::Uint _size;
+        kk::Uint _length;
+    };
     
     void LogV(const char * format, va_list va);
     

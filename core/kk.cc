@@ -205,15 +205,14 @@ namespace kk {
     
     ArrayBuffer::ArrayBuffer(void * data,kk::Uint size) {
         _size = size;
-        _data = malloc(size);
+        _data = (kk::Ubyte *) malloc(size);
         memcpy(_data,data, size);
     }
     
-
     ArrayBuffer::ArrayBuffer(kk::Uint size):_data(nullptr),_size(0) {
         if(size > 0) {
             _size = size;
-            _data = malloc(size);
+            _data = (kk::Ubyte *) malloc(size);
             memset(_data, 0, size);
         }
     }
@@ -228,7 +227,7 @@ namespace kk {
         return _size;
     }
     
-    void * ArrayBuffer::data() {
+    kk::Ubyte * ArrayBuffer::data() {
         return _data;
     }
     
@@ -263,21 +262,46 @@ namespace kk {
     
     void Buffer::capacity(kk::Uint size) {
         if(_size < size) {
+            kk::Ubyte * b = data();
             if(_data) {
                 _data = (kk::Ubyte *) realloc(_data, size);
             } else {
                 _data = (kk::Ubyte *) malloc(size);
             }
             _size = size;
+            if(b == _buf && _length > 0) {
+                memcpy(_data, _buf,_length);
+            }
         }
     }
     
-    void Buffer::append(const void * p, size_t size) {
-        kk::Uint n = size > 1024 ? (kk::Uint) size : 1024;
-        capacity(byteLength() + n);
+    void Buffer::append(const void * p, kk::Uint size) {
+        kk::Uint n = size > 1024 ? size : 1024;
+        capacity(_length + n);
         kk::Ubyte * b = data();
-        memcpy(b + byteLength(), p, size);
-        setByteLength(byteLength() + (kk::Uint) size);
+        memcpy(b + _length, p, size);
+        setByteLength(_length + (kk::Uint) size);
+    }
+    
+    void Buffer::append(Any v){
+        if(v.type == TypeString) {
+            append(v.stringValue, (kk::Uint) v.length);
+        } else if(v.type == TypeObject) {
+            ArrayBuffer * a = v.objectValue;
+            if(a != nullptr) {
+                append(a->data(), a->byteLength());
+            }
+        }
+    }
+    
+
+    void Buffer::drain(kk::Uint length) {
+        kk::Ubyte * b = data();
+        kk::Uint s = byteLength() - length;
+        if(s > 0) {
+            memcpy(b, b + length, s);
+        }
+        setByteLength(s);
     }
     
     kk::String Buffer::toString() {
@@ -1308,6 +1332,20 @@ namespace kk {
     
     NativeValue::NativeValue(Native * native):NativeObject(native) {
         
+    }
+    
+    PointerObject::PointerObject(void * pointer,std::function<void(void*)> && release):_pointer(pointer),_release(release) {
+        
+    }
+    
+    PointerObject::~PointerObject() {
+        if(_release != nullptr) {
+            _release(_pointer);
+        }
+    }
+    
+    void * PointerObject::pointer() {
+        return _pointer;
     }
     
 }

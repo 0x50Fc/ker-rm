@@ -13,6 +13,9 @@
 #include <ui/package.h>
 #include <core/crypto.h>
 #include <core/uri.h>
+#include <core/net.h>
+#include <core/http.h>
+#include <core/ssl.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -216,6 +219,9 @@ namespace kk {
             kk::Sqlite::Openlib();
             kk::Crypto::Openlib();
             kk::Storage::Openlib();
+            kk::TCPConnection::Openlib();
+            kk::SSLConnection::Openlib();
+            kk::HTTPRequest::Openlib();
             kk::ui::Context::Openlib();
             kk::ui::View::Openlib();
             kk::ui::Canvas::Openlib();
