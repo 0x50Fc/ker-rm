@@ -697,6 +697,14 @@ namespace kk {
         return _output;
     }
     
+    Buffer & TCPConnection::outputBuffer() {
+        return _buffer;
+    }
+    
+    Buffer & TCPConnection::inputBuffer() {
+        return _input->readBuffer();
+    }
+    
     DispatchQueue * TCPConnection::queue() {
         return _queue;
     }
@@ -948,6 +956,21 @@ namespace kk {
         onWrite();
     }
     
+    kk::Boolean TCPConnection::flush() {
+        
+        if(_output == nullptr) {
+            return true;
+        }
+
+        ssize_t r = _output->write(_buffer.data(), _buffer.byteLength());
+        
+        if(r > 0) {
+            _buffer.drain((kk::Uint) r);
+        }
+        
+        return _buffer.byteLength() == 0;
+    }
+    
     void TCPConnection::onWrite(){
         
         if(_output == nullptr) {
@@ -1009,8 +1032,7 @@ namespace kk {
     }
     
     void TCPConnection::Openlib() {
-           
-
+        
         kk::Openlib<>::add([](duk_context * ctx)->void{
             
             kk::PushClass<TCPConnection,kk::CString,kk::Int>(ctx, [](duk_context * ctx)->void{

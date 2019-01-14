@@ -133,9 +133,12 @@ namespace kk {
         virtual void close();
         virtual void write(Any value);
         virtual void write(const void * data,size_t size);
+        virtual kk::Boolean flush();
         virtual SocketId fd();
         virtual NetInputStream * input();
         virtual NetOutputStream * output();
+        virtual Buffer & outputBuffer();
+        virtual Buffer & inputBuffer();
         virtual DispatchQueue * queue();
         
         static void Openlib();

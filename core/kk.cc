@@ -283,6 +283,21 @@ namespace kk {
         setByteLength(_length + (kk::Uint) size);
     }
     
+    void Buffer::format(const char * format,...) {
+        va_list ap;
+        va_start(ap, format);
+        formatv(format,ap);
+        va_end(ap);
+    }
+    
+    void Buffer::formatv(const char * format,va_list ap) {
+        int n = vsnprintf(nullptr, 0, format, ap);
+        capacity(_length + n);
+        char * b = (char *) data();
+        n = vsnprintf(b + _length, _size - _length, format, ap);
+        setByteLength(_length + n);
+    }
+    
     void Buffer::append(Any v){
         if(v.type == TypeString) {
             append(v.stringValue, (kk::Uint) v.length);

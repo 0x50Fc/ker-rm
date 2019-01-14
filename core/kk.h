@@ -528,6 +528,8 @@ static const kk::Class * Class() { \
         virtual kk::Ubyte * data();
         virtual void capacity(kk::Uint size);
         virtual void append(const void * p, kk::Uint size);
+        virtual void format(const char * format,...);
+        virtual void formatv(const char * format,va_list ap);
         virtual void append(Any v);
         virtual void drain(kk::Uint length);
         virtual kk::String toString();

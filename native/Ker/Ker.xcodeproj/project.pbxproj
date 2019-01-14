@@ -23,6 +23,8 @@
 
 /* Begin PBXBuildFile section */
 		1A3AF07021E76454001C8759 /* ssl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAF7921E6EAC2000FAAE9 /* ssl.cc */; };
+		1A3AF07321EC7F0B001C8759 /* WebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A3AF07121EC7F0B001C8759 /* WebSocket.h */; };
+		1A3AF07421EC7F0B001C8759 /* WebSocket.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AF07221EC7F0B001C8759 /* WebSocket.cc */; };
 		1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */; };
 		1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -131,6 +133,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1A3AF07121EC7F0B001C8759 /* WebSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebSocket.h; sourceTree = "<group>"; };
+		1A3AF07221EC7F0B001C8759 /* WebSocket.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebSocket.cc; sourceTree = "<group>"; };
 		1A53C63B21AF99F400170AB7 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerPageWindowController.h; sourceTree = "<group>"; };
 		1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerPageWindowController.m; sourceTree = "<group>"; };
@@ -376,6 +380,8 @@
 				1AFDAF7021E4AC8A000FAAE9 /* net.cc */,
 				1AFDAF7821E6EAC2000FAAE9 /* ssl.h */,
 				1AFDAF7921E6EAC2000FAAE9 /* ssl.cc */,
+				1A3AF07121EC7F0B001C8759 /* WebSocket.h */,
+				1A3AF07221EC7F0B001C8759 /* WebSocket.cc */,
 			);
 			name = core;
 			path = ../../../core;
@@ -455,6 +461,7 @@
 				1AF0658D219D516000F8F7A8 /* Ker.h in Headers */,
 				1AF065CF219D52E200F8F7A8 /* KerViewProtocol.h in Headers */,
 				1AE91CC921D741C90055C932 /* KerWeak.h in Headers */,
+				1A3AF07321EC7F0B001C8759 /* WebSocket.h in Headers */,
 				1AF4CE3921A56DF600AE1249 /* UILabel+KerViewProtocol.h in Headers */,
 				1AF065FD219D555E00F8F7A8 /* UIView+KerViewProtocol.h in Headers */,
 				1AF065E0219D53EB00F8F7A8 /* KerObject.h in Headers */,
@@ -579,6 +586,7 @@
 				1AF4CE3621A56B5A00AE1249 /* UIColor+Ker.mm in Sources */,
 				1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */,
 				1AF065B7219D51C000F8F7A8 /* duktape.c in Sources */,
+				1A3AF07421EC7F0B001C8759 /* WebSocket.cc in Sources */,
 				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
 				1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */,
 				1AA4AC3C21BFBC3A00C636F5 /* unzip.c in Sources */,
