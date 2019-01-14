@@ -339,6 +339,17 @@ namespace kk {
         }
         
         {
+            Buffer * v = dynamic_cast<Buffer *>(object);
+            if(v != nullptr) {
+                void * data = duk_push_fixed_buffer(ctx, v->byteLength());
+                memcpy(data, v->data(), v->byteLength());
+                duk_push_buffer_object(ctx, -1, 0, v->byteLength(), DUK_BUFOBJ_ARRAYBUFFER);
+                duk_remove(ctx, -2);
+                return;
+            }
+        }
+        
+        {
             NativeValue * v = dynamic_cast<NativeValue *>(object);
             if(v != nullptr) {
                 PushNative(ctx, v->native());
@@ -719,11 +730,17 @@ namespace kk {
             case DUK_TYPE_OBJECT:
             case DUK_TYPE_LIGHTFUNC:
             {
-                Object * a =  GetObject(ctx, idx);
-                if(a == nullptr) {
-                    a = new JSObject(ctx,duk_get_heapptr(ctx, idx));
+                if(duk_is_buffer_data(ctx, idx)) {
+                    size_t n;
+                    void * data = duk_get_buffer_data(ctx, idx, &n);
+                    v = new ArrayBuffer(data,(kk::Uint) n);
+                } else {
+                    Object * a =  GetObject(ctx, idx);
+                    if(a == nullptr) {
+                        a = new JSObject(ctx,duk_get_heapptr(ctx, idx));
+                    }
+                    v = a;
                 }
-                v = a;
             }
                 break;
             case DUK_TYPE_BUFFER:
@@ -752,6 +769,18 @@ namespace kk {
     void OpenBaselib(){
         
         kk::Openlib<>::add([](duk_context * ctx)->void{
+            
+            PushClass<Buffer>(ctx,[](duk_context * ctx)->void{
+            
+                PutProperty<Buffer,kk::Uint>(ctx, -1, "byteLength", &Buffer::byteLength, &Buffer::setByteLength);
+                
+                PutProperty<Buffer,kk::Uint>(ctx, -1, "size", &Buffer::size);
+                PutMethod<Buffer,void,kk::Uint>(ctx, -1, "capacity", &Buffer::capacity);
+                PutMethod<Buffer,void,kk::Uint>(ctx, -1, "drain", &Buffer::drain);
+                PutMethod<Buffer,void,kk::Any>(ctx, -1, "append", &Buffer::append);
+                PutMethod<Buffer,kk::String>(ctx, -1, "toString", &Buffer::toString);
+                
+            });
             
             duk_push_c_function(ctx, [](duk_context * ctx)->duk_ret_t{
                 

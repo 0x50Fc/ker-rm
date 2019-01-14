@@ -696,15 +696,11 @@ namespace kk {
                     details::Arguments<sizeof...(TArgs)>::template Set(ctx,args...);
                     
                     if(object != nullptr && object->jsContext() == ctx) {
-                        if(duk_pcall_method(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
-                            
-                        } else {
+                        if(duk_pcall_method(ctx, sizeof...(TArgs)) != DUK_EXEC_SUCCESS) {
                             Error(ctx, -1, "[JSObject]");
                         }
                     } else {
-                        if(duk_pcall(ctx, sizeof...(TArgs)) == DUK_EXEC_SUCCESS) {
-                            
-                        } else {
+                        if(duk_pcall(ctx, sizeof...(TArgs)) != DUK_EXEC_SUCCESS) {
                             Error(ctx, -1, "[JSObject]");
                         }
                     }

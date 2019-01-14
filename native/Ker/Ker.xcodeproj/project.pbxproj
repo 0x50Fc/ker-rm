@@ -22,6 +22,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		1A3AF07021E76454001C8759 /* ssl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAF7921E6EAC2000FAAE9 /* ssl.cc */; };
 		1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */; };
 		1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -116,6 +117,7 @@
 		1AFDAD2F21E355BD000FAAE9 /* duk_config_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */; };
 		1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAF7021E4AC8A000FAAE9 /* net.cc */; };
 		1AFDAF7321E4AC8A000FAAE9 /* net.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAF7121E4AC8A000FAAE9 /* net.h */; };
+		1AFDAF7A21E6EAC2000FAAE9 /* ssl.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAF7821E6EAC2000FAAE9 /* ssl.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -233,6 +235,8 @@
 		1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = duk_config_debug.h; path = "../../../../kk-duktape/lib/duktape/src/duk_config_debug.h"; sourceTree = "<group>"; };
 		1AFDAF7021E4AC8A000FAAE9 /* net.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = net.cc; sourceTree = "<group>"; };
 		1AFDAF7121E4AC8A000FAAE9 /* net.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = net.h; sourceTree = "<group>"; };
+		1AFDAF7821E6EAC2000FAAE9 /* ssl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ssl.h; sourceTree = "<group>"; };
+		1AFDAF7921E6EAC2000FAAE9 /* ssl.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ssl.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -370,6 +374,8 @@
 				1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */,
 				1AFDAF7121E4AC8A000FAAE9 /* net.h */,
 				1AFDAF7021E4AC8A000FAAE9 /* net.cc */,
+				1AFDAF7821E6EAC2000FAAE9 /* ssl.h */,
+				1AFDAF7921E6EAC2000FAAE9 /* ssl.cc */,
 			);
 			name = core;
 			path = ../../../core;
@@ -466,6 +472,7 @@
 				1AF065CD219D52AC00F8F7A8 /* CGContext.h in Headers */,
 				1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */,
 				1A53C6F821BE154300170AB7 /* UIImage+Ker.h in Headers */,
+				1AFDAF7A21E6EAC2000FAAE9 /* ssl.h in Headers */,
 				1AA4AC4421BFBC3A00C636F5 /* crypt.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -582,6 +589,7 @@
 				1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */,
 				1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */,
 				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
+				1A3AF07021E76454001C8759 /* ssl.cc in Sources */,
 				1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */,
 				1AA4AC4721C21B2A00C636F5 /* crypto.cc in Sources */,
 				1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */,
