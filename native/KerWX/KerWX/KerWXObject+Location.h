@@ -43,6 +43,7 @@
 @interface KerWXObject (Location)
 
 -(void) getLocation:(KerJSObject *) object;
+-(void) openLocation:(KerJSObject *) object;
 
 -(void) startCompass:(KerJSObject *) object;
 -(void) stopCompass:(KerJSObject *) object;

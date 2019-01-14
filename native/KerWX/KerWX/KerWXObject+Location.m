@@ -84,15 +84,21 @@
 
 
 -(CLLocationManager *)locationManager{
-
+    
     if (_locationManager == nil) {
-        _locationManager = [[CLLocationManager alloc] init];
-        [_locationManager requestAlwaysAuthorization];
-        _locationManager.delegate = self;
-        _locationManager.desiredAccuracy = kCLLocationAccuracyBest;
-        _locationManager.distanceFilter = kCLDistanceFilterNone;
+        
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            self->_locationManager = [[CLLocationManager alloc] init];
+            [self->_locationManager requestAlwaysAuthorization];
+            self->_locationManager.delegate = self;
+            self->_locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+            self->_locationManager.distanceFilter = kCLDistanceFilterNone;
+        });
+        return _locationManager;
+    }else {
+        return _locationManager;
     }
-    return _locationManager;
+
 }
 
 -(void) getLocation:(KerJSObject *) object {
@@ -205,6 +211,10 @@
 
 -(void) getLocation:(KerJSObject *) object {
     [self.WXLocation getLocation:object];
+}
+
+-(void) openLocation:(KerJSObject *) object {
+    
 }
 
 -(void) startCompass:(KerJSObject *) object{

@@ -15,7 +15,7 @@
 @property (nonatomic, assign) double sampleRate;       //采样率
 @property (nonatomic, assign) int numberOfChannels;    //通道数
 @property (nonatomic, assign) double encodeBitRate;    //编码码率
-@property (nonatomic, copy) NSString * format;         //格式
+@property (nonatomic, copy) NSString * format;          //格式
 @property (nonatomic, assign) double frameSize;        //帧大小
 @property (nonatomic, copy) NSString * audioSource;     //输入源
 @end
@@ -33,7 +33,7 @@
 -(void) startRecord:(KerJSObject *) object;
 -(void) stopRecord:(KerJSObject *) object;
 
--(id<KerWXRecorderManager>) getRecorderManager;
+-(id<KerWXRecorderManager>) getRecorderManager:(KerJSObject *) object;
 
 @end
 

@@ -17,9 +17,15 @@ Page({
   },
 
   getRecorderManager(e){
-    var remanager = wx.getRecorderManager();
-    remanager.star();
-    console.log(remanager);
+    remanager = {};
+    console.log("remanager = ", typeof remanager);
+    remanager = wx.getRecorderManager();
+    console.log("remanager = ", typeof remanager);
+    remanager.start({
+      duration:1111
+    });
+
+    
   }
  
 })

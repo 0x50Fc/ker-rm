@@ -10,6 +10,7 @@
 #import <Ker/Ker.h>
 #import "KerWXObject+Location.h"
 #import "KerWXObject+Http.h"
+#import "KerWXObject+MediaRecord.h"
 
 #include <core/jit.h>
 #include <ui/page.h>
@@ -30,6 +31,7 @@
 
     KerAddOpenlibInterface([KerWXObject class]);
     KerAddOpenlibProtocol(@protocol(KerWXRequestTask));
+    KerAddOpenlibProtocol(@protocol(KerWXRecorderManager));
     
     KerAddOpenlibFunction func = ^(NSString * basePath,NSString * appkey,KerOpenlibSetLibrary setLibrary) {
         

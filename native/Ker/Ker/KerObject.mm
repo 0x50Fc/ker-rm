@@ -333,7 +333,7 @@ namespace kk {
                             [inv invokeWithTarget:(__bridge id)v->native()];
                             
                             SignatureGetReturnValue(inv,r);
-                            
+
                             if(r.type != SignatureTypeVoid) {
                                 duk_push_Signature(ctx, r);
                                 return 1;
@@ -342,7 +342,7 @@ namespace kk {
                         }
                         
                         return 0;
-                    }, method_getNumberOfArguments(p[i]) - 2);
+                    }, DUK_VARARGS);
                     
                     duk_push_pointer(ctx, p[i]);
                     duk_put_prop_string(ctx, -2, "__method");
