@@ -29,135 +29,128 @@
 
 namespace kk {
 
-    SSLConnection::SSLConnection(kk::CString hostname,kk::Int port):TCPConnection(hostname,port),_hostname(hostname) {
+    SSLConnection::SSLConnection(kk::CString hostname,kk::Int port):TCPConnection(hostname,port),_hostname(hostname),_SSLConnected(false) {
         
+    }
+    
+    kk::Boolean SSLConnection::isSSLConnected() {
+        return _SSLConnected;
     }
     
 #ifdef __APPLE__
     
-    static OSStatus SSLConnection_SSLRead(SSLConnectionRef connection,void *data, size_t *dataLength) {
+    void SSLConnection::openConnection() {
         
-        NetBuffer * buffer = (NetBuffer *) connection;
+        _input = new NetInputStream(_queue,_fd);
+        _output = new NetOutputStream(_queue,_fd);
         
-        ssize_t n = buffer->read(data, * dataLength);
-        
-        if(n == -1) {
-            return errSSLClosedAbort;
-        } else if(n == 0) {
-            return errSSLWouldBlock;
-        } else {
-            * dataLength = n;
-        }
-        
-        return noErr;
-    }
-    
-    static OSStatus SSLConnection_SSLWrite(SSLConnectionRef connection,const void *data,size_t *dataLength) {
-        
-        NetBuffer * buffer = (NetBuffer *) connection;
-        
-        buffer->write(data, * dataLength);
-
-        do {
-            
-            NetBufferFlushState s = buffer->flush();
-            
-            if(s == NetBufferFlushStateDone) {
-                break;
-            } else if(s == NetBufferFlushStateContinue) {
-                continue;
-            } else if(s == NetBufferFlushStateError) {
-                return errSSLClosedAbort;
-            }
-            
-        } while(0);
-        
-        return noErr;
-    }
-    
-    void SSLConnection::openConnection(struct sockaddr * addr,socklen_t len) {
-        
-        kk::String errmsg;
-        
-        do {
-            
-            if (-1 == ::connect(_fd, addr, len)) {
-                errmsg = "Error in connect";
-                break;
-            }
-            
-            kk::Strong<NetBuffer> buffer = new NetBuffer(_fd);
+        try {
             
             SSLContextRef sslContext = SSLCreateContext(kCFAllocatorDefault, kSSLClientSide, kSSLStreamType);
-            
             CFAutorelease(sslContext);
             
-            OSStatus s = SSLSetIOFuncs(sslContext, &SSLConnection_SSLRead, &SSLConnection_SSLWrite);
+            OSStatus s = SSLSetIOFuncs(sslContext,
+                                       [](SSLConnectionRef connection,void *data, size_t *dataLength)->OSStatus{
+                                           
+                                           kk::Log("[SSL] SSLRead");
+                                           
+                                           SSLConnection * conn = (SSLConnection *) connection;
+                                           
+                                           if(conn->input() == nullptr || conn->input()->status() == NetStreamStatusError) {
+                                               return errSSLClosedAbort;
+                                           }
+                                           
+                                           if(conn->isSSLConnected()) {
+                                               ssize_t n = ::read(conn->fd(), data, * dataLength);
+                                               if(n == -1) {
+                                                   return errSSLClosedAbort;
+                                               } else if(n == 0) {
+                                                   return errSSLWouldBlock;
+                                               }
+                                               return noErr;
+                                           }
+                                           
+                                           ssize_t n = conn->input()->read(data, * dataLength);
+                                           
+                                           if(n == -1) {
+                                               return errSSLClosedAbort;
+                                           } else if(n == 0) {
+                                               * dataLength = 0;
+                                               return errSSLWouldBlock;
+                                           } else {
+                                               kk::Log("[SSL] Read %d of %d",n,* dataLength);
+                                               * dataLength = n;
+                                               return noErr;
+                                           }
+                                          
+                                       }, [](SSLConnectionRef connection,const void *data,size_t *dataLength)->OSStatus{
+                                           
+                                           kk::Log("[SSL] SSLWrite");
+                                           
+                                           SSLConnection * conn = (SSLConnection *) connection;
+                                           
+                                           if(conn->output() == nullptr || conn->output()->status() == NetStreamStatusError) {
+                                               return errSSLClosedAbort;
+                                           }
+                                           
+                                           if(conn->isSSLConnected()) {
+                                               ssize_t n = ::write(conn->fd(), data, * dataLength);
+                                               if(n == -1) {
+                                                   return errSSLClosedAbort;
+                                               } else if(n == 0) {
+                                                   return errSSLWouldBlock;
+                                               }
+                                               return noErr;
+                                           }
+                                           
+                                           ssize_t n = conn->output()->write(data, * dataLength);
+                                           
+                                           if(n == -1) {
+                                               return errSSLClosedAbort;
+                                           } else if(n == 0) {
+                                               * dataLength = 0;
+                                               return errSSLWouldBlock;
+                                           } else {
+                                               kk::Log("[SSL] Write %d of %d",n,* dataLength);
+                                               * dataLength = n;
+                                               return noErr;
+                                           }
+                                           
+                                       });
             
             if (s != noErr) {
-                errmsg = "Error in SSLSetIOFuncs";
-                break;
+                throw "Error in SSLSetIOFuncs";
             }
             
-            s = SSLSetConnection(sslContext, (SSLConnectionRef) buffer.get());
+            s = SSLSetConnection(sslContext, this);
             
             if (s != noErr) {
-                errmsg = "Error in SSLSetConnection";
-                break;
+                throw "Error in SSLSetConnection";
             }
             
             s = SSLSetPeerDomainName(sslContext, _hostname.c_str(), _hostname.size());
             
             if (s != noErr) {
-                errmsg = "Error in SSLSetPeerDomainName";
-                break;
+                throw "Error in SSLSetPeerDomainName";
             }
             
-            do {
-                
-                s = SSLHandshake(sslContext);
-                
-                if(s == errSSLWouldBlock) {
-                    continue;
-                }
-                
-            } while (0);
+            kk::Weak<SSLConnection> v = this;
+            kk::Strong<kk::NativeObject> n = new kk::NativeObject((kk::Native *) sslContext);
             
-            //errSecSuccess
+            static int count = 0;
             
-            if (s == noErr) {
-                
-                if(-1 == fcntl(_fd, F_SETFL, O_NONBLOCK)) {
-                    errmsg = "Socket Nonblock Error";
-                    break;
-                }
-                
-                kk::Strong<kk::NativeObject> v = new kk::NativeObject((kk::Native *) sslContext);
-                kk::Weak<SSLConnection> vv = this;
-                
-                _queue->async([v,vv,this,buffer]()->void{
-                    kk::Strong<SSLConnection> conn = vv.operator->();
+            std::function<void()> handshake = [v,n]()->void{
+                kk::Strong<SSLConnection> conn = v.operator->();
+                SSLContextRef sslContext = (SSLContextRef) n.operator->()->native();
+                if(conn != nullptr) {
                     
-                    if(conn != nullptr) {
-                        this->onOpen([v,buffer](NetEventBuffer * buffer, const void * data, size_t size)->ssize_t{
+                    OSStatus s = SSLHandshake(sslContext);
+                    if(s == noErr) {
+                        conn->openSSLConnection([n](NetStream * stream, void * data, size_t size)->ssize_t{
                             
-                            SSLContextRef sslContext = (SSLContextRef) v.operator->()->native();
-                            size_t n = 0;
-                            OSStatus s = SSLWrite(sslContext, data, size, &n);
+                            SSLContextRef sslContext = (SSLContextRef) n.operator->()->native();
+                            size_t n = size;
                             
-                            if(s == noErr) {
-                                return n;
-                            } else if(s == errSSLWouldBlock) {
-                                return 0;
-                            } else {
-                                kk::Log("[SSLHandshake] %d",s);
-                                return -1;
-                            }
-                            
-                        }, [v,buffer](NetEventBuffer * buffer, void * data, size_t size)->ssize_t{
-                            
-                            SSLContextRef sslContext = (SSLContextRef) v.operator->()->native();
-                            size_t n = 0;
                             OSStatus s = SSLRead(sslContext, data, size, &n);
                             
                             if(s == noErr) {
@@ -165,42 +158,101 @@ namespace kk {
                             } else if(s == errSSLWouldBlock) {
                                 return 0;
                             } else {
-                                kk::Log("[SSLHandshake] %d",s);
+                                return -1;
+                            }
+                            
+                        },[n](NetStream * stream, const void * data, size_t size)->ssize_t{
+                            
+                            SSLContextRef sslContext = (SSLContextRef) n.operator->()->native();
+                            size_t n = size;
+                            
+                            OSStatus s = SSLWrite(sslContext, data, size, &n);
+                            
+                            if(s == noErr) {
+                                return n;
+                            } else if(s == errSSLWouldBlock) {
+                                return 0;
+                            } else {
                                 return -1;
                             }
                             
                         });
+                    } else if( s == errSSLWouldBlock ) {
+                        
+                    } else {
+                        kk::Log("[SSL] [SSLHandshake] [ERROR] %d",s);
+                        conn->close();
+                        conn->doClose("Error in SSLHandshake");
                     }
-                });
-                
-            } else {
-                kk::Log("[SSLHandshake] %d",s);
-                errmsg = "Error in SSLHandshake";
-                break;
-            }
-            
-        
-            break;
-        } while (1);
-        
-        if(!errmsg.empty()) {
-            
-            kk::Weak<SSLConnection> v = this;
-            
-            _queue->async([v,this,errmsg]()->void{
-                kk::Strong<SSLConnection> conn = v.operator->();
-                if(conn != nullptr) {
-                    this->close();
-                    this->doClose(errmsg.c_str());
                 }
+            };
+            
+            std::function<void(NetStream *,kk::CString errmsg)> onError = [this](NetStream * stream,kk::CString errmsg)->void{
+                kk::Log("[SSL] [ERROR] %s", errmsg);
+                this->close();
+                this->doClose(errmsg);
+            };
+            
+            _input->setOnError(std::move(onError));
+            _input->setOnEvent([handshake,this](NetStream * stream)->void{
+                kk::Log("[SSL] onReading %d >>",count ++);
+                handshake();
+                kk::Log("[SSL] <<");
             });
             
+            _output->setOnError(std::move(onError));
+            _output->setOnEvent([handshake,this](NetStream * stream)->void{
+                kk::Log("[SSL] onWriting %d >>",count ++);
+                handshake();
+                kk::Log("[SSL] <<");
+            });
+            
+            _input->readBuffer().capacity(20480);
+            
+            kk::Log("[SSL] %d >>",count ++);
+            
+            handshake();
+            
+            kk::Log("[SSL] <<");
+            
+        }
+        catch(kk::CString errmsg) {
+            close();
+            doClose(errmsg);
+            return;
         }
         
+        doOpen();
     }
     
 #endif
     
+    
+    void SSLConnection::openSSLConnection(std::function<ssize_t(NetStream *,void *,size_t)> && onRead,std::function<ssize_t(NetStream *,const void *,size_t)> && onWrite) {
+        
+        _SSLConnected = true;
+        
+        _input->setProxy(std::move(onRead));
+        _output->setProxy(std::move(onWrite));
+        
+        std::function<void(NetStream *,kk::CString errmsg)> onError = [this](NetStream * stream,kk::CString errmsg)->void{
+            this->close();
+            this->doClose(errmsg);
+        };
+        
+        _input->setOnError(std::move(onError));
+        _input->setOnEvent([this](NetStream * stream)->void{
+            this->onRead();
+        });
+        
+        _output->setOnError(std::move(onError));
+        _output->setOnEvent([this](NetStream * stream)->void{
+            this->onWrite();
+        });
+        
+        doOpen();
+        
+    }
     
     void SSLConnection::Openlib() {
         

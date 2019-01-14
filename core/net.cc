@@ -437,12 +437,10 @@ namespace kk {
             
             _input.capacity(_input.byteLength() + 2048);
             
-            do {
-                n = ::read(_fd, _input.data() + _input.byteLength(), _input.size() - _input.byteLength());
-                if(n == -1 && errno == EAGAIN){
-                    continue;
-                }
-            } while (0);
+            n = ::read(_fd, _input.data() + _input.byteLength(), _input.size() - _input.byteLength());
+            if(n == -1 && errno == EAGAIN){
+                n = 0;
+            }
             
             if(n == -1) {
                 return n;
@@ -463,166 +461,210 @@ namespace kk {
         return n;
     }
     
-    NetEventBuffer::NetEventBuffer(DispatchQueue * queue,SocketId fd):_fd(fd),_queue(queue),_writing(false),_reading(false) {
-        _rd = createDispatchSource(_fd, DispatchSourceTypeRead, queue);
-        _rd->setEvent([this]()->void{
-            this->onReading();
-        });
-        _wd = createDispatchSource(_fd, DispatchSourceTypeWrite, queue);
-        _wd->setEvent([this]()->void{
-            this->onWriting();
-        });
-    }
-    
-    void NetEventBuffer::setOnSend(std::function<ssize_t(NetEventBuffer *,const void *,size_t)> && onSend) {
-        _onSend = onSend;
-    }
-    
-    void NetEventBuffer::setOnRecv(std::function<ssize_t(NetEventBuffer *,void *,size_t)> && onRecv) {
-        _onRecv = onRecv;
-    }
-    
-    NetEventBuffer::~NetEventBuffer() {
-        _rd->cancel();
-        _wd->cancel();
-    }
-    
-    kk::CString NetEventBuffer::errmsg() {
-        if(_errmsg.empty()) {
-            return nullptr;
-        }
-        return _errmsg.c_str();
-    }
-    
-    ssize_t NetEventBuffer::send(const void * data,size_t size) {
-        if(_onSend != nullptr) {
-            return _onSend(this,data,size);
-        }
+    NetStream::NetStream(DispatchQueue * queue,SocketId fd):_queue(queue),_fd(fd),_status(NetStreamStatusNone) {
         
-        do {
-            ssize_t r = write(_fd, data, size);
-            if(r == -1 && errno == EAGAIN) {
-                continue;
-            }
-            return r;
-        } while (1) ;
     }
     
-    ssize_t NetEventBuffer::recv(void *data,size_t size) {
-        if(_onRecv != nullptr) {
-            return _onRecv(this,data,size);
-        }
-        do {
-            ssize_t r = ::read(_fd, data, size);
-            if(r == -1 && errno == EAGAIN) {
-                continue;
-            }
-            return r;
-        } while (1) ;
+    SocketId NetStream::fd() {
+        return _fd;
     }
     
-    void NetEventBuffer::onReading() {
-        
-        _input.capacity(_input.byteLength() + 2048);
-        
-        ssize_t r = recv(_input.data() + _input.byteLength(), _input.size() - _input.byteLength());
-        
-        if(r == -1) {
-            doError("Error in onReading");
-        } else {
-            _input.setByteLength(_input.byteLength() + (kk::Uint) r);
-            if(_onRead != nullptr) {
-                _onRead(this);
-            } else {
-                stopReading();
-            }
-        }
+    DispatchQueue * NetStream::queue() {
+        return _queue;
     }
     
-    void NetEventBuffer::onWriting() {
-        if(_output.byteLength() > 0) {
-            ssize_t r = send(_output.data(), _output.byteLength());
-            if(r == -1) {
-                doError("Error in onWriting");
-            } else {
-                _output.drain((kk::Uint) r);
-            }
-        } else if(_onWrite != nullptr) {
-            _onWrite(this);
-        } else {
-            stopWriting();
-        }
+    NetStreamStatus NetStream::status() {
+        return _status;
     }
     
-    void NetEventBuffer::doError(kk::CString errmsg) {
-        _errmsg = errmsg;
-        stopReading();
-        stopWriting();
+    void NetStream::setOnError(std::function<void(NetStream *,kk::CString errmsg)> && func) {
+        _onError = func;
+    }
+    
+    void NetStream::setOnEvent(std::function<void(NetStream *)> && func) {
+        _onEvent = func;
+    }
+    
+    void NetStream::doError(kk::CString errmsg) {
+        _status = NetStreamStatusError;
         if(_onError != nullptr) {
             _onError(this,errmsg);
         }
     }
     
-    DispatchQueue * NetEventBuffer::queue(){
-        return _queue;
-    }
-    
-    SocketId NetEventBuffer::fd() {
-        return _fd;
-    }
-    
-    Boolean NetEventBuffer::isReading() {
-        return _reading;
-    }
-    
-    void NetEventBuffer::startReading() {
-        if(_reading) {
-            return;
+    void NetStream::doEvent() {
+        if(_onEvent != nullptr) {
+            _onEvent(this);
         }
-        _reading = true;
-        _rd->resume();
     }
     
-    void NetEventBuffer::stopReading() {
-        if(!_reading) {
-            return ;
+    NetInputStream::NetInputStream(DispatchQueue * queue,SocketId fd):NetStream(queue,fd) {
+        _cb = createDispatchSource(fd, DispatchSourceTypeRead, queue);
+        _cb->setEvent([this]()->void{
+            this->doEvent();
+        });
+        _cb->resume();
+        _status = NetStreamStatusReading;
+    }
+    
+    NetInputStream::~NetInputStream() {
+        if(_cb != nullptr) {
+            _cb->setEvent(nullptr);
+            _cb->cancel();
+            _cb = nullptr;
         }
-        _reading = false;
-        _rd->suspend();
     }
     
-    Boolean NetEventBuffer::isWriting() {
-        return _writing;
+    void NetInputStream::setProxy(std::function<ssize_t(NetStream *,void *,size_t)> && func) {
+        _proxy = func;
     }
     
-    void NetEventBuffer::startWriting() {
-        if(_writing) {
-            return;
+    kk::Boolean NetInputStream::hasBytesAvailable() {
+        return _buffer.byteLength() > 0;
+    }
+    
+    void NetInputStream::doError(kk::CString errmsg) {
+        if(_cb != nullptr) {
+            _cb->setEvent(nullptr);
+            _cb->cancel();
+            _cb = nullptr;
         }
-        _writing = true;
-        _wd->resume();
+        
+        NetStream::doError(errmsg);
     }
     
-    void NetEventBuffer::stopWriting() {
-        if(!_writing) {
-            return ;
+    void NetInputStream::doEvent() {
+        
+        size_t n = _buffer.size() - _buffer.byteLength();
+        
+        if(n > 0) {
+            
+            ssize_t r = _proxy == nullptr
+                ? ::read(_fd, _buffer.data() + _buffer.byteLength(), _buffer.size() - _buffer.byteLength())
+                : _proxy(this,_buffer.data() + _buffer.byteLength(), _buffer.size() - _buffer.byteLength());
+            
+            if(r == -1) {
+                if(errno == EAGAIN) {
+                    r = 0;
+                } else {
+                    doError("[Net] [NetInputStream::doEvent] [Error]");
+                    return;
+                }
+            }
+            
+            _buffer.setByteLength(_buffer.byteLength() + (kk::Uint) r);
+            
         }
-        _writing = false;
-        _wd->suspend();
+        
+        NetStream::doEvent();
     }
     
-    kk::Buffer & NetEventBuffer::input() {
-        return _input;
+    Buffer & NetInputStream::readBuffer() {
+        return _buffer;
     }
     
-    kk::Buffer & NetEventBuffer::output() {
-        return _output;
+    ssize_t NetInputStream::NetInputStream::read(void * data,size_t size) {
+        
+        if(_status == NetStreamStatusError) {
+            return -1;
+        }
+        
+        if(_buffer.byteLength() < size) {
+            
+            ssize_t r = _proxy == nullptr
+                ? ::read(_fd, _buffer.data() + _buffer.byteLength(), _buffer.size() - _buffer.byteLength())
+                : _proxy(this,_buffer.data() + _buffer.byteLength(), _buffer.size() - _buffer.byteLength());
+            
+            if(r == -1) {
+                if(errno == EAGAIN) {
+                    r = 0;
+                } else {
+                    doError("[Net] [NetInputStream::read] [Error]");
+                    return -1;
+                }
+            }
+            
+            _buffer.setByteLength(_buffer.byteLength() + (kk::Uint) r);
+            
+        }
+        
+        size_t n = MIN(_buffer.byteLength(), size);
+        
+        if(n > 0) {
+            memcpy(data, _buffer.data(), n);
+            _buffer.drain((kk::Uint) n);
+            return n;
+        }
+        
+        return 0;
     }
     
-    void NetEventBuffer::setCB(std::function<void(NetEventBuffer *)> && onRead,std::function<void(NetEventBuffer *)> && onWrite,std::function<void(NetEventBuffer *,kk::CString errmsg)> && onError) {
-        _onRead = onRead;
-        _onWrite = onWrite;
-        _onError = onError;
+    
+    NetOutputStream::NetOutputStream(DispatchQueue * queue,SocketId fd):NetStream(queue,fd) {
+        _cb = createDispatchSource(fd, DispatchSourceTypeWrite, queue);
+        _cb->setEvent([this]()->void{
+            this->doEvent();
+        });
+    }
+    
+    NetOutputStream::~NetOutputStream() {
+        if(_cb != nullptr) {
+            _cb->setEvent(nullptr);
+            _cb->cancel();
+        }
+    }
+    
+    void NetOutputStream::setProxy(std::function<ssize_t(NetStream *,const void *,size_t)> && func) {
+        _proxy = func;
+    }
+    
+    kk::Boolean NetOutputStream::hasSpaceAvailable() {
+        return _status == NetStreamStatusNone;
+    }
+    
+    void NetOutputStream::doError(kk::CString errmsg) {
+        if(_cb != nullptr) {
+            _cb->setEvent(nullptr);
+            _cb->cancel();
+        }
+        NetStream::doError(errmsg);
+    }
+    
+    void NetOutputStream::doEvent() {
+        if(_cb != nullptr) {
+            _cb->suspend();
+        }
+        _status = NetStreamStatusNone;
+        NetStream::doEvent();
+    }
+    
+    ssize_t NetOutputStream::write(const void * data,size_t size) {
+        
+        if(_status == NetStreamStatusError) {
+            return -1;
+        }
+        
+        if(_status == NetStreamStatusWriting) {
+            return 0;
+        }
+        
+        ssize_t r = _proxy == nullptr
+            ? ::write(_fd, data,size)
+            : _proxy(this,data,size);
+        
+        if(r == -1) {
+            if(errno == EAGAIN) {
+                r = 0;
+            } else {
+                doError("[Net] [NetOutputStream::write] [Error]");
+                return -1;
+            }
+        }
+        
+        _status = NetStreamStatusWriting;
+        _cb->resume();
+        
+        return r;
     }
     
     TCPConnection::TCPConnection(kk::CString hostname,kk::Int port):_fd(-1),_queue(getCurrentDispatchQueue()),_port(0){
@@ -640,11 +682,19 @@ namespace kk {
     }
     
     TCPConnection::TCPConnection(SocketId fd,kk::CString address,kk::Int port,DispatchQueue * queue):_port(port),_queue(queue),_fd(fd),_address(address) {
-        _buffer = new NetEventBuffer(queue,fd);
+
     }
     
     TCPConnection::~TCPConnection() {
         close();
+    }
+    
+    NetInputStream * TCPConnection::input() {
+        return _input;
+    }
+    
+    NetOutputStream * TCPConnection::output() {
+        return _output;
     }
     
     DispatchQueue * TCPConnection::queue() {
@@ -665,11 +715,24 @@ namespace kk {
     
     void TCPConnection::close() {
         
-        if(_buffer != nullptr) {
-            _buffer->setOnSend(nullptr);
-            _buffer->setOnRecv(nullptr);
-            _buffer->setCB(nullptr, nullptr, nullptr);
-            _buffer = nullptr;
+        if(_input != nullptr) {
+            _input->setProxy(nullptr);
+            _input->setOnEvent(nullptr);
+            _input->setOnError(nullptr);
+            _input = nullptr;
+        }
+        
+        if(_output != nullptr) {
+            _output->setProxy(nullptr);
+            _output->setOnEvent(nullptr);
+            _output->setOnError(nullptr);
+            _output = nullptr;
+        }
+        
+        if(_cs != nullptr) {
+            _cs->setEvent(nullptr);
+            _cs->cancel();
+            _cs = nullptr;
         }
         
         if(_fd != -1) {
@@ -733,56 +796,136 @@ namespace kk {
             }
         }
         
-        openConnection(addr, len);
-        
-        
-    }
-    
-    void TCPConnection::openConnection(struct sockaddr * addr,socklen_t len) {
-        
-        if (-1 == ::connect(_fd, addr, len)) {
-            close();
+        if(-1 == fcntl(_fd, F_SETFL, O_NONBLOCK)) {
+            ::close(_fd);
+            _fd = -1;
             doClose("Socket Connect Error");
             return;
         }
         
-        if(-1 == fcntl(_fd, F_SETFL, O_NONBLOCK)) {
-            close();
-            doClose("Socket Nonblock Error");
-            return;
+        if (-1 == ::connect(_fd, addr, len)) {
+            
+            if(errno == EINPROGRESS) {
+                
+                _cs = createDispatchSource(0, DispatchSourceTypeTimer, NetDispatchQueue());
+                
+                kk::Weak<TCPConnection> v = this;
+                
+                _cs->setEvent([v,this]()->void{
+                    
+                    kk::Strong<TCPConnection> conn = v.operator->();
+                    
+                    if(conn == nullptr) {
+                        return;
+                    }
+                    SocketId fd = conn->fd();
+                    fd_set rfds, wfds;
+                    struct timeval tv;
+                    memset(&rfds, 0, sizeof(rfds));
+                    memset(&wfds, 0, sizeof(wfds));
+                    FD_SET(fd, &rfds);
+                    FD_SET(fd, &wfds);
+                    /* set select() time out */
+                    tv.tv_sec = 0;
+                    tv.tv_usec = 17 * 1000;
+                    int s = ::select(fd + 1, &rfds, &wfds, NULL, &tv);
+                    
+                    if(s == -1) {
+                        
+                        if(this->_cs != nullptr) {
+                            this->_cs->setEvent(nullptr);
+                            this->_cs->cancel();
+                            this->_cs = nullptr;
+                        }
+                        
+                        conn->queue()->async([v]()->void{
+                            
+                            kk::Strong<TCPConnection> conn = v.operator->();
+                            
+                            if(conn == nullptr) {
+                                return;
+                            }
+                            
+                            conn->close();
+                            conn->doClose("Socket Connect Error");
+                            
+                        });
+                        
+                    } else if(s ==0) {
+                        
+                    } else {
+                        
+                        if(this->_cs != nullptr) {
+                            this->_cs->setEvent(nullptr);
+                            this->_cs->cancel();
+                            this->_cs = nullptr;
+                        }
+                        
+                        conn->queue()->async([v]()->void{
+                            
+                            kk::Strong<TCPConnection> conn = v.operator->();
+                            
+                            if(conn == nullptr) {
+                                return;
+                            }
+                            
+                            conn->openConnection();
+                            
+                        });
+                    }
+                });
+                _cs->setTimer(0, 17);
+                _cs->resume();
+                
+            } else {
+                ::close(_fd);
+                _fd = -1;
+                doClose("Socket Connect Error");
+                return;
+            }
+            
+        } else {
+            openConnection();
         }
         
-        kk::Weak<TCPConnection> v = this;
-        _queue->async([v]()->void{
-            kk::Strong<TCPConnection> conn = v.operator->();
-            if(conn != nullptr) {
-                conn->onOpen();
-            }
-        });
     }
     
-    void TCPConnection::onOpen() {
-        onOpen(nullptr, nullptr);
-    }
-    
-    void TCPConnection::onOpen(std::function<ssize_t(NetEventBuffer *,const void *,size_t)> && onSend,std::function<ssize_t(NetEventBuffer *,void *,size_t)> && onRecv) {
+    void TCPConnection::openConnection() {
         
-        _buffer = new NetEventBuffer(_queue,_fd);
-        
-        _buffer->setOnRecv(std::move(onRecv));
-        _buffer->setOnSend(std::move(onSend));
-        
-        _buffer->setCB([this](NetEventBuffer * buffer)->void{
-            this->onRead();
-        }, [this](NetEventBuffer * buffer)->void{
-            this->onWrite();
-        }, [this](NetEventBuffer * buffer,kk::CString error)->void{
+        std::function<void(NetStream *,kk::CString errmsg)> onError = [this](NetStream * stream,kk::CString errmsg)->void{
             this->close();
-            this->doClose(error);
+            this->doClose(errmsg);
+        };
+        
+        _input = new NetInputStream(_queue,_fd);
+        _input->setOnError(std::move(onError));
+        _input->setOnEvent([this](NetStream * stream)->void{
+            this->onRead();
         });
         
-        kk::Strong<Event> e = new Event();
-        emit("open", e);
+        _output = new NetOutputStream(_queue,_fd);
+        _output->setOnError(std::move(onError));
+        _output->setOnEvent([this](NetStream * stream)->void{
+            this->onWrite();
+        });
+        
+        
+    }
+    
+    void TCPConnection::doOpen() {
+        if(getCurrentDispatchQueue() == _queue) {
+            kk::Strong<Event> e = new Event();
+            emit("open", e);
+        } else {
+            kk::Weak<TCPConnection> v = this;
+            _queue->async([v]()->void{
+                kk::Strong<TCPConnection> conn = v.operator->();
+                if(conn != nullptr) {
+                    kk::Strong<Event> e = new Event();
+                    conn->emit("open", e);
+                }
+            });
+        }
     }
     
     void TCPConnection::write(Any value) {
@@ -797,51 +940,50 @@ namespace kk {
     }
     
     void TCPConnection::write(const void * data,size_t size) {
-        if(_buffer == nullptr) {
+        
+        if(_output == nullptr) {
             return;
         }
-        
-        Buffer & output = _buffer->output();
-        output.append(data,(kk::Uint) size);
-        _buffer->startWriting();
+        _buffer.append(data, (kk::Uint) size);
+        onWrite();
     }
     
     void TCPConnection::onWrite(){
-        _buffer->stopWriting();
-        kk::Strong<Event> e = new Event();
-        emit("done", e);
+        
+        if(_output == nullptr) {
+            return;
+        }
+        
+        if(_buffer.byteLength() == 0) {
+            kk::Strong<Event> e = new Event();
+            emit("done", e);
+            return;
+        }
+        
+        ssize_t r = _output->write(_buffer.data(), _buffer.byteLength());
+        
+        if(r > 0) {
+            _buffer.drain((kk::Uint) r);
+        }
+    
     }
     
     void TCPConnection::onRead() {
         
-        _buffer->stopReading();
+        if(_input == nullptr) {
+            return;
+        }
         
-        Buffer & input = _buffer->input();
+        Buffer & buffer = _input->readBuffer();
         
         kk::Strong<Event> e = new Event();
         
-        e->setData(new ArrayBuffer(input.data(),input.byteLength()));
+        e->setData(new ArrayBuffer(buffer.data(),buffer.byteLength()));
         
-        input.drain(input.byteLength());
+        buffer.drain(buffer.byteLength());
         
         emit("data", e);
         
-    }
-    
-    void TCPConnection::read() {
-        if(_buffer != nullptr) {
-            kk::Weak<NetEventBuffer> v = (NetEventBuffer *) _buffer;
-            _buffer->queue()->async([v]()->void{
-                NetEventBuffer * vv = v.operator->();
-                if(vv != nullptr) {
-                    vv->startReading();
-                }
-            });
-        }
-    }
-    
-    NetEventBuffer * TCPConnection::buffer() {
-        return _buffer;
     }
     
     void TCPConnection::doClose(kk::CString errmsg) {
@@ -867,10 +1009,7 @@ namespace kk {
     }
     
     void TCPConnection::Openlib() {
-        
-//        DNSResolve::set("weibo.com", "123.125.104.197");
-//        DNSResolve::set("app.ziyouker.com", "59.110.190.36");
-//        
+           
 
         kk::Openlib<>::add([](duk_context * ctx)->void{
             
@@ -879,7 +1018,6 @@ namespace kk {
                 kk::PutProperty<TCPConnection,kk::CString>(ctx, -1, "address", &TCPConnection::address);
                 kk::PutMethod<TCPConnection,void>(ctx, -1, "close", &TCPConnection::close);
                 kk::PutMethod<TCPConnection,void,kk::Any>(ctx, -1, "write", &TCPConnection::write);
-                kk::PutMethod<TCPConnection,void>(ctx, -1, "read", &TCPConnection::read);
             });
             
         });

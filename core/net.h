@@ -66,50 +66,62 @@ namespace kk {
         kk::Buffer _output;
     };
     
-    class NetEventBuffer : public Object {
-    public:
-        NetEventBuffer(DispatchQueue * queue,SocketId fd);
-        virtual ~NetEventBuffer();
-        virtual DispatchQueue * queue();
-        virtual Boolean isReading();
-        virtual void startReading();
-        virtual void stopReading();
-        virtual Boolean isWriting();
-        virtual void startWriting();
-        virtual void stopWriting();
-        virtual void setCB(std::function<void(NetEventBuffer *)> && onRead,std::function<void(NetEventBuffer *)> && onWrite,std::function<void(NetEventBuffer *,kk::CString errmsg)> && onError);
-        virtual void setOnSend(std::function<ssize_t(NetEventBuffer *,const void *,size_t)> && onSend);
-        virtual void setOnRecv(std::function<ssize_t(NetEventBuffer *,void *,size_t)> && onRecv);
-        virtual kk::Buffer & input();
-        virtual kk::Buffer & output();
-        virtual SocketId fd();
-        virtual kk::CString errmsg();
-    protected:
-        
-        virtual ssize_t send(const void * data,size_t size);
-        virtual ssize_t recv(void *data,size_t size);
-        
-        virtual void onReading();
-        virtual void onWriting();
-        
-        virtual void doError(kk::CString errmsg);
-        
-        std::function<ssize_t(NetEventBuffer *,const void *,size_t)> _onSend;
-        std::function<ssize_t(NetEventBuffer *,void *,size_t)> _onRecv;
-        
-        std::function<void(NetEventBuffer *)> _onRead;
-        std::function<void(NetEventBuffer *)> _onWrite;
-        std::function<void(NetEventBuffer *,kk::CString errmsg)> _onError;
-        kk::Strong<DispatchQueue> _queue;
-        kk::Strong<DispatchSource> _rd;
-        kk::Strong<DispatchSource> _wd;
-        SocketId _fd;
-        kk::Boolean _reading;
-        kk::Boolean _writing;
-        kk::Buffer _input;
-        kk::Buffer _output;
-        kk::String _errmsg;
+    enum NetStreamStatus {
+        NetStreamStatusNone,
+        NetStreamStatusReading,
+        NetStreamStatusWriting,
+        NetStreamStatusError
     };
+    
+    class NetStream : public Object {
+    public:
+        NetStream(DispatchQueue * queue,SocketId fd);
+        virtual SocketId fd();
+        virtual DispatchQueue * queue();
+        virtual NetStreamStatus status();
+        virtual void setOnError(std::function<void(NetStream *,kk::CString errmsg)> && func);
+        virtual void setOnEvent(std::function<void(NetStream *)> && func);
+    protected:
+        virtual void doError(kk::CString errmsg);
+        virtual void doEvent();
+        std::function<void(NetStream *)> _onEvent;
+        std::function<void(NetStream *,kk::CString errmsg)> _onError;
+        kk::Strong<DispatchQueue> _queue;
+        SocketId _fd;
+        NetStreamStatus _status;
+    };
+    
+    class NetInputStream : public NetStream {
+    public:
+        NetInputStream(DispatchQueue * queue,SocketId fd);
+        virtual ~NetInputStream();
+        virtual void setProxy(std::function<ssize_t(NetStream *,void *,size_t)> && func);
+        virtual kk::Boolean hasBytesAvailable();
+        virtual ssize_t read(void * data,size_t size);
+        virtual Buffer & readBuffer();
+    protected:
+        virtual void doError(kk::CString errmsg);
+        virtual void doEvent();
+        kk::Strong<DispatchSource> _cb;
+        std::function<ssize_t(NetStream *,void *,size_t)> _proxy;
+        Buffer _buffer;
+    };
+    
+    class NetOutputStream : public NetStream {
+    public:
+        NetOutputStream(DispatchQueue * queue,SocketId fd);
+        virtual ~NetOutputStream();
+        virtual void setProxy(std::function<ssize_t(NetStream *,const void *,size_t)> && func);
+        virtual kk::Boolean hasSpaceAvailable();
+        virtual ssize_t write(const void * data,size_t size);
+    protected:
+        virtual void doError(kk::CString errmsg);
+        virtual void doEvent();
+        kk::Strong<DispatchSource> _cb;
+        std::function<ssize_t(NetStream *,const void *,size_t)> _proxy;
+        Buffer _buffer;
+    };
+    
     
     class TCPConnection : public EventEmitter {
     public:
@@ -119,11 +131,11 @@ namespace kk {
         virtual kk::CString address();
         virtual kk::Int port();
         virtual void close();
-        virtual void read();
         virtual void write(Any value);
         virtual void write(const void * data,size_t size);
         virtual SocketId fd();
-        virtual NetEventBuffer * buffer();
+        virtual NetInputStream * input();
+        virtual NetOutputStream * output();
         virtual DispatchQueue * queue();
         
         static void Openlib();
@@ -132,17 +144,19 @@ namespace kk {
         
     protected:
         virtual void onResolve(struct sockaddr * addr, socklen_t len);
-        virtual void openConnection(struct sockaddr * addr,socklen_t len);
-        virtual void onOpen();
-        virtual void onOpen(std::function<ssize_t(NetEventBuffer *,const void *,size_t)> && onSend,std::function<ssize_t(NetEventBuffer *,void *,size_t)> && onRecv);
+        virtual void openConnection();
         virtual void onWrite();
         virtual void doClose(kk::CString errmsg);
+        virtual void doOpen();
         virtual void onRead();
         kk::Int _port;
         kk::String _address;
         SocketId _fd;
         kk::Strong<DispatchQueue> _queue;
-        kk::Strong<NetEventBuffer> _buffer;
+        kk::Strong<NetInputStream> _input;
+        kk::Strong<NetOutputStream> _output;
+        kk::Strong<DispatchSource> _cs;
+        kk::Buffer _buffer;
     };
     
     DispatchQueue * NetDispatchQueue();

@@ -22,9 +22,13 @@ namespace kk {
         
         Ker_CLASS(SSLConnection,TCPConnection,"SSLConnection")
         
+        virtual kk::Boolean isSSLConnected();
+        
     protected:
-        virtual void openConnection(struct sockaddr * addr,socklen_t len);
+        virtual void openConnection();
+        virtual void openSSLConnection(std::function<ssize_t(NetStream *,void *,size_t)> && onRead,std::function<ssize_t(NetStream *,const void *,size_t)> && onWrite);
         kk::String _hostname;
+        kk::Boolean _SSLConnected;
     };
     
     
