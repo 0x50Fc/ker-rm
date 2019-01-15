@@ -21,6 +21,7 @@
 #include <sys/uio.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <signal.h>
 
 namespace kk {
     
@@ -105,7 +106,7 @@ namespace kk {
                     for (cur = res; cur != nullptr; cur = cur->ai_next) {
                         addr = (struct sockaddr *)cur->ai_addr;
                         if(addr->sa_family ==AF_INET) {
-                            kk::Log("[DNSResolve] [IP] %s => %s",v.c_str(),inet_neta(ntohl(((struct sockaddr_in *) addr)->sin_addr.s_addr), p, sizeof(p)));
+                            kk::Log("[DNSResolve] [IP] %s => %s",v.c_str(),inet_ntoa(((struct sockaddr_in *) addr)->sin_addr));
                         } else {
                             kk::Log("[DNSResolve] [IP] %s => %s",v.c_str(),inet_ntop(addr->sa_family, &addr, p, sizeof(p)));
                         }
@@ -199,7 +200,8 @@ namespace kk {
                 return;
             }
         }
-        
+
+#ifdef SO_NOSIGPIPE
         {
             int opt = 1;
             if (-1 == setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, &opt, sizeof(opt))) {
@@ -209,7 +211,7 @@ namespace kk {
                 return;
             }
         }
-        
+#endif
         
         if(_AF == AF_INET) {
             struct sockaddr_in addr = {0};
@@ -762,8 +764,8 @@ namespace kk {
         
         if(addr->sa_family == AF_INET) {
             _port = ntohs(((struct sockaddr_in *) addr)->sin_port);
-            char ip[64];
-            _address = inet_neta( ntohl(((struct sockaddr_in *) addr)->sin_addr.s_addr), ip, sizeof(ip));
+
+            _address = inet_ntoa(((struct sockaddr_in *) addr)->sin_addr);
         } else {
             _port = ntohs(((struct sockaddr_in6 *) addr)->sin6_port);
             char ip[64];
@@ -815,6 +817,7 @@ namespace kk {
             
             if(errno == EINPROGRESS) {
                 
+                /*
                 _cs = createDispatchSource(0, DispatchSourceTypeTimer, NetDispatchQueue());
                 
                 kk::Weak<TCPConnection> v = this;
@@ -833,7 +836,6 @@ namespace kk {
                     memset(&wfds, 0, sizeof(wfds));
                     FD_SET(fd, &rfds);
                     FD_SET(fd, &wfds);
-                    /* set select() time out */
                     tv.tv_sec = 0;
                     tv.tv_usec = 17 * 1000;
                     int s = ::select(fd + 1, &rfds, &wfds, NULL, &tv);
@@ -884,6 +886,29 @@ namespace kk {
                 });
                 _cs->setTimer(0, 17);
                 _cs->resume();
+            */
+                
+                _cs = createDispatchSource(_fd, DispatchSourceTypeWrite, _queue);
+                
+                kk::Weak<TCPConnection> v = this;
+                
+                _cs->setEvent([v,this]()->void{
+                    
+                    kk::Strong<TCPConnection> conn = v.operator->();
+                    
+                    if(conn == nullptr) {
+                        return;
+                    }
+                    
+                    if(this->_cs != nullptr) {
+                        this->_cs->setEvent(nullptr);
+                        this->_cs->cancel();
+                        this->_cs = nullptr;
+                    }
+                    
+                    conn->openConnection();
+                });
+                _cs->resume();
                 
             } else {
                 ::close(_fd);
@@ -897,7 +922,32 @@ namespace kk {
         }
         
     }
-    
+
+    kk::Int TCPConnection::nonblock(kk::Boolean enabled) {
+        if(enabled) {
+            int s = 0;
+            if(fcntl(_fd,F_GETFL,&s) == -1) {
+                return -1;
+            }
+
+            s = s | O_NONBLOCK;
+
+            return fcntl(_fd,F_SETFL,s);
+        } else {
+
+            int s = 0;
+
+            if(fcntl(_fd,F_GETFL,&s) == -1) {
+                return -1;
+            }
+
+            s = s & (~O_NONBLOCK);
+
+            return fcntl(_fd,F_SETFL,s);
+        }
+
+    }
+
     void TCPConnection::openConnection() {
         
         std::function<void(NetStream *,kk::CString errmsg)> onError = [this](NetStream * stream,kk::CString errmsg)->void{
@@ -998,7 +1048,11 @@ namespace kk {
         }
         
         Buffer & buffer = _input->readBuffer();
-        
+
+        if(buffer.byteLength() == 0) {
+            return;
+        }
+
         kk::Strong<Event> e = new Event();
         
         e->setData(new ArrayBuffer(buffer.data(),buffer.byteLength()));
@@ -1032,7 +1086,9 @@ namespace kk {
     }
     
     void TCPConnection::Openlib() {
-        
+
+        signal(SIGPIPE,SIG_IGN);
+
         kk::Openlib<>::add([](duk_context * ctx)->void{
             
             kk::PushClass<TCPConnection,kk::CString,kk::Int>(ctx, [](duk_context * ctx)->void{

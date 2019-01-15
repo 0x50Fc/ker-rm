@@ -151,6 +151,10 @@ namespace kk {
 
             if(type == DispatchSourceTypeTimer) {
                 _fd = event_new(queue->base(),-1,0,LibeventDispatchSourceCB,this);
+            } else if(type == DispatchSourceTypeRead) {
+                _fd = event_new(queue->base(),fd,EV_READ,LibeventDispatchSourceCB,this);
+            } else if(type == DispatchSourceTypeWrite) {
+                _fd = event_new(queue->base(),fd,EV_WRITE,LibeventDispatchSourceCB,this);
             }
 
         }
@@ -174,7 +178,7 @@ namespace kk {
 
         virtual void resume() {
             if(_fd != nullptr && !_isResume) {
-                evtimer_add(_fd,&_tv);
+                event_add(_fd,&_tv);
                 _isResume = true;
             }
         }
@@ -211,10 +215,8 @@ namespace kk {
 
                 fn();
 
-                if( _type == DispatchSourceTypeTimer) {
-                    if(_fd != nullptr && (_interval.tv_usec > 0 || _interval.tv_sec > 0) && _isResume) {
-                        evtimer_add(_fd,&_interval);
-                    }
+                if(_fd != nullptr && _isResume) {
+                    event_add(_fd,&_interval);
                 }
 
                 release();
@@ -248,6 +250,15 @@ namespace kk {
         static DispatchQueue * v = nullptr;
         if(v == nullptr) {
             v = new LibeventDispatchQueue("kk::IODispatchQueue");
+            v->retain();
+        }
+        return v;
+    }
+
+    DispatchQueue * NetDispatchQueue() {
+        static DispatchQueue * v = nullptr;
+        if(v == nullptr) {
+            v = new LibeventDispatchQueue("kk::NetDispatchQueue");
             v->retain();
         }
         return v;

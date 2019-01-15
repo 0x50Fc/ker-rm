@@ -16,6 +16,8 @@ typedef void (^KerUIOpenCallback)(KerId appid,NSString * errmsg);
 
 @interface KerUI : NSObject
 
++(void) setViewClass:(Class) viewClass name:(NSString *) name;
+
 +(KerPage *) getPage:(KerId) pageId;
 
 +(void) removePage:(KerId) pageId;

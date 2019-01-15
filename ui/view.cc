@@ -441,6 +441,10 @@ namespace kk {
             return _app;
         }
         
+        View * View::parent() {
+            return _parent;
+        }
+        
         void View::removeRecycleViews() {
             
             auto i = _obtainViews.begin();

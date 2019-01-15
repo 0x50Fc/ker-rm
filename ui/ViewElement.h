@@ -1,0 +1,58 @@
+//
+//  ViewElement.h
+//  Ker
+//
+//  Created by zhanghailong on 2019/1/15.
+//  Copyright © 2019 kkmofang.cn. All rights reserved.
+//
+
+#ifndef ui_ViewElement_h
+#define ui_ViewElement_h
+
+#include <document/LayoutElement.h>
+#include <ui/view.h>
+#include <ui/app.h>
+
+namespace kk {
+    
+    namespace ui {
+        
+        class ViewContext : public kk::LayoutContext {
+        public:
+            ViewContext(App * app);
+            virtual View * view();
+            virtual void setView(View * view);
+            virtual App * app();
+        protected:
+            kk::Strong<View> _view;
+            kk::Weak<App> _app;
+        };
+        
+        class ViewElement : public kk::LayoutElement {
+        public:
+            ViewElement(Document * document,CString name, ElementKey elementId);
+            virtual void onLayout(LayoutContext * context);
+            virtual void setContentOffset(ViewContext * context,Float x,Float y);
+            virtual void obtainView(ViewContext * context);
+            virtual void recycleView();
+            virtual View * view();
+            virtual void changedKey(CString key);
+            
+            Ker_CLASS(ViewElement,LayoutElement,"ViewElement")
+            static void Openlib();
+            static void library(kk::CString name);
+        protected:
+            virtual void onObtainView(ViewContext * context,View * view);
+            virtual void onRecycleView(View * view);
+            virtual Strong<View> createView(ViewContext * context);
+            virtual kk::Boolean isVisibleChildren(ViewElement * element);
+            virtual kk::Boolean isVisible();
+            Point _contentOffset;
+            kk::Strong<View> _view;
+        };
+        
+    }
+    
+}
+
+#endif /* ViewElement_h */

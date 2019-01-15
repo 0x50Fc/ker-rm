@@ -146,6 +146,7 @@ namespace kk {
         Ker_CLASS(TCPConnection,EventEmitter,"TCPConnection")
         
     protected:
+        virtual kk::Int nonblock(kk::Boolean enabled);
         virtual void onResolve(struct sockaddr * addr, socklen_t len);
         virtual void openConnection();
         virtual void onWrite();

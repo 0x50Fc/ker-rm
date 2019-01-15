@@ -10,6 +10,7 @@
 #include <ui/app.h>
 #include <ui/page.h>
 #include <ui/package.h>
+#include <ui/ViewElement.h>
 #include <core/uri.h>
 
 #import "KerUI.h"
@@ -20,6 +21,7 @@
 #import "UIView+KerViewProtocol.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "KerURLProtocol.h"
+#import "KerButton.h"
 
 static NSMutableDictionary * KerUIPages = nil;
 static NSMutableDictionary * KerUIViews = nil;
@@ -239,13 +241,25 @@ namespace kk {
     return [[UIApplication sharedApplication] keyWindow].rootViewController;
 }
 
+static NSMutableDictionary * gKerUIViewClass = nil;
 
++(void) setViewClass:(Class) viewClass name:(NSString *) name {
+    if(gKerUIViewClass == nil) {
+        gKerUIViewClass = [[NSMutableDictionary alloc] initWithCapacity:4];
+    }
+    gKerUIViewClass[name] = viewClass;
+    kk::ui::ViewElement::library([name UTF8String]);
+}
 
 +(void) createView:(kk::ui::ViewCreateCommand *) command app:(KerId) appid {
     
     NSString * name = [NSString stringWithCString:command->name.c_str() encoding:NSUTF8StringEncoding];
     
-    Class isa = NSClassFromString(name);
+    Class isa = [gKerUIViewClass valueForKey:name];
+    
+    if(isa == nil) {
+        isa = NSClassFromString(name);
+    }
     
     if(isa == nil) {
         isa = [UIView class];
@@ -966,7 +980,12 @@ static NSString * gKerAppUserAgent = nil;
             gKerAppUserAgent = [view stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
         }
     }
-
+    
+    [self setViewClass:[UIView class] name:@"view"];
+    [self setViewClass:[UIScrollView class] name:@"scroll"];
+    [self setViewClass:[WKWebView class] name:@"webview"];
+    [self setViewClass:[UILabel class] name:@"text"];
+    
     [KerURLProtocol openlibs];
     
     kk::ui::App::Openlib();

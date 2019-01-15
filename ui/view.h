@@ -225,6 +225,8 @@ namespace kk {
             
             virtual void dispatchCommand(ViewCommand * command);
             
+            virtual View * parent();
+            
             Ker_CLASS(View, EventEmitter, "UIView");
             
             static void Openlib();

@@ -732,8 +732,20 @@ namespace kk {
             {
                 if(duk_is_buffer_data(ctx, idx)) {
                     size_t n;
-                    void * data = duk_get_buffer_data(ctx, idx, &n);
-                    v = new ArrayBuffer(data,(kk::Uint) n);
+                    void *data = duk_get_buffer_data(ctx, idx, &n);
+                    if (n == 0) {
+                        v = nullptr;
+                    } else {
+                        v = new ArrayBuffer(data, (kk::Uint) n);
+                    }
+                } else if(duk_is_buffer(ctx, idx)) {
+                    size_t n;
+                    void * data = duk_get_buffer(ctx, idx, &n);
+                    if(n == 0) {
+                        v = nullptr;
+                    } else {
+                        v = new ArrayBuffer(data, (kk::Uint) n);
+                    }
                 } else {
                     Object * a =  GetObject(ctx, idx);
                     if(a == nullptr) {
@@ -748,11 +760,19 @@ namespace kk {
                 if(duk_is_buffer_data(ctx, idx)) {
                     size_t n;
                     void * data = duk_get_buffer_data(ctx, idx, &n);
-                    v = new ArrayBuffer(data,(kk::Uint) n);
+                    if(n == 0) {
+                        v = nullptr;
+                    } else {
+                        v = new ArrayBuffer(data, (kk::Uint) n);
+                    }
                 } else {
                     size_t n;
                     void * data = duk_get_buffer(ctx, idx, &n);
-                    v = new ArrayBuffer(data,(kk::Uint) n);
+                    if(n == 0) {
+                        v = nullptr;
+                    } else {
+                        v = new ArrayBuffer(data, (kk::Uint) n);
+                    }
                 }
             }
                 break;

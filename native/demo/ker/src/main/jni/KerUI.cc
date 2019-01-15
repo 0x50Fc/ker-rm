@@ -8,6 +8,7 @@
 #include <ui/page.h>
 #include <ui/package.h>
 #include <ui/view.h>
+#include <ui/ViewElement.h>
 #include <core/uri.h>
 #include <core/http.h>
 #include "global.h"
@@ -1417,4 +1418,15 @@ Java_cn_kkmofang_ker_KerUI_resolvePath__Ljava_lang_String_2J(JNIEnv *env, jclass
     env->ReleaseStringUTFChars(URI_, URI);
 
     return env->NewStringUTF(v.c_str());
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_kkmofang_ker_KerUI_addViewClass__Ljava_lang_String_2(JNIEnv *env, jclass type,
+                                                             jstring name_) {
+    const char *name = env->GetStringUTFChars(name_, 0);
+
+    kk::ui::ViewElement::library(name);
+
+    env->ReleaseStringUTFChars(name_, name);
 }

@@ -41,7 +41,7 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
 }
 
 - (void) event:(NSString *) name touches:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
-    
+
     if(_viewId == 0 || _app == 0) {
         return;
     }

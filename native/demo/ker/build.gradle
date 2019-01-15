@@ -14,7 +14,7 @@ android {
 
         ndk {
             moduleName "ker"
-            abiFilters "armeabi-v7a"
+            abiFilters "armeabi"
         }
 
         externalNativeBuild {

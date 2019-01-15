@@ -20,6 +20,21 @@ set_target_properties(event
             PROPERTIES IMPORTED_LOCATION
             ${CMAKE_SOURCE_DIR}/src/main/jni/libevent/${ANDROID_ABI}/libevent.a)
 
+add_library(ssl
+            STATIC
+            IMPORTED)
+
+set_target_properties(ssl
+            PROPERTIES IMPORTED_LOCATION
+            ${CMAKE_SOURCE_DIR}/src/main/jni/openssl/${ANDROID_ABI}/libssl.a)
+
+add_library(crypto
+            STATIC
+            IMPORTED)
+
+set_target_properties(crypto
+            PROPERTIES IMPORTED_LOCATION
+            ${CMAKE_SOURCE_DIR}/src/main/jni/openssl/${ANDROID_ABI}/libcrypto.a)
 
 add_library(md5
         STATIC
@@ -58,12 +73,21 @@ add_library(ker
             src/main/jni/core/uri.cc
             src/main/jni/core/http.cc
             src/main/jni/core/storage.cc
+            src/main/jni/core/net.cc
+            src/main/jni/core/ssl.cc
+            src/main/jni/core/WebSocket.cc
+            src/main/jni/core/archiver.cc
             src/main/jni/ui/ui.cc
             src/main/jni/ui/view.cc
             src/main/jni/ui/app.cc
             src/main/jni/ui/page.cc
             src/main/jni/ui/package.cc
             src/main/jni/ui/CGContext.cc
+            src/main/jni/ui/ViewElement.cc
+            src/main/jni/document/document.cc
+            src/main/jni/document/element.cc
+            src/main/jni/document/StyleElement.cc
+            src/main/jni/document/LayoutElement.cc
             )
 
 include_directories(
@@ -71,6 +95,7 @@ include_directories(
             src/main/jni/minizip
             src/main/jni/sqlite
             src/main/jni/libevent/include
+            src/main/jni/openssl/include
             src/main/jni/md5
             src/main/jni/
             )
@@ -94,6 +119,8 @@ target_link_libraries(
                     md5
                     minizip
                     z
+                    ssl
+                    crypto
                     GLESv2
                     EGL
                     log

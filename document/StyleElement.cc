@@ -1,0 +1,314 @@
+//
+//  StyleElement.cc
+//  Ker
+//
+//  Created by zhanghailong on 2019/1/15.
+//  Copyright © 2019 kkmofang.cn. All rights reserved.
+//
+
+#include "StyleElement.h"
+
+namespace kk {
+ 
+    StyleElement::StyleElement(Document * document,CString name, ElementKey elementId):Element(document,name,elementId){
+        
+    }
+   
+    CString StyleElement::status() {
+        CString v = Element::get("status");
+        if(v == nullptr) {
+            v = Element::get("in-status");
+        }
+        return v;
+    }
+    
+    void StyleElement::setStatus(CString status) {
+        set("status",status);
+    }
+    
+    void StyleElement::addStatus(CString status) {
+        
+        String s(status);
+        
+        std::set<String> vs;
+        
+        {
+            CString v = Element::get("status");
+            
+            if(v != nullptr) {
+                CStringSplit(v, " ", vs);
+            }
+            
+        }
+        
+        {
+            std::set<String>::iterator i = vs.find(s);
+            if(i == vs.end()) {
+                vs.insert(s);
+                String v = CStringJoin(vs, " ");
+                Element::set("status",v.c_str());
+            }
+        }
+    }
+    
+    void StyleElement::removeStatus(CString status) {
+        String s(status);
+        std::set<String> vs;
+        
+        {
+            CString v = Element::get("status");
+            
+            if(v != nullptr) {
+                CStringSplit(v, " ", vs);
+            }
+        }
+        {
+            std::set<String>::iterator i = vs.find(s);
+            if(i != vs.end()) {
+                vs.erase(i);
+                String v = CStringJoin(vs, " ");
+                Element::set("status",v.c_str());
+            }
+        }
+    }
+    
+    Boolean StyleElement::hasStatus(CString status) {
+        
+        std::set<String> vs;
+        
+        {
+            CString v = Element::get("status");
+            
+            if(v != nullptr) {
+                CStringSplit(v, " ", vs);
+            }
+        }
+        
+        {
+            std::set<String>::iterator i = vs.find(status);
+            return i != vs.end();
+        }
+        
+        return false;
+    }
+    
+    void StyleElement::changedKey(CString key) {
+        
+    }
+    
+    void StyleElement::changedKeys(std::set<String>& keys) {
+        auto i = keys.begin();
+        auto e = keys.end();
+        while(i != e) {
+            auto & v = * i;
+            changedKey(v.c_str());
+            i ++;
+        }
+    }
+    
+    void StyleElement::change(kk::CString key,CString value) {
+        if(CStringEqual(key, "status") || CStringEqual(key, "in-status")) {
+            changedStatus();
+        } else if(CStringEqual(key, "style") || CStringHasPrefix(key, "style:")) {
+            
+            String name = key;
+            
+            if(CStringHasPrefix(key, "style:")) {
+                name = name.substr(6);
+            } else {
+                name = "";
+            }
+            
+            std::set<String> keys;
+            std::map<String,String> & style = this->style(name.c_str());
+            std::vector<String> items;
+            
+            CStringSplit(value, ";", items);
+            
+            std::vector<String>::iterator i = items.begin();
+            
+            while(i != items.end()) {
+                std::vector<String> kv;
+                CStringSplit((* i).c_str(), ":", kv);
+                if(kv.size() > 1) {
+                    String& key = CStringTrim(kv[0]);
+                    keys.insert(key);
+                    style[key] = CStringTrim(kv[1]);
+                }
+                i ++;
+            }
+            
+            changedKeys(keys);
+            
+        } else {
+            std::set<String> keys;
+            keys.insert(key);
+            changedKeys(keys);
+        }
+    }
+    
+    void StyleElement::set(ElementKey key,CString value) {
+        Element::set(key, value);
+    }
+    
+    void StyleElement::set(CString key,CString value) {
+        Element::set(key, value);
+        change(key, value);
+    }
+    
+    CString StyleElement::get(ElementKey key) {
+        return Element::get(key);
+    }
+    
+    CString StyleElement::get(CString key) {
+        
+        CString v = Element::get(key);
+        
+        if(v == nullptr) {
+            
+            CString status = this->status();
+            
+            std::vector<String> vs;
+            
+            if(status) {
+                CStringSplit(status, " ", vs);
+            }
+            
+            vs.push_back("");
+            
+            std::vector<String>::iterator vi = vs.begin();
+            
+            while(vi != vs.end()) {
+                
+                std::map<String,std::map<String,String>>::iterator i = _styles.find(*vi);
+                
+                if(i != _styles.end()) {
+                    std::map<String,String>& attrs = i->second;
+                    std::map<String,String>::iterator ii = attrs.find(key);
+                    if(ii != attrs.end()) {
+                        v = ii->second.c_str();
+                        break;
+                    }
+                }
+                
+                vi ++;
+            }
+            
+        }
+        
+        return v;
+        
+    }
+    
+    void StyleElement::changedStatus() {
+        
+        std::set<String> keys;
+        
+        std::vector<String> vs;
+        
+        vs.push_back("");
+        
+        CString value = Element::get("status");
+        
+        if(value == nullptr) {
+            value = Element::get("in-status");
+        }
+        
+        if(value != nullptr) {
+            CStringSplit(value, " ", vs);
+        }
+        
+        std::vector<String>::iterator vi = vs.begin();
+        
+        while(vi != vs.end()) {
+            std::map<String,std::map<String,String>>::iterator i = _styles.find(*vi);
+            if(i != _styles.end()) {
+                std::map<String,String> & attrs = i->second;
+                std::map<String,String>::iterator ikey = attrs.begin();
+                while(ikey != attrs.end()) {
+                    keys.insert(ikey->first);
+                    ikey ++;
+                }
+            }
+            vi ++;
+        }
+        
+        changedKeys(keys);
+        
+        {
+            Element * e = firstChild();
+            
+            while(e) {
+                
+                StyleElement * ee = dynamic_cast<StyleElement *>(e);
+                
+                if(ee) {
+                    CString v = e->get("status");
+                    if(v == nullptr) {
+                        ee->set("in-status", value);
+                    }
+                }
+                e = e->nextSibling();
+            }
+        }
+    }
+    
+    std::map<String,String> & StyleElement::style(CString name) {
+        
+        std::map<String,std::map<String,String>>::iterator i = _styles.find(name);
+        
+        if(i == _styles.end()) {
+            _styles[name] = std::map<String,String>();
+        } else {
+            return i->second;
+        }
+        
+        return _styles[name];
+    }
+    
+    void StyleElement::onDidAddChildren(Element * element) {
+        Element::onDidAddChildren(element);
+        
+        CString value = Element::get("status");
+        
+        if(value != nullptr) {
+            
+            CString v = element->get("status");
+            
+            if(v == nullptr) {
+                element->set("in-status", value);
+            }
+            
+        }
+    }
+    
+    static Element * StyleElementCreate(Document * document,kk::CString name,ElementKey elementId) {
+        return new StyleElement(document,name,elementId);
+    }
+    
+    void StyleElement::Openlib() {
+        
+        Document::library("",StyleElementCreate);
+        
+        kk::Openlib<>::add([](duk_context * ctx)->void{
+            
+            kk::PushInterface<StyleElement>(ctx, [](duk_context * ctx)->void{
+                
+                kk::PutProperty<StyleElement,kk::CString>(ctx, -1, "status", &StyleElement::status, &StyleElement::setStatus);
+                
+                kk::PutMethod<StyleElement,void,kk::CString>(ctx, -1, "addStatus", &StyleElement::addStatus);
+                
+                kk::PutMethod<StyleElement,void,kk::CString>(ctx, -1, "removeStatus", &StyleElement::removeStatus);
+                
+                kk::PutMethod<StyleElement,kk::Boolean,kk::CString>(ctx, -1, "hasStatus", &StyleElement::hasStatus);
+                
+                kk::PutMethod<StyleElement,void>(ctx, -1, "changedStatus", &StyleElement::changedStatus);
+                
+                
+            });
+            
+        });
+        
+        
+    }
+}

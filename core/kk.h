@@ -476,6 +476,7 @@ static const kk::Class * Class() { \
     public:
         TObject(){}
         TObject(std::initializer_list<std::pair<const TKey,TValue>> && v):_items(std::move(v)){}
+        TObject(std::map<TKey,TValue> & v):_items(v){}
         
         TValue & operator[](TKey key) {
             return _items[key];

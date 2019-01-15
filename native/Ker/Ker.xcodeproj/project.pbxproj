@@ -45,6 +45,18 @@
 		1AA4AC4321BFBC3A00C636F5 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3721BFBC3A00C636F5 /* ioapi.h */; };
 		1AA4AC4421BFBC3A00C636F5 /* crypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA4AC3821BFBC3A00C636F5 /* crypt.h */; };
 		1AA4AC4721C21B2A00C636F5 /* crypto.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC4621C21B2A00C636F5 /* crypto.cc */; };
+		1AE0927C21EDB18200133215 /* archiver.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0927A21EDB18200133215 /* archiver.h */; };
+		1AE0927D21EDB18200133215 /* archiver.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0927B21EDB18200133215 /* archiver.cc */; };
+		1AE0928121EDBEDA00133215 /* document.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0927F21EDBEDA00133215 /* document.h */; };
+		1AE0928221EDBEDA00133215 /* document.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0928021EDBEDA00133215 /* document.cc */; };
+		1AE0928521EDC31E00133215 /* element.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0928321EDC31E00133215 /* element.h */; };
+		1AE0928621EDC31E00133215 /* element.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0928421EDC31E00133215 /* element.cc */; };
+		1AE0928921EDDA5600133215 /* StyleElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0928721EDDA5600133215 /* StyleElement.h */; };
+		1AE0928A21EDDA5600133215 /* StyleElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0928821EDDA5600133215 /* StyleElement.cc */; };
+		1AE0928D21EDDC6C00133215 /* LayoutElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0928B21EDDC6C00133215 /* LayoutElement.h */; };
+		1AE0928E21EDDC6C00133215 /* LayoutElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0928C21EDDC6C00133215 /* LayoutElement.cc */; };
+		1AE0929121EDF78C00133215 /* ViewElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0928F21EDF78C00133215 /* ViewElement.h */; };
+		1AE0929221EDF78C00133215 /* ViewElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0929021EDF78C00133215 /* ViewElement.cc */; };
 		1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CBE21CB7AC80055C932 /* zombies.cc */; };
 		1AE91CC921D741C90055C932 /* KerWeak.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE91CC721D741C90055C932 /* KerWeak.h */; };
 		1AE91CCA21D741C90055C932 /* KerWeak.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CC821D741C90055C932 /* KerWeak.m */; };
@@ -159,6 +171,18 @@
 		1AA4AC3821BFBC3A00C636F5 /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crypt.h; path = ../../lib/minizip/crypt.h; sourceTree = SOURCE_ROOT; };
 		1AA4AC4521C21A9400C636F5 /* crypto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = crypto.h; sourceTree = "<group>"; };
 		1AA4AC4621C21B2A00C636F5 /* crypto.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = crypto.cc; sourceTree = "<group>"; };
+		1AE0927A21EDB18200133215 /* archiver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = archiver.h; sourceTree = "<group>"; };
+		1AE0927B21EDB18200133215 /* archiver.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = archiver.cc; sourceTree = "<group>"; };
+		1AE0927F21EDBEDA00133215 /* document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = document.h; sourceTree = "<group>"; };
+		1AE0928021EDBEDA00133215 /* document.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = document.cc; sourceTree = "<group>"; };
+		1AE0928321EDC31E00133215 /* element.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = element.h; sourceTree = "<group>"; };
+		1AE0928421EDC31E00133215 /* element.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = element.cc; sourceTree = "<group>"; };
+		1AE0928721EDDA5600133215 /* StyleElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StyleElement.h; sourceTree = "<group>"; };
+		1AE0928821EDDA5600133215 /* StyleElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StyleElement.cc; sourceTree = "<group>"; };
+		1AE0928B21EDDC6C00133215 /* LayoutElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LayoutElement.h; sourceTree = "<group>"; };
+		1AE0928C21EDDC6C00133215 /* LayoutElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LayoutElement.cc; sourceTree = "<group>"; };
+		1AE0928F21EDF78C00133215 /* ViewElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewElement.h; sourceTree = "<group>"; };
+		1AE0929021EDF78C00133215 /* ViewElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ViewElement.cc; sourceTree = "<group>"; };
 		1AE91CBE21CB7AC80055C932 /* zombies.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = zombies.cc; sourceTree = "<group>"; };
 		1AE91CC721D741C90055C932 /* KerWeak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerWeak.h; sourceTree = "<group>"; };
 		1AE91CC821D741C90055C932 /* KerWeak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerWeak.m; sourceTree = "<group>"; };
@@ -275,6 +299,22 @@
 			name = minizip;
 			sourceTree = "<group>";
 		};
+		1AE0927E21EDBEC500133215 /* document */ = {
+			isa = PBXGroup;
+			children = (
+				1AE0927F21EDBEDA00133215 /* document.h */,
+				1AE0928021EDBEDA00133215 /* document.cc */,
+				1AE0928321EDC31E00133215 /* element.h */,
+				1AE0928421EDC31E00133215 /* element.cc */,
+				1AE0928721EDDA5600133215 /* StyleElement.h */,
+				1AE0928821EDDA5600133215 /* StyleElement.cc */,
+				1AE0928B21EDDC6C00133215 /* LayoutElement.h */,
+				1AE0928C21EDDC6C00133215 /* LayoutElement.cc */,
+			);
+			name = document;
+			path = ../../../document;
+			sourceTree = "<group>";
+		};
 		1AF0657E219D516000F8F7A8 = {
 			isa = PBXGroup;
 			children = (
@@ -295,6 +335,7 @@
 		1AF0658A219D516000F8F7A8 /* Ker */ = {
 			isa = PBXGroup;
 			children = (
+				1AE0927E21EDBEC500133215 /* document */,
 				1AA4AB4621BE311F00C636F5 /* minizip */,
 				1AF065B9219D52AC00F8F7A8 /* ui */,
 				1AF065B2219D51A000F8F7A8 /* duktape */,
@@ -382,6 +423,8 @@
 				1AFDAF7921E6EAC2000FAAE9 /* ssl.cc */,
 				1A3AF07121EC7F0B001C8759 /* WebSocket.h */,
 				1A3AF07221EC7F0B001C8759 /* WebSocket.cc */,
+				1AE0927A21EDB18200133215 /* archiver.h */,
+				1AE0927B21EDB18200133215 /* archiver.cc */,
 			);
 			name = core;
 			path = ../../../core;
@@ -413,6 +456,8 @@
 				1AF065C1219D52AC00F8F7A8 /* CGContext.cc */,
 				1AA4AB4321BE30A400C636F5 /* package.h */,
 				1AA4AB4421BE30BC00C636F5 /* package.cc */,
+				1AE0928F21EDF78C00133215 /* ViewElement.h */,
+				1AE0929021EDF78C00133215 /* ViewElement.cc */,
 			);
 			name = ui;
 			path = ../../../ui;
@@ -442,11 +487,15 @@
 				1AF4CE3121A56A2000AE1249 /* UIFont+Ker.h in Headers */,
 				1AA4AC4221BFBC3A00C636F5 /* mztools.h in Headers */,
 				1AF065FE219D555E00F8F7A8 /* UITextView+KerViewProtocol.h in Headers */,
+				1AE0928121EDBEDA00133215 /* document.h in Headers */,
 				1AF065AE219D518200F8F7A8 /* dispatch.h in Headers */,
+				1AE0928D21EDDC6C00133215 /* LayoutElement.h in Headers */,
 				1AF065AB219D518200F8F7A8 /* timer.h in Headers */,
+				1AE0927C21EDB18200133215 /* archiver.h in Headers */,
 				1AF065A8219D518200F8F7A8 /* kk.h in Headers */,
 				1AE91CDF21DE0A6C0055C932 /* KerUI.h in Headers */,
 				1AA4AC4321BFBC3A00C636F5 /* ioapi.h in Headers */,
+				1AE0928521EDC31E00133215 /* element.h in Headers */,
 				1AE91CD521DDB84D0055C932 /* KerStrong.h in Headers */,
 				1AF06601219D555E00F8F7A8 /* WKWebView+KerViewProtocol.h in Headers */,
 				1AF065C8219D52AC00F8F7A8 /* app.h in Headers */,
@@ -465,6 +514,7 @@
 				1AF4CE3921A56DF600AE1249 /* UILabel+KerViewProtocol.h in Headers */,
 				1AF065FD219D555E00F8F7A8 /* UIView+KerViewProtocol.h in Headers */,
 				1AF065E0219D53EB00F8F7A8 /* KerObject.h in Headers */,
+				1AE0928921EDDA5600133215 /* StyleElement.h in Headers */,
 				1AF065AC219D518200F8F7A8 /* jit.h in Headers */,
 				1AF065C5219D52AC00F8F7A8 /* ui.h in Headers */,
 				1AF065EC219D54E600F8F7A8 /* KerPageViewController.h in Headers */,
@@ -472,6 +522,7 @@
 				1AF065A4219D518200F8F7A8 /* bio.h in Headers */,
 				1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */,
 				1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */,
+				1AE0929121EDF78C00133215 /* ViewElement.h in Headers */,
 				1AA4AC3F21BFBC3A00C636F5 /* zip.h in Headers */,
 				1AF065FB219D555E00F8F7A8 /* UITextField+KerViewProtocol.h in Headers */,
 				1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */,
@@ -578,8 +629,11 @@
 				1AF065E7219D54AC00F8F7A8 /* KerPage.mm in Sources */,
 				1AF065DF219D53EB00F8F7A8 /* KerObject.mm in Sources */,
 				1AF06600219D555E00F8F7A8 /* UIScrollView+KKViewProtocol.mm in Sources */,
+				1AE0927D21EDB18200133215 /* archiver.cc in Sources */,
 				1AF065CC219D52AC00F8F7A8 /* page.cc in Sources */,
 				1AE91CDC21DE00770055C932 /* KerUI.mm in Sources */,
+				1AE0928A21EDDA5600133215 /* StyleElement.cc in Sources */,
+				1AE0928221EDBEDA00133215 /* document.cc in Sources */,
 				1AF4CE3A21A56DF600AE1249 /* UILabel+KerViewProtocol.mm in Sources */,
 				1AF06602219D555E00F8F7A8 /* WKWebView+KerViewProtocol.mm in Sources */,
 				1AE91CD221DCB2510055C932 /* KerHttp.mm in Sources */,
@@ -590,6 +644,7 @@
 				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
 				1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */,
 				1AA4AC3C21BFBC3A00C636F5 /* unzip.c in Sources */,
+				1AE0928E21EDDC6C00133215 /* LayoutElement.cc in Sources */,
 				1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */,
 				1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */,
 				1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */,
@@ -598,6 +653,7 @@
 				1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */,
 				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
 				1A3AF07021E76454001C8759 /* ssl.cc in Sources */,
+				1AE0929221EDF78C00133215 /* ViewElement.cc in Sources */,
 				1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */,
 				1AA4AC4721C21B2A00C636F5 /* crypto.cc in Sources */,
 				1AF065FC219D555E00F8F7A8 /* UITextView+KerViewProtocol.mm in Sources */,
@@ -625,6 +681,7 @@
 				1AA4AC3E21BFBC3A00C636F5 /* zip.c in Sources */,
 				1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */,
 				1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */,
+				1AE0928621EDC31E00133215 /* element.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

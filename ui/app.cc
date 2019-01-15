@@ -11,14 +11,19 @@
 #include <ui/view.h>
 #include <ui/CGContext.h>
 #include <ui/package.h>
+#include <ui/ViewElement.h>
 #include <core/crypto.h>
 #include <core/uri.h>
 #include <core/net.h>
 #include <core/http.h>
 #include <core/ssl.h>
+#include <core/WebSocket.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <document/element.h>
+#include <document/StyleElement.h>
+#include <document/LayoutElement.h>
 
 #ifdef KER_DEBUG
 #include <core/debugger.h>
@@ -222,6 +227,7 @@ namespace kk {
             kk::TCPConnection::Openlib();
             kk::SSLConnection::Openlib();
             kk::HTTPRequest::Openlib();
+            kk::WebSocket::Openlib();
             kk::ui::Context::Openlib();
             kk::ui::View::Openlib();
             kk::ui::Canvas::Openlib();
@@ -231,6 +237,12 @@ namespace kk {
             kk::ui::Page::Openlib();
             kk::ui::CG::Context::Openlib();
             kk::ui::Package::Openlib();
+            kk::Document::Openlib();
+            kk::ElementEvent::Openlib();
+            kk::Element::Openlib();
+            kk::StyleElement::Openlib();
+            kk::LayoutElement::Openlib();
+            kk::ui::ViewElement::Openlib();
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
                 

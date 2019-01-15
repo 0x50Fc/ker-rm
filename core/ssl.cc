@@ -24,6 +24,10 @@
 
 #ifdef __APPLE__
 #include <Security/Security.h>
+#elif defined(__ANDROID_API__)
+#include <openssl/bio.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 #endif
 
 
@@ -224,7 +228,107 @@ namespace kk {
         
         doOpen();
     }
-    
+
+#elif defined(__ANDROID_API__)
+
+    void SSLConnection::openConnection() {
+
+        _input = new NetInputStream(_queue,_fd);
+        _output = new NetOutputStream(_queue,_fd);
+
+        try {
+
+            SSL_CTX * ctx = SSL_CTX_new(TLSv1_1_client_method());
+
+            if(ctx == nullptr) {
+                throw "[SSLConnection::openConnection] Error in SSL_CTX_new(TLSv1_1_client_method())";
+            }
+
+            SSL * ssl = SSL_new(ctx);
+
+            kk::Strong<kk::PointerObject> s_SSL = new kk::PointerObject(ssl,[ctx](void * pointer)->void{
+                SSL * ssl = (SSL *) pointer;
+                SSL_free(ssl);
+                SSL_CTX_free(ctx);
+            });
+
+            if(-1 == SSL_set_fd(ssl,_fd)) {
+                throw "[SSLConnection::openConnection] Error in SSL_set_fd";
+            }
+
+            nonblock(false);
+
+            kk::Weak<SSLConnection> v = this;
+
+            std::function<void()> handshake = [s_SSL,v]()->void{
+
+                kk::Strong<SSLConnection> conn = v.operator->();
+
+                if(conn == nullptr) {
+                    return;
+                }
+
+                SSL * ssl = (SSL *) s_SSL.operator->()->pointer();
+
+                int s = SSL_connect(ssl);
+
+                if(s == -1 && errno == EAGAIN) {
+                    s = 0;
+                }
+
+                if(s == -1) {
+
+                    char errmsg[255];
+                    ERR_error_string_n(ERR_get_error(),errmsg,sizeof(errmsg));
+                    conn->close();
+                    conn->doClose(errmsg);
+
+                } else if(s == 0) {
+
+                } else {
+
+                    conn->nonblock(true);
+                    conn->openSSLConnection([s_SSL](NetStream * stream, void * data, size_t size)->ssize_t{
+                        SSL * ssl = (SSL *) s_SSL.operator->()->pointer();
+                        return SSL_read(ssl,data,size);
+                    },[s_SSL](NetStream * stream, const void * data, size_t size)->ssize_t{
+                        SSL * ssl = (SSL *) s_SSL.operator->()->pointer();
+                        return SSL_write(ssl,data,size);
+                    });
+                }
+            };
+
+            std::function<void(NetStream *,kk::CString errmsg)> onError = [this](NetStream * stream,kk::CString errmsg)->void{
+                this->close();
+                this->doClose(errmsg);
+            };
+
+            _input->setOnError(std::move(onError));
+            _input->setOnEvent([handshake,this](NetStream * stream)->void{
+                handshake();
+            });
+
+            _output->setOnError(std::move(onError));
+            _output->setOnEvent([handshake,this](NetStream * stream)->void{
+                handshake();
+            });
+
+            _input->readBuffer().capacity(20480);
+
+
+            handshake();
+
+        }
+        catch(kk::CString errmsg) {
+            close();
+            doClose(errmsg);
+            return;
+        }
+
+        doOpen();
+
+    }
+
 #endif
     
     
@@ -255,7 +359,14 @@ namespace kk {
     }
     
     void SSLConnection::Openlib() {
-        
+
+#if defined(__ANDROID_API__)
+        ERR_load_crypto_strings();
+        SSL_load_error_strings();
+        SSL_library_init();
+        OpenSSL_add_all_algorithms();
+#endif
+
         kk::Openlib<>::add([](duk_context * ctx)->void{
             
             kk::PushClass<SSLConnection,kk::CString,kk::Int>(ctx, [](duk_context * ctx)->void{
