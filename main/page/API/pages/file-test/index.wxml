@@ -1,0 +1,7 @@
+<view class="container">
+  <button open-type='getFileInfo' bindgetuserinfo="getFileInfo" bindtap= "getFileInfo">getFileInfo</button>
+
+
+
+
+</view>

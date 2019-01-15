@@ -195,10 +195,16 @@ Page({
           , {
             zh: '背景音频',
             url: 'background-audio/background-audio'
-          }, {
+          }, 
+          {
             zh: '文件',
             url: 'file/file'
-          }, {
+          },
+          {
+            zh: "文件api测试",
+            url: "file-test/index"
+          },
+          {
             zh: '视频',
             url: 'video/video'
           }, {

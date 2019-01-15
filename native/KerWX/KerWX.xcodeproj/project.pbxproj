@@ -73,6 +73,8 @@
 		E9795CB921E6E7BC003ACC33 /* KerWXObject+DevicePhoneContact.h in Headers */ = {isa = PBXBuildFile; fileRef = E9795CA521E6E7BC003ACC33 /* KerWXObject+DevicePhoneContact.h */; };
 		E9795CBC21E6E7CD003ACC33 /* KerWXObject+MediaRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = E9795CBA21E6E7CD003ACC33 /* KerWXObject+MediaRecord.h */; };
 		E9795CBD21E6E7CD003ACC33 /* KerWXObject+MediaRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = E9795CBB21E6E7CD003ACC33 /* KerWXObject+MediaRecord.m */; };
+		E9B20C8121EDC0F1002C1BDF /* KerWXObject+File.h in Headers */ = {isa = PBXBuildFile; fileRef = E9B20C7F21EDC0F1002C1BDF /* KerWXObject+File.h */; };
+		E9B20C8221EDC0F1002C1BDF /* KerWXObject+File.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B20C8021EDC0F1002C1BDF /* KerWXObject+File.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -182,6 +184,8 @@
 		E9795CA521E6E7BC003ACC33 /* KerWXObject+DevicePhoneContact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+DevicePhoneContact.h"; sourceTree = "<group>"; };
 		E9795CBA21E6E7CD003ACC33 /* KerWXObject+MediaRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+MediaRecord.h"; sourceTree = "<group>"; };
 		E9795CBB21E6E7CD003ACC33 /* KerWXObject+MediaRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+MediaRecord.m"; sourceTree = "<group>"; };
+		E9B20C7F21EDC0F1002C1BDF /* KerWXObject+File.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+File.h"; sourceTree = "<group>"; };
+		E9B20C8021EDC0F1002C1BDF /* KerWXObject+File.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+File.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -264,6 +268,8 @@
 				E9795CBB21E6E7CD003ACC33 /* KerWXObject+MediaRecord.m */,
 				1A53C6EA21B90A4600170AB7 /* KerWXObject+Image.h */,
 				1A53C6EB21B90A4600170AB7 /* KerWXObject+Image.m */,
+				E9B20C7F21EDC0F1002C1BDF /* KerWXObject+File.h */,
+				E9B20C8021EDC0F1002C1BDF /* KerWXObject+File.m */,
 				1A53C6EE21B90FA000170AB7 /* KerWXHttpBody.h */,
 				1A53C6EF21B90FA000170AB7 /* KerWXHttpBody.m */,
 				1A53C6F221B9103A00170AB7 /* KerWXObject+uploadFile.h */,
@@ -324,6 +330,7 @@
 				1AF0662C219D57C800F8F7A8 /* KerWXObject+Location.h in Headers */,
 				1A53C6F021B90FA000170AB7 /* KerWXHttpBody.h in Headers */,
 				1A53C6EC21B90A4600170AB7 /* KerWXObject+Image.h in Headers */,
+				E9B20C8121EDC0F1002C1BDF /* KerWXObject+File.h in Headers */,
 				E9795CBC21E6E7CD003ACC33 /* KerWXObject+MediaRecord.h in Headers */,
 				E9795CB921E6E7BC003ACC33 /* KerWXObject+DevicePhoneContact.h in Headers */,
 				E9795CAF21E6E7BC003ACC33 /* KerWXObject+DeviceVibrate.h in Headers */,
@@ -478,6 +485,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9B20C8221EDC0F1002C1BDF /* KerWXObject+File.m in Sources */,
 				E9795CB121E6E7BC003ACC33 /* KerWXObject+DeviceScanCode.m in Sources */,
 				E9795CA721E6E7BC003ACC33 /* KerWXObject+DeviceBattery.m in Sources */,
 				E9795CA821E6E7BC003ACC33 /* KerWXObject+DeviceBluetooth.m in Sources */,

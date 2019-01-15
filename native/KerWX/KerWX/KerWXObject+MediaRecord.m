@@ -151,7 +151,7 @@ static OSStatus RecordCallback(void *inRefCon,
 -(id<KerWXRecorderManager>) getRecorderManager: (KerJSObject *) object{
     
     KerWXRecorderManager * manager = [[KerWXRecorderManager alloc] init];
-    [manager start:object];
+//    [manager start:object];
     return manager;
 }
 

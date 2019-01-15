@@ -33,3 +33,7 @@
 -(void) chooseImage:(KerJSObject *) object;
 
 @end
+
+@interface NSString (Image)
++(NSString *)ker_uuidString;
+@end

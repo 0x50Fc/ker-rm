@@ -23,6 +23,7 @@ Page({
     wx.chooseImage({
       count: 1,
       success(res) {
+        console.log("choose image res = ", res);
         that.setData({
           tempFilePath: res.tempFilePaths[0]
         })
