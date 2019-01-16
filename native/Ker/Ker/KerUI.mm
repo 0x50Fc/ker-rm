@@ -11,6 +11,7 @@
 #include <ui/page.h>
 #include <ui/package.h>
 #include <ui/ViewElement.h>
+#include <ui/TextElement.h>
 #include <core/uri.h>
 
 #import "KerUI.h"
@@ -249,6 +250,14 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     }
     gKerUIViewClass[name] = viewClass;
     kk::ui::ViewElement::library([name UTF8String]);
+}
+
++(void) setTextViewClass:(Class) viewClass name:(NSString *) name {
+    if(gKerUIViewClass == nil) {
+        gKerUIViewClass = [[NSMutableDictionary alloc] initWithCapacity:4];
+    }
+    gKerUIViewClass[name] = viewClass;
+    kk::ui::TextElement::library([name UTF8String]);
 }
 
 +(void) createView:(kk::ui::ViewCreateCommand *) command app:(KerId) appid {
@@ -984,7 +993,7 @@ static NSString * gKerAppUserAgent = nil;
     [self setViewClass:[UIView class] name:@"view"];
     [self setViewClass:[UIScrollView class] name:@"scroll"];
     [self setViewClass:[WKWebView class] name:@"webview"];
-    [self setViewClass:[UILabel class] name:@"text"];
+    [self setTextViewClass:[UILabel class] name:@"text"];
     
     [KerURLProtocol openlibs];
     

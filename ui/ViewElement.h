@@ -23,6 +23,9 @@ namespace kk {
             virtual View * view();
             virtual void setView(View * view);
             virtual App * app();
+            
+            Ker_CLASS(ViewContext,kk::LayoutContext,"UIViewContext")
+            
         protected:
             kk::Strong<View> _view;
             kk::Weak<App> _app;
@@ -38,7 +41,8 @@ namespace kk {
             virtual View * view();
             virtual void changedKey(CString key);
             
-            Ker_CLASS(ViewElement,LayoutElement,"ViewElement")
+            Ker_CLASS(ViewElement,LayoutElement,"UIViewElement")
+            
             static void Openlib();
             static void library(kk::CString name);
         protected:

@@ -12,6 +12,7 @@
 #include <ui/CGContext.h>
 #include <ui/package.h>
 #include <ui/ViewElement.h>
+#include <ui/TextElement.h>
 #include <core/crypto.h>
 #include <core/uri.h>
 #include <core/net.h>
@@ -243,6 +244,7 @@ namespace kk {
             kk::StyleElement::Openlib();
             kk::LayoutElement::Openlib();
             kk::ui::ViewElement::Openlib();
+            kk::ui::TextElement::Openlib();
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
                 

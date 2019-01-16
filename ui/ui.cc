@@ -575,7 +575,7 @@ namespace kk {
                     kk::Strong<Worker> v = weak.operator->();
                     
                     if(v != nullptr) {
-                        v->onMessage(object);
+                        v->onBackgroundMessage(object);
                     }
                     
                 }));
@@ -616,6 +616,7 @@ namespace kk {
                 duk_pop_2(ctx);
                 
             });
+            
         }
         
         void Worker::onBackgroundMessage(Any & data) {

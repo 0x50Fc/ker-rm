@@ -29,6 +29,8 @@ namespace kk {
         Pixel(const Pixel & v);
         virtual void set(kk::CString v);
         virtual void set(const Pixel & v);
+        virtual kk::Boolean isAuto();
+        static kk::Boolean is(kk::CString v);
     };
     
     struct Edge {
@@ -92,11 +94,16 @@ namespace kk {
         std::map<kk::CString,kk::Strong<kk::Object>> _layouts;
     };
     
+    class Layout {
+    public:
+        virtual kk::Boolean layout(LayoutContext * context) = 0;
+    };
+    
     class LayoutElement : public StyleElement {
     public:
         LayoutElement(Document * document,CString name, ElementKey elementId);
         virtual void changedKey(CString key);
-
+        virtual void setFrame(Float x,Float y,Float width,Float height);
         Rect frame;
         Size contentSize;
         Pixel left;

@@ -51,6 +51,7 @@
 		1AF4CE1A219E7C1300AE1249 /* 1.0 in Resources */ = {isa = PBXBuildFile; fileRef = 1AF4CE19219E7C1300AE1249 /* 1.0 */; };
 		1AF4CE1E219ECB2A00AE1249 /* KerWXObject+Http.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */; };
+		ACD6575221EE789000D63256 /* app in Resources */ = {isa = PBXBuildFile; fileRef = ACD6575021EE789000D63256 /* app */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -138,6 +139,7 @@
 		1AF4CE19219E7C1300AE1249 /* 1.0 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 1.0; path = ../../../bin/1.0; sourceTree = "<group>"; };
 		1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+Http.h"; sourceTree = "<group>"; };
 		1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+Http.m"; sourceTree = "<group>"; };
+		ACD6575021EE789000D63256 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; name = app; path = ../../../app; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -225,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				1AF4CE19219E7C1300AE1249 /* 1.0 */,
+				ACD6575021EE789000D63256 /* app */,
 				1AF4CDFB219E7B9400AE1249 /* AppDelegate.h */,
 				1AF4CDFC219E7B9400AE1249 /* AppDelegate.m */,
 				1AF4CDFE219E7B9400AE1249 /* ViewController.h */,
@@ -368,6 +371,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1AF4CE08219E7B9400AE1249 /* LaunchScreen.storyboard in Resources */,
+				ACD6575221EE789000D63256 /* app in Resources */,
 				1AF4CE1A219E7C1300AE1249 /* 1.0 in Resources */,
 				1AF4CE05219E7B9400AE1249 /* Assets.xcassets in Resources */,
 				1AF4CE03219E7B9400AE1249 /* Main.storyboard in Resources */,

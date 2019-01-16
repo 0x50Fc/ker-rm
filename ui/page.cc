@@ -45,6 +45,9 @@ namespace kk {
                 
                 duk_pop_2(ctx);
                 
+                kk::PushWeakObject(_jsContext, this);
+                duk_put_prop_string(_jsContext, -2, "page");
+                
                 duk_pop(_jsContext);
                 
                 _func = new kk::TFunction<void, kk::CString,kk::Event *>([this](kk::CString name,kk::Event * event)->void{
@@ -181,7 +184,7 @@ namespace kk {
         
         void Page::run(kk::CString path , Object * query) {
 
-            kk::String code("(function(app,page,path,query");
+            kk::String code("(function(path,query");
             
             std::vector<kk::Any> vs;
             
@@ -206,8 +209,6 @@ namespace kk {
                 
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
-                    PushWeakObject(_jsContext, _app.get());
-                    PushWeakObject(_jsContext, this);
                     duk_push_string(ctx, path);
                     PushObject(ctx, query);
                     
@@ -218,7 +219,7 @@ namespace kk {
                         i ++;
                     }
                     
-                    if(duk_pcall(ctx, 4 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
+                    if(duk_pcall(ctx, 2 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
                         Error(ctx, -1, "[Page::run] ");
                     }
                     
@@ -230,6 +231,8 @@ namespace kk {
             
             duk_pop(ctx);
         
+            duk_gc(ctx, DUK_GC_COMPACT);
+            
         }
         
         void Page::ready() {

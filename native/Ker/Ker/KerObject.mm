@@ -110,7 +110,6 @@ namespace kk {
     
     void LogV(const char * format, va_list va) {
         NSLogv([NSString stringWithFormat:@"[Ker] %s",format], va);
-        while(0){};
     }
     
     void PushNative(duk_context * ctx, kk::Native * native) {

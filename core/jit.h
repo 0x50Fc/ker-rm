@@ -669,7 +669,7 @@ namespace kk {
     }
     
     
-    class JSObject : public Object {
+    class JSObject : public Object , public Copying {
     public:
         JSObject(duk_context * ctx, void * heapptr);
         virtual ~JSObject();
@@ -677,6 +677,7 @@ namespace kk {
         virtual duk_context * jsContext();
         virtual void * heapptr();
         virtual DispatchQueue * queue();
+        virtual kk::Strong<Object> copy();
         template<typename T,typename ... TArgs>
         T invoke(JSObject * object,TArgs ... args,typename std::enable_if<std::is_void<T>::value>::type* = 0) {
             

@@ -13,19 +13,23 @@ namespace kk {
 
     kk::Float Unit::Auto = 0x1.fffffep+127f;
     
-    Pixel::Pixel(kk::CString v):value(0),name("px") {
+    Pixel::Pixel(kk::CString v):value(0),name("auto") {
         set(v);
     }
     
-    Pixel::Pixel():value(0),name("px") {
+    Pixel::Pixel():value(0),name("auto") {
     }
     
     Pixel::Pixel(const Pixel & v):value(v.value),name(v.name) {
 
     }
     
+    kk::Boolean Pixel::isAuto() {
+        return name == "auto";
+    }
+    
     void Pixel::set(kk::CString v) {
-        name.clear();
+        name = "auto";
         value = 0;
         
         if(v != nullptr) {
@@ -42,14 +46,25 @@ namespace kk {
             value = atof(vv.c_str());
         }
         
-        if(name.empty()) {
-            name = "px";
-        }
     }
     
     void Pixel::set(const Pixel & v) {
         value = v.value;
         name = v.name;
+    }
+    
+    kk::Boolean Pixel::is(kk::CString v) {
+        if(v == nullptr) {
+            return false;
+        }
+        char * p = (char *) v;
+        while(*p){
+            if(*p >='0' && * p <='9') {
+                return true;
+            }
+            p ++;
+        }
+        return false;
     }
     
     Edge::Edge() {
@@ -474,13 +489,26 @@ namespace kk {
     }
     
     void LayoutContext::layout(LayoutElement * element) {
+        
         if(element == nullptr) {
             return ;
         }
+        
+        {
+            Layout * v = dynamic_cast<Layout *>(element);
+            if(v != nullptr) {
+                if(v->layout(this)) {
+                    return;
+                }
+            }
+        }
+        
         kk::CString v = element->get("layout");
+        
         if(v == nullptr) {
             v = "";
         }
+        
         auto i = _layouts.find(v);
         if(i != _layouts.end()) {
             {
@@ -585,6 +613,13 @@ namespace kk {
             
         });
     }
+    
+    void LayoutElement::setFrame(Float x,Float y,Float width,Float height) {
+        frame.origin.x = x;
+        frame.origin.y = y;
+        frame.size.width = width;
+        frame.size.height = height;
+    }
 
     static Element * LayoutElementCreate(Document * document,kk::CString name,ElementKey elementId) {
         return new LayoutElement(document,name,elementId);
@@ -597,6 +632,15 @@ namespace kk {
         kk::Openlib<>::add([](duk_context * ctx)->void{
             
             kk::PushInterface<LayoutElement>(ctx, [](duk_context * ctx)->void{
+                kk::PutMethod(ctx, -1, "setFrame", &LayoutElement::setFrame);
+            });
+            
+            kk::PushClass<LayoutContext>(ctx, [](duk_context * ctx)->void{
+                
+                kk::PutMethod(ctx, -1, "setSize", &LayoutContext::setSize);
+                kk::PutMethod(ctx, -1, "setUnit", &LayoutContext::setUnit);
+                kk::PutMethod<LayoutContext,void,kk::CString,kk::JSObject *>(ctx, -1, "setLayout", &LayoutContext::setLayout);
+                kk::PutMethod(ctx, -1, "layout", &LayoutContext::layout);
                 
             });
             

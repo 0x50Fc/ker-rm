@@ -474,9 +474,9 @@ namespace kk {
         return 0;
     }
     
-    JSObject::JSObject(duk_context * ctx, void * heapptr):_ctx(ctx) {
+    JSObject::JSObject(duk_context * ctx, void * heapptr):_ctx(ctx),_queue(getCurrentDispatchQueue()) {
         
-        duk_push_heap_stash(ctx);
+        duk_push_global_stash(ctx);
         
         duk_push_sprintf(ctx, "0x%x",(long) heapptr);
         duk_push_heapptr(ctx, heapptr);
@@ -494,11 +494,70 @@ namespace kk {
         duk_pop(ctx);
         
         JITContext::current()->weak(ctx, heapptr, this);
+
+    }
+    
+    kk::Strong<Object> JSObject::copy() {
+        kk::Strong<Object> v;
+        duk_context * ctx = jsContext();
+        void * heapptr = this->heapptr();
+        if(ctx && heapptr) {
+            duk_push_heapptr(ctx, heapptr);
+            if(duk_is_array(ctx, -1)) {
+                v = new Array<kk::Any>();
+                Array<kk::Any> * a = v;
+                kk::Any vv;
+                duk_enum(ctx, -1, DUK_ENUM_ARRAY_INDICES_ONLY);
+                
+                while(duk_next(ctx, -1, 1)) {
+                    
+                    GetAny(ctx, -1, vv);
+                    
+                    if(vv.type == TypeObject) {
+                        kk::Strong<JSObject> j = (JSObject *) vv.objectValue;
+                        if(j != nullptr) {
+                            vv.objectValue = j->copy();
+                        }
+                    }
+                    
+                    a->push(vv);
+                    
+                    duk_pop_2(ctx);
+                }
+                
+                duk_pop(ctx);
+            } else {
+                v = new TObject<kk::String,kk::Any>();
+                TObject<kk::String,kk::Any> * a = v;
+                kk::Any vv;
+                kk::Any key;
+                
+                duk_enum(ctx, -1, DUK_ENUM_INCLUDE_SYMBOLS);
+                
+                while(duk_next(ctx, -1, 1)) {
+                    
+                    GetAny(ctx, -2, key);
+                    GetAny(ctx, -1, vv);
+                    
+                    if(vv.type == TypeObject) {
+                        kk::Strong<JSObject> j = (JSObject *) vv.objectValue;
+                        if(j != nullptr) {
+                            vv.objectValue = j->copy();
+                        }
+                    }
+                    
+                    (*a)[(kk::CString) key] = vv;
+                    
+                    duk_pop_2(ctx);
+                }
+                
+                duk_pop(ctx);
+            }
+            
+            duk_pop(ctx);
+        }
         
-        _queue = getCurrentDispatchQueue();
-        
-        assert(_queue != nullptr);
-        
+        return v;
     }
     
     void Error(duk_context * ctx, duk_idx_t idx, kk::CString prefix) {
@@ -540,7 +599,7 @@ namespace kk {
                     duk_set_finalizer(ctx, -2);
                     duk_pop(ctx);
                     
-                    duk_push_heap_stash(ctx);
+                    duk_push_global_stash(ctx);
                     duk_push_sprintf(ctx, "0x%x",(long) heapptr);
                     duk_del_prop(ctx, -2);
                     duk_pop(ctx);

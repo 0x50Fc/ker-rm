@@ -12,7 +12,7 @@ namespace kk {
  
     namespace ui {
      
-        ViewContext::ViewContext(App * app):_app(app) {
+        ViewContext::ViewContext(App * app):LayoutContext(),_app(app) {
             
         }
         
@@ -112,31 +112,33 @@ namespace kk {
             ViewElement * p = dynamic_cast<ViewElement *>(parent());
             
             if(p == nullptr) {
-                v = context->view();
+                _view = context->view();
             } else {
+                
                 v = p->view();
+                
+                if(v == nullptr) {
+                    return;
+                }
+                
+                _view = v->obtainView(get("reuse"));
+                
+                if(_view == nullptr) {
+                    _view = createView(context);
+                }
+                
             }
-            
-            if(v == nullptr) {
-                return;
-            }
-            
-            _view = v->obtainView(get("reuse"));
-            
-            if(_view == nullptr) {
-                _view = createView(context);
-            }
-            
+
             if(_view != nullptr){
                 
                 View * p = _view->parent();
                 
-                if(p == nullptr || p != v) {
+                if(v != nullptr && (p == nullptr || p != v)) {
                     
                     if(p != nullptr) {
                         _view->removeView();
                     }
-                    
+   
                     if(kk::CStringEqual(get("target"), "back")) {
                         v->addSubview(_view, SubviewPositionBack);
                     } else {
@@ -260,6 +262,12 @@ namespace kk {
                 kk::PushInterface<ViewElement>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutProperty<ViewElement,View *>(ctx, -1, "view", &ViewElement::view);
+                    
+                });
+                
+                kk::PushClass<ViewContext,App *>(ctx, [](duk_context * ctx)->void{
+                    
+                    kk::PutProperty<ViewContext,View *>(ctx, -1, "view", &ViewContext::view);
                     
                 });
                 

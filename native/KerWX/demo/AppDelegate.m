@@ -25,6 +25,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     NSLog(@"%@",NSHomeDirectory());
+    self.window.backgroundColor = [UIColor whiteColor];
     // Override point for customization after application launch.
     return YES;
 }

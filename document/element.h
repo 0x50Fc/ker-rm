@@ -75,11 +75,7 @@ namespace kk {
         virtual void onDidAddToParent(Element * element);
         virtual void onWillRemoveChildren(Element * element);
         virtual void onWillRemoveFromParent(Element * element);
-        
-        
-        
-        
-        
+
     protected:
         kk::Weak<Document> _document;
         ElementKey _elementId;
