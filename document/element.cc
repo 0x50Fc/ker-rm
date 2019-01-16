@@ -367,6 +367,29 @@ namespace kk  {
         return _attributes;
     }
     
+    void Element::dispatchEvent(CString name,Event * event) {
+        
+        if(name == nullptr || event == nullptr) {
+            return;
+        }
+        
+        Any & r = event->returnValue();
+    
+        Element * p = lastChild();
+        
+        while(p) {
+            
+            p->dispatchEvent(name, event);
+            
+            if(r.type == TypeBoolean && r.booleanValue == false) {
+                return ;
+            }
+            
+            p = p->prevSibling();
+        }
+        
+    }
+    
     void Element::emit(CString name,Event * event) {
         
         ElementEvent * e = dynamic_cast<ElementEvent *>(event);
@@ -518,6 +541,7 @@ namespace kk  {
                 kk::PutStrongMethod<Element,kk::TObject<kk::String,kk::String>>(ctx, -1, "attributes", &Element::attributesObject);
                 kk::PutMethod<Element,void,kk::CString,kk::Object *>(ctx, -1, "setObject", &Element::setObject);
                 kk::PutMethod<Element,kk::Object *,kk::CString>(ctx, -1, "object", &Element::object);
+                kk::PutMethod<Element,void,kk::CString,Event *>(ctx, -1, "dispatchEvent", &Element::dispatchEvent);
                 
                 
             });

@@ -53,7 +53,9 @@ DUK_INTERNAL void *duk_heap_mem_alloc(duk_heap *heap, duk_size_t size) {
 	 */
 
 #if defined(DUK_USE_GC_TORTURE)
-	/* simulate alloc failure on every alloc (except when mark-and-sweep is running) */
+	/* Simulate alloc failure on every alloc, except when mark-and-sweep
+	 * is running.
+	 */
 	if (heap->ms_prevent_count == 0) {
 		DUK_DDD(DUK_DDDPRINT("gc torture enabled, pretend that first alloc attempt fails"));
 		res = NULL;
@@ -63,7 +65,7 @@ DUK_INTERNAL void *duk_heap_mem_alloc(duk_heap *heap, duk_size_t size) {
 #endif
 	res = heap->alloc_func(heap->heap_udata, size);
 	if (DUK_LIKELY(res || size == 0)) {
-		/* for zero size allocations NULL is allowed */
+		/* For zero size allocations NULL is allowed. */
 		return res;
 	}
 #if defined(DUK_USE_GC_TORTURE)
@@ -125,8 +127,7 @@ DUK_INTERNAL void *duk_heap_mem_alloc_zeroed(duk_heap *heap, duk_size_t size) {
 
 	res = DUK_ALLOC(heap, size);
 	if (DUK_LIKELY(res != NULL)) {
-		/* assume memset with zero size is OK */
-		DUK_MEMZERO(res, size);
+		duk_memzero(res, size);
 	}
 	return res;
 }
@@ -140,7 +141,7 @@ DUK_INTERNAL void *duk_heap_mem_alloc_checked(duk_hthread *thr, duk_size_t size)
 		return res;
 	}
 	DUK_ERROR_ALLOC_FAILED(thr);
-	return NULL;
+	DUK_WO_NORETURN(return NULL;);
 }
 
 DUK_INTERNAL void *duk_heap_mem_alloc_checked_zeroed(duk_hthread *thr, duk_size_t size) {
@@ -152,7 +153,7 @@ DUK_INTERNAL void *duk_heap_mem_alloc_checked_zeroed(duk_hthread *thr, duk_size_
 		return res;
 	}
 	DUK_ERROR_ALLOC_FAILED(thr);
-	return NULL;
+	DUK_WO_NORETURN(return NULL;);
 }
 
 /*
@@ -178,7 +179,9 @@ DUK_INTERNAL void *duk_heap_mem_realloc(duk_heap *heap, void *ptr, duk_size_t ne
 	 */
 
 #if defined(DUK_USE_GC_TORTURE)
-	/* simulate alloc failure on every realloc (except when mark-and-sweep is running) */
+	/* Simulate alloc failure on every realloc, except when mark-and-sweep
+	 * is running.
+	 */
 	if (heap->ms_prevent_count == 0) {
 		DUK_DDD(DUK_DDDPRINT("gc torture enabled, pretend that first realloc attempt fails"));
 		res = NULL;
@@ -188,7 +191,7 @@ DUK_INTERNAL void *duk_heap_mem_realloc(duk_heap *heap, void *ptr, duk_size_t ne
 #endif
 	res = heap->realloc_func(heap->heap_udata, ptr, newsize);
 	if (DUK_LIKELY(res || newsize == 0)) {
-		/* for zero size allocations NULL is allowed */
+		/* For zero size allocations NULL is allowed. */
 		return res;
 	}
 #if defined(DUK_USE_GC_TORTURE)
@@ -260,7 +263,9 @@ DUK_INTERNAL void *duk_heap_mem_realloc_indirect(duk_heap *heap, duk_mem_getptr 
 	 */
 
 #if defined(DUK_USE_GC_TORTURE)
-	/* simulate alloc failure on every realloc (except when mark-and-sweep is running) */
+	/* Simulate alloc failure on every realloc, except when mark-and-sweep
+	 * is running.
+	 */
 	if (heap->ms_prevent_count == 0) {
 		DUK_DDD(DUK_DDDPRINT("gc torture enabled, pretend that first indirect realloc attempt fails"));
 		res = NULL;
@@ -270,7 +275,7 @@ DUK_INTERNAL void *duk_heap_mem_realloc_indirect(duk_heap *heap, duk_mem_getptr 
 #endif
 	res = heap->realloc_func(heap->heap_udata, cb(heap, ud), newsize);
 	if (DUK_LIKELY(res || newsize == 0)) {
-		/* for zero size allocations NULL is allowed */
+		/* For zero size allocations NULL is allowed. */
 		return res;
 	}
 #if defined(DUK_USE_GC_TORTURE)
@@ -299,12 +304,12 @@ DUK_INTERNAL void *duk_heap_mem_realloc_indirect(duk_heap *heap, duk_mem_getptr 
 	for (i = 0; i < DUK_HEAP_ALLOC_FAIL_MARKANDSWEEP_LIMIT; i++) {
 		duk_small_uint_t flags;
 
-#if defined(DUK_USE_ASSERTIONS)
-		void *ptr_pre;  /* ptr before mark-and-sweep */
+#if defined(DUK_USE_DEBUG)
+		void *ptr_pre;
 		void *ptr_post;
 #endif
 
-#if defined(DUK_USE_ASSERTIONS)
+#if defined(DUK_USE_DEBUG)
 		ptr_pre = cb(heap, ud);
 #endif
 		flags = 0;
@@ -313,11 +318,10 @@ DUK_INTERNAL void *duk_heap_mem_realloc_indirect(duk_heap *heap, duk_mem_getptr 
 		}
 
 		duk_heap_mark_and_sweep(heap, flags);
-#if defined(DUK_USE_ASSERTIONS)
+#if defined(DUK_USE_DEBUG)
 		ptr_post = cb(heap, ud);
 		if (ptr_pre != ptr_post) {
-			/* useful for debugging */
-			DUK_DD(DUK_DDPRINT("note: base pointer changed by mark-and-sweep: %p -> %p",
+			DUK_DD(DUK_DDPRINT("realloc base pointer changed by mark-and-sweep: %p -> %p",
 			                   (void *) ptr_pre, (void *) ptr_post));
 		}
 #endif

@@ -27,6 +27,8 @@ namespace kk {
         Any _returnValue;
     };
     
+    typedef kk::TFunction<void,kk::CString,Event *> EventFunction;
+    
     class EventEmitter : public Object {
     public:
         virtual void on(kk::CString name,kk::TFunction<void,kk::CString,Event *> * func);

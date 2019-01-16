@@ -21,6 +21,7 @@ id ker_to_NSObject(duk_context * ctx,duk_idx_t idx);
 kk::Any KerObjectToAny(id object);
 id KerObjectFromAny(kk::Any & v);
 id KerObjectFromObject(kk::Object * v);
+kk::Strong<kk::Object> KerObjectToObject(id object);
 
 namespace kk {
     

@@ -55,7 +55,7 @@ namespace kk {
             v.family = family;
             v.weight = weight;
             v.style = style;
-            v.size = context->value(size.value, 0, 0, size.name.c_str());
+            v.size = context->value(size, 0, 0);
             return v;
         }
         
@@ -76,6 +76,13 @@ namespace kk {
             
         }
         
+        ImgElement::~ImgElement() {
+            if(_onLoad != nullptr && image != nullptr) {
+                image->off("load", (EventFunction *) _onLoad);
+            }
+            _onLoad = nullptr;
+        }
+        
         void ImgElement::changedKey(CString key) {
             StyleElement::changedKey(key);
             if(kk::CStringEqual(key, "src")) {
@@ -89,13 +96,30 @@ namespace kk {
             }
         }
         
+        void ImgElement::setImage(Image * v){
+            if(_onLoad != nullptr && image != nullptr) {
+                image->off("load", (EventFunction *) _onLoad);
+            }
+            image = v;
+            if(image != nullptr) {
+                if(_onLoad == nullptr) {
+                    _onLoad = new EventFunction([this](CString name,Event * event)->void{
+                        Strong<ElementEvent> e = new ElementEvent(this);
+                        this->emit("layout", e);
+                    });
+                }
+                image->on("load", (EventFunction *) _onLoad);
+            }
+        }
+        
         Image * ImgElement::getImage(ViewContext * context) {
             if(image == nullptr) {
                 kk::CString v = get("src");
                 if(v != nullptr) {
                     App * app = context->app();
                     if(app != nullptr) {
-                        image = app->createImage(v);
+                        Strong<Image> i = app->createImage(v);
+                        setImage(i);
                     }
                 }
             }
@@ -124,14 +148,17 @@ namespace kk {
         }
         
         void TextElement::changedKey(CString key) {
-            ViewElement::changedKey(key);
-            if(kk::CStringEqual(key, "#text")) {
+            if(kk::CStringEqual(key, "#text") || kk::CStringEqual(key, "value")) {
                 _text = nullptr;
+                return;
             } else if(kk::CStringEqual(key, "font")) {
                 font.set(get(key));
+                return;
             } else if(kk::CStringEqual(key, "color")) {
                 color = Color(get(key));
+                return;
             }
+            ViewElement::changedKey(key);
         }
         
         kk::Boolean TextElement::layout(LayoutContext * context) {
@@ -189,6 +216,9 @@ namespace kk {
                 Element * p = firstChild();
                 if(p == nullptr) {
                     kk::CString v = get("#text");
+                    if(v == nullptr) {
+                        v = get("value");
+                    }
                     if(v != nullptr) {
                         _text->append(v, font.font(context), color);
                     }
@@ -260,7 +290,7 @@ namespace kk {
                 
                 kk::PushInterface<TextElement>(ctx, [](duk_context * ctx)->void{
                     
-                    kk::PutMethod(ctx, -1, "text", &TextElement::text);
+                    kk::PutMethod<TextElement,AttributedText *,ViewContext *>(ctx, -1, "text", &TextElement::text);
                     
                 });
                 

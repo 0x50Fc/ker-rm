@@ -28,31 +28,19 @@ namespace kk {
             _view = view;
         }
         
+        void ViewContext::obtainView(ViewElement * element) {
+            if(_view == nullptr || element == nullptr) {
+                return;
+            }
+            element->obtainView(this);
+        }
+        
         ViewElement::ViewElement(Document * document,CString name, ElementKey elementId):kk::LayoutElement(document,name,elementId) {
             
         }
         
         void ViewElement::onLayout(LayoutContext * context) {
             LayoutElement::onLayout(context);
-            
-            ViewContext * v = dynamic_cast<ViewContext *>(context);
-            
-            if(v != nullptr) {
-                ViewElement * p = dynamic_cast<ViewElement *>(parent());
-                if(p == nullptr) {
-                    if(isVisible()) {
-                        obtainView(v);
-                    } else {
-                        recycleView();
-                    }
-                } else {
-                    if(p->isVisibleChildren(this)) {
-                        obtainView(v);
-                    } else {
-                        recycleView();
-                    }
-                }
-            }
             
             if(_view != nullptr) {
                 
@@ -76,13 +64,34 @@ namespace kk {
                 
                 _view->setContentSize(s);
                 
+                ViewContext * v = dynamic_cast<ViewContext *>(context);
+                
+                if(v != nullptr) {
+                    obtainChildrenView(v);
+                }
+                
             }
+            
+            
             
         }
         
         void ViewElement::setContentOffset(ViewContext * context,Float x,Float y) {
             _contentOffset.x = x;
             _contentOffset.y = y;
+            obtainChildrenView(context);
+        }
+        
+        View * ViewElement::view() {
+            return _view;
+        }
+        
+        void ViewElement::obtainChildrenView(ViewContext * context) {
+            
+            if(_view == nullptr) {
+                return;
+            }
+            
             Element * p = firstChild();
             while(p) {
                 ViewElement * e = dynamic_cast<ViewElement *>(p);
@@ -95,10 +104,9 @@ namespace kk {
                 }
                 p = p->nextSibling();
             }
-        }
-        
-        View * ViewElement::view() {
-            return _view;
+            
+            _view->removeRecycleViews();
+            
         }
         
         void ViewElement::obtainView(ViewContext * context) {
@@ -124,7 +132,8 @@ namespace kk {
                 _view = v->obtainView(get("reuse"));
                 
                 if(_view == nullptr) {
-                    _view = createView(context);
+                    Strong<View> vv = createView(context);
+                    _view = (View *) vv;
                 }
                 
             }
@@ -148,6 +157,9 @@ namespace kk {
                 }
                 
                 onObtainView(context,_view);
+                
+                obtainChildrenView(context);
+                
             }
         }
         
@@ -169,7 +181,8 @@ namespace kk {
             if(app == nullptr) {
                 return nullptr;
             }
-            return app->createView(get("#name"), nullptr);
+            Strong<View> v = app->createView(name(), nullptr);
+            return v;
         }
         
         kk::Boolean ViewElement::isVisibleChildren(ViewElement * element) {
@@ -202,30 +215,27 @@ namespace kk {
             return ! hidden && frame.size.width > 0.0f && frame.size.height > 0.0f;
         }
         
+        void ViewElement::onEvent(ViewContext * context,CString name,Event * event) {
+            if(kk::CStringEqual(name, "scroll")) {
+                if(_view != nullptr) {
+                    Point p = _view->contentOffset();
+                    setContentOffset(context, p.y, p.y);
+                }
+            }
+            emit(name, event);
+        }
         void ViewElement::onObtainView(ViewContext * context,View * view) {
             
             kk::Weak<ViewContext> v = context;
             kk::Weak<ViewElement> e = this;
-            
-            view->on("scroll", new kk::TFunction<void,kk::CString,Event *>([v,e](kk::CString name,Event * event)->void{
-                ViewContext * context = v.operator->();
-                ViewElement * element = e.operator->();
-                if(context && element) {
-                    View * view = element->view();
-                    if(view != nullptr) {
-                        Point p = view->contentOffset();
-                        element->setContentOffset(context, p.y, p.y);
-                    }
-                }
-            }));
-            
+
             view->on("*", new kk::TFunction<void,kk::CString,Event *>([v,e](kk::CString name,Event * event)->void{
                 ViewContext * context = v.operator->();
                 ViewElement * element = e.operator->();
                 if(context && element) {
                     kk::Strong<kk::ElementEvent> e = new kk::ElementEvent(element);
                     e->setData(event->data());
-                    element->emit(name, e);
+                    element->onEvent(context,name, e);
                 }
             }));
             
@@ -242,7 +252,6 @@ namespace kk {
         }
         
         void ViewElement::onRecycleView(View * view) {
-            view->off("scroll", (kk::TFunction<void,kk::CString,Event *> *) nullptr);
             view->off("*", (kk::TFunction<void,kk::CString,Event *> *) nullptr);
         }
         
@@ -262,12 +271,14 @@ namespace kk {
                 kk::PushInterface<ViewElement>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutProperty<ViewElement,View *>(ctx, -1, "view", &ViewElement::view);
-                    
+                    kk::PutMethod<ViewElement,void,ViewContext *>(ctx, -1, "obtainView", &ViewElement::obtainView);
+                    kk::PutMethod<ViewElement,void>(ctx, -1, "recycleView", &ViewElement::recycleView);
                 });
                 
                 kk::PushClass<ViewContext,App *>(ctx, [](duk_context * ctx)->void{
                     
-                    kk::PutProperty<ViewContext,View *>(ctx, -1, "view", &ViewContext::view);
+                    kk::PutProperty<ViewContext,View *>(ctx, -1, "view", &ViewContext::view,&ViewContext::setView);
+                    kk::PutMethod<ViewContext,void,ViewElement *>(ctx, -1, "obtainView", &ViewContext::obtainView);
                     
                 });
                 

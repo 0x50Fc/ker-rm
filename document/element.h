@@ -58,6 +58,8 @@ namespace kk {
         virtual Strong<TObject<kk::String,kk::String>> attributesObject();
         
         
+        virtual void dispatchEvent(CString name,Event * event);
+        
         virtual void emit(CString name,Event * event);
         virtual kk::Boolean hasBubble(CString name);
         

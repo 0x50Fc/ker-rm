@@ -17,12 +17,16 @@ namespace kk {
     
     namespace ui {
         
+        class ViewElement;
+        
         class ViewContext : public kk::LayoutContext {
         public:
             ViewContext(App * app);
             virtual View * view();
             virtual void setView(View * view);
             virtual App * app();
+            
+            virtual void obtainView(ViewElement * element);
             
             Ker_CLASS(ViewContext,kk::LayoutContext,"UIViewContext")
             
@@ -40,14 +44,16 @@ namespace kk {
             virtual void recycleView();
             virtual View * view();
             virtual void changedKey(CString key);
-            
+    
             Ker_CLASS(ViewElement,LayoutElement,"UIViewElement")
             
             static void Openlib();
             static void library(kk::CString name);
         protected:
+            virtual void onEvent(ViewContext * context,CString name,Event * event);
             virtual void onObtainView(ViewContext * context,View * view);
             virtual void onRecycleView(View * view);
+            virtual void obtainChildrenView(ViewContext * context);
             virtual Strong<View> createView(ViewContext * context);
             virtual kk::Boolean isVisibleChildren(ViewElement * element);
             virtual kk::Boolean isVisible();

@@ -5,23 +5,25 @@ exports.create = function (page) {
     var document = new Document();
     var context = new UIViewContext(app);
     var layouting = false;
-    document.rootElement = document.createElement("view");
+    var element = document.createElement("view");
 
-    var layout = function() {
-        var e = document.rootElement;
-        if (e !== undefined && page.view) {
-            context.layout(e);
+    document.rootElement = element;
+
+    var layout = function () {
+        if (page.view) {
+            context.layout(element);
+            context.obtainView(element);
         }
         layouting = false;
     };
 
-    var setLayout = function() {
-        
-        if(layouting) {
+    var setLayout = function () {
+
+        if (layouting) {
             return;
         }
         layouting = true;
-        setTimeout(layout,0);
+        setTimeout(layout, 0);
     };
 
     page.on("resize", function () {
@@ -32,12 +34,7 @@ exports.create = function (page) {
             context.setSize(page.width, page.height);
         }
 
-        var e = document.rootElement;
-
-        if (e !== undefined) {
-            print(typeof e.setFrame);
-            e.setFrame(0, 0, page.width, page.height);
-        }
+        element.setFrame(0, 0, page.width, page.height);
 
         setLayout();
 
@@ -47,16 +44,16 @@ exports.create = function (page) {
 
         context.view = page.view;
 
-        var e = document.rootElement;
-
-        if (e !== undefined) {
-            e.setFrame(0, 0, page.width, page.height);
-        }
+        element.setFrame(0, 0, page.width, page.height);
 
         layout();
     });
 
-    document.layout = function() {
+    document.on("layout",function(){
+        setLayout();
+    });
+
+    document.layout = function () {
         setLayout();
     };
 

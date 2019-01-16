@@ -45,6 +45,9 @@ namespace kk {
                 
                 duk_pop_2(ctx);
                 
+                kk::PushWeakObject(_jsContext, _app.get());
+                duk_put_prop_string(_jsContext, -2, "app");
+                
                 kk::PushWeakObject(_jsContext, this);
                 duk_put_prop_string(_jsContext, -2, "page");
                 

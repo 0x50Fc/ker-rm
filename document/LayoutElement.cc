@@ -29,7 +29,14 @@ namespace kk {
     }
     
     void Pixel::set(kk::CString v) {
-        name = "auto";
+        
+        if(kk::CStringEqual(v, "auto")) {
+            name = "auto";
+            value = 0;
+            return;
+        }
+        
+        name.clear();
         value = 0;
         
         if(v != nullptr) {
@@ -46,6 +53,9 @@ namespace kk {
             value = atof(vv.c_str());
         }
         
+        if(name.empty()) {
+            name = "px";
+        }
     }
     
     void Pixel::set(const Pixel & v) {
@@ -592,26 +602,6 @@ namespace kk {
     
     void LayoutElement::onLayout(LayoutContext * context) {
         
-        JITContext::current()->forEach(this, [context](duk_context * ctx,void * heapptr)->void{
-        
-            duk_push_heapptr(ctx, heapptr);
-            
-            duk_get_prop_string(ctx, -1, "onLayout");
-            
-            if(duk_is_function(ctx, -1)) {
-                
-                duk_push_heapptr(ctx, heapptr);
-                kk::PushObject(ctx, context);
-                
-                if(::duk_pcall_method(ctx, 1) != DUK_EXEC_SUCCESS) {
-                    kk::Error(ctx, -1, "[LayoutElement::onLayout]");
-                }
-                
-            }
-            
-            duk_pop_2(ctx);
-            
-        });
     }
     
     void LayoutElement::setFrame(Float x,Float y,Float width,Float height) {
@@ -632,15 +622,15 @@ namespace kk {
         kk::Openlib<>::add([](duk_context * ctx)->void{
             
             kk::PushInterface<LayoutElement>(ctx, [](duk_context * ctx)->void{
-                kk::PutMethod(ctx, -1, "setFrame", &LayoutElement::setFrame);
+                kk::PutMethod<LayoutElement,void,Float,Float,Float,Float>(ctx, -1, "setFrame", &LayoutElement::setFrame);
             });
             
             kk::PushClass<LayoutContext>(ctx, [](duk_context * ctx)->void{
                 
-                kk::PutMethod(ctx, -1, "setSize", &LayoutContext::setSize);
-                kk::PutMethod(ctx, -1, "setUnit", &LayoutContext::setUnit);
+                kk::PutMethod<LayoutContext,void,Float,Float>(ctx, -1, "setSize", &LayoutContext::setSize);
+                kk::PutMethod<LayoutContext,void,kk::CString,Float,Float>(ctx, -1, "setUnit", &LayoutContext::setUnit);
                 kk::PutMethod<LayoutContext,void,kk::CString,kk::JSObject *>(ctx, -1, "setLayout", &LayoutContext::setLayout);
-                kk::PutMethod(ctx, -1, "layout", &LayoutContext::layout);
+                kk::PutMethod<LayoutContext,void,LayoutElement *>(ctx, -1, "layout", &LayoutContext::layout);
                 
             });
             

@@ -24,6 +24,8 @@ namespace kk {
         
         struct Point {
             Float x,y;
+            Point():x(0),y(0){}
+            Point(Float x,Float y):x(x),y(y){}
             operator kk::Any() {
                 return kk::Any(new TObject<kk::String, kk::Float>({{"x",x},{"y",y}}));
             }

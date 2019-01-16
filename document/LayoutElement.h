@@ -90,8 +90,8 @@ namespace kk {
     
         kk::Float _width;
         kk::Float _height;
-        std::map<kk::CString,Unit> _units;
-        std::map<kk::CString,kk::Strong<kk::Object>> _layouts;
+        std::map<kk::String,Unit> _units;
+        std::map<kk::String,kk::Strong<kk::Object>> _layouts;
     };
     
     class Layout {

@@ -122,6 +122,14 @@ namespace kk {
         }
     }
     
+    kk::Strong<Object> NativeObject::copy() {
+        kk::Strong<Object> v;
+        @autoreleasepool {
+            v = KerObjectToObject((__bridge id) native());
+        }
+        return v;
+    }
+    
     kk::String NativeObject::getPrototype(Native * native) {
         
         ::Class isa = object_getClass((__bridge id) native);
@@ -757,30 +765,15 @@ id ker_to_NSObject(duk_context * ctx,duk_idx_t idx) {
     
 }
 
-kk::Any KerObjectToAny(id object) {
-    kk::Any v;
+kk::Strong<kk::Object> KerObjectToObject(id object) {
     
-    if([object isKindOfClass:[NSNumber class]]) {
-        if(strcmp([object objCType], @encode(BOOL)) == 0) {
-            v = (kk::Boolean) [object boolValue];
-        } else if(strcmp([object objCType], @encode(double)) == 0) {
-            v = (kk::Double) [object doubleValue];
-        } else if(strcmp([object objCType], @encode(float)) == 0) {
-            v = (kk::Float) [object floatValue];
-        } else if(strcmp([object objCType], @encode(int)) == 0) {
-            v = (kk::Int) [object intValue];
-        } else if(strcmp([object objCType], @encode(unsigned int)) == 0) {
-            v = (kk::Uint) [object unsignedIntValue];
-        } else if(strcmp([object objCType], @encode(long long)) == 0) {
-            v = (kk::Int64) [object longLongValue];
-        } else if(strcmp([object objCType], @encode(unsigned long long)) == 0) {
-            v = (kk::Uint64) [object unsignedLongLongValue];
-        } else {
-            v = (kk::Double) [object doubleValue];
-        }
-    } else if([object isKindOfClass:[NSString class]]) {
-        v = (kk::CString) [object UTF8String];
-    } else if([object isKindOfClass:[NSArray class]]) {
+    if(object == nil) {
+        return nullptr;
+    }
+    
+    kk::Strong<kk::Object> v;
+    
+    if([object isKindOfClass:[NSArray class]]) {
         
         kk::Array<kk::Any> * items = new kk::Array<kk::Any>();
         
@@ -805,6 +798,39 @@ kk::Any KerObjectToAny(id object) {
         v = (kk::Object *) m;
     } else if([object isKindOfClass:[KerJSObject class]]) {
         v = (kk::Object *) [(KerJSObject *) object JSObject];
+    }
+    
+    return v;
+}
+
+kk::Any KerObjectToAny(id object) {
+    kk::Any v;
+    
+    if([object isKindOfClass:[NSNumber class]]) {
+        if(strcmp([object objCType], @encode(BOOL)) == 0) {
+            v = (kk::Boolean) [object boolValue];
+        } else if(strcmp([object objCType], @encode(double)) == 0) {
+            v = (kk::Double) [object doubleValue];
+        } else if(strcmp([object objCType], @encode(float)) == 0) {
+            v = (kk::Float) [object floatValue];
+        } else if(strcmp([object objCType], @encode(int)) == 0) {
+            v = (kk::Int) [object intValue];
+        } else if(strcmp([object objCType], @encode(unsigned int)) == 0) {
+            v = (kk::Uint) [object unsignedIntValue];
+        } else if(strcmp([object objCType], @encode(long long)) == 0) {
+            v = (kk::Int64) [object longLongValue];
+        } else if(strcmp([object objCType], @encode(unsigned long long)) == 0) {
+            v = (kk::Uint64) [object unsignedLongLongValue];
+        } else {
+            v = (kk::Double) [object doubleValue];
+        }
+    } else if([object isKindOfClass:[NSString class]]) {
+        v = (kk::CString) [object UTF8String];
+    } else {
+        kk::Strong<kk::Object> vv = KerObjectToObject(object);
+        if(vv != nullptr) {
+            v = (kk::Object *) vv;
+        }
     }
     
     return v;

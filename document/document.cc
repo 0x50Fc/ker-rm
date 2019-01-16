@@ -223,7 +223,7 @@ namespace kk {
     }
     
     Element * Document::rootElement() {
-        return _rootElement;
+        return (Element *) _rootElement;
     }
     
     void Document::setRootElement(Element * element) {

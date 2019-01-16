@@ -410,6 +410,10 @@ namespace kk {
         
         kk::Strong<View> View::obtainView(kk::CString reuse) {
             
+            if(reuse == nullptr) {
+                return nullptr;
+            }
+            
             auto i = _obtainViews.find(reuse);
             
             if(i != _obtainViews.end()) {
@@ -426,6 +430,11 @@ namespace kk {
         }
         
         void View::recycleView(View * view,kk::CString reuse) {
+            
+            if(reuse == nullptr) {
+                view->removeView();
+                return;
+            }
             
             auto i = _obtainViews.find(reuse);
             

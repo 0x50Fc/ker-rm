@@ -360,6 +360,7 @@ namespace kk {
         void * heapptr = JITContext::current()->get(object, ctx);
         
         if(heapptr != nullptr) {
+            Object * vv = JITContext::current()->get(heapptr);
             duk_push_heapptr(ctx, heapptr);
             return;
         }
@@ -619,11 +620,15 @@ namespace kk {
     }
     
     void * JSObject::heapptr() {
+        
+        if(_ctx == nullptr) {
+            return nullptr;
+        }
+        
         return JITContext::current()->get(this, _ctx);
     }
     
     void JSObject::recycle() {
-        
         JITContext::current()->remove(this);
         _ctx = nullptr;
     }

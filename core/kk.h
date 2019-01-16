@@ -293,13 +293,13 @@ static const kk::Class * Class() { \
         void * unused;
     };
     
-    class NativeObject : public Object {
+    class NativeObject : public Object ,public Copying {
     public:
         NativeObject(Native * native);
         virtual ~NativeObject();
         virtual Native * native();
+        virtual kk::Strong<Object> copy();
         static kk::String getPrototype(Native * native);
-
     protected:
         Native * _native;
     };

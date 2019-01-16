@@ -39,15 +39,19 @@ namespace kk {
         class ImgElement : public kk::StyleElement {
         public:
             ImgElement(Document * document,CString name, ElementKey elementId);
+            virtual ~ImgElement();
             virtual void changedKey(CString key);
             virtual Image * getImage(ViewContext * context);
             virtual kk::Uint getWidth(ViewContext * context);
             virtual kk::Uint getHeight(ViewContext * context);
             virtual Edge getMargin(ViewContext * context);
+            virtual void setImage(Image * v);
             kk::Strong<Image> image;
             kk::Pixel width;
             kk::Pixel height;
             kk::Edge margin;
+        protected:
+            kk::Strong<EventFunction> _onLoad;
         };
         
         class TextElement : public ViewElement, public kk::Layout {

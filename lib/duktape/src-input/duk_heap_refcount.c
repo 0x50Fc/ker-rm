@@ -32,6 +32,15 @@
  *  actual references.
  */
 
+DUK_LOCAL void duk__decref_tvals_norz(duk_hthread *thr, duk_tval *tv, duk_idx_t count) {
+	DUK_ASSERT(count == 0 || tv != NULL);
+
+	while (count-- > 0) {
+		DUK_TVAL_DECREF_NORZ(thr, tv);
+		tv++;
+	}
+}
+
 DUK_INTERNAL void duk_hobject_refcount_finalize_norz(duk_heap *heap, duk_hobject *h) {
 	duk_hthread *thr;
 	duk_uint_fast32_t i;
@@ -109,10 +118,13 @@ DUK_INTERNAL void duk_hobject_refcount_finalize_norz(duk_heap *heap, duk_hobject
 
 	/* Slow path: special object, start bit checks from most likely. */
 
+	/* XXX: reorg, more common first */
 	if (DUK_HOBJECT_IS_COMPFUNC(h)) {
 		duk_hcompfunc *f = (duk_hcompfunc *) h;
 		duk_tval *tv, *tv_end;
 		duk_hobject **funcs, **funcs_end;
+
+		DUK_ASSERT_HCOMPFUNC_VALID(f);
 
 		if (DUK_LIKELY(DUK_HCOMPFUNC_GET_DATA(heap, f) != NULL)) {
 			tv = DUK_HCOMPFUNC_GET_CONSTS_BASE(heap, f);
@@ -153,12 +165,29 @@ DUK_INTERNAL void duk_hobject_refcount_finalize_norz(duk_heap *heap, duk_hobject
 #if defined(DUK_USE_BUFFEROBJECT_SUPPORT)
 	} else if (DUK_HOBJECT_IS_BUFOBJ(h)) {
 		duk_hbufobj *b = (duk_hbufobj *) h;
+		DUK_ASSERT_HBUFOBJ_VALID(b);
 		DUK_HBUFFER_DECREF_NORZ_ALLOWNULL(thr, (duk_hbuffer *) b->buf);
 		DUK_HOBJECT_DECREF_NORZ_ALLOWNULL(thr, (duk_hobject *) b->buf_prop);
 #endif  /* DUK_USE_BUFFEROBJECT_SUPPORT */
+	} else if (DUK_HOBJECT_IS_BOUNDFUNC(h)) {
+		duk_hboundfunc *f = (duk_hboundfunc *) (void *) h;
+		DUK_ASSERT_HBOUNDFUNC_VALID(f);
+		DUK_TVAL_DECREF_NORZ(thr, &f->target);
+		DUK_TVAL_DECREF_NORZ(thr, &f->this_binding);
+		duk__decref_tvals_norz(thr, f->args, f->nargs);
+#if defined(DUK_USE_ES6_PROXY)
+	} else if (DUK_HOBJECT_IS_PROXY(h)) {
+		duk_hproxy *p = (duk_hproxy *) h;
+		DUK_ASSERT_HPROXY_VALID(p);
+		DUK_HOBJECT_DECREF_NORZ(thr, p->target);
+		DUK_HOBJECT_DECREF_NORZ(thr, p->handler);
+#endif  /* DUK_USE_ES6_PROXY */
 	} else if (DUK_HOBJECT_IS_THREAD(h)) {
 		duk_hthread *t = (duk_hthread *) h;
+		duk_activation *act;
 		duk_tval *tv;
+
+		DUK_ASSERT_HTHREAD_VALID(t);
 
 		tv = t->valstack;
 		while (tv < t->valstack_top) {
@@ -166,21 +195,19 @@ DUK_INTERNAL void duk_hobject_refcount_finalize_norz(duk_heap *heap, duk_hobject
 			tv++;
 		}
 
-		for (i = 0; i < (duk_uint_fast32_t) t->callstack_top; i++) {
-			duk_activation *act = t->callstack + i;
+		for (act = t->callstack_curr; act != NULL; act = act->parent) {
 			DUK_HOBJECT_DECREF_NORZ_ALLOWNULL(thr, (duk_hobject *) DUK_ACT_GET_FUNC(act));
 			DUK_HOBJECT_DECREF_NORZ_ALLOWNULL(thr, (duk_hobject *) act->var_env);
 			DUK_HOBJECT_DECREF_NORZ_ALLOWNULL(thr, (duk_hobject *) act->lex_env);
 #if defined(DUK_USE_NONSTD_FUNC_CALLER_PROPERTY)
 			DUK_HOBJECT_DECREF_NORZ_ALLOWNULL(thr, (duk_hobject *) act->prev_caller);
 #endif
+#if 0  /* nothing now */
+			for (cat = act->cat; cat != NULL; cat = cat->parent) {
+			}
+#endif
 		}
 
-#if 0  /* nothing now */
-		for (i = 0; i < (duk_uint_fast32_t) t->catchstack_top; i++) {
-			duk_catcher *cat = t->catchstack + i;
-		}
-#endif
 
 		for (i = 0; i < DUK_NUM_BUILTINS; i++) {
 			DUK_HOBJECT_DECREF_NORZ_ALLOWNULL(thr, (duk_hobject *) t->builtins[i]);
@@ -328,7 +355,7 @@ DUK_LOCAL DUK_INLINE void duk__refcount_refzero_hobject(duk_heap *heap, duk_hobj
 	/* This finalizer check MUST BE side effect free.  It should also be
 	 * as fast as possible because it's applied to every object freed.
 	 */
-	if (DUK_UNLIKELY(DUK_HOBJECT_HAS_FINALIZER_FAST(heap, (duk_hobject *) hdr))) {
+	if (DUK_UNLIKELY(DUK_HOBJECT_HAS_FINALIZER_FAST(heap, (duk_hobject *) hdr) != 0U)) {
 		/* Special case: FINALIZED may be set if mark-and-sweep queued
 		 * object for finalization, the finalizer was executed (and
 		 * FINALIZED set), mark-and-sweep hasn't yet processed the

@@ -994,6 +994,8 @@ static NSString * gKerAppUserAgent = nil;
     [self setViewClass:[UIScrollView class] name:@"scroll"];
     [self setViewClass:[WKWebView class] name:@"webview"];
     [self setTextViewClass:[UILabel class] name:@"text"];
+    [self setTextViewClass:[UITextView class] name:@"textarea"];
+    [self setTextViewClass:[UITextField class] name:@"input"];
     
     [KerURLProtocol openlibs];
     

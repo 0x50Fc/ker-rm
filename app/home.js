@@ -1,16 +1,20 @@
 
-var Document = require("lib/document.js");
+var Doc = require("lib/document.js");
 
-document = Document.create(page);
+document = Doc.create(page);
 
-// (function(element){
+(function(element){
 
-//     var text = document.createElement("text");
+    var text = document.createElement("text");
 
-//     text.set("#text","hello world");
-//     text.set("font","28rpx");
-//     text.set("color","#000");
+    text.set("#text","hello world");
+    text.set("font","28rpx");
+    text.set("color","#000");
 
-//     element.append(text);
+    element.append(text);
 
-// })(document.rootElement);
+    element.set("background-color","#fff");
+
+    document.layout();
+
+})(document.rootElement);
