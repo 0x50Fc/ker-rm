@@ -84,6 +84,7 @@ add_library(ker
             src/main/jni/ui/package.cc
             src/main/jni/ui/CGContext.cc
             src/main/jni/ui/ViewElement.cc
+            src/main/jni/ui/TextElement.cc
             src/main/jni/document/document.cc
             src/main/jni/document/element.cc
             src/main/jni/document/StyleElement.cc

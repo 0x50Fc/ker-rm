@@ -177,6 +177,11 @@ public final class KerUI {
         addViewClass(name);
     }
 
+    public static void addTextViewClass(String name,Class<?> isa) {
+        _viewClass.put(name,isa);
+        addTextViewClass(name);
+    }
+
     protected static List<Runnable> _tasks = new LinkedList<>();
 
     public static void post(Runnable runnable) {
@@ -904,6 +909,8 @@ public final class KerUI {
     private final static native void setImage(long id,Object image,int width,int height);
 
     private final static native void addViewClass(String name);
+
+    private final static native void addTextViewClass(String name);
 
 
 }

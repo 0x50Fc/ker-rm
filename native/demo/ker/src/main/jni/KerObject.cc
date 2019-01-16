@@ -80,6 +80,10 @@ jobject ker_to_JObject(JNIEnv * env, kk::Any &v) {
 
 }
 
+void ker_JObject_to_Any(JNIEnv * env,jobject object, kk::Any & returnValue) {
+
+}
+
 jobject ker_Object_to_JObject(JNIEnv * env, kk::Object * object) {
 
     if(object == nullptr) {
@@ -993,6 +997,31 @@ namespace kk {
             }
 
         }
+    }
+
+    kk::Strong<Object> NativeObject::copy() {
+        kk::Strong<Object> v;
+
+        if(_native != nullptr) {
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            kk::Any a ;
+
+            ker_JObject_to_Any(env,(jobject) _native,a);
+
+            if(a.type == kk::TypeObject) {
+                v = (Object *) a.objectValue;
+            }
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+        }
+
+        return v;
     }
 
     kk::String NativeObject::getPrototype(Native * native) {
