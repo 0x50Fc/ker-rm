@@ -986,7 +986,7 @@ static NSString * gKerAppUserAgent = nil;
     if(gKerAppUserAgent == nil) {
         @autoreleasepool {
             UIWebView * view = [[UIWebView alloc] init];
-            gKerAppUserAgent = [view stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+            gKerAppUserAgent = [[view stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"] stringByAppendingFormat:@" Ker/%s",KER_VERSION_STR];
         }
     }
     

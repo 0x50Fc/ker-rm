@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <Ker/KerViewProtocol.h>
 
+#define KER_VERSION_STR "1.0"
+#define KER_VERSION 100000
+
 @class KerPage;
 @class KerApp;
 
