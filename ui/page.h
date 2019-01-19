@@ -47,6 +47,7 @@ namespace kk {
             virtual void setSize(Size & size);
             virtual void setOptions(kk::Object * data);
             virtual void close(kk::Boolean animated);
+            virtual void unload();
             virtual Size size();
             virtual Float width();
             virtual Float height();

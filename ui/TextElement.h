@@ -34,6 +34,8 @@ namespace kk {
             virtual void changedKey(CString key);
             TextFont font;
             Color color;
+            
+            Ker_CLASS(SpanElement,kk::StyleElement,"UISpanElement")
         };
         
         class ImgElement : public kk::StyleElement {
@@ -50,6 +52,9 @@ namespace kk {
             kk::Pixel width;
             kk::Pixel height;
             kk::Edge margin;
+            
+            Ker_CLASS(ImgElement,kk::StyleElement,"UIImgElement")
+            
         protected:
             kk::Strong<EventFunction> _onLoad;
         };

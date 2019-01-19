@@ -25,6 +25,7 @@
     if((self = [super init])) {
         _page = page;
         _page->retain();
+        _type = page->type() == nullptr ? nil : [NSString stringWithCString:page->type() encoding:NSUTF8StringEncoding];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardVisible:) name:UIKeyboardWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardHidden:) name:UIKeyboardWillHideNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardVisible:) name:UIKeyboardWillChangeFrameNotification object:nil];
@@ -42,6 +43,7 @@
         kk::ui::Page * page = _page;
         _page = nullptr;
         page->queue()->async([page]()->void{
+            page->unload();
             page->release();
         });
     }
@@ -98,6 +100,7 @@
         _page = nullptr;
         [KerUI removePage:page->pageId()];
         page->queue()->async([page]()->void{
+            page->unload();
             page->release();
         });
     }

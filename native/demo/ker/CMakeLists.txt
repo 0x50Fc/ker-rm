@@ -20,6 +20,15 @@ set_target_properties(event
             PROPERTIES IMPORTED_LOCATION
             ${CMAKE_SOURCE_DIR}/src/main/jni/libevent/${ANDROID_ABI}/libevent.a)
 
+add_library(skia
+            STATIC
+            IMPORTED)
+
+set_target_properties(skia
+            PROPERTIES IMPORTED_LOCATION
+            ${CMAKE_SOURCE_DIR}/src/main/jni/skia/${ANDROID_ABI}/libskia.a
+            CXX_STANDARD 11)
+
 add_library(ssl
             STATIC
             IMPORTED)
@@ -83,6 +92,7 @@ add_library(ker
             src/main/jni/ui/page.cc
             src/main/jni/ui/package.cc
             src/main/jni/ui/CGContext.cc
+            src/main/jni/ui/SKCGContext.cc
             src/main/jni/ui/ViewElement.cc
             src/main/jni/ui/TextElement.cc
             src/main/jni/document/document.cc
@@ -99,6 +109,8 @@ include_directories(
             src/main/jni/openssl/include
             src/main/jni/md5
             src/main/jni/
+            src/main/jni/skia/include/core
+            src/main/jni/skia/include/config
             )
 
 set_target_properties(ker PROPERTIES
@@ -122,7 +134,10 @@ target_link_libraries(
                     z
                     ssl
                     crypto
+                    skia
                     GLESv2
                     EGL
                     log
+                    jnigraphics
+                    android
                     )

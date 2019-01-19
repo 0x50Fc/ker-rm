@@ -104,6 +104,7 @@ namespace kk {
         LayoutElement(Document * document,CString name, ElementKey elementId);
         virtual void changedKey(CString key);
         virtual void setFrame(Float x,Float y,Float width,Float height);
+        virtual void setContentSize(Float width,Float height);
         Rect frame;
         Size contentSize;
         Pixel left;

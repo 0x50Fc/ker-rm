@@ -1122,7 +1122,7 @@ namespace kk {
                 
                 virtual void setGlobalAlpha(Float v) {
                     CGContextSetAlpha(_ctx, v);
-                    
+                    _globalAlpha = v;
                 }
                 
                 virtual Float globalAlpha() {
@@ -1141,6 +1141,19 @@ namespace kk {
                     return CGBitmapContextCreateImage(_ctx);
                 }
      
+                virtual kk::Uint width() {
+                    return _width;
+                }
+                
+                virtual kk::Uint height() {
+                    return _height;
+                }
+                
+                virtual void copyPixels(void * dest) {
+                    size_t size = _width * _height * 4;
+                    memcpy(dest, CGBitmapContextGetData(_ctx), size);
+                }
+                
             protected:
                 CGContextRef _ctx;
                 Strong<Style> _fillStyle;
@@ -1163,6 +1176,10 @@ namespace kk {
                 Float _globalAlpha;
                 GlobalCompositeOperation _globalCompositeOperation;
             };
+            
+            kk::Strong<Context> Context::create(kk::Uint width,kk::Uint height) {
+                return new OSContext(width,height);
+            }
             
         }
         
@@ -1224,21 +1241,6 @@ namespace kk {
             
             return nullptr;
         }
-        
-        kk::Strong<kk::ui::CG::Context> Canvas::createCGContext() {
-            return new CG::OSContext(_width,_height);
-        }
-        
-        kk::Strong<kk::ui::Image> Canvas::toImage() {
-            {
-                kk::ui::CG::Context * v =dynamic_cast<kk::ui::CG::Context *>(_context.get());
-                if(v) {
-                    return createImageWithCGContext(v);
-                }
-            }
-            return nullptr;
-        }
-        
         
     }
     

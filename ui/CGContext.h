@@ -118,6 +118,8 @@ namespace kk {
             };
             
             class Context : public Object {
+            protected:
+                Context(){}
             public:
                 
                 virtual kk::Strong<LinearGradient> createLinearGradient(Float x0,Float y0, Float x1, Float y1) = 0;
@@ -263,10 +265,23 @@ namespace kk {
                 virtual void setGlobalCompositeOperationString(kk::CString v);
                 virtual kk::CString globalCompositeOperationString();
                 
+                virtual kk::Uint width() = 0;
+                virtual kk::Uint height() = 0;
+                
+                virtual void copyPixels(void * dest) = 0;
+                
+                virtual kk::Object * object();
+                
+                virtual void setObject(kk::Object * object);
+                
                 Ker_CLASS(Context, Object, "UICGContext");
                 
                 static void Openlib();
                 
+                static kk::Strong<Context> create(kk::Uint width,kk::Uint height);
+                
+            protected:
+                kk::Strong<kk::Object> _object;
             };
             
 

@@ -26,6 +26,7 @@ struct _Global {
         jmethodID appendImage;
         jmethodID getAttributedTextSize;
         jmethodID displayCanvas;
+        jmethodID createBitmap;
         jmethodID allocJSObject;
         jmethodID getPrototype;
         jmethodID openPageViewController;
@@ -53,6 +54,11 @@ struct _Global {
         } OpenCallback;
     } UI;
 
+    struct {
+        jclass isa;
+        jmethodID recycle;
+    } Bitmap;
+
     struct  {
         jclass isa;
         jmethodID init;
@@ -79,6 +85,8 @@ struct _Global {
     struct {
         jclass isa;
         jmethodID doubleValue;
+        jmethodID intValue;
+        jmethodID longValue;
     } Number;
 
     struct {
@@ -126,6 +134,8 @@ struct _Global {
     struct {
         jclass isa;
         jmethodID entrySet;
+        jmethodID containsKey;
+        jmethodID get;
         struct {
             jclass isa;
             jmethodID getKey;
@@ -156,10 +166,6 @@ struct _Global {
         jmethodID init;
     } SpannableStringBuilder;
 
-    struct {
-        jclass isa;
-        jmethodID init;
-    } Canvas;
 
     struct {
         jclass isa;

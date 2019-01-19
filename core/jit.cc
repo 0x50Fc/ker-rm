@@ -633,6 +633,28 @@ namespace kk {
         _ctx = nullptr;
     }
     
+    void JSObject::get(kk::CString key,Any & value) {
+        
+        if(key == nullptr) {
+            value = nullptr;
+            return;
+        }
+        
+        _queue->sync([key,&value,this]()->void{
+            duk_context * ctx = this->jsContext();
+            void * heapptr =  this->heapptr();
+            if(heapptr && ctx) {
+                duk_push_heapptr(ctx, heapptr);
+                duk_get_prop_string(ctx, -1, key);
+                GetAny(ctx, -1, value);
+                duk_pop_2(ctx);
+            } else {
+                value = nullptr;
+            }
+        });
+        
+    }
+    
     JSObject::operator kk::Strong<TObject<kk::String,kk::Any>>() {
         
         kk::Strong<TObject<kk::String,kk::Any>> v = new TObject<kk::String,kk::Any>();

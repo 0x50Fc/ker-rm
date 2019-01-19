@@ -182,9 +182,11 @@ namespace kk {
         
         Transform TransformFromString(kk::CString v);
         
-        enum ImageState {
+        enum  {
             ImageStateNone,ImageStateLoading,ImageStateError,ImageStateLoaded
         };
+        
+        typedef kk::Uint ImageState;
         
         class Image : public kk::EventEmitter {
         public:
@@ -232,8 +234,6 @@ namespace kk {
             virtual Context * context();
            
             Ker_CLASS(Worker,Object,"Worker")
-            
-            static void Openlib();
             
         protected:
             

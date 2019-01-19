@@ -12,8 +12,6 @@
 extern "C" {
 #endif
 
-    void ker_JObject_to_Any(JNIEnv * env,jobject object, kk::Any & returnValue);
-
     jobject ker_Object_to_JObject(JNIEnv * env, kk::Object * object);
 
     jobject ker_to_JObject(JNIEnv * env, kk::Any &v);

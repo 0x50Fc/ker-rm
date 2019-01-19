@@ -288,6 +288,14 @@ namespace kk {
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
                 
+                kk::PushInterface<SpanElement>(ctx, [](duk_context * ctx)->void{
+                    
+                });
+                
+                kk::PushInterface<ImgElement>(ctx, [](duk_context * ctx)->void{
+                    
+                });
+                
                 kk::PushInterface<TextElement>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutMethod<TextElement,AttributedText *,ViewContext *>(ctx, -1, "text", &TextElement::text);

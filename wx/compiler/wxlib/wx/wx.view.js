@@ -1,9 +1,9 @@
 
 
 var viewClass = {
-    input : 'UITextField',
-    textarea : 'UITextView',
-    canvas : 'UICanvasView'
+    input : 'input',
+    textarea : 'textarea',
+    canvas : 'canvas'
 };
 
 

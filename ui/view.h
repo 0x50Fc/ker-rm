@@ -82,7 +82,6 @@ namespace kk {
             virtual void setWidth(Uint v);
             virtual Uint height();
             virtual void setHeight(Uint v);
-            virtual Strong<Image> toImage();
             virtual DispatchQueue * queue();
             virtual App * app();
             virtual View * view();
@@ -92,8 +91,6 @@ namespace kk {
             
             static void Openlib();
         protected:
-            
-            virtual kk::Strong<kk::ui::CG::Context> createCGContext();
             
             kk::Strong<Object> _context;
             kk::Strong<DispatchQueue> _queue;

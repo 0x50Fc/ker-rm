@@ -185,6 +185,7 @@
 		1AE0928C21EDDC6C00133215 /* LayoutElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LayoutElement.cc; sourceTree = "<group>"; };
 		1AE0928F21EDF78C00133215 /* ViewElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewElement.h; sourceTree = "<group>"; };
 		1AE0929021EDF78C00133215 /* ViewElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ViewElement.cc; sourceTree = "<group>"; };
+		1AE0929821F0325000133215 /* SKCGContext.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SKCGContext.cc; sourceTree = "<group>"; };
 		1AE91CBE21CB7AC80055C932 /* zombies.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = zombies.cc; sourceTree = "<group>"; };
 		1AE91CC721D741C90055C932 /* KerWeak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerWeak.h; sourceTree = "<group>"; };
 		1AE91CC821D741C90055C932 /* KerWeak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerWeak.m; sourceTree = "<group>"; };
@@ -458,6 +459,7 @@
 				1AF065C2219D52AC00F8F7A8 /* page.cc */,
 				1AF065C3219D52AC00F8F7A8 /* CGContext.h */,
 				1AF065C1219D52AC00F8F7A8 /* CGContext.cc */,
+				1AE0929821F0325000133215 /* SKCGContext.cc */,
 				1AA4AB4321BE30A400C636F5 /* package.h */,
 				1AA4AB4421BE30BC00C636F5 /* package.cc */,
 				1AE0928F21EDF78C00133215 /* ViewElement.h */,

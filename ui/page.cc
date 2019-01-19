@@ -100,6 +100,11 @@ namespace kk {
             return _app->Context::queue();
         }
         
+        void Page::unload() {
+            kk::Strong<Event> e = new Event();
+            emit("unload", e);
+        }
+        
         void Page::set(kk::Object * object) {
             auto i = _objects.find(object);
             if(i == _objects.end()) {

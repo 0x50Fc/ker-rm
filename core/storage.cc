@@ -145,8 +145,7 @@ namespace kk {
         
         if(key == nullptr) {
             if(callback) {
-                kk::Any v;
-                callback->invoke<void,kk::Any &>(nullptr, v);
+                callback->invoke<void>(nullptr);
             }
             return;
         }

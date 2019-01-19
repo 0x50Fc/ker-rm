@@ -14,13 +14,13 @@ android {
 
         ndk {
             moduleName "ker"
-            abiFilters "armeabi"
+            abiFilters "armeabi-v7a"
         }
 
         externalNativeBuild {
             cmake {
-                cFlags "-DNDEBUG"
                 cppFlags ""
+                arguments "-DANDROID_STL=c++_static"
             }
         }
 

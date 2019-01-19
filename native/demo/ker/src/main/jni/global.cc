@@ -22,7 +22,8 @@ void globalInit(JNIEnv  * env) {
         G.UI.appendText = env->GetStaticMethodID(isa,"appendText","(Landroid/text/SpannableStringBuilder;Ljava/lang/String;Ljava/lang/String;FZZI)V");
         G.UI.appendImage = env->GetStaticMethodID(isa,"appendImage","(Landroid/text/SpannableStringBuilder;Ljava/lang/Object;IIIIII)V");
         G.UI.getAttributedTextSize = env->GetStaticMethodID(isa,"getAttributedTextSize","(Ljava/lang/CharSequence;F)[F");
-        G.UI.displayCanvas = env->GetStaticMethodID(isa,"displayCanvas","(Lcn/kkmofang/ker/KerCanvas;JJ)V");
+        G.UI.displayCanvas = env->GetStaticMethodID(isa,"displayCanvas","(Landroid/graphics/Bitmap;JJ)V");
+        G.UI.createBitmap = env->GetStaticMethodID(isa,"createBitmap","(II)Landroid/graphics/Bitmap;");
         G.UI.allocJSObject = env->GetStaticMethodID(isa,"allocJSObject","(J)Lcn/kkmofang/ker/JSObject;");
         G.UI.getPrototype = env->GetStaticMethodID(isa,"getPrototype","(Ljava/lang/Class;)Ljava/lang/String;");
         G.UI.openPageViewController = env->GetStaticMethodID(isa,"openPageViewController","(JZLjava/lang/String;)V");
@@ -93,6 +94,13 @@ void globalInit(JNIEnv  * env) {
     }
 
     {
+        jclass isa = env->FindClass("android/graphics/Bitmap");
+        G.Bitmap.isa = (jclass) env->NewGlobalRef(isa);
+        G.Bitmap.recycle = env->GetMethodID(isa,"recycle","()V");
+        env->DeleteLocalRef(isa);
+    }
+
+    {
         jclass isa = env->FindClass("java/lang/Object");
         G.Object.isa = (jclass) env->NewGlobalRef(isa);
         env->DeleteLocalRef(isa);
@@ -102,6 +110,8 @@ void globalInit(JNIEnv  * env) {
         jclass isa = env->FindClass("java/lang/Number");
         G.Number.isa = (jclass) env->NewGlobalRef(isa);
         G.Number.doubleValue = env->GetMethodID(isa,"doubleValue","()D");
+        G.Number.intValue = env->GetMethodID(isa,"intValue","()I");
+        G.Number.longValue = env->GetMethodID(isa,"longValue","()J");
         env->DeleteLocalRef(isa);
     }
 
@@ -147,6 +157,8 @@ void globalInit(JNIEnv  * env) {
         jclass isa = env->FindClass("java/util/Map");
         G.Map.isa = (jclass) env->NewGlobalRef(isa);
         G.Map.entrySet = env->GetMethodID(isa,"entrySet","()Ljava/util/Set;");
+        G.Map.containsKey = env->GetMethodID(isa,"containsKey","(Ljava/lang/Object;)Z");
+        G.Map.get = env->GetMethodID(isa,"get","(Ljava/lang/Object;)Ljava/lang/Object;");
         {
             jclass isa = env->FindClass("java/util/Map$Entry");
             G.Map.Entry.isa = (jclass) env->NewGlobalRef(isa);
@@ -200,13 +212,6 @@ void globalInit(JNIEnv  * env) {
         jclass isa = env->FindClass("android/text/SpannableStringBuilder");
         G.SpannableStringBuilder.isa = (jclass) env->NewGlobalRef(isa);
         G.SpannableStringBuilder.init = env->GetMethodID(isa,"<init>","()V");
-        env->DeleteLocalRef(isa);
-    }
-
-    {
-        jclass isa = env->FindClass("cn/kkmofang/ker/KerCanvas");
-        G.Canvas.isa = (jclass) env->NewGlobalRef(isa);
-        G.Canvas.init = env->GetMethodID(isa,"<init>","(II)V");
         env->DeleteLocalRef(isa);
     }
 

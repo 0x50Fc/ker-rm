@@ -80,9 +80,6 @@ jobject ker_to_JObject(JNIEnv * env, kk::Any &v) {
 
 }
 
-void ker_JObject_to_Any(JNIEnv * env,jobject object, kk::Any & returnValue) {
-
-}
 
 jobject ker_Object_to_JObject(JNIEnv * env, kk::Object * object) {
 
@@ -999,30 +996,238 @@ namespace kk {
         }
     }
 
-    kk::Strong<Object> NativeObject::copy() {
-        kk::Strong<Object> v;
+    kk::Int32 NativeObject::intValue(Native * native) {
+        if(native != nullptr) {
 
-        if(_native != nullptr) {
+            kk::Int32 r = 0;
 
             jboolean isAttach = false;
 
             JNIEnv *env = kk_env(&isAttach);
 
-            kk::Any a ;
+            jobject object = (jobject) native;
 
-            ker_JObject_to_Any(env,(jobject) _native,a);
+            if(env->IsInstanceOf(object,G.Number.isa)) {
+                r = env->CallIntMethod(object,G.Number.intValue);
+            }
 
-            if(a.type == kk::TypeObject) {
-                v = (Object *) a.objectValue;
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
+            return r;
+
+        }
+        return 0;
+    }
+
+    kk::Int64 NativeObject::int64Value(Native * native) {
+
+        if(native != nullptr) {
+
+            kk::Int64 r = 0;
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jobject object = (jobject) native;
+
+            if(env->IsInstanceOf(object,G.Number.isa)) {
+                r = env->CallLongMethod(object,G.Number.longValue);
+            }
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
+            return r;
+
+        }
+        return 0;
+    }
+
+    kk::Double NativeObject::doubleValue(Native * native) {
+        if(native != nullptr) {
+
+            kk::Double r = 0;
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jobject object = (jobject) native;
+
+            if(env->IsInstanceOf(object,G.Number.isa)) {
+                r = env->CallDoubleMethod(object,G.Number.doubleValue);
+            }
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
+            return r;
+
+        }
+        return 0;
+    }
+
+    kk::Boolean NativeObject::booleanValue(Native * native) {
+        if(native != nullptr) {
+
+            kk::Boolean r = false;
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jobject object = (jobject) native;
+
+            if(env->IsInstanceOf(object,G.Boolean.isa)) {
+                r = env->CallBooleanMethod(object,G.Boolean.booleanValue);
+            }
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
+            return r;
+
+        }
+        return 0;
+    }
+
+    kk::String NativeObject::stringValue(Native * native) {
+        kk::String r;
+        if(native != nullptr) {
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jobject object = (jobject) native;
+
+            if(env->IsInstanceOf(object,G.String.isa)) {
+                kk::CString c = env->GetStringUTFChars((jstring) object,0);
+                r = c;
+                env->ReleaseStringUTFChars((jstring) object,c);
+            }
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
+
+        }
+        return r;
+    }
+
+    kk::Strong<NativeObject> NativeObject::get(Native * native,kk::CString key) {
+        kk::Strong<NativeObject> r;
+        if(native != nullptr && key != nullptr) {
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jobject object = (jobject) native;
+
+            if(env->IsInstanceOf(object,G.Map.isa)) {
+
+                jstring k = env->NewStringUTF(key);
+
+                if(env->CallBooleanMethod(object,G.Map.containsKey,k)) {
+                    jobject v = env->CallObjectMethod(object,G.Map.get,k);
+                    if(v != nullptr) {
+                        r = new NativeObject((kk::Native *) v);
+                        env->DeleteLocalRef(v);
+                    }
+                }
+
+                env->DeleteLocalRef(k);
+            }
+
+            if(isAttach) {
+                gJavaVm->DetachCurrentThread();
+            }
+
+        }
+        return r;
+    }
+
+    void NativeObject::forEach(Native * native,std::function<void(Native *,Native *)> && func) {
+        if(native != nullptr) {
+
+            jboolean isAttach = false;
+
+            JNIEnv *env = kk_env(&isAttach);
+
+            jobject object = (jobject) native;
+
+            if(env->IsInstanceOf(object,G.Map.isa)) {
+
+                jobject entrySet = env->CallObjectMethod(object,G.Map.entrySet);
+                jobject iterator = env->CallObjectMethod(entrySet,G.Collection.iterator);
+                while(env->CallBooleanMethod(iterator,G.Iterator.hasNext)) {
+                    jobject entry = env->CallObjectMethod(iterator,G.Iterator.next);
+                    if(entry != nullptr) {
+                        jobject key = env->CallObjectMethod(entry,G.Map.Entry.getKey);
+                        jobject value = env->CallObjectMethod(entry,G.Map.Entry.getValue);
+
+                        func((kk::Native *) value,(kk::Native *) key);
+
+                        if(key) {
+                            env->DeleteLocalRef(key);
+                        }
+                        if(value) {
+                            env->DeleteLocalRef(value);
+                        }
+
+                        env->DeleteLocalRef(entry);
+                    }
+                }
+                env->DeleteLocalRef(entrySet);
+                env->DeleteLocalRef(iterator);
+
+            } else if(env->IsInstanceOf(object,G.Collection.isa)) {
+
+                jobject iterator = env->CallObjectMethod(object,G.Collection.iterator);
+
+                while(env->CallBooleanMethod(iterator,G.Iterator.hasNext)) {
+                    jobject value = env->CallObjectMethod(iterator,G.Iterator.next);
+                    if(value != nullptr) {
+                        func((kk::Native *) value, nullptr);
+                        env->DeleteLocalRef(value);
+                    }
+                }
+
+                env->DeleteLocalRef(iterator);
+
+            } else {
+
+                jclass isa = env->GetObjectClass(object);
+
+                if(env->CallBooleanMethod(isa,G.Class.isArray)) {
+                    jint n = env->CallStaticIntMethod(G.Array.isa,G.Array.getLength,object);
+                    for(jint i=0;i<n;i++) {
+                        jobject value = env->CallStaticObjectMethod(G.Array.isa,G.Array.get,i);
+                        if(value != nullptr) {
+                            func((kk::Native *) value, nullptr);
+                            env->DeleteLocalRef(value);
+                        }
+                    }
+                }
+
+                env->DeleteLocalRef(isa);
+
             }
 
             if(isAttach) {
                 gJavaVm->DetachCurrentThread();
             }
         }
-
-        return v;
     }
+
 
     kk::String NativeObject::getPrototype(Native * native) {
 

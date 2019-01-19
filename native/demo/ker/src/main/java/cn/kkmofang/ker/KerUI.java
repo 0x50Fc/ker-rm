@@ -3,7 +3,10 @@ package cn.kkmofang.ker;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -23,6 +26,8 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -91,6 +96,7 @@ public final class KerUI {
         if(_pages.containsKey(pageId)) {
             Page page = _pages.get(pageId);
             _pages.remove(pageId);
+            page.recycle();
         }
 
     }
@@ -171,16 +177,12 @@ public final class KerUI {
 
     private final static Map<String,Class<?>> _viewClass = new TreeMap<>();
     private final static Map<Long,View> _views = new TreeMap<>();
+    private final static Map<Long,SurfaceView> _surfaceViews = new TreeMap<>();
 
     public static void addViewClass(String name,Class<?> isa) {
         _viewClass.put(name,isa);
-        addViewClass(name);
     }
 
-    public static void addTextViewClass(String name,Class<?> isa) {
-        _viewClass.put(name,isa);
-        addTextViewClass(name);
-    }
 
     protected static List<Runnable> _tasks = new LinkedList<>();
 
@@ -235,6 +237,11 @@ public final class KerUI {
                         ((IKerView) view).setViewConfiguration(viewId,configuration,appid);
                     }
                     _views.put(viewId,view);
+                    if(view instanceof SurfaceView) {
+                        synchronized (_surfaceViews) {
+                            _surfaceViews.put(viewId,(SurfaceView) view);
+                        }
+                    }
                 }
                 catch (Throwable ex) {
                     Log.e("ker",Log.getStackTraceString(ex));
@@ -256,6 +263,12 @@ public final class KerUI {
 
                 _views.put(viewId,view);
 
+                if(view instanceof SurfaceView) {
+                    synchronized (_surfaceViews) {
+                        _surfaceViews.put(viewId,(SurfaceView) view);
+                    }
+                }
+
             }
         });
 
@@ -271,7 +284,16 @@ public final class KerUI {
                         ((IKerView) view).recycle(viewId,appid);
                     }
                     _views.remove(viewId);
+
+                    if(view instanceof SurfaceView) {
+                        synchronized (_surfaceViews) {
+                            if(_surfaceViews.containsKey(viewId)) {
+                                _surfaceViews.remove(viewId);
+                            }
+                        }
+                    }
                 }
+
             }
         });
     }
@@ -589,11 +611,11 @@ public final class KerUI {
     }
 
     static  {
-        addViewClass("UILabel",KerTextView.class);
-        addViewClass("UIView",KerView.class);
-        addViewClass("KerButton",KerButton.class);
-        addViewClass("WKWebView",KerWebView.class);
-        addViewClass("UICanvasView",KerCanvasView.class);
+        addViewClass("text",KerTextView.class);
+        addViewClass("view",KerView.class);
+        addViewClass("button",KerButton.class);
+        addViewClass("webview",KerWebView.class);
+        addViewClass("canvas",KerSurfaceView.class);
     }
 
     public interface Openlib {
@@ -839,28 +861,53 @@ public final class KerUI {
         return r;
     }
 
-
-    public static KerCanvas createCanvas(int width, int height) {
-        return new KerCanvas(width,height);
+    public static Bitmap createBitmap(int width,int height) {
+        return Bitmap.createBitmap(width,height, Bitmap.Config.ARGB_8888);
     }
 
-    public static void displayCanvas(KerCanvas canvas,final long viewId,final long appid) {
+    public static void displayCanvas(final Bitmap bitmap, final long viewId, final long appid) {
 
-        final Drawable image = canvas.copyDrawable();
+        if(bitmap == null || bitmap.isRecycled()) {
+            return;
+        }
 
-        _handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if(_views.containsKey(viewId)) {
-                    View view = _views.get(viewId);
-                    if(view instanceof IKerView) {
-                        ((IKerView) view).setImage(viewId,image,appid);
-                    } else {
-                        view.setBackground(image);
-                    }
-                }
+        SurfaceView view = null;
+
+        synchronized (_surfaceViews) {
+
+            if(_surfaceViews.containsKey(viewId)) {
+                view = _surfaceViews.get(viewId);
             }
-        });
+        }
+
+        if(view == null) {
+            return;
+        }
+
+        SurfaceHolder holder = view.getHolder();
+
+        if(holder == null ) {
+            return;
+        }
+
+        Canvas canvas = holder.lockCanvas();
+
+        if(canvas == null) {
+            return ;
+        }
+
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        android.graphics.Rect r = new android.graphics.Rect(0,0,canvas.getWidth(),canvas.getHeight());
+        canvas.drawColor(0, PorterDuff.Mode.SRC);
+        canvas.drawBitmap(bitmap,
+                new android.graphics.Rect(0,0,bitmap.getWidth(),bitmap.getHeight()),
+                r,
+                p
+        );
+
+        try {
+            holder.unlockCanvasAndPost(canvas);
+        } catch (Throwable e){}
 
     }
 
@@ -907,10 +954,6 @@ public final class KerUI {
     public final static native void emit(long appid,String name,long viewId,Object data);
 
     private final static native void setImage(long id,Object image,int width,int height);
-
-    private final static native void addViewClass(String name);
-
-    private final static native void addTextViewClass(String name);
 
 
 }

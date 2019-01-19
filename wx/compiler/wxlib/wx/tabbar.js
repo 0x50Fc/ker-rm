@@ -13,13 +13,13 @@ page.on("ready", function () {
 
     page.view.set("background-color", options.window.backgroundColor || "#fff");
 
-    var view = app.createView("UIView");
+    var view = app.createView("view");
 
     view.set("background-color", tabBar.backgroundColor || '#ffffff');
 
     page.view.addSubview(view);
 
-    var topView = app.createView("UIView");
+    var topView = app.createView("view");
 
     topView.set("background-color", tabBar.borderStyle == 'block' ? 'rgba(30,30,30,30)' : '#dddddd');
 
@@ -60,7 +60,7 @@ page.on("ready", function () {
         var button = app.createView("KerButton");
         view.addSubview(button);
 
-        button.textView = app.createView("UILabel");
+        button.textView = app.createView("text");
         button.addSubview(button.textView);
         button.textView.set("text-align", 'center');
         button.textView.set("font", fontSize + 'px');
@@ -68,12 +68,12 @@ page.on("ready", function () {
         button.textView.set("#text", item.text || '');
         button.textView.set("enabled", "false");
 
-        button.imageView = app.createView("UIView");
+        button.imageView = app.createView("view");
         button.addSubview(button.imageView);
         button.imageView.setImage(app.createImage(item.iconPath));
         button.imageView.set("enabled", "false");
 
-        button.selectImageView = app.createView("UIView");
+        button.selectImageView = app.createView("view");
         button.addSubview(button.selectImageView);
         button.selectImageView.setImage(app.createImage(item.selectedIconPath));
         button.selectImageView.set("enabled", "false");

@@ -669,7 +669,7 @@ namespace kk {
     }
     
     
-    class JSObject : public Object , public Copying {
+    class JSObject : public Object , public Copying, public Getter {
     public:
         JSObject(duk_context * ctx, void * heapptr);
         virtual ~JSObject();
@@ -678,6 +678,7 @@ namespace kk {
         virtual void * heapptr();
         virtual DispatchQueue * queue();
         virtual kk::Strong<Object> copy();
+        virtual void get(kk::CString key,Any & value);
         template<typename T,typename ... TArgs>
         T invoke(JSObject * object,TArgs ... args,typename std::enable_if<std::is_void<T>::value>::type* = 0) {
             
@@ -818,7 +819,6 @@ namespace kk {
     
     void duk_pcall_method(duk_context * ctx,Signature returnSignature,std::vector<Signature> & arguments);
     
-
     duk_ret_t duk_json_decode(duk_context * ctx,void * data,size_t size);
    
 }

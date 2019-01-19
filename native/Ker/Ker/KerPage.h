@@ -41,6 +41,7 @@ typedef void * KerPageCPointer;
 @property(nonatomic,weak) id<KerPageDelegate> delegate;
 @property(nonatomic,assign,readonly) KerPageCPointer page;
 @property(nonatomic,strong,readonly) UIView * view;
+@property(nonatomic,strong,readonly) NSString * type;
 
 -(instancetype) initWithPage:(KerPageCPointer) page;
 

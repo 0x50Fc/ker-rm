@@ -644,6 +644,15 @@ namespace kk {
                 return this->sprintf("%s",booleanValue ? "true":"false");
             }
                 break;
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    kk::String s = NativeObject::stringValue(v->native());
+                    return this->sprintf("%s",s.c_str());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -676,6 +685,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atoi(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::intValue(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -707,6 +724,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atoi(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::intValue(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -738,6 +763,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atoi(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::intValue(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -769,6 +802,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atoi(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::intValue(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -800,6 +841,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atoi(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::intValue(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -831,6 +880,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atoi(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::intValue(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -862,6 +919,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atoll(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::int64Value(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -893,6 +958,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atoll(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::int64Value(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -924,6 +997,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atof(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::doubleValue(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -955,6 +1036,14 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return atof(stringValue);
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::doubleValue(v->native());
+                }
+            }
+                break;
             default:
                 break;
         }
@@ -986,8 +1075,16 @@ namespace kk {
                 return booleanValue;
             case TypeString:
                 return length > 0;
-            default:
+            case TypeObject:
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    return NativeObject::booleanValue(v->native());
+                }
+            }
                 return objectValue.get() != nullptr;
+            default:
+                return false;
         }
     }
     
@@ -1005,26 +1102,29 @@ namespace kk {
     
     
     CString Any::sprintf(CString format,...) {
-        va_list va;
-        size_t n = 255;
         
-        do {
-            
-            va_start(va,format);
-            
-            if(_size == 0) {
-                _size = n;
-                _data = malloc(_size);
-            } else if(_size < n) {
-                _size = n;
-                _data = realloc(_data, _size);
-            }
-            
-            n = vsnprintf((char *)_data, _size, format, va);
-            
-            va_end(va);
-            
-        } while(n > _size);
+        va_list va;
+        size_t n;
+        
+        va_start(va,format);
+        n = vsnprintf(nullptr, 0, format, va);
+        va_end(va);
+        
+        
+        
+        if(_size == 0) {
+            _size = n;
+            _data = malloc(_size);
+        } else if(_size < n) {
+            _size = n;
+            _data = realloc(_data, _size);
+        }
+        
+        va_start(va,format);
+        
+        vsnprintf((char *)_data, _size, format, va);
+        
+        va_end(va);
         
         return (CString) _data;
     }
@@ -1063,6 +1163,36 @@ namespace kk {
             v = o.get();
         }
         return v;
+    }
+    
+    void Any::get(kk::CString key,Any & value) {
+        if(type == TypeObject && key != nullptr) {
+            {
+                _TObject * v = objectValue;
+                if(v != nullptr) {
+                    Any k = key;
+                    v->get(k, value);
+                    return;
+                }
+            }
+            {
+                NativeObject * v = objectValue;
+                if(v != nullptr) {
+                    kk::Strong<NativeObject> r = NativeObject::get(v->native(), key);
+                    value = (NativeObject *) r;
+                    return;
+                }
+            }
+            {
+                Getter * v = objectValue;
+                if(v != nullptr) {
+                    v->get(key, value);
+                    return;
+                }
+            }
+        } else {
+            value = nullptr;
+        }
     }
     
 #if defined(__APPLE__)
@@ -1343,6 +1473,84 @@ namespace kk {
         }
         
         return v.substr(0,n);
+    }
+    
+    kk::Int32 NativeObject::intValue(Native * object,kk::CString key,kk::Int32 defaultValue) {
+        
+        if(object == nullptr || key == nullptr) {
+            return defaultValue;
+        }
+        
+        kk::Strong<NativeObject> v = NativeObject::get(object, key);
+        
+        if(v == nullptr) {
+            return defaultValue;
+        }
+        
+        return NativeObject::intValue(v->native());
+    }
+    
+    kk::Int64 NativeObject::int64Value(Native * object,kk::CString key,kk::Int64 defaultValue) {
+        
+        if(object == nullptr || key == nullptr) {
+            return defaultValue;
+        }
+        
+        kk::Strong<NativeObject> v = NativeObject::get(object, key);
+        
+        if(v == nullptr) {
+            return defaultValue;
+        }
+        
+        return NativeObject::int64Value(v->native());
+    }
+    
+    kk::Double NativeObject::doubleValue(Native * object,kk::CString key,kk::Double defaultValue) {
+        
+        if(object == nullptr || key == nullptr) {
+            return defaultValue;
+        }
+        
+        kk::Strong<NativeObject> v = NativeObject::get(object, key);
+        
+        if(v == nullptr) {
+            return defaultValue;
+        }
+        
+        return NativeObject::doubleValue(v->native());
+    }
+    
+    kk::Boolean NativeObject::booleanValue(Native * object,kk::CString key,kk::Boolean defaultValue) {
+        if(object == nullptr || key == nullptr) {
+            return defaultValue;
+        }
+        
+        kk::Strong<NativeObject> v = NativeObject::get(object, key);
+        
+        if(v == nullptr) {
+            return defaultValue;
+        }
+        
+        return NativeObject::booleanValue(v->native());
+    }
+    
+    kk::String NativeObject::stringValue(Native * object,kk::CString key,kk::CString defaultValue) {
+        
+        if(object && key) {
+            
+            kk::Strong<NativeObject> v = NativeObject::get(object, key);
+            
+            if(v != nullptr) {
+                return NativeObject::stringValue(v->native());
+            }
+            
+        }
+        
+        if(defaultValue != nullptr) {
+            return defaultValue;
+        }
+        
+        return kk::String();
     }
     
     NativeValue::NativeValue(Native * native):NativeObject(native) {

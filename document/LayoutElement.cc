@@ -610,6 +610,11 @@ namespace kk {
         frame.size.width = width;
         frame.size.height = height;
     }
+    
+    void LayoutElement::setContentSize(Float width,Float height) {
+        contentSize.width = width;
+        contentSize.height = height;
+    }
 
     static Element * LayoutElementCreate(Document * document,kk::CString name,ElementKey elementId) {
         return new LayoutElement(document,name,elementId);
@@ -623,6 +628,7 @@ namespace kk {
             
             kk::PushInterface<LayoutElement>(ctx, [](duk_context * ctx)->void{
                 kk::PutMethod<LayoutElement,void,Float,Float,Float,Float>(ctx, -1, "setFrame", &LayoutElement::setFrame);
+                kk::PutMethod<LayoutElement,void,Float,Float>(ctx, -1, "setContentSize", &LayoutElement::setContentSize);
             });
             
             kk::PushClass<LayoutContext>(ctx, [](duk_context * ctx)->void{

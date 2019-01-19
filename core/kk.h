@@ -293,13 +293,24 @@ static const kk::Class * Class() { \
         void * unused;
     };
     
-    class NativeObject : public Object ,public Copying {
+    class NativeObject : public Object {
     public:
         NativeObject(Native * native);
         virtual ~NativeObject();
         virtual Native * native();
-        virtual kk::Strong<Object> copy();
         static kk::String getPrototype(Native * native);
+        static kk::Int32 intValue(Native * object,kk::CString key,kk::Int32 defaultValue);
+        static kk::Int64 int64Value(Native * object,kk::CString key,kk::Int64 defaultValue);
+        static kk::Double doubleValue(Native * object,kk::CString key,kk::Double defaultValue);
+        static kk::Boolean booleanValue(Native * object,kk::CString key,kk::Boolean defaultValue);
+        static kk::String stringValue(Native * object,kk::CString key,kk::CString defaultValue);
+        static kk::Int32 intValue(Native * native);
+        static kk::Int64 int64Value(Native * native);
+        static kk::Double doubleValue(Native * native);
+        static kk::Boolean booleanValue(Native * native);
+        static kk::String stringValue(Native * native);
+        static kk::Strong<NativeObject> get(Native * native,kk::CString key);
+        static void forEach(Native * native,std::function<void(Native *,Native *)> && func);
     protected:
         Native * _native;
     };
@@ -319,7 +330,14 @@ static const kk::Class * Class() { \
         std::function<void(void*)> _release;
     };
 
-    class Any {
+    class Any;
+    
+    class Getter {
+    public:
+        virtual void get(kk::CString key,Any & value) = 0;
+    };
+    
+    class Any : public Getter {
     public:
         Any();
         Any(Function * v);
@@ -419,6 +437,8 @@ static const kk::Class * Class() { \
         
         Any copy();
         
+        virtual void get(kk::CString key,Any & value);
+        
     protected:
         virtual void reset();
         virtual CString sprintf(CString format,...);
@@ -468,6 +488,7 @@ static const kk::Class * Class() { \
     
     class _TObject : public Object {
     public:
+        virtual void get(Any & key,Any & value) = 0;
         virtual void forEach(std::function<void(Any&,Any&)> && func) = 0;
     };
     
@@ -501,6 +522,14 @@ static const kk::Class * Class() { \
                 value = i->second;
                 func(value,key);
                 i ++;
+            }
+        }
+        virtual void get(Any & key,Any & value) {
+            auto i = _items.find(key);
+            if(i != _items.end()) {
+                value = i->second;
+            } else {
+                value = nullptr;
             }
         }
     private:

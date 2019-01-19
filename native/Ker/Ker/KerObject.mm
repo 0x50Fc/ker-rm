@@ -122,14 +122,6 @@ namespace kk {
         }
     }
     
-    kk::Strong<Object> NativeObject::copy() {
-        kk::Strong<Object> v;
-        @autoreleasepool {
-            v = KerObjectToObject((__bridge id) native());
-        }
-        return v;
-    }
-    
     kk::String NativeObject::getPrototype(Native * native) {
         
         ::Class isa = object_getClass((__bridge id) native);
@@ -165,6 +157,119 @@ namespace kk {
     NativeObject::~NativeObject() {
         if(_native != nullptr) {
             CFAutorelease((CFTypeRef) _native);
+        }
+    }
+    
+    kk::Int32 NativeObject::intValue(Native * native) {
+        if(native != nullptr) {
+            @autoreleasepool {
+                id v = (__bridge id) native;
+                if([v isKindOfClass:[NSNumber class]]) {
+                    return [v intValue];
+                }
+                if([v isKindOfClass:[NSString class]]) {
+                    return [v intValue];
+                }
+            }
+        }
+        return 0;
+    }
+    
+    kk::Int64 NativeObject::int64Value(Native * native) {
+        
+        if(native != nullptr) {
+            @autoreleasepool {
+                id v = (__bridge id) native;
+                if([v isKindOfClass:[NSNumber class]]) {
+                    return [v longLongValue];
+                }
+                if([v isKindOfClass:[NSString class]]) {
+                    return [v longLongValue];
+                }
+            }
+        }
+        return 0;
+    }
+    
+    kk::Double NativeObject::doubleValue(Native * native) {
+        if(native != nullptr) {
+            @autoreleasepool {
+                id v = (__bridge id) native;
+                if([v isKindOfClass:[NSNumber class]]) {
+                    return [v doubleValue];
+                }
+                if([v isKindOfClass:[NSString class]]) {
+                    return [v doubleValue];
+                }
+            }
+        }
+        return 0;
+    }
+    
+    kk::Boolean NativeObject::booleanValue(Native * native) {
+        if(native != nullptr) {
+            @autoreleasepool {
+                id v = (__bridge id) native;
+                if([v isKindOfClass:[NSNumber class]]) {
+                    return [v boolValue];
+                }
+                if([v isKindOfClass:[NSString class]]) {
+                    return [v boolValue];
+                }
+            }
+        }
+        return 0;
+    }
+    
+    kk::String NativeObject::stringValue(Native * native) {
+        kk::String r;
+        if(native != nullptr) {
+            @autoreleasepool {
+                id v = (__bridge id) native;
+                if([v isKindOfClass:[NSString class]]) {
+                    r.append([v UTF8String]);
+                } else {
+                    r.append([[v description] UTF8String]);
+                }
+            }
+        }
+        return r;
+    }
+    
+    kk::Strong<NativeObject> NativeObject::get(Native * native,kk::CString key) {
+        kk::Strong<NativeObject> r;
+        if(native != nullptr && key != nullptr) {
+            @autoreleasepool {
+                id v = [(__bridge id) native ker_getValue:[NSString stringWithCString:key encoding:NSUTF8StringEncoding]];
+                if(v != nil) {
+                    r = new NativeObject((__bridge kk::Native *) v);
+                }
+            }
+        }
+        return r;
+    }
+    
+    void NativeObject::forEach(Native * native,std::function<void(Native *,Native *)> && func) {
+        if(native != nullptr) {
+            
+            @autoreleasepool {
+                
+                id v = (__bridge id) native;
+                
+                if([v isKindOfClass:[NSDictionary class]]) {
+                    NSEnumerator * keyEnum = [v keyEnumerator];
+                    id key;
+                    while((key = [keyEnum nextObject])) {
+                        id value = [v objectForKey:key];
+                        func((__bridge Native *) value,(__bridge Native *) key);
+                    }
+                } else if([v isKindOfClass:[NSArray class]]) {
+                    for(id value in v) {
+                        func((__bridge Native *) value,nullptr);
+                    }
+                }
+            }
+            
         }
     }
     

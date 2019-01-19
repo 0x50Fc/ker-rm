@@ -744,6 +744,8 @@ namespace kk {
                 
                 kk::PushInterface<Image>(ctx, [](duk_context * ctx)->void{
                     
+                    kk::PutProperty<Image,kk::Uint>(ctx, -1, "state", &Image::state);
+                    
                     kk::PutProperty<Image,kk::CString>(ctx, -1, "src", &Image::src);
                     
                     kk::PutProperty<Image,kk::Uint>(ctx, -1, "width", &Image::width);
@@ -753,10 +755,18 @@ namespace kk {
                     
                 });
                 
+                kk::PushInterface<Worker>(ctx, [](duk_context * ctx)->void{
+                    
+                    kk::PutMethod<Worker,void>(ctx, -1, "terminate", &Worker::terminate);
+                    
+                    kk::PutMethod<Worker,void,kk::Any>(ctx, -1, "postMessage", &Worker::postMessage);
+                    
+                    
+                });
+                
             });
             
         }
-        
         
         UI * UI::main() {
             static kk::Strong<UI> v;

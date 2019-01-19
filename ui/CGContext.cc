@@ -299,6 +299,14 @@ namespace kk {
                 return StringFromGlobalCompositeOperation(globalCompositeOperation());
             }
             
+            kk::Object * Context::object() {
+                return _object;
+            }
+            
+            void Context::setObject(kk::Object * object) {
+                _object = object;
+            }
+            
             void Context::Openlib() {
                 
                 kk::Openlib<>::add([](duk_context * ctx)->void{

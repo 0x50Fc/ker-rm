@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body layout="relative" width="100%" height="100%" background-color="#ffffff">
+    <text font="28rpx" color="#000">{{user.name}} Hello World!</text>
+</body>

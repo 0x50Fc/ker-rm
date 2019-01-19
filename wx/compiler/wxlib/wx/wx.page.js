@@ -49,7 +49,7 @@ module.exports = function (options, path, page, app, padding) {
         config.addUserScript("__basePath='';\n");
         config.addUserScript(app.getTextContent("wx/wx.web.js"));
 
-        var webview = app.createView("WKWebView", config);
+        var webview = app.createView("webview", config);
 
         var context = new V.Context(webview);
 

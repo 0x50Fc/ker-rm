@@ -193,8 +193,7 @@ namespace kk {
     if(page == nil) {
         return;
     }
-    kk::ui::Page * p = page.page;
-    if(kk::CStringEqual(p->type(), "window")) {
+    if([page.type isEqualToString:@"window"]) {
         KerPageWindowController * viewController = [[KerPageWindowController alloc] initWithPageId:pageId];
         [viewController showAnimated:animated];
     } else {

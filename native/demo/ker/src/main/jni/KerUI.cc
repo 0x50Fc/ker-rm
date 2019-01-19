@@ -1423,8 +1423,7 @@ Java_cn_kkmofang_ker_KerUI_resolvePath__Ljava_lang_String_2J(JNIEnv *env, jclass
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_cn_kkmofang_ker_KerUI_addViewClass__Ljava_lang_String_2(JNIEnv *env, jclass type,
-                                                             jstring name_) {
+Java_cn_kkmofang_ker_KerUI_addViewClass(JNIEnv *env, jclass type, jstring name_) {
     const char *name = env->GetStringUTFChars(name_, 0);
 
     kk::ui::ViewElement::library(name);
@@ -1434,8 +1433,8 @@ Java_cn_kkmofang_ker_KerUI_addViewClass__Ljava_lang_String_2(JNIEnv *env, jclass
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_cn_kkmofang_ker_KerUI_addTextViewClass__Ljava_lang_String_2(JNIEnv *env, jclass type,
-                                                                 jstring name_) {
+Java_cn_kkmofang_ker_KerUI_addTextViewClass(JNIEnv *env, jclass type, jstring name_) {
+
     const char *name = env->GetStringUTFChars(name_, 0);
 
     kk::ui::TextElement::library(name);

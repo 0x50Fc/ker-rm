@@ -1,7 +1,4 @@
-
-
-print("[UA] " + userAgent);
-
-app.exec('lib/require.js');
-
-app.open("home.js",true);
+"use strict";
+app.exec('lib/ker.js');
+console.info("[UA]", userAgent);
+app.open("home.js", true);

@@ -141,7 +141,7 @@ namespace kk {
                 kk::Strong<kk::ui::CG::Context> v = (kk::ui::CG::Context *) _context;
                 
                 if(v == nullptr || _resize) {
-                    v = createCGContext();
+                    v = CG::Context::create(_width, _height);
                     _context = v;
                 } else {
                     v->clear();
@@ -179,7 +179,6 @@ namespace kk {
                 kk::PushInterface<Canvas>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutStrongMethod<Canvas,Object,kk::CString>(ctx, -1, "getContext", &Canvas::getContext);
-                    kk::PutStrongMethod<Canvas,Image>(ctx, -1, "toImage", &Canvas::toImage);
                     kk::PutProperty<Canvas,Uint>(ctx, -1, "width", &Canvas::width,&Canvas::setWidth);
                     kk::PutProperty<Canvas,Uint>(ctx, -1, "height", &Canvas::height,&Canvas::setHeight);
                 });

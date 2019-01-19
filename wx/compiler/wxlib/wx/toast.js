@@ -52,7 +52,7 @@ page.on("ready",function(){
         titleSize.height = Math.ceil(titleSize.height);
     }
 
-    var bgView = app.createView("UIView");
+    var bgView = app.createView("view");
     var bgSize = { width: titleSize.width + padding, height: titleSize.height + padding };
 
     bgView.set('background-color', 'rgba(0,0,0,0.65)');
@@ -61,7 +61,7 @@ page.on("ready",function(){
 
     view.addSubview(bgView);
 
-    var titleView = app.createView("UILabel");
+    var titleView = app.createView("text");
 
     titleView.set('text-align', 'center');
     titleView.setFrame((bgSize.width - titleSize.width) * 0.5, (bgSize.height - titleSize.height) * 0.5, titleSize.width, titleSize.height)
