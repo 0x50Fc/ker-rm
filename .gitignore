@@ -63,3 +63,5 @@ fastlane/test_output
 iOSInjectionProject/
 
 bin/
+
+node_modules/
