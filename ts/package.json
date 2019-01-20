@@ -1,11 +1,18 @@
 {
-  "name": "ker.compiler",
+  "name": "ker.app",
   "version": "1.0.0",
-  "description": "",
+  "description": "Ker",
   "main": "main.js",
+  "directories": {
+    "lib": "lib"
+  },
   "scripts": {},
   "author": "",
   "license": "MIT",
+  "typings": "typings/index.d.ts",
+  "bin": {
+    "ker": "main.js"
+  },
   "dependencies": {
     "@babel/parser": "^7.1.6",
     "archiver": "^3.0.0",
@@ -18,8 +25,5 @@
     "babel-preset-stage-2": "^6.24.1",
     "commander": "^2.19.0",
     "htmlparser2": "^3.10.0"
-  },
-  "bin": {
-    "ker": "main.js"
   }
 }

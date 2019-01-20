@@ -17,41 +17,21 @@ namespace kk {
             kk::Openlib<kk::ui::Page *>::add(std::move(func));
         }
         
-        Page::Page(App * app,kk::Uint64 pageId,kk::CString type):_app(app),_pageId(pageId),_librarys(new TObject<kk::String, kk::Any>()),_type(type) {
+        Page::Page(App * app,kk::Uint64 pageId,kk::CString type):_app(app),_pageId(pageId),_librarys(new TObject<kk::String, kk::Any>()),_type(type),_heapptr(nullptr) {
             
             app->queue()->sync([this]()->void{
                 
                 duk_context * ctx = _app->jsContext();
                 
-                duk_idx_t idx = duk_push_thread_new_globalenv(ctx);
+                kk::PushWeakObject(ctx, this);
                 
-                _jsContext = duk_get_context(ctx, idx);
+                _heapptr = duk_get_heapptr(ctx, -1);
                 
                 duk_push_heap_stash(ctx);
-                duk_push_sprintf(ctx, "0x%x",_jsContext);
+                duk_push_sprintf(ctx, "0x%x", (long) _heapptr);
                 duk_dup(ctx, -3);
                 duk_put_prop(ctx, -3);
                 duk_pop_2(ctx);
-                
-                duk_push_global_object(_jsContext);
-                
-                duk_push_global_object(ctx);
-                duk_enum(ctx, -1, DUK_ENUM_INCLUDE_SYMBOLS);
-                
-                while(duk_next(ctx, -1, 1)) {
-                    duk_xmove_top(_jsContext, ctx, 2);
-                    duk_put_prop(_jsContext, -3);
-                }
-                
-                duk_pop_2(ctx);
-                
-                kk::PushWeakObject(_jsContext, _app.get());
-                duk_put_prop_string(_jsContext, -2, "app");
-                
-                kk::PushWeakObject(_jsContext, this);
-                duk_put_prop_string(_jsContext, -2, "page");
-                
-                duk_pop(_jsContext);
                 
                 _func = new kk::TFunction<void, kk::CString,kk::Event *>([this](kk::CString name,kk::Event * event)->void{
                     kk::String v("app.");
@@ -61,8 +41,8 @@ namespace kk {
                 
                 _app->on("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
                 
-                kk::Openlib<kk::Container *>::openlib(_jsContext, this);
-                kk::Openlib<kk::ui::Page *>::openlib(_jsContext, this);
+                kk::Openlib<kk::Container *>::openlib(ctx, this);
+                kk::Openlib<kk::ui::Page *>::openlib(ctx, this);
                 
             });
         }
@@ -79,14 +59,13 @@ namespace kk {
             
             {
                 duk_context * ctx = _app->jsContext();
-                duk_context * jsContext = _jsContext;
-                
-                JITContext::current()->remove(jsContext);
                 
                 duk_push_heap_stash(ctx);
-                duk_push_sprintf(ctx, "0x%x",jsContext);
+                duk_push_sprintf(ctx, "0x%x",_heapptr);
                 duk_del_prop(ctx, -2);
                 duk_pop(ctx);
+                
+                JITContext::current()->remove(this);
                 
                 duk_gc(ctx, DUK_GC_COMPACT);
                 
@@ -125,10 +104,6 @@ namespace kk {
                 return i->second;
             }
             return nullptr;
-        }
-        
-        duk_context * Page::jsContext() {
-            return _jsContext;
         }
         
         App * Page::app() {
@@ -192,7 +167,7 @@ namespace kk {
         
         void Page::run(kk::CString path , Object * query) {
 
-            kk::String code("(function(path,query");
+            kk::String code("(function(page,path,query");
             
             std::vector<kk::Any> vs;
             
@@ -208,7 +183,7 @@ namespace kk {
             
             code.append("})");
             
-            duk_context * ctx = jsContext();
+            duk_context * ctx = _app->jsContext();
             
             duk_push_string(ctx, path);
             duk_compile_string_filename(ctx, 0, code.c_str());
@@ -217,6 +192,7 @@ namespace kk {
                 
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
+                    duk_push_heapptr(ctx, _heapptr);
                     duk_push_string(ctx, path);
                     PushObject(ctx, query);
                     
@@ -227,7 +203,7 @@ namespace kk {
                         i ++;
                     }
                     
-                    if(duk_pcall(ctx, 2 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
+                    if(duk_pcall(ctx, 3 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
                         Error(ctx, -1, "[Page::run] ");
                     }
                     

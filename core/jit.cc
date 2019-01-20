@@ -357,10 +357,18 @@ namespace kk {
             }
         }
         
+        {
+            _JSFunction * v = dynamic_cast<_JSFunction *>(object);
+            if(v != nullptr) {
+                duk_push_c_function(ctx, v->getInvoke(), v->getArguments());
+                SetObject(ctx, -1, v);
+                return;
+            }
+        }
+        
         void * heapptr = JITContext::current()->get(object, ctx);
         
         if(heapptr != nullptr) {
-            Object * vv = JITContext::current()->get(heapptr);
             duk_push_heapptr(ctx, heapptr);
             return;
         }
@@ -464,9 +472,12 @@ namespace kk {
         duk_get_prop_string(ctx, -1, "__object");
         
         if(duk_is_pointer(ctx, -1)) {
-            JSObject * v = (JSObject *) duk_to_pointer(ctx, -1);
+            Object * v = (Object *) duk_to_pointer(ctx, -1);
             if(v && JITContext::current()->get(v, ctx) != nullptr) {
-                v->recycle();
+                JSRecycle * r = dynamic_cast<JSRecycle *>(v);
+                if(r != nullptr) {
+                    r->recycle(ctx);
+                }
             }
         }
         
@@ -474,6 +485,7 @@ namespace kk {
         
         return 0;
     }
+    
     
     JSObject::JSObject(duk_context * ctx, void * heapptr):_ctx(ctx),_queue(getCurrentDispatchQueue()) {
         
@@ -628,9 +640,11 @@ namespace kk {
         return JITContext::current()->get(this, _ctx);
     }
     
-    void JSObject::recycle() {
-        JITContext::current()->remove(this);
-        _ctx = nullptr;
+    void JSObject::recycle(duk_context * ctx) {
+        if(ctx == _ctx) {
+            JITContext::current()->remove(this);
+            _ctx = nullptr;
+        }
     }
     
     void JSObject::get(kk::CString key,Any & value) {

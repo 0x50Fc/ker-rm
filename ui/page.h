@@ -35,7 +35,6 @@ namespace kk {
         public:
             Page(App * app,kk::Uint64 pageId,kk::CString type);
             virtual ~Page();
-            virtual duk_context * jsContext();
             virtual App * app();
             virtual kk::DispatchQueue * queue();
             virtual View * view();
@@ -67,11 +66,11 @@ namespace kk {
             kk::Strong<kk::TFunction<void,kk::CString,kk::Event *>> _func;
             kk::Strong<View> _view;
             kk::Strong<kk::TObject<kk::String, kk::Any>> _librarys;
-            duk_context * _jsContext;
             std::map<void *,kk::Strong<kk::Object>> _objects;
             Size _size;
             kk::Uint64 _pageId;
             kk::String _type;
+            void * _heapptr;
         };
         
         void addPageOpenlib(std::function<void(duk_context *,Page *)> && func);

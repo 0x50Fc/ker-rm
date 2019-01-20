@@ -1,4 +1,3 @@
-"use strict";
 var ker;
 (function (ker) {
     var Evaluate = /** @class */ (function () {
@@ -71,6 +70,13 @@ var ker;
             this._global = global;
             this._keyObserver = {};
         }
+        Object.defineProperty(Data.prototype, "global", {
+            get: function () {
+                return this._global;
+            },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Data.prototype, "object", {
             get: function () {
                 return this._object;
@@ -111,10 +117,20 @@ var ker;
         };
         Data.prototype.changeKeys = function (keySet) {
             var cbs = [];
-            for (var key in keySet) {
-                var v = this._keyObserver[key];
-                if (v !== undefined) {
-                    cbs = cbs.concat(v);
+            if (keySet === undefined) {
+                for (var key in this._keyObserver) {
+                    var v = this._keyObserver[key];
+                    if (v !== undefined) {
+                        cbs = cbs.concat(v);
+                    }
+                }
+            }
+            else {
+                for (var key in keySet) {
+                    var v = this._keyObserver[key];
+                    if (v !== undefined) {
+                        cbs = cbs.concat(v);
+                    }
                 }
             }
             cbs.sort(function (a, b) {
@@ -181,11 +197,16 @@ var ker;
                 var data_1 = this;
                 this._onDataFunction = function (value, keySet) {
                     if (value !== undefined) {
-                        data_1.begin();
-                        for (var key_1 in keySet) {
-                            data_1.set([key_1], value[key_1], false);
+                        if (keySet === undefined) {
+                            data_1.changeKeys();
                         }
-                        data_1.commit();
+                        else {
+                            data_1.begin();
+                            for (var key_1 in keySet) {
+                                data_1.set([key_1], value[key_1], false);
+                            }
+                            data_1.commit();
+                        }
                     }
                 };
                 parent.on([], this._onDataFunction);

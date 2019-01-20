@@ -47,79 +47,84 @@ namespace kk {
         
         kk::Openlib<Container *>::add([](duk_context * ctx, Container * container)->void {
 
-            PushFunction(ctx, new TFunction<kk::Uint64, JSObject *,kk::Int>([container](JSObject * func,kk::Int tv)->kk::Uint64{
-
-                if(container != nullptr && func != nullptr) {
-                    kk::Strong<JSObject> fn = func;
-                    Timer * v = new Timer(container->queue(),tv,0);
-                    v->setEvent([fn,container,v]()->void{
-                        fn->invoke<void>(nullptr);
-                        v->cancel();
-                        container->remove(v);
-                    });
-                    container->set(v);
-                    v->resume();
-                    return (kk::Uint64) v;
-                }
-                
-                return 0;
-            }));
-            
-            duk_put_global_string(ctx, "setTimeout");
-            
-            PushFunction(ctx, new TFunction<void, kk::Uint64>([container](kk::Uint64 id )->void{
-
-                if(container != nullptr && id != 0) {
+            {
+                kk::Any v = new JSFunction<kk::Uint64, JSObject *,kk::Int>([container](JSObject * func,kk::Int tv)->kk::Uint64{
                     
-                    Timer * v = dynamic_cast<Timer *>(container->get((kk::Object *) id));
-                    
-                    if(v != nullptr) {
-                        v->cancel();
-                        container->remove(v);
+                    if(container != nullptr && func != nullptr) {
+                        kk::Strong<JSObject> fn = func;
+                        Timer * v = new Timer(container->queue(),tv,0);
+                        v->setEvent([fn,container,v]()->void{
+                            fn->invoke<void>(nullptr);
+                            v->cancel();
+                            container->remove(v);
+                        });
+                        container->set(v);
+                        v->resume();
+                        return (kk::Uint64) v;
                     }
                     
-                }
-                
-            }));
-        
-            duk_put_global_string(ctx, "clearTimeout");
+                    return 0;
+                });
+                container->addLibrary("setTimeout", v);
+            }
             
-            PushFunction(ctx, new TFunction<kk::Uint64, JSObject *,kk::Int>([container](JSObject * func,kk::Int tv)->kk::Uint64{
-
-                if(container != nullptr) {
-                    kk::Strong<JSObject> fn = func;
-                    Timer * v = new Timer(container->queue(),tv,tv);
-                    v->setEvent([fn]()->void{
-                        kk::Strong<JSObject> & func = (kk::Strong<JSObject> &) fn;
-                        func->invoke<void>(nullptr);
-                    });
-                    container->set(v);
-                    v->resume();
-                    return (kk::Uint64) v;
-                }
-                
-                return 0;
-            }));
-            
-            duk_put_global_string(ctx, "setInterval");
-            
-            PushFunction(ctx, new TFunction<void, kk::Uint64>([container](kk::Uint64 id )->void{
-
-                if(container != nullptr && id != 0) {
+            {
+                kk::Any v = new JSFunction<void, kk::Uint64>([container](kk::Uint64 id )->void{
                     
-                    Timer * v = dynamic_cast<Timer *>(container->get((kk::Object *) id));
-                    
-                    if(v != nullptr) {
-                        v->cancel();
-                        container->remove(v);
+                    if(container != nullptr && id != 0) {
+                        
+                        Timer * v = dynamic_cast<Timer *>(container->get((kk::Object *) id));
+                        
+                        if(v != nullptr) {
+                            v->cancel();
+                            container->remove(v);
+                        }
+                        
                     }
                     
-                }
+                });
+                container->addLibrary("clearTimeout", v);
+            }
+            
+            {
+                kk::Any v = new JSFunction<kk::Uint64, JSObject *,kk::Int>([container](JSObject * func,kk::Int tv)->kk::Uint64{
+                    
+                    if(container != nullptr) {
+                        kk::Strong<JSObject> fn = func;
+                        Timer * v = new Timer(container->queue(),tv,tv);
+                        v->setEvent([fn]()->void{
+                            kk::Strong<JSObject> & func = (kk::Strong<JSObject> &) fn;
+                            func->invoke<void>(nullptr);
+                        });
+                        container->set(v);
+                        v->resume();
+                        return (kk::Uint64) v;
+                    }
+                    
+                    return 0;
+                });
                 
-            }));
+                container->addLibrary("clearTimeout", v);
+            }
             
-            duk_put_global_string(ctx, "clearInterval");
-            
+            {
+                kk::Any v = new JSFunction<void, kk::Uint64>([container](kk::Uint64 id )->void{
+                    
+                    if(container != nullptr && id != 0) {
+                        
+                        Timer * v = dynamic_cast<Timer *>(container->get((kk::Object *) id));
+                        
+                        if(v != nullptr) {
+                            v->cancel();
+                            container->remove(v);
+                        }
+                        
+                    }
+                    
+                });
+                
+                container->addLibrary("clearTimeout", v);
+            }
             
         });
         

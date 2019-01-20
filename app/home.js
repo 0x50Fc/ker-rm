@@ -1,8 +1,12 @@
-"use strict";
-ker.Page({
+Page({
     path: path,
-    onload: (document, data) => {
+    data: {
+        user: {
+            name: 'hailongz'
+        }
     },
-    onunload: () => {
+    onload: function (document) {
+    },
+    onunload: function () {
     }
-});
+}, page, setTimeout);

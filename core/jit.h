@@ -667,13 +667,58 @@ namespace kk {
         
         duk_put_global_string(ctx, isa->name);
     }
+   
+    class _JSFunction : public Function {
+    public:
+        virtual duk_c_function getInvoke() = 0;
+        virtual duk_int_t getArguments() = 0;
+    };
     
+    template<typename T,typename ... TArgs>
+    class JSFunction : public _JSFunction {
+    public:
+        JSFunction(std::function<T(TArgs ...)> && func):_func(func){}
+        
+        virtual duk_c_function getInvoke() {
+            return JSFunction<T,TArgs...>::invoke;
+        }
+        
+        virtual duk_int_t getArguments() {
+            return sizeof...(TArgs);
+        }
+        
+        static duk_ret_t invoke(duk_context * ctx) {
+            duk_push_current_function(ctx);
+            JSFunction<T,TArgs...> * func = (JSFunction<T,TArgs...> *) GetObject(ctx,  -1);
+            duk_pop(ctx);
+            if(func) {
+                std::function<T(TArgs...)> & fn = * func;
+                return Call(std::move(fn),ctx);
+            }
+            return 0;
+        }
+        
+        T operator()(TArgs ... args) {
+            return _func(args...);
+        }
+        
+        operator std::function<T(TArgs ...)>&() {
+            return _func;
+        }
+    private:
+        std::function<T(TArgs ...)> _func;
+    };
     
-    class JSObject : public Object , public Copying, public Getter {
+    class JSRecycle {
+    public:
+        virtual void recycle(duk_context * ctx) = 0;
+    };
+    
+    class JSObject : public Object , public Copying, public Getter , public JSRecycle {
     public:
         JSObject(duk_context * ctx, void * heapptr);
         virtual ~JSObject();
-        virtual void recycle();
+        virtual void recycle(duk_context * ctx);
         virtual duk_context * jsContext();
         virtual void * heapptr();
         virtual DispatchQueue * queue();

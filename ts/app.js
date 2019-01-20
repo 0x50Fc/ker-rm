@@ -2,7 +2,7 @@
 var path = require('path');
 var fs = require('fs');
 
-function App(basePath, outPath,shPath) {
+function App(basePath, outPath, shPath) {
     this.basePath = basePath;
     this.outPath = outPath === undefined ? basePath : outPath;
     this.shPath = shPath === undefined ? __dirname : shPath;
@@ -25,9 +25,9 @@ function mkdirs(p) {
 
 function copy(from, to, filter) {
 
-    var basename = path.basename(from);
-    
-    if(basename.startsWith(".") || basename == "node_modules") {
+    var bname = path.basename(from);
+
+    if (bname.startsWith(".") || bname == "node_modules") {
         return;
     }
 
@@ -43,7 +43,7 @@ function copy(from, to, filter) {
     } else if (f) {
         if (filter === undefined || filter(from, to)) {
             mkdirs(path.dirname(to));
-            console.info('[COPY]',from, ">>", to);
+            console.info('[COPY]', from, ">>", to);
             fs.copyFileSync(from, to);
         }
     }
@@ -55,7 +55,7 @@ App.prototype = Object.create(Object.prototype, {
         value: function () {
             if (this.basePath != this.outPath) {
                 copy(this.basePath, this.outPath, function (from, to) {
-                    if (from.endsWith(".xml") || from.endsWith(".ts") 
+                    if (from.endsWith(".xml") || from.endsWith(".ts")
                         || from.endsWith("tsconfig.json") || from.endsWith("package.json")) {
                         return false;
                     }

@@ -47,6 +47,9 @@ namespace kk {
                 duk_push_string(_jsContext, userAgent);
                 duk_put_global_string(_jsContext, "userAgent");
                 
+                duk_push_undefined(_jsContext);
+                duk_put_global_string(_jsContext, "page");
+                
             });
             
         }

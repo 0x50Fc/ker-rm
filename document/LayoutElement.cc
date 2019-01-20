@@ -450,6 +450,7 @@ namespace kk {
         setLayout("", new TFunction<void,LayoutContext * ,LayoutElement *>(LayoutElementRelative));
         setLayout("flex", new TFunction<void,LayoutContext * ,LayoutElement *>(LayoutElementFlex));
         setLayout("horizontal", new TFunction<void,LayoutContext * ,LayoutElement *>(LayoutElementHorizontal));
+        setLayout("relative", new TFunction<void,LayoutContext * ,LayoutElement *>(LayoutElementRelative));
         
     }
     

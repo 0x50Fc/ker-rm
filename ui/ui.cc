@@ -720,6 +720,11 @@ namespace kk {
             return new NativeImage(queue(),absolutePath(src).c_str());
         }
         
+        void Context::addLibrary(kk::CString key, kk::Any& value) {
+            PushAny(_jsContext,value);
+            duk_put_global_string(_jsContext, key);
+        }
+        
         void Context::Openlib(){
             
             kk::Openlib<>::add([](duk_context * ctx)->void{

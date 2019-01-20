@@ -1,6 +1,6 @@
 
 
-app.exec('lib/ker.js')
+app.exec('@ker/ker.js')
 
 console.info("[UA]", userAgent)
 

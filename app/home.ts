@@ -1,11 +1,15 @@
 
-ker.Page({
+Page({
     path: path,
-    onload: (document: ker.Document, data: ker.Data): void => {
+    data: {
+        user: {
+            name: 'hailongz'
+        }
+    },
+    onload: (document: Document): void => {
 
     },
     onunload: (): void => {
 
     }
-});
-
+}, page, setTimeout);

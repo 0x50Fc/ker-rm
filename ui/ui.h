@@ -259,6 +259,7 @@ namespace kk {
             virtual void set(kk::Object * object);
             virtual kk::Object * get(kk::Object * object);
             virtual void remove(kk::Object * object);
+            virtual void addLibrary(kk::CString key, kk::Any& value);
             virtual void exec(kk::CString path,TObject<String, Any> * librarys);
             virtual void exec(kk::CString path,JSObject * librarys);
             virtual kk::Strong<Worker> createWorker(kk::CString path);

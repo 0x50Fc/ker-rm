@@ -21,6 +21,7 @@ namespace kk {
         virtual void set(kk::Object * object) = 0;
         virtual kk::Object * get(kk::Object * object) = 0;
         virtual void remove(kk::Object * object) = 0;
+        virtual void addLibrary(kk::CString key, kk::Any& value) = 0;
     };
     
 }
