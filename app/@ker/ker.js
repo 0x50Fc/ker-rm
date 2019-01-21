@@ -409,6 +409,13 @@ var ker;
             element.setFrame(0, 0, page.width, page.height);
             layout();
         });
+        page.on("data", function (e, name) {
+            var v = e.data;
+            if (typeof v == 'object') {
+                data.setData(v);
+                setLayout();
+            }
+        });
         document.on("layout", function () {
             setLayout();
         });
@@ -425,7 +432,7 @@ var ker;
             });
         }
         function v_AttributeEvent(element, name, key) {
-            element.on(name, function (name, event) {
+            element.on(name, function (event, name) {
                 var func = object[key];
                 if (typeof func == 'function') {
                     func.call(object, event, name);

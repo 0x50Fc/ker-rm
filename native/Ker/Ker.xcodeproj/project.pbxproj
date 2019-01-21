@@ -57,6 +57,10 @@
 		1AE0928E21EDDC6C00133215 /* LayoutElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0928C21EDDC6C00133215 /* LayoutElement.cc */; };
 		1AE0929121EDF78C00133215 /* ViewElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0928F21EDF78C00133215 /* ViewElement.h */; };
 		1AE0929221EDF78C00133215 /* ViewElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0929021EDF78C00133215 /* ViewElement.cc */; };
+		1AE0929C21F56A8A00133215 /* KerView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0929A21F56A8A00133215 /* KerView.h */; };
+		1AE0929D21F56A8A00133215 /* KerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0929B21F56A8A00133215 /* KerView.mm */; };
+		1AE092A021F56F2300133215 /* PageElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0929E21F56F2300133215 /* PageElement.h */; };
+		1AE092A121F56F2300133215 /* PageElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0929F21F56F2300133215 /* PageElement.cc */; };
 		1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CBE21CB7AC80055C932 /* zombies.cc */; };
 		1AE91CC921D741C90055C932 /* KerWeak.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE91CC721D741C90055C932 /* KerWeak.h */; };
 		1AE91CCA21D741C90055C932 /* KerWeak.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CC821D741C90055C932 /* KerWeak.m */; };
@@ -124,8 +128,6 @@
 		1AF4CE3621A56B5A00AE1249 /* UIColor+Ker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3421A56B5A00AE1249 /* UIColor+Ker.mm */; };
 		1AF4CE3921A56DF600AE1249 /* UILabel+KerViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE3721A56DF600AE1249 /* UILabel+KerViewProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF4CE3A21A56DF600AE1249 /* UILabel+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */; };
-		1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE3B21A5719800AE1249 /* KerButton.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3C21A5719800AE1249 /* KerButton.mm */; };
 		1AFDAD2A21E327C7000FAAE9 /* storage.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2921E327C7000FAAE9 /* storage.cc */; };
 		1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */; };
 		1AFDAD2F21E355BD000FAAE9 /* duk_config_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */; };
@@ -186,6 +188,10 @@
 		1AE0928F21EDF78C00133215 /* ViewElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewElement.h; sourceTree = "<group>"; };
 		1AE0929021EDF78C00133215 /* ViewElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ViewElement.cc; sourceTree = "<group>"; };
 		1AE0929821F0325000133215 /* SKCGContext.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SKCGContext.cc; sourceTree = "<group>"; };
+		1AE0929A21F56A8A00133215 /* KerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerView.h; sourceTree = "<group>"; };
+		1AE0929B21F56A8A00133215 /* KerView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerView.mm; sourceTree = "<group>"; };
+		1AE0929E21F56F2300133215 /* PageElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageElement.h; sourceTree = "<group>"; };
+		1AE0929F21F56F2300133215 /* PageElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PageElement.cc; sourceTree = "<group>"; };
 		1AE91CBE21CB7AC80055C932 /* zombies.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = zombies.cc; sourceTree = "<group>"; };
 		1AE91CC721D741C90055C932 /* KerWeak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerWeak.h; sourceTree = "<group>"; };
 		1AE91CC821D741C90055C932 /* KerWeak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerWeak.m; sourceTree = "<group>"; };
@@ -257,8 +263,6 @@
 		1AF4CE3421A56B5A00AE1249 /* UIColor+Ker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIColor+Ker.mm"; sourceTree = "<group>"; };
 		1AF4CE3721A56DF600AE1249 /* UILabel+KerViewProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UILabel+KerViewProtocol.h"; sourceTree = "<group>"; };
 		1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UILabel+KerViewProtocol.mm"; sourceTree = "<group>"; };
-		1AF4CE3B21A5719800AE1249 /* KerButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerButton.h; sourceTree = "<group>"; };
-		1AF4CE3C21A5719800AE1249 /* KerButton.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerButton.mm; sourceTree = "<group>"; };
 		1AFDAD2821E327B1000FAAE9 /* storage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = storage.h; sourceTree = "<group>"; };
 		1AFDAD2921E327C7000FAAE9 /* storage.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = storage.cc; sourceTree = "<group>"; };
 		1AFDAD2B21E34FB0000FAAE9 /* debugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
@@ -377,8 +381,8 @@
 				1AF4CE3021A56A2000AE1249 /* UIFont+Ker.mm */,
 				1AF4CE3321A56B5A00AE1249 /* UIColor+Ker.h */,
 				1AF4CE3421A56B5A00AE1249 /* UIColor+Ker.mm */,
-				1AF4CE3B21A5719800AE1249 /* KerButton.h */,
-				1AF4CE3C21A5719800AE1249 /* KerButton.mm */,
+				1AE0929A21F56A8A00133215 /* KerView.h */,
+				1AE0929B21F56A8A00133215 /* KerView.mm */,
 				1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */,
 				1A53C6E721B8EA2D00170AB7 /* KerURLProtocol.m */,
 				1AF0658C219D516000F8F7A8 /* Info.plist */,
@@ -466,6 +470,8 @@
 				1AE0929021EDF78C00133215 /* ViewElement.cc */,
 				ACD6575321EE819E00D63256 /* TextElement.h */,
 				ACD6575421EE819E00D63256 /* TextElement.cc */,
+				1AE0929E21F56F2300133215 /* PageElement.h */,
+				1AE0929F21F56F2300133215 /* PageElement.cc */,
 			);
 			name = ui;
 			path = ../../../ui;
@@ -498,6 +504,7 @@
 				1AE0928121EDBEDA00133215 /* document.h in Headers */,
 				1AF065AE219D518200F8F7A8 /* dispatch.h in Headers */,
 				1AE0928D21EDDC6C00133215 /* LayoutElement.h in Headers */,
+				1AE0929C21F56A8A00133215 /* KerView.h in Headers */,
 				1AF065AB219D518200F8F7A8 /* timer.h in Headers */,
 				1AE0927C21EDB18200133215 /* archiver.h in Headers */,
 				1AF065A8219D518200F8F7A8 /* kk.h in Headers */,
@@ -527,6 +534,7 @@
 				1AF065C5219D52AC00F8F7A8 /* ui.h in Headers */,
 				1AF065EC219D54E600F8F7A8 /* KerPageViewController.h in Headers */,
 				1AF065C4219D52AC00F8F7A8 /* page.h in Headers */,
+				1AE092A021F56F2300133215 /* PageElement.h in Headers */,
 				1AF065A4219D518200F8F7A8 /* bio.h in Headers */,
 				1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */,
 				1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */,
@@ -537,7 +545,6 @@
 				1AF065B6219D51C000F8F7A8 /* duktape.h in Headers */,
 				ACD6575521EE819E00D63256 /* TextElement.h in Headers */,
 				1AF065CD219D52AC00F8F7A8 /* CGContext.h in Headers */,
-				1AF4CE3D21A5719800AE1249 /* KerButton.h in Headers */,
 				1A53C6F821BE154300170AB7 /* UIImage+Ker.h in Headers */,
 				1AFDAF7A21E6EAC2000FAAE9 /* ssl.h in Headers */,
 				1AA4AC4421BFBC3A00C636F5 /* crypt.h in Headers */,
@@ -658,7 +665,6 @@
 				1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */,
 				1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */,
 				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
-				1AF4CE3E21A5719800AE1249 /* KerButton.mm in Sources */,
 				1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */,
 				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
 				1A3AF07021E76454001C8759 /* ssl.cc in Sources */,
@@ -676,6 +682,7 @@
 				1AA4AC3A21BFBC3A00C636F5 /* mztools.c in Sources */,
 				1AE91CCA21D741C90055C932 /* KerWeak.m in Sources */,
 				1A53C6F921BE154300170AB7 /* UIImage+Ker.mm in Sources */,
+				1AE0929D21F56A8A00133215 /* KerView.mm in Sources */,
 				1AF065A3219D518200F8F7A8 /* dispatch-GCD.cc in Sources */,
 				1AF4CE3221A56A2000AE1249 /* UIFont+Ker.mm in Sources */,
 				1AF065AA219D518200F8F7A8 /* kk.cc in Sources */,
@@ -684,6 +691,7 @@
 				1AF065AD219D518200F8F7A8 /* timer.cc in Sources */,
 				1AE91CD021DCA1660055C932 /* uri.cc in Sources */,
 				1AE91CCD21DC92290055C932 /* http.cc in Sources */,
+				1AE092A121F56F2300133215 /* PageElement.cc in Sources */,
 				1AA4AC4021BFBC3A00C636F5 /* ioapi.c in Sources */,
 				1AF065D7219D537600F8F7A8 /* View.mm in Sources */,
 				1AFDAD2A21E327C7000FAAE9 /* storage.cc in Sources */,

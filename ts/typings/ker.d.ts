@@ -6,7 +6,7 @@ declare class Event {
     v:String
 }
 
-type EventFunction = (name: string, event: Event) => void
+type EventFunction = (event: Event,name:string) => void
 
 declare class EventEmitter {
     on(name: string, func: EventFunction): void

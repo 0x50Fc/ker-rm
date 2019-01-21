@@ -27,7 +27,7 @@ function copy(from, to, filter) {
 
     var bname = path.basename(from);
 
-    if (bname.startsWith(".") || bname == "node_modules") {
+    if (from != "." && (bname.startsWith(".") || bname == "node_modules")) {
         return;
     }
 

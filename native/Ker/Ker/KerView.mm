@@ -1,12 +1,12 @@
 //
-//  KerButton.m
+//  KerView.m
 //  Ker
 //
-//  Created by zhanghailong on 2018/11/21.
-//  Copyright © 2018 kkmofang.cn. All rights reserved.
+//  Created by hailong11 on 2019/1/21.
+//  Copyright © 2019 kkmofang.cn. All rights reserved.
 //
 
-#import "KerButton.h"
+#import "KerView.h"
 
 #include <ui/ui.h>
 #include <ui/view.h>
@@ -14,7 +14,7 @@
 
 #import "KerUI.h"
 
-@interface KerButton() {
+@interface KerView() {
     
 }
 
@@ -23,12 +23,12 @@
 
 @end
 
-
-@implementation KerButton
+@implementation KerView
 
 static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
     switch (phase) {
         case UITouchPhaseBegan:
+            return @"start";
         case UITouchPhaseEnded:
             return @"end";
         case UITouchPhaseMoved:
@@ -41,7 +41,7 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
 }
 
 - (void) event:(NSString *) name touches:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
-
+    
     if(_viewId == 0 || _app == 0) {
         return;
     }

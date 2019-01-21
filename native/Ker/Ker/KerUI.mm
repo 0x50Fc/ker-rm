@@ -22,7 +22,7 @@
 #import "UIView+KerViewProtocol.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "KerURLProtocol.h"
-#import "KerButton.h"
+#import "KerView.h"
 
 static NSMutableDictionary * KerUIPages = nil;
 static NSMutableDictionary * KerUIViews = nil;
@@ -989,7 +989,7 @@ static NSString * gKerAppUserAgent = nil;
         }
     }
     
-    [self setViewClass:[UIView class] name:@"view"];
+    [self setViewClass:[KerView class] name:@"view"];
     [self setViewClass:[UIScrollView class] name:@"scroll"];
     [self setViewClass:[WKWebView class] name:@"webview"];
     [self setTextViewClass:[UILabel class] name:@"text"];

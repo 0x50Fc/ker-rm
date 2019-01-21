@@ -43,10 +43,10 @@ namespace ker {
         let data = new Data(object);
         let pageViewContext: PageViewContext = [];
 
-        if(object.data !== undefined) {
+        if (object.data !== undefined) {
             data.object = object.data
         }
-        
+
         document.rootElement = element;
 
         let layout = function () {
@@ -93,6 +93,14 @@ namespace ker {
             layout();
         });
 
+        page.on("data", (e: Event, name: string): void => {
+            let v = e.data;
+            if (typeof v == 'object') {
+                data.setData(v);
+                setLayout();
+            }
+        });
+
         document.on("layout", function () {
             setLayout();
         });
@@ -110,7 +118,7 @@ namespace ker {
         }
 
         function v_AttributeEvent(element: Element, name: string, key: string): void {
-            element.on(name, (name: string, event: Event): void => {
+            element.on(name, (event: Event, name: string): void => {
                 let func = object[key];
                 if (typeof func == 'function') {
                     func.call(object, event, name);
@@ -293,7 +301,7 @@ namespace ker {
 
         object.document = document;
         object.data = data.object;
-        object.setData = (object:DataObject):void => {
+        object.setData = (object: DataObject): void => {
             data.setData(object);
             setLayout();
         };
