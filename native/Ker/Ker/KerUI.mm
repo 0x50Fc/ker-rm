@@ -13,6 +13,7 @@
 #include <ui/ViewElement.h>
 #include <ui/TextElement.h>
 #include <ui/PageElement.h>
+#include <ui/ImageElement.h>
 #include <core/uri.h>
 
 #import "KerUI.h"
@@ -266,6 +267,14 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     }
     gKerUIViewClass[name] = viewClass;
     kk::ui::PageElement::library([name UTF8String]);
+}
+
++(void) setImageViewClass:(Class) viewClass name:(NSString *) name {
+    if(gKerUIViewClass == nil) {
+        gKerUIViewClass = [[NSMutableDictionary alloc] initWithCapacity:4];
+    }
+    gKerUIViewClass[name] = viewClass;
+    kk::ui::ImageElement::library([name UTF8String]);
 }
 
 +(void) createView:(kk::ui::ViewCreateCommand *) command app:(KerId) appid {
@@ -1004,6 +1013,7 @@ static NSString * gKerAppUserAgent = nil;
     
     [self setViewClass:[KerView class] name:@"view"];
     [self setPageViewClass:[KerView class] name:@"page"];
+    [self setImageViewClass:[UIImageView class] name:@"image"];
     [self setViewClass:[UIScrollView class] name:@"scroll"];
     [self setViewClass:[WKWebView class] name:@"webview"];
     [self setTextViewClass:[UILabel class] name:@"text"];

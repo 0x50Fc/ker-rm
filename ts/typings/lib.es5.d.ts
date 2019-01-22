@@ -4209,6 +4209,11 @@ interface String {
       * @param options An object that contains one or more properties that specify comparison options. see the Intl.Collator object for details.
       */
     localeCompare(that: string, locales?: string | string[], options?: Intl.CollatorOptions): number;
+
+    endsWith(s:string):boolean;
+
+    startsWith(s:string):boolean;
+    
 }
 
 interface Number {

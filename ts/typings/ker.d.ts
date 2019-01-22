@@ -272,4 +272,4 @@ declare var path:string
 declare var query:any
 declare var page: UIPage
 declare var screen:UIScreen
-
+declare function compile(code:string,path:string):any
