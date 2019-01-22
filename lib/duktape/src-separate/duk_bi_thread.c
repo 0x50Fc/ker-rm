@@ -9,7 +9,7 @@
  */
 
 #if defined(DUK_USE_COROUTINE_SUPPORT)
-DUK_INTERNAL duk_ret_t duk_bi_thread_constructor(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_thread_constructor(duk_context *ctx) {
 	duk_hthread *new_thr;
 	duk_hobject *func;
 
@@ -18,18 +18,18 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_constructor(duk_hthread *thr) {
 	 * Resume will reject such functions in any case.
 	 */
 	/* XXX: need a duk_require_func_promote_lfunc() */
-	func = duk_require_hobject_promote_lfunc(thr, 0);
+	func = duk_require_hobject_promote_lfunc(ctx, 0);
 	DUK_ASSERT(func != NULL);
-	duk_require_callable(thr, 0);
+	duk_require_callable(ctx, 0);
 
-	duk_push_thread(thr);
-	new_thr = (duk_hthread *) duk_known_hobject(thr, -1);
+	duk_push_thread(ctx);
+	new_thr = (duk_hthread *) duk_known_hobject(ctx, -1);
 	new_thr->state = DUK_HTHREAD_STATE_INACTIVE;
 
 	/* push initial function call to new thread stack; this is
 	 * picked up by resume().
 	 */
-	duk_push_hobject(new_thr, func);
+	duk_push_hobject((duk_context *) new_thr, func);
 
 	return 1;  /* return thread */
 }
@@ -40,7 +40,7 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_constructor(duk_hthread *thr) {
  *
  *  The thread must be in resumable state, either (a) new thread which hasn't
  *  yet started, or (b) a thread which has previously yielded.  This method
- *  must be called from an ECMAScript function.
+ *  must be called from an Ecmascript function.
  *
  *  Args:
  *    - thread
@@ -51,24 +51,23 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_constructor(duk_hthread *thr) {
  */
 
 #if defined(DUK_USE_COROUTINE_SUPPORT)
-DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_hthread *ctx) {
+DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_context *ctx) {
 	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hthread *thr_resume;
 	duk_hobject *caller_func;
-	duk_small_uint_t is_error;
+	duk_small_int_t is_error;
 
 	DUK_DDD(DUK_DDDPRINT("Duktape.Thread.resume(): thread=%!T, value=%!T, is_error=%!T",
-	                     (duk_tval *) duk_get_tval(thr, 0),
-	                     (duk_tval *) duk_get_tval(thr, 1),
-	                     (duk_tval *) duk_get_tval(thr, 2)));
+	                     (duk_tval *) duk_get_tval(ctx, 0),
+	                     (duk_tval *) duk_get_tval(ctx, 1),
+	                     (duk_tval *) duk_get_tval(ctx, 2)));
 
 	DUK_ASSERT(thr->state == DUK_HTHREAD_STATE_RUNNING);
 	DUK_ASSERT(thr->heap->curr_thread == thr);
 
-	thr_resume = duk_require_hthread(thr, 0);
-	DUK_ASSERT(duk_get_top(thr) == 3);
-	is_error = (duk_small_uint_t) duk_to_boolean_top_pop(thr);
-	DUK_ASSERT(duk_get_top(thr) == 2);
+	thr_resume = duk_require_hthread(ctx, 0);
+	is_error = (duk_small_int_t) duk_to_boolean(ctx, 2);
+	duk_set_top(ctx, 2);
 
 	/* [ thread value ] */
 
@@ -81,14 +80,13 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_hthread *ctx) {
 		goto state_error;
 	}
 	DUK_ASSERT(thr->callstack_curr != NULL);
-	DUK_ASSERT(thr->callstack_curr->parent != NULL);
 	DUK_ASSERT(DUK_ACT_GET_FUNC(thr->callstack_curr) != NULL);  /* us */
 	DUK_ASSERT(DUK_HOBJECT_IS_NATFUNC(DUK_ACT_GET_FUNC(thr->callstack_curr)));
-	DUK_ASSERT(DUK_ACT_GET_FUNC(thr->callstack_curr->parent) != NULL);  /* caller */
+	DUK_ASSERT(DUK_ACT_GET_FUNC(thr->callstack_curr - 1) != NULL);  /* caller */
 
-	caller_func = DUK_ACT_GET_FUNC(thr->callstack_curr->parent);
+	caller_func = DUK_ACT_GET_FUNC(thr->callstack_curr - 1);
 	if (!DUK_HOBJECT_IS_COMPFUNC(caller_func)) {
-		DUK_DD(DUK_DDPRINT("resume state invalid: caller must be ECMAScript code"));
+		DUK_DD(DUK_DDPRINT("resume state invalid: caller must be Ecmascript code"));
 		goto state_error;
 	}
 
@@ -116,7 +114,7 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_hthread *ctx) {
 
 		DUK_ASSERT(thr_resume->state == DUK_HTHREAD_STATE_INACTIVE);
 
-		/* The initial function must be an ECMAScript function (but
+		/* The initial function must be an Ecmascript function (but
 		 * can be bound).  We must make sure of that before we longjmp
 		 * because an error in the RESUME handler call processing will
 		 * not be handled very cleanly.
@@ -126,13 +124,13 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_hthread *ctx) {
 			goto state_error;
 		}
 
-		duk_push_tval(thr, DUK_GET_TVAL_NEGIDX(thr_resume, -1));
-		duk_resolve_nonbound_function(thr);
-		h_fun = duk_require_hobject(thr, -1);  /* reject lightfuncs on purpose */
+		duk_push_tval(ctx, DUK_GET_TVAL_NEGIDX((duk_context *) thr_resume, -1));
+		duk_resolve_nonbound_function(ctx);
+		h_fun = duk_require_hobject(ctx, -1);  /* reject lightfuncs on purpose */
 		if (!DUK_HOBJECT_IS_CALLABLE(h_fun) || !DUK_HOBJECT_IS_COMPFUNC(h_fun)) {
 			goto state_error;
 		}
-		duk_pop(thr);
+		duk_pop(ctx);
 	}
 
 	/*
@@ -145,7 +143,7 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_hthread *ctx) {
 
 #if defined(DUK_USE_AUGMENT_ERROR_THROW)
 	if (is_error) {
-		DUK_ASSERT_TOP(thr, 2);  /* value (error) is at stack top */
+		DUK_ASSERT_TOP(ctx, 2);  /* value (error) is at stack top */
 		duk_err_augment_error_throw(thr);  /* in resumer's context */
 	}
 #endif
@@ -153,16 +151,16 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_hthread *ctx) {
 #if defined(DUK_USE_DEBUG)
 	if (is_error) {
 		DUK_DDD(DUK_DDDPRINT("RESUME ERROR: thread=%!T, value=%!T",
-		                     (duk_tval *) duk_get_tval(thr, 0),
-		                     (duk_tval *) duk_get_tval(thr, 1)));
+		                     (duk_tval *) duk_get_tval(ctx, 0),
+		                     (duk_tval *) duk_get_tval(ctx, 1)));
 	} else if (thr_resume->state == DUK_HTHREAD_STATE_YIELDED) {
 		DUK_DDD(DUK_DDDPRINT("RESUME NORMAL: thread=%!T, value=%!T",
-		                     (duk_tval *) duk_get_tval(thr, 0),
-		                     (duk_tval *) duk_get_tval(thr, 1)));
+		                     (duk_tval *) duk_get_tval(ctx, 0),
+		                     (duk_tval *) duk_get_tval(ctx, 1)));
 	} else {
 		DUK_DDD(DUK_DDDPRINT("RESUME INITIAL: thread=%!T, value=%!T",
-		                     (duk_tval *) duk_get_tval(thr, 0),
-		                     (duk_tval *) duk_get_tval(thr, 1)));
+		                     (duk_tval *) duk_get_tval(ctx, 0),
+		                     (duk_tval *) duk_get_tval(ctx, 1)));
 	}
 #endif
 
@@ -195,7 +193,7 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_hthread *ctx) {
  *  The thread must be in yieldable state: it must have a resumer, and there
  *  must not be any yield-preventing calls (native calls and constructor calls,
  *  currently) in the thread's call stack (otherwise a resume would not be
- *  possible later).  This method must be called from an ECMAScript function.
+ *  possible later).  This method must be called from an Ecmascript function.
  *
  *  Args:
  *    - value
@@ -205,20 +203,20 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_resume(duk_hthread *ctx) {
  */
 
 #if defined(DUK_USE_COROUTINE_SUPPORT)
-DUK_INTERNAL duk_ret_t duk_bi_thread_yield(duk_hthread *thr) {
+DUK_INTERNAL duk_ret_t duk_bi_thread_yield(duk_context *ctx) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hobject *caller_func;
-	duk_small_uint_t is_error;
+	duk_small_int_t is_error;
 
 	DUK_DDD(DUK_DDDPRINT("Duktape.Thread.yield(): value=%!T, is_error=%!T",
-	                     (duk_tval *) duk_get_tval(thr, 0),
-	                     (duk_tval *) duk_get_tval(thr, 1)));
+	                     (duk_tval *) duk_get_tval(ctx, 0),
+	                     (duk_tval *) duk_get_tval(ctx, 1)));
 
 	DUK_ASSERT(thr->state == DUK_HTHREAD_STATE_RUNNING);
 	DUK_ASSERT(thr->heap->curr_thread == thr);
 
-	DUK_ASSERT(duk_get_top(thr) == 2);
-	is_error = (duk_small_uint_t) duk_to_boolean_top_pop(thr);
-	DUK_ASSERT(duk_get_top(thr) == 1);
+	is_error = (duk_small_int_t) duk_to_boolean(ctx, 1);
+	duk_set_top(ctx, 1);
 
 	/* [ value ] */
 
@@ -237,14 +235,13 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_yield(duk_hthread *thr) {
 		goto state_error;
 	}
 	DUK_ASSERT(thr->callstack_curr != NULL);
-	DUK_ASSERT(thr->callstack_curr->parent != NULL);
 	DUK_ASSERT(DUK_ACT_GET_FUNC(thr->callstack_curr) != NULL);  /* us */
 	DUK_ASSERT(DUK_HOBJECT_IS_NATFUNC(DUK_ACT_GET_FUNC(thr->callstack_curr)));
-	DUK_ASSERT(DUK_ACT_GET_FUNC(thr->callstack_curr->parent) != NULL);  /* caller */
+	DUK_ASSERT(DUK_ACT_GET_FUNC(thr->callstack_curr - 1) != NULL);  /* caller */
 
-	caller_func = DUK_ACT_GET_FUNC(thr->callstack_curr->parent);
+	caller_func = DUK_ACT_GET_FUNC(thr->callstack_curr - 1);
 	if (!DUK_HOBJECT_IS_COMPFUNC(caller_func)) {
-		DUK_DD(DUK_DDPRINT("yield state invalid: caller must be ECMAScript code"));
+		DUK_DD(DUK_DDPRINT("yield state invalid: caller must be Ecmascript code"));
 		goto state_error;
 	}
 
@@ -265,7 +262,7 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_yield(duk_hthread *thr) {
 
 #if defined(DUK_USE_AUGMENT_ERROR_THROW)
 	if (is_error) {
-		DUK_ASSERT_TOP(thr, 1);  /* value (error) is at stack top */
+		DUK_ASSERT_TOP(ctx, 1);  /* value (error) is at stack top */
 		duk_err_augment_error_throw(thr);  /* in yielder's context */
 	}
 #endif
@@ -273,10 +270,10 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_yield(duk_hthread *thr) {
 #if defined(DUK_USE_DEBUG)
 	if (is_error) {
 		DUK_DDD(DUK_DDDPRINT("YIELD ERROR: value=%!T",
-		                     (duk_tval *) duk_get_tval(thr, 0)));
+		                     (duk_tval *) duk_get_tval(ctx, 0)));
 	} else {
 		DUK_DDD(DUK_DDDPRINT("YIELD NORMAL: value=%!T",
-		                     (duk_tval *) duk_get_tval(thr, 0)));
+		                     (duk_tval *) duk_get_tval(ctx, 0)));
 	}
 #endif
 
@@ -307,8 +304,8 @@ DUK_INTERNAL duk_ret_t duk_bi_thread_yield(duk_hthread *thr) {
 #endif
 
 #if defined(DUK_USE_COROUTINE_SUPPORT)
-DUK_INTERNAL duk_ret_t duk_bi_thread_current(duk_hthread *thr) {
-	duk_push_current_thread(thr);
+DUK_INTERNAL duk_ret_t duk_bi_thread_current(duk_context *ctx) {
+	duk_push_current_thread(ctx);
 	return 1;
 }
 #endif

@@ -18,7 +18,7 @@ DUK_INTERNAL void duk_fb_put_bytes(duk_fixedbuffer *fb, const duk_uint8_t *buffe
 	} else {
 		copylen = length;
 	}
-	duk_memcpy_unsafe(fb->buffer + fb->offset, buffer, copylen);
+	DUK_MEMCPY(fb->buffer + fb->offset, buffer, copylen);
 	fb->offset += copylen;
 }
 
@@ -49,7 +49,7 @@ DUK_INTERNAL void duk_fb_sprintf(duk_fixedbuffer *fb, const char *fmt, ...) {
 			}
 		} else {
 			/* normal */
-			fb->offset += (duk_size_t) res;
+			fb->offset += res;
 		}
 	}
 	va_end(ap);

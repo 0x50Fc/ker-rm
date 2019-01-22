@@ -20,6 +20,7 @@
 
 @property(nonatomic,assign) kk::Uint64 viewId;
 @property(nonatomic,assign) KerId app;
+@property(nonatomic,assign) BOOL hover;
 
 @end
 
@@ -61,7 +62,7 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
         item[@"y"] = @(p.y);
         item[@"type"] = KerViewUITouchPhaseCString(touch.phase);
         item[@"id"] = [NSString stringWithFormat:@"0x%lx",(long)(__bridge void *) touch];
-        
+    
         [items addObject:item];
     }
     
@@ -72,21 +73,44 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     [super touchesBegan:touches withEvent:event];
     [self event:@"touchstart" touches:touches withEvent:event];
+    if(!_hover) {
+        _hover = YES;
+        [self event:@"hover" touches:touches withEvent:event];
+    }
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     [super touchesMoved:touches withEvent:event];
     [self event:@"touchmove" touches:touches withEvent:event];
+    if(CGRectContainsPoint(self.bounds, [[touches anyObject] locationInView:self])) {
+        if(!_hover) {
+            _hover = YES;
+            [self event:@"hover" touches:touches withEvent:event];
+        }
+    } else {
+        if(_hover) {
+            _hover = NO;
+            [self event:@"out" touches:touches withEvent:event];
+        }
+    }
 }
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     [super touchesEnded:touches withEvent:event];
     [self event:@"touchend" touches:touches withEvent:event];
+    if(_hover) {
+        _hover = NO;
+        [self event:@"out" touches:touches withEvent:event];
+    }
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     [super touchesCancelled:touches withEvent:event];
     [self event:@"touchcancel" touches:touches withEvent:event];
+    if(_hover) {
+        _hover = NO;
+        [self event:@"out" touches:touches withEvent:event];
+    }
 }
 
 -(void) KerViewObtain:(KerId) viewId app:(KerId) app {

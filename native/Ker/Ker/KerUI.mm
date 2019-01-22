@@ -12,6 +12,7 @@
 #include <ui/package.h>
 #include <ui/ViewElement.h>
 #include <ui/TextElement.h>
+#include <ui/PageElement.h>
 #include <core/uri.h>
 
 #import "KerUI.h"
@@ -259,6 +260,14 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     kk::ui::TextElement::library([name UTF8String]);
 }
 
++(void) setPageViewClass:(Class) viewClass name:(NSString *) name {
+    if(gKerUIViewClass == nil) {
+        gKerUIViewClass = [[NSMutableDictionary alloc] initWithCapacity:4];
+    }
+    gKerUIViewClass[name] = viewClass;
+    kk::ui::PageElement::library([name UTF8String]);
+}
+
 +(void) createView:(kk::ui::ViewCreateCommand *) command app:(KerId) appid {
     
     NSString * name = [NSString stringWithCString:command->name.c_str() encoding:NSUTF8StringEncoding];
@@ -485,6 +494,10 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     
     if(view == nil) {
         return;
+    }
+    
+    if([view isKindOfClass:[UIScrollView class]]) {
+        NSLog(@"");
     }
     
     view = [view KerViewContentView];
@@ -990,6 +1003,7 @@ static NSString * gKerAppUserAgent = nil;
     }
     
     [self setViewClass:[KerView class] name:@"view"];
+    [self setPageViewClass:[KerView class] name:@"page"];
     [self setViewClass:[UIScrollView class] name:@"scroll"];
     [self setViewClass:[WKWebView class] name:@"webview"];
     [self setTextViewClass:[UILabel class] name:@"text"];

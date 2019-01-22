@@ -70,7 +70,11 @@ namespace kk {
     } else if([key isEqualToString:@"hidden"]) {
         self.hidden = value && ![value isEqualToString:@"false"];
     } else if([key isEqualToString:@"enabled"]) {
-        self.userInteractionEnabled = value && ![value isEqualToString:@"false"];
+        if([self isKindOfClass:[UIControl class]]) {
+            [(UIControl *) self setEnabled: value && ![value isEqualToString:@"false"]];
+        } else {
+            self.userInteractionEnabled = value && ![value isEqualToString:@"false"];
+        }
     } else if([key isEqualToString:@"border-radius"]) {
         self.layer.cornerRadius = [value doubleValue];
     } else if([key isEqualToString:@"border-width"]) {

@@ -16,6 +16,7 @@
 -(void) KerViewObtain:(KerId) viewId app:(KerId)app {
     [super KerViewObtain:viewId app:app];
     self.numberOfLines = 0;
+    self.userInteractionEnabled = NO;
 }
 
 -(void) KerView:(KerId)viewId setAttribute:(NSString *)key value:(NSString *)value app:(KerId)app {

@@ -4,7 +4,8 @@
 
 #include "duk_internal.h"
 
-DUK_LOCAL void duk__concat_and_join_helper(duk_hthread *thr, duk_idx_t count_in, duk_bool_t is_join) {
+DUK_LOCAL void duk__concat_and_join_helper(duk_context *ctx, duk_idx_t count_in, duk_bool_t is_join) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_uint_t count;
 	duk_uint_t i;
 	duk_size_t idx;
@@ -12,22 +13,22 @@ DUK_LOCAL void duk__concat_and_join_helper(duk_hthread *thr, duk_idx_t count_in,
 	duk_hstring *h;
 	duk_uint8_t *buf;
 
-	DUK_ASSERT_CTX_VALID(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
 
 	if (DUK_UNLIKELY(count_in <= 0)) {
 		if (count_in < 0) {
 			DUK_ERROR_RANGE_INVALID_COUNT(thr);
-			DUK_WO_NORETURN(return;);
+			return;
 		}
 		DUK_ASSERT(count_in == 0);
-		duk_push_hstring_empty(thr);
+		duk_push_hstring_empty(ctx);
 		return;
 	}
 	count = (duk_uint_t) count_in;
 
 	if (is_join) {
 		duk_size_t t1, t2, limit;
-		h = duk_to_hstring(thr, -((duk_idx_t) count) - 1);
+		h = duk_to_hstring(ctx, -((duk_idx_t) count) - 1);
 		DUK_ASSERT(h != NULL);
 
 		/* A bit tricky overflow test, see doc/code-issues.rst. */
@@ -45,7 +46,7 @@ DUK_LOCAL void duk__concat_and_join_helper(duk_hthread *thr, duk_idx_t count_in,
 
 	for (i = count; i >= 1; i--) {
 		duk_size_t new_len;
-		h = duk_to_hstring(thr, -((duk_idx_t) i));
+		h = duk_to_hstring(ctx, -((duk_idx_t) i));
 		new_len = len + (duk_size_t) DUK_HSTRING_GET_BYTELEN(h);
 
 		/* Impose a string maximum length, need to handle overflow
@@ -64,7 +65,7 @@ DUK_LOCAL void duk__concat_and_join_helper(duk_hthread *thr, duk_idx_t count_in,
 	/* Use stack allocated buffer to ensure reachability in errors
 	 * (e.g. intern error).
 	 */
-	buf = (duk_uint8_t *) duk_push_fixed_buffer_nozero(thr, len);
+	buf = (duk_uint8_t *) duk_push_fixed_buffer_nozero(ctx, len);
 	DUK_ASSERT(buf != NULL);
 
 	/* [ ... (sep) str1 str2 ... strN buf ] */
@@ -72,12 +73,12 @@ DUK_LOCAL void duk__concat_and_join_helper(duk_hthread *thr, duk_idx_t count_in,
 	idx = 0;
 	for (i = count; i >= 1; i--) {
 		if (is_join && i != count) {
-			h = duk_require_hstring(thr, -((duk_idx_t) count) - 2);  /* extra -1 for buffer */
-			duk_memcpy(buf + idx, DUK_HSTRING_GET_DATA(h), DUK_HSTRING_GET_BYTELEN(h));
+			h = duk_require_hstring(ctx, -((duk_idx_t) count) - 2);  /* extra -1 for buffer */
+			DUK_MEMCPY(buf + idx, DUK_HSTRING_GET_DATA(h), DUK_HSTRING_GET_BYTELEN(h));
 			idx += DUK_HSTRING_GET_BYTELEN(h);
 		}
-		h = duk_require_hstring(thr, -((duk_idx_t) i) - 1);  /* extra -1 for buffer */
-		duk_memcpy(buf + idx, DUK_HSTRING_GET_DATA(h), DUK_HSTRING_GET_BYTELEN(h));
+		h = duk_require_hstring(ctx, -((duk_idx_t) i) - 1);  /* extra -1 for buffer */
+		DUK_MEMCPY(buf + idx, DUK_HSTRING_GET_DATA(h), DUK_HSTRING_GET_BYTELEN(h));
 		idx += DUK_HSTRING_GET_BYTELEN(h);
 	}
 
@@ -88,94 +89,49 @@ DUK_LOCAL void duk__concat_and_join_helper(duk_hthread *thr, duk_idx_t count_in,
 	/* Get rid of the strings early to minimize memory use before intern. */
 
 	if (is_join) {
-		duk_replace(thr, -((duk_idx_t) count) - 2);  /* overwrite sep */
-		duk_pop_n(thr, (duk_idx_t) count);
+		duk_replace(ctx, -((duk_idx_t) count) - 2);  /* overwrite sep */
+		duk_pop_n(ctx, count);
 	} else {
-		duk_replace(thr, -((duk_idx_t) count) - 1);  /* overwrite str1 */
-		duk_pop_n(thr, (duk_idx_t) (count - 1));
+		duk_replace(ctx, -((duk_idx_t) count) - 1);  /* overwrite str1 */
+		duk_pop_n(ctx, count-1);
 	}
 
 	/* [ ... buf ] */
 
-	(void) duk_buffer_to_string(thr, -1);  /* Safe if inputs are safe. */
+	(void) duk_buffer_to_string(ctx, -1);  /* Safe if inputs are safe. */
 
 	/* [ ... res ] */
 	return;
 
  error_overflow:
 	DUK_ERROR_RANGE(thr, DUK_STR_RESULT_TOO_LONG);
-	DUK_WO_NORETURN(return;);
 }
 
-DUK_EXTERNAL void duk_concat(duk_hthread *thr, duk_idx_t count) {
-	DUK_ASSERT_API_ENTRY(thr);
+DUK_EXTERNAL void duk_concat(duk_context *ctx, duk_idx_t count) {
+	DUK_ASSERT_CTX_VALID(ctx);
 
-	duk__concat_and_join_helper(thr, count, 0 /*is_join*/);
+	duk__concat_and_join_helper(ctx, count, 0 /*is_join*/);
 }
 
-#if defined(DUK_USE_PREFER_SIZE)
-DUK_INTERNAL void duk_concat_2(duk_hthread *thr) {
-	DUK_ASSERT_API_ENTRY(thr);
-	duk_concat(thr, 2);
-}
-#else  /* DUK_USE_PREFER_SIZE */
-DUK_INTERNAL void duk_concat_2(duk_hthread *thr) {
-	duk_hstring *h1;
-	duk_hstring *h2;
-	duk_uint8_t *buf;
-	duk_size_t len1;
-	duk_size_t len2;
-	duk_size_t len;
+DUK_EXTERNAL void duk_join(duk_context *ctx, duk_idx_t count) {
+	DUK_ASSERT_CTX_VALID(ctx);
 
-	DUK_ASSERT_API_ENTRY(thr);
-	DUK_ASSERT(duk_get_top(thr) >= 2);  /* Trusted caller. */
-
-	h1 = duk_to_hstring(thr, -2);
-	h2 = duk_to_hstring(thr, -1);
-	len1 = (duk_size_t) DUK_HSTRING_GET_BYTELEN(h1);
-	len2 = (duk_size_t) DUK_HSTRING_GET_BYTELEN(h2);
-	len = len1 + len2;
-	if (DUK_UNLIKELY(len < len1 ||  /* wrapped */
-	                 len > (duk_size_t) DUK_HSTRING_MAX_BYTELEN)) {
-		goto error_overflow;
-	}
-	buf = (duk_uint8_t *) duk_push_fixed_buffer_nozero(thr, len);
-	DUK_ASSERT(buf != NULL);
-
-	duk_memcpy((void *) buf, (const void *) DUK_HSTRING_GET_DATA(h1), (size_t) len1);
-	duk_memcpy((void *) (buf + len1), (const void *) DUK_HSTRING_GET_DATA(h2), (size_t) len2);
-	(void) duk_buffer_to_string(thr, -1);  /* Safe if inputs are safe. */
-
-	/* [ ... str1 str2 buf ] */
-
-	duk_replace(thr, -3);
-	duk_pop_unsafe(thr);
-	return;
-
- error_overflow:
-	DUK_ERROR_RANGE(thr, DUK_STR_RESULT_TOO_LONG);
-	DUK_WO_NORETURN(return;);
-}
-#endif  /* DUK_USE_PREFER_SIZE */
-
-DUK_EXTERNAL void duk_join(duk_hthread *thr, duk_idx_t count) {
-	DUK_ASSERT_API_ENTRY(thr);
-
-	duk__concat_and_join_helper(thr, count, 1 /*is_join*/);
+	duk__concat_and_join_helper(ctx, count, 1 /*is_join*/);
 }
 
 /* XXX: could map/decode be unified with duk_unicode_support.c code?
  * Case conversion needs also the character surroundings though.
  */
 
-DUK_EXTERNAL void duk_decode_string(duk_hthread *thr, duk_idx_t idx, duk_decode_char_function callback, void *udata) {
+DUK_EXTERNAL void duk_decode_string(duk_context *ctx, duk_idx_t idx, duk_decode_char_function callback, void *udata) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h_input;
 	const duk_uint8_t *p, *p_start, *p_end;
 	duk_codepoint_t cp;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
 
-	h_input = duk_require_hstring(thr, idx);  /* Accept symbols. */
+	h_input = duk_require_hstring(ctx, idx);  /* Accept symbols. */
 	DUK_ASSERT(h_input != NULL);
 
 	p_start = (const duk_uint8_t *) DUK_HSTRING_GET_DATA(h_input);
@@ -191,18 +147,19 @@ DUK_EXTERNAL void duk_decode_string(duk_hthread *thr, duk_idx_t idx, duk_decode_
 	}
 }
 
-DUK_EXTERNAL void duk_map_string(duk_hthread *thr, duk_idx_t idx, duk_map_char_function callback, void *udata) {
+DUK_EXTERNAL void duk_map_string(duk_context *ctx, duk_idx_t idx, duk_map_char_function callback, void *udata) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h_input;
 	duk_bufwriter_ctx bw_alloc;
 	duk_bufwriter_ctx *bw;
 	const duk_uint8_t *p, *p_start, *p_end;
 	duk_codepoint_t cp;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
 
-	idx = duk_normalize_index(thr, idx);
+	idx = duk_normalize_index(ctx, idx);
 
-	h_input = duk_require_hstring(thr, idx);  /* Accept symbols. */
+	h_input = duk_require_hstring(ctx, idx);  /* Accept symbols. */
 	DUK_ASSERT(h_input != NULL);
 
 	bw = &bw_alloc;
@@ -227,21 +184,22 @@ DUK_EXTERNAL void duk_map_string(duk_hthread *thr, duk_idx_t idx, duk_map_char_f
 	}
 
 	DUK_BW_COMPACT(thr, bw);
-	(void) duk_buffer_to_string(thr, -1);  /* Safe, extended UTF-8 encoded. */
-	duk_replace(thr, idx);
+	(void) duk_buffer_to_string(ctx, -1);  /* Safe, extended UTF-8 encoded. */
+	duk_replace(ctx, idx);
 }
 
-DUK_EXTERNAL void duk_substring(duk_hthread *thr, duk_idx_t idx, duk_size_t start_offset, duk_size_t end_offset) {
+DUK_EXTERNAL void duk_substring(duk_context *ctx, duk_idx_t idx, duk_size_t start_offset, duk_size_t end_offset) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h;
 	duk_hstring *res;
 	duk_size_t start_byte_offset;
 	duk_size_t end_byte_offset;
 	duk_size_t charlen;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
 
-	idx = duk_require_normalize_index(thr, idx);  /* Accept symbols. */
-	h = duk_require_hstring(thr, idx);
+	idx = duk_require_normalize_index(ctx, idx);  /* Accept symbols. */
+	h = duk_require_hstring(ctx, idx);
 	DUK_ASSERT(h != NULL);
 
 	charlen = DUK_HSTRING_GET_CHARLEN(h);
@@ -272,23 +230,24 @@ DUK_EXTERNAL void duk_substring(duk_hthread *thr, duk_idx_t idx, duk_size_t star
 	                                       DUK_HSTRING_GET_DATA(h) + start_byte_offset,
 	                                       (duk_uint32_t) (end_byte_offset - start_byte_offset));
 
-	duk_push_hstring(thr, res);
-	duk_replace(thr, idx);
+	duk_push_hstring(ctx, res);
+	duk_replace(ctx, idx);
 }
 
 /* XXX: this is quite clunky.  Add Unicode helpers to scan backwards and
  * forwards with a callback to process codepoints?
  */
-DUK_EXTERNAL void duk_trim(duk_hthread *thr, duk_idx_t idx) {
+DUK_EXTERNAL void duk_trim(duk_context *ctx, duk_idx_t idx) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h;
 	const duk_uint8_t *p, *p_start, *p_end, *p_tmp1, *p_tmp2;  /* pointers for scanning */
 	const duk_uint8_t *q_start, *q_end;  /* start (incl) and end (excl) of trimmed part */
 	duk_codepoint_t cp;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
 
-	idx = duk_require_normalize_index(thr, idx);  /* Accept symbols. */
-	h = duk_require_hstring(thr, idx);
+	idx = duk_require_normalize_index(ctx, idx);  /* Accept symbols. */
+	h = duk_require_hstring(ctx, idx);
 	DUK_ASSERT(h != NULL);
 
 	p_start = DUK_HSTRING_GET_DATA(h);
@@ -350,21 +309,22 @@ DUK_EXTERNAL void duk_trim(duk_hthread *thr, duk_idx_t idx) {
 		return;
 	}
 
-	duk_push_lstring(thr, (const char *) q_start, (duk_size_t) (q_end - q_start));
-	duk_replace(thr, idx);
+	duk_push_lstring(ctx, (const char *) q_start, (duk_size_t) (q_end - q_start));
+	duk_replace(ctx, idx);
 }
 
-DUK_EXTERNAL duk_codepoint_t duk_char_code_at(duk_hthread *thr, duk_idx_t idx, duk_size_t char_offset) {
+DUK_EXTERNAL duk_codepoint_t duk_char_code_at(duk_context *ctx, duk_idx_t idx, duk_size_t char_offset) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hstring *h;
 	duk_ucodepoint_t cp;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
 
 	/* XXX: Share code with String.prototype.charCodeAt?  Main difference
 	 * is handling of clamped offsets.
 	 */
 
-	h = duk_require_hstring(thr, idx);  /* Accept symbols. */
+	h = duk_require_hstring(ctx, idx);  /* Accept symbols. */
 	DUK_ASSERT(h != NULL);
 
 	DUK_ASSERT_DISABLE(char_offset >= 0);  /* Always true, arg is unsigned. */

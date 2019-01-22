@@ -11,19 +11,21 @@
  */
 
 #if defined(DUK_USE_FINALIZER_TORTURE)
-DUK_LOCAL duk_ret_t duk__fake_global_finalizer(duk_hthread *thr) {
+DUK_LOCAL duk_ret_t duk__fake_global_finalizer(duk_context *ctx) {
 	DUK_DD(DUK_DDPRINT("fake global torture finalizer executed"));
 
 	/* Require a lot of stack to force a value stack grow/shrink. */
-	duk_require_stack(thr, 100000);
+	duk_require_stack(ctx, 100000);
 
-	/* Force a reallocation with pointer change for value stack
-	 * to maximize side effects.
+	/* Force a reallocation with pointer change for value, call, and
+	 * catch stacks to maximize side effects.
 	 */
-	duk_hthread_valstack_torture_realloc(thr);
+	duk_hthread_valstack_torture_realloc((duk_hthread *) ctx);
+	duk_hthread_callstack_torture_realloc((duk_hthread *) ctx);
+	duk_hthread_catchstack_torture_realloc((duk_hthread *) ctx);
 
 	/* Inner function call, error throw. */
-	duk_eval_string_noresult(thr,
+	duk_eval_string_noresult(ctx,
 		"(function dummy() {\n"
 		"    dummy.prototype = null;  /* break reference loop */\n"
 		"    try {\n"
@@ -48,20 +50,19 @@ DUK_LOCAL duk_ret_t duk__fake_global_finalizer(duk_hthread *thr) {
 DUK_LOCAL void duk__run_global_torture_finalizer(duk_hthread *thr) {
 	DUK_ASSERT(thr != NULL);
 
-	/* Avoid fake finalization when callstack limit is near.  Otherwise
-	 * a callstack limit error will be created, then refzero'ed.  The
-	 * +5 headroom is conservative.
+	/* Avoid fake finalization when callstack limit has been reached.
+	 * Otherwise a callstack limit error will be created, then refzero'ed.
 	 */
-	if (thr->heap->call_recursion_depth + 5 >= thr->heap->call_recursion_limit ||
-	    thr->callstack_top + 5 >= DUK_USE_CALLSTACK_LIMIT) {
-		DUK_D(DUK_DPRINT("skip global torture finalizer, too little headroom for call recursion or call stack size"));
+	if (thr->heap->call_recursion_depth >= thr->heap->call_recursion_limit ||
+	    thr->callstack_size + 2 * DUK_CALLSTACK_GROW_STEP >= thr->callstack_max /*approximate*/) {
+		DUK_D(DUK_DPRINT("skip global torture finalizer because of call recursion or call stack size limit"));
 		return;
 	}
 
 	/* Run fake finalizer.  Avoid creating unnecessary garbage. */
-	duk_push_c_function(thr, duk__fake_global_finalizer, 0 /*nargs*/);
-	(void) duk_pcall(thr, 0 /*nargs*/);
-	duk_pop(thr);
+	duk_push_c_function((duk_context *) thr, duk__fake_global_finalizer, 0 /*nargs*/);
+	(void) duk_pcall((duk_context *) thr, 0 /*nargs*/);
+	duk_pop((duk_context *) thr);
 }
 #endif  /* DUK_USE_FINALIZER_TORTURE */
 
@@ -143,6 +144,8 @@ DUK_INTERNAL void duk_heap_process_finalize_list(duk_heap *heap) {
 	DUK_ASSERT(heap != NULL);
 	DUK_ASSERT(heap->heap_thread != NULL);
 	DUK_ASSERT(heap->heap_thread->valstack != NULL);
+	DUK_ASSERT(heap->heap_thread->callstack != NULL);
+	DUK_ASSERT(heap->heap_thread->catchstack != NULL);
 #if defined(DUK_USE_REFERENCE_COUNTING)
 	DUK_ASSERT(heap->refzero_list == NULL);
 #endif
@@ -337,8 +340,11 @@ DUK_INTERNAL void duk_heap_process_finalize_list(duk_heap *heap) {
  *      left on the finalizer stack).
  */
 
-DUK_LOCAL duk_ret_t duk__finalize_helper(duk_hthread *thr, void *udata) {
-	DUK_ASSERT(thr != NULL);
+DUK_LOCAL duk_ret_t duk__finalize_helper(duk_context *ctx, void *udata) {
+	duk_hthread *thr;
+
+	DUK_ASSERT(ctx != NULL);
+	thr = (duk_hthread *) ctx;
 	DUK_UNREF(udata);
 
 	DUK_DDD(DUK_DDDPRINT("protected finalization helper running"));
@@ -355,11 +361,11 @@ DUK_LOCAL duk_ret_t duk__finalize_helper(duk_hthread *thr, void *udata) {
 	 * caller must ensure that this function is not called if the target is
 	 * a Proxy.
 	 */
-	duk_get_prop_stridx_short(thr, -1, DUK_STRIDX_INT_FINALIZER);  /* -> [... obj finalizer] */
-	duk_dup_m2(thr);
-	duk_push_boolean(thr, DUK_HEAP_HAS_FINALIZER_NORESCUE(thr->heap));
+	duk_get_prop_stridx_short(ctx, -1, DUK_STRIDX_INT_FINALIZER);  /* -> [... obj finalizer] */
+	duk_dup_m2(ctx);
+	duk_push_boolean(ctx, DUK_HEAP_HAS_FINALIZER_NORESCUE(thr->heap));
 	DUK_DDD(DUK_DDDPRINT("calling finalizer"));
-	duk_call(thr, 2);  /* [ ... obj finalizer obj heapDestruct ]  -> [ ... obj retval ] */
+	duk_call(ctx, 2);  /* [ ... obj finalizer obj heapDestruct ]  -> [ ... obj retval ] */
 	DUK_DDD(DUK_DDDPRINT("finalizer returned successfully"));
 	return 0;
 
@@ -370,7 +376,7 @@ DUK_LOCAL duk_ret_t duk__finalize_helper(duk_hthread *thr, void *udata) {
 }
 
 DUK_INTERNAL void duk_heap_run_finalizer(duk_heap *heap, duk_hobject *obj) {
-	duk_hthread *thr;
+	duk_context *ctx;
 	duk_ret_t rc;
 #if defined(DUK_USE_ASSERTIONS)
 	duk_idx_t entry_top;
@@ -380,12 +386,12 @@ DUK_INTERNAL void duk_heap_run_finalizer(duk_heap *heap, duk_hobject *obj) {
 
 	DUK_ASSERT(heap != NULL);
 	DUK_ASSERT(heap->heap_thread != NULL);
-	thr = heap->heap_thread;
+	ctx = (duk_context *) heap->heap_thread;
 	DUK_ASSERT(obj != NULL);
 	DUK_ASSERT_VALSTACK_SPACE(heap->heap_thread, 1);
 
 #if defined(DUK_USE_ASSERTIONS)
-	entry_top = duk_get_top(thr);
+	entry_top = duk_get_top(ctx);
 #endif
 	/*
 	 *  Get and call the finalizer.  All of this must be wrapped
@@ -410,32 +416,30 @@ DUK_INTERNAL void duk_heap_run_finalizer(duk_heap *heap, duk_hobject *obj) {
 #endif
 	DUK_HEAPHDR_SET_FINALIZED((duk_heaphdr *) obj);  /* ensure never re-entered until rescue cycle complete */
 
-#if defined(DUK_USE_ES6_PROXY)
-	if (DUK_HOBJECT_IS_PROXY(obj)) {
+	if (DUK_HOBJECT_HAS_EXOTIC_PROXYOBJ(obj)) {
 		/* This may happen if duk_set_finalizer() or Duktape.fin() is
 		 * called for a Proxy object.  In such cases the fast finalizer
 		 * flag will be set on the Proxy, not the target, and neither
 		 * will be finalized.
 		 */
-		DUK_D(DUK_DPRINT("object is a Proxy, skip finalizer call"));
+		DUK_D(DUK_DPRINT("object is a proxy, skip finalizer call"));
 		return;
 	}
-#endif  /* DUK_USE_ES6_PROXY */
 
-	duk_push_hobject(thr, obj);  /* this also increases refcount by one */
-	rc = duk_safe_call(thr, duk__finalize_helper, NULL /*udata*/, 0 /*nargs*/, 1 /*nrets*/);  /* -> [... obj retval/error] */
-	DUK_ASSERT_TOP(thr, entry_top + 2);  /* duk_safe_call discipline */
+	duk_push_hobject(ctx, obj);  /* this also increases refcount by one */
+	rc = duk_safe_call(ctx, duk__finalize_helper, NULL /*udata*/, 0 /*nargs*/, 1 /*nrets*/);  /* -> [... obj retval/error] */
+	DUK_ASSERT_TOP(ctx, entry_top + 2);  /* duk_safe_call discipline */
 
 	if (rc != DUK_EXEC_SUCCESS) {
 		/* Note: we ask for one return value from duk_safe_call to get this
 		 * error debugging here.
 		 */
 		DUK_D(DUK_DPRINT("wrapped finalizer call failed for object %p (ignored); error: %!T",
-		                 (void *) obj, (duk_tval *) duk_get_tval(thr, -1)));
+		                 (void *) obj, (duk_tval *) duk_get_tval(ctx, -1)));
 	}
-	duk_pop_2(thr);  /* -> [...] */
+	duk_pop_2(ctx);  /* -> [...] */
 
-	DUK_ASSERT_TOP(thr, entry_top);
+	DUK_ASSERT_TOP(ctx, entry_top);
 }
 
 #else  /* DUK_USE_FINALIZER_SUPPORT */

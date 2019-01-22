@@ -35,6 +35,11 @@ namespace kk {
             kk::Weak<App> _app;
         };
         
+        typedef void (*ViewElementSetFunction)(ViewContext * context,View * view,CString key, CString value);
+        
+        void ViewElementSetStringValue(ViewContext * context,View * view,CString key, CString value);
+        void ViewElementSetPixelValue(ViewContext * context,View * view,CString key, CString value);
+        
         class ViewElement : public kk::LayoutElement {
         public:
             ViewElement(Document * document,CString name, ElementKey elementId);
@@ -44,12 +49,15 @@ namespace kk {
             virtual void recycleView();
             virtual View * view();
             virtual void changedKey(CString key);
-    
+            
             Ker_CLASS(ViewElement,LayoutElement,"UIViewElement")
             
             static void Openlib();
             static void library(kk::CString name);
         protected:
+            virtual ViewElement * parentViewElement();
+            virtual void setViewKey(ViewContext * context,View * view,CString key, CString value);
+            virtual kk::Boolean canRecycleView();
             virtual void onEvent(ViewContext * context,CString name,Event * event);
             virtual void onObtainView(ViewContext * context,View * view);
             virtual void onRecycleView(View * view);
@@ -59,6 +67,7 @@ namespace kk {
             virtual kk::Boolean isVisible();
             Point _contentOffset;
             kk::Strong<View> _view;
+            std::set<kk::String> _changedKeys;
         };
         
     }

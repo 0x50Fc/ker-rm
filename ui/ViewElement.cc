@@ -7,6 +7,7 @@
 //
 
 #include "ViewElement.h"
+#include <document/BlockElement.h>
 
 namespace kk {
  
@@ -86,81 +87,153 @@ namespace kk {
             return _view;
         }
         
-        void ViewElement::obtainChildrenView(ViewContext * context) {
+        kk::Boolean ViewElement::canRecycleView() {
+            return _view != nullptr && get("reuse") != nullptr;
+        }
+        
+        static void ViewElementObtainChildrenViewForEach(Element * p,std::function<void(ViewElement *)> && item) {
             
-            if(_view == nullptr) {
-                return;
-            }
+            p = p->firstChild();
             
-            Element * p = firstChild();
             while(p) {
-                ViewElement * e = dynamic_cast<ViewElement *>(p);
-                if(e) {
-                    if(isVisibleChildren(e)) {
-                        e->obtainView(context);
-                    } else {
-                        e->recycleView();
+                {
+                    kk::BlockElement * e = dynamic_cast<kk::BlockElement *>(p);
+                    if(e) {
+                        ViewElementObtainChildrenViewForEach(e,std::move(item));
+                        p = p->nextSibling();
+                        continue;
+                    }
+                }
+                {
+                    ViewElement * e = dynamic_cast<ViewElement *>(p);
+                    if(e) {
+                        item(e);
+                        p = p->nextSibling();
+                        continue;
                     }
                 }
                 p = p->nextSibling();
             }
             
+        }
+        
+        void ViewElement::obtainChildrenView(ViewContext * context) {
+            
+            if(_view == nullptr) {
+                return;
+            }
+           
+            ViewElementObtainChildrenViewForEach(this,[&](ViewElement * e)->void{
+                
+                if(isVisibleChildren(e)) {
+                    e->obtainView(context);
+                } else if(canRecycleView()){
+                    e->recycleView();
+                }
+                
+            });
+           
             _view->removeRecycleViews();
             
         }
         
-        void ViewElement::obtainView(ViewContext * context) {
+        ViewElement * ViewElement::parentViewElement() {
             
-            if(_view != nullptr) {
-                return;
-            }
+            Element * p = parent();
             
-            View * v = nullptr;
-            
-            ViewElement * p = dynamic_cast<ViewElement *>(parent());
-            
-            if(p == nullptr) {
-                _view = context->view();
-            } else {
+            while(p) {
                 
-                v = p->view();
-                
-                if(v == nullptr) {
-                    return;
+                {
+                    ViewElement * e = dynamic_cast<ViewElement *>(p);
+                    
+                    if(e != nullptr) {
+                        return e;
+                    }
                 }
                 
-                _view = v->obtainView(get("reuse"));
+                {
+                    BlockElement * e = dynamic_cast<BlockElement *>(p);
+                    
+                    if(e != nullptr) {
+                        p = p->parent();
+                        continue;
+                    }
                 
-                if(_view == nullptr) {
-                    Strong<View> vv = createView(context);
-                    _view = (View *) vv;
+                }
+                
+                break;
+            }
+            
+            return nullptr;
+        }
+        
+        void ViewElement::obtainView(ViewContext * context) {
+            
+            if(_view == nullptr) {
+                
+                View * v = nullptr;
+                
+                ViewElement * p = parentViewElement();
+                
+                if(p == nullptr) {
+                    _view = context->view();
+                } else {
+                    
+                    v = p->view();
+                    
+                    if(v == nullptr) {
+                        return;
+                    }
+                    
+                    _view = v->obtainView(get("reuse"));
+                    
+                    if(_view == nullptr) {
+                        Strong<View> vv = createView(context);
+                        _view = (View *) vv;
+                    }
+                    
+                }
+                
+                if(_view != nullptr){
+                    
+                    View * p = _view->parent();
+                    
+                    if(v != nullptr && (p == nullptr || p != v)) {
+                        
+                        if(p != nullptr) {
+                            _view->removeView();
+                        }
+                        
+                        if(kk::CStringEqual(get("target"), "back")) {
+                            v->addSubview(_view, SubviewPositionBack);
+                        } else {
+                            v->addSubview(_view, SubviewPositionFront);
+                        }
+                        
+                    }
+                    
+                    onObtainView(context,_view);
+                
                 }
                 
             }
 
-            if(_view != nullptr){
-                
-                View * p = _view->parent();
-                
-                if(v != nullptr && (p == nullptr || p != v)) {
-                    
-                    if(p != nullptr) {
-                        _view->removeView();
-                    }
-   
-                    if(kk::CStringEqual(get("target"), "back")) {
-                        v->addSubview(_view, SubviewPositionBack);
-                    } else {
-                        v->addSubview(_view, SubviewPositionFront);
-                    }
-                    
+            if(_view != nullptr) {
+                auto i = _changedKeys.begin();
+                auto e = _changedKeys.end();
+                while(i != e) {
+                    auto & key = * i;
+                    kk::CString v = get(key.c_str());
+                    setViewKey(context, _view, key.c_str(), v);
+                    i ++;
                 }
-                
-                onObtainView(context,_view);
-                
-                obtainChildrenView(context);
-                
+                _changedKeys.clear();
             }
+            
+            if(_view != nullptr){
+                obtainChildrenView(context);
+            }
+            
         }
         
         void ViewElement::recycleView() {
@@ -208,7 +281,7 @@ namespace kk {
             b = MIN(bottom,b);
             
             return r - l > 0.0f && b - t > 0.0f;
-            
+
         }
 
         kk::Boolean ViewElement::isVisible() {
@@ -216,14 +289,26 @@ namespace kk {
         }
         
         void ViewElement::onEvent(ViewContext * context,CString name,Event * event) {
+            
             if(kk::CStringEqual(name, "scroll")) {
                 if(_view != nullptr) {
                     Point p = _view->contentOffset();
                     setContentOffset(context, p.y, p.y);
                 }
+            } else if(kk::CStringEqual(name, "hover")) {
+                addStatus("hover");
+                changedStatus();
+                obtainView(context);
+            } else if(kk::CStringEqual(name, "out")) {
+                removeStatus("hover");
+                changedStatus();
+                obtainView(context);
             }
+            
             emit(name, event);
+
         }
+        
         void ViewElement::onObtainView(ViewContext * context,View * view) {
             
             kk::Weak<ViewContext> v = context;
@@ -235,20 +320,45 @@ namespace kk {
                 if(context && element) {
                     kk::Strong<kk::ElementEvent> e = new kk::ElementEvent(element);
                     e->setData(event->data());
+                    e->setDataSet(element->dataSet());
                     element->onEvent(context,name, e);
                 }
             }));
             
-            {
-                auto & m = attributes();
-                auto i = m.begin();
-                auto e = m.end();
-                while(i != e) {
-                    view->set(i->first.c_str(), i->second.c_str());
-                    i ++;
-                }
+        }
+        
+        void ViewElementSetStringValue(ViewContext * context,View * view,CString key, CString value) {
+            view->set(key, value);
+        }
+        
+        void ViewElementSetPixelValue(ViewContext * context,View * view,CString key, CString value) {
+            if(value == nullptr) {
+                view->set(key, value);
+            } else {
+                Pixel p(value);
+                Float value = context->value(p, 0, 0);
+                char fmt[255];
+                snprintf(fmt, sizeof(fmt), "%gpx",value);
+                view->set(key, fmt);
             }
-            
+        }
+        
+        void ViewElement::setViewKey(ViewContext * context,View * view,CString key, CString value) {
+            if(kk::CStringEqual(key, "scrollToTop") && value && !kk::CStringEqual(value, "false")) {
+                view->scrollToTop(true);
+            } else if(kk::CStringEqual(key, "scrollToBottom") && value && !kk::CStringEqual(value, "false")) {
+                view->scrollToBottom(true);
+            } else if(kk::CStringEqual(key, "scrollToLeft") && value && !kk::CStringEqual(value, "false")) {
+                view->scrollToLeft(true);
+            } else if(kk::CStringEqual(key, "scrollToRight") && value && !kk::CStringEqual(value, "false")) {
+                view->scrollToRight(true);
+            } else if(kk::CStringEqual(key, "border-radius")) {
+                ViewElementSetPixelValue(context, view, key, value);
+            } else if(kk::CStringEqual(key, "border-width")) {
+                ViewElementSetPixelValue(context, view, key, value);
+            } else {
+                ViewElementSetStringValue(context, view, key, value);
+            }
         }
         
         void ViewElement::onRecycleView(View * view) {
@@ -257,9 +367,7 @@ namespace kk {
         
         void ViewElement::changedKey(CString key) {
             LayoutElement::changedKey(key);
-            if(_view != nullptr) {
-                _view->set(key, get(key));
-            }
+             _changedKeys.insert(key);
         }
         
         void ViewElement::Openlib() {

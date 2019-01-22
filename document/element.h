@@ -19,12 +19,15 @@ namespace kk {
         virtual Element * element();
         virtual kk::Boolean cancelBubble();
         virtual void setCancelBubble(kk::Boolean v);
+        virtual Object * dataSet();
+        virtual void setDataSet(Object * object);
         
         static void Openlib();
         
         Ker_CLASS(ElementEvent,Event,"ElementEvent")
         
     protected:
+        kk::Strong<Object> _dataSet;
         kk::Strong<Element> _element;
         kk::Boolean _cancelBubble;
     };
@@ -67,6 +70,8 @@ namespace kk {
         virtual void setObject(CString key,kk::Object * object);
         
         virtual String toString();
+        
+        virtual kk::Strong<Object> dataSet();
         
         Ker_CLASS(Element,EventEmitter,"Element")
         

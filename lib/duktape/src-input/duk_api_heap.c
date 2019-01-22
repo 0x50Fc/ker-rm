@@ -13,13 +13,14 @@ struct duk_internal_thread_state {
 	duk_int_t call_recursion_depth;
 };
 
-DUK_EXTERNAL duk_hthread *duk_create_heap(duk_alloc_function alloc_func,
-                                          duk_realloc_function realloc_func,
-                                          duk_free_function free_func,
-                                          void *heap_udata,
-                                          duk_fatal_function fatal_handler) {
+DUK_EXTERNAL
+duk_context *duk_create_heap(duk_alloc_function alloc_func,
+                             duk_realloc_function realloc_func,
+                             duk_free_function free_func,
+                             void *heap_udata,
+                             duk_fatal_function fatal_handler) {
 	duk_heap *heap = NULL;
-	duk_hthread *thr;
+	duk_context *ctx;
 
 	/* Assume that either all memory funcs are NULL or non-NULL, mixed
 	 * cases will now be unsafe.
@@ -58,31 +59,33 @@ DUK_EXTERNAL duk_hthread *duk_create_heap(duk_alloc_function alloc_func,
 	if (!heap) {
 		return NULL;
 	}
-	thr = heap->heap_thread;
-	DUK_ASSERT(thr != NULL);
-	DUK_ASSERT(thr->heap != NULL);
-	return thr;
+	ctx = (duk_context *) heap->heap_thread;
+	DUK_ASSERT(ctx != NULL);
+	DUK_ASSERT(((duk_hthread *) ctx)->heap != NULL);
+	return ctx;
 }
 
-DUK_EXTERNAL void duk_destroy_heap(duk_hthread *thr) {
+DUK_EXTERNAL void duk_destroy_heap(duk_context *ctx) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_heap *heap;
 
-	if (!thr) {
+	if (!ctx) {
 		return;
 	}
-	DUK_ASSERT_API_ENTRY(thr);
 	heap = thr->heap;
 	DUK_ASSERT(heap != NULL);
 
 	duk_heap_free(heap);
 }
 
-DUK_EXTERNAL void duk_suspend(duk_hthread *thr, duk_thread_state *state) {
+DUK_EXTERNAL void duk_suspend(duk_context *ctx, duk_thread_state *state) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_internal_thread_state *snapshot = (duk_internal_thread_state *) (void *) state;
 	duk_heap *heap;
 	duk_ljstate *lj;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
+	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(thr->heap != NULL);
 	DUK_ASSERT(state != NULL);  /* unvalidated */
 
@@ -101,11 +104,11 @@ DUK_EXTERNAL void duk_suspend(duk_hthread *thr, duk_thread_state *state) {
 	heap = thr->heap;
 	lj = &heap->lj;
 
-	duk_push_tval(thr, &lj->value1);
-	duk_push_tval(thr, &lj->value2);
+	duk_push_tval(ctx, &lj->value1);
+	duk_push_tval(ctx, &lj->value2);
 
 	/* XXX: creating_error == 0 is asserted above, so no need to store. */
-	duk_memcpy((void *) &snapshot->lj, (const void *) lj, sizeof(duk_ljstate));
+	DUK_MEMCPY((void *) &snapshot->lj, (const void *) lj, sizeof(duk_ljstate));
 	snapshot->creating_error = heap->creating_error;
 	snapshot->curr_thread = heap->curr_thread;
 	snapshot->call_recursion_depth = heap->call_recursion_depth;
@@ -119,11 +122,13 @@ DUK_EXTERNAL void duk_suspend(duk_hthread *thr, duk_thread_state *state) {
 	heap->call_recursion_depth = 0;
 }
 
-DUK_EXTERNAL void duk_resume(duk_hthread *thr, const duk_thread_state *state) {
+DUK_EXTERNAL void duk_resume(duk_context *ctx, const duk_thread_state *state) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	const duk_internal_thread_state *snapshot = (const duk_internal_thread_state *) (const void *) state;
 	duk_heap *heap;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
+	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(thr->heap != NULL);
 	DUK_ASSERT(state != NULL);  /* unvalidated */
 
@@ -135,26 +140,25 @@ DUK_EXTERNAL void duk_resume(duk_hthread *thr, const duk_thread_state *state) {
 
 	heap = thr->heap;
 
-	duk_memcpy((void *) &heap->lj, (const void *) &snapshot->lj, sizeof(duk_ljstate));
+	DUK_MEMCPY((void *) &heap->lj, (const void *) &snapshot->lj, sizeof(duk_ljstate));
 	heap->creating_error = snapshot->creating_error;
 	heap->curr_thread = snapshot->curr_thread;
 	heap->call_recursion_depth = snapshot->call_recursion_depth;
 
-	duk_pop_2(thr);
+	duk_pop_2(ctx);
 }
 
 /* XXX: better place for this */
-DUK_EXTERNAL void duk_set_global_object(duk_hthread *thr) {
+DUK_EXTERNAL void duk_set_global_object(duk_context *ctx) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_hobject *h_glob;
 	duk_hobject *h_prev_glob;
 	duk_hobjenv *h_env;
 	duk_hobject *h_prev_env;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_D(DUK_DPRINT("replace global object with: %!T", duk_get_tval(ctx, -1)));
 
-	DUK_D(DUK_DPRINT("replace global object with: %!T", duk_get_tval(thr, -1)));
-
-	h_glob = duk_require_hobject(thr, -1);
+	h_glob = duk_require_hobject(ctx, -1);
 	DUK_ASSERT(h_glob != NULL);
 
 	/*
@@ -199,7 +203,7 @@ DUK_EXTERNAL void duk_set_global_object(duk_hthread *thr) {
 
 	/* [ ... new_glob ] */
 
-	duk_pop(thr);
+	duk_pop(ctx);
 
 	/* [ ... ] */
 }

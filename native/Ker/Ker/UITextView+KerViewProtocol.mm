@@ -99,11 +99,13 @@
         } else {
             self.keyboardType = UIKeyboardTypeDefault;
         }
-    } else if([key isEqualToString:@"disabled"]) {
-        self.editable = !(value != nil && ![value isEqualToString:@"false"]);
+    } else if([key isEqualToString:@"enabled"]) {
+        self.editable = value != nil && ![value isEqualToString:@"false"];
     } else if([key isEqualToString:@"focus"]) {
         if(value != nil && [value  isEqualToString:@"true"]) {
             [self becomeFirstResponder];
+        } else if([self isFirstResponder]) {
+            [self resignFirstResponder];
         }
     } else if([key isEqualToString:@"confirm-type"]) {
         if([value isEqualToString:@"done"]) {

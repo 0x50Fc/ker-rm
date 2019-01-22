@@ -36,8 +36,11 @@ namespace kk {
                     weight = FontWeightBold;
                 } else if(v == "italic") {
                     style = FontStyleItalic;
-                } else {
+                } else if(family.empty()){
                     family = v;
+                } else {
+                    family.append(" ");
+                    family.append(v);
                 }
                 i ++;
             }
@@ -59,6 +62,25 @@ namespace kk {
             return v;
         }
         
+        String TextFont::toString(ViewContext * context) {
+            String v;
+            char fmt[255];
+            Float value = context->value(size,0,0);
+            snprintf(fmt, sizeof(fmt), "%gpx",value);
+            v.append(fmt);
+            if(! family.empty()) {
+                v.append(" ");
+                v.append(family);
+            }
+            if(weight == FontWeightBold) {
+                v.append(" bold");
+            }
+            if(style == FontStyleItalic) {
+                v.append(" italic)");
+            }
+            return v;
+        }
+        
         SpanElement::SpanElement(Document * document,CString name, ElementKey elementId):kk::StyleElement(document,name,elementId)  {
             
         }
@@ -69,6 +91,8 @@ namespace kk {
                 font.set(get(key));
             } else if(kk::CStringEqual(key, "color")) {
                 color = Color(get(key));
+            } else if(kk::CStringEqual(key, "letter-spacing")) {
+                letterSpacing.set(get(key));
             }
         }
         
@@ -143,7 +167,7 @@ namespace kk {
             return v;
         }
 
-        TextElement::TextElement(Document * document,CString name, ElementKey elementId):ViewElement(document,name,elementId) {
+        TextElement::TextElement(Document * document,CString name, ElementKey elementId):ViewElement(document,name,elementId),textAlign(TextAlignLeft) {
             
         }
         
@@ -153,11 +177,30 @@ namespace kk {
                 return;
             } else if(kk::CStringEqual(key, "font")) {
                 font.set(get(key));
+                _text = nullptr;
                 return;
             } else if(kk::CStringEqual(key, "color")) {
                 color = Color(get(key));
+                _text = nullptr;
+                return;
+            } else if(kk::CStringEqual(key, "letter-spacing")) {
+                letterSpacing.set(get(key));
+                _text = nullptr;
+                return;
+            } else if(kk::CStringEqual(key, "line-spacing")) {
+                lineSpacing.set(get(key));
+                _text = nullptr;
+                return;
+            } else if(kk::CStringEqual(key, "paragraph-spacing")) {
+                paragraphSpacing.set(get(key));
+                _text = nullptr;
+                return;
+            } else if(kk::CStringEqual(key, "text-align")){
+                textAlign = TextAlignFromString(get(key));
+                _text = nullptr;
                 return;
             }
+            
             ViewElement::changedKey(key);
         }
         
@@ -176,10 +219,22 @@ namespace kk {
                     
                     if(app != nullptr) {
                         
-                        kk::Float m = context->value(width, 0, Unit::Auto);
+                        ViewElement * p = parentViewElement();
+                        
+                        kk::Float baseOf = 0;
+                        
+                        if(p != nullptr) {
+                            kk::Size size = p->frame.size;
+                            kk::Edge padding = p->padding;
+                            Float paddingLeft = context->value(padding.left, size.width, 0);
+                            Float paddingRight = context->value(padding.right, size.width, 0);
+                            baseOf = size.width - paddingLeft - paddingRight;
+                        }
+                        
+                        kk::Float m = context->value(width, baseOf, Unit::Auto);
                         
                         if(!maxWidth.isAuto()) {
-                            m = context->value(maxWidth, 0, Unit::Auto);
+                            m = context->value(maxWidth, baseOf, Unit::Auto);
                         }
                         
                         kk::ui::Size size = getAttributedTextContentSize(app, text(v), m);
@@ -210,6 +265,15 @@ namespace kk {
             _text = nullptr;
         }
         
+        void TextElement::setViewKey(ViewContext * context,View * view,CString key, CString value) {
+            if(kk::CStringEqual(key, "font")) {
+                String v = font.toString(context);
+                view->set(key, v.c_str());
+            } else {
+                ViewElement::setViewKey(context, view, key, value);
+            }
+        }
+        
         AttributedText * TextElement::text(ViewContext * context) {
             if(_text == nullptr) {
                 _text = new AttributedText();
@@ -220,7 +284,10 @@ namespace kk {
                         v = get("value");
                     }
                     if(v != nullptr) {
-                        _text->append(v, font.font(context), color);
+                        _text->append(v, font.font(context), color,textAlign
+                                      ,context->value(lineSpacing, 0, 0)
+                                      ,context->value(letterSpacing, 0, 0)
+                                      ,context->value(paragraphSpacing, 0, 0));
                     }
                 } else{
                     
@@ -236,7 +303,11 @@ namespace kk {
                                 if(v != nullptr) {
                                     TextFont & f = p->get("font") == nullptr ? font : e->font;
                                     Color & c = p->get("color") == nullptr ? color : e->color;
-                                    _text->append(v, f.font(context), c);
+                                    Pixel & letter = p->get("letter-spacing") == nullptr ? lineSpacing : e->letterSpacing;
+                                    _text->append(v, f.font(context), c,textAlign
+                                                  ,context->value(lineSpacing, 0, 0)
+                                                  ,context->value(letter, 0, 0)
+                                                  ,context->value(paragraphSpacing, 0, 0));
                                 }
                                 
                                 p = p->nextSibling();
@@ -272,6 +343,14 @@ namespace kk {
         void TextElement::onObtainView(ViewContext * context,View * view) {
             ViewElement::onObtainView(context, view);
             view->setAttributedText(text(context));
+        }
+        
+        void TextElement::onLayout(LayoutContext * context) {
+            ViewElement::onLayout(context);
+            ViewContext * viewContext = dynamic_cast<ViewContext *>(context);
+            if(_view != nullptr && viewContext != nullptr) {
+                _view->setAttributedText(text(viewContext));
+            }
         }
         
         void TextElement::Openlib() {

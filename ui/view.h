@@ -35,6 +35,10 @@ namespace kk {
             kk::Uint width;
             kk::Uint height;
             Edge margin;
+            Float lineSpacing;
+            Float letterSpacing;
+            Float paragraphSpacing;
+            TextAlign textAlign;
         };
         
         class AttributedText: public Object {
@@ -42,7 +46,8 @@ namespace kk {
             AttributedText();
             virtual ~AttributedText();
             virtual void clear();
-            virtual void append(kk::CString text,kk::ui::Font font,kk::ui::Color color);
+            virtual void append(kk::CString text,kk::ui::Font font,kk::ui::Color color,TextAlign textAlign,Float lineSpacing,Float letterSpacing,Float paragraphSpacing);
+            virtual void append(kk::CString text,kk::CString font,kk::ui::Color color,kk::CString textAlign,Float lineSpacing,Float letterSpacing,Float paragraphSpacing);
             virtual void append(kk::ui::Image * image,kk::Uint width,kk::Uint height,kk::ui::Edge margin);
             virtual void appendImage(kk::ui::Image * image,kk::Uint width,kk::Uint height,kk::ui::Float top,kk::ui::Float left,kk::ui::Float bottom,kk::ui::Float right);
             virtual std::vector<AttributedTextSpan> & spans();
@@ -200,6 +205,10 @@ namespace kk {
             virtual void setContentSize(Float width,Float height);
             virtual void setContentOffset(Point & offset,kk::Boolean animated);
             virtual void setContentOffset(Float x,Float y,kk::Boolean animated);
+            virtual void scrollToTop(kk::Boolean animated);
+            virtual void scrollToBottom(kk::Boolean animated);
+            virtual void scrollToLeft(kk::Boolean animated);
+            virtual void scrollToRight(kk::Boolean animated);
             virtual Point contentOffset();
             virtual kk::Strong<Canvas> createCanvas(Worker * worker);
             virtual void addSubview(View * view,SubviewPosition position);
@@ -238,6 +247,7 @@ namespace kk {
             kk::Strong<Image> _image;
             kk::Strong<kk::TFunction<void, kk::CString, Event *>> _onImageLoadFunc;
             Rect _frame;
+            Size _contentSize;
         };
         
         typedef kk::Uint WebViewActionPolicy;

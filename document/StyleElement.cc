@@ -160,6 +160,50 @@ namespace kk {
         return Element::get(key);
     }
     
+    void StyleElement::keys(std::set<String>& keys) {
+        
+        {
+            auto & m = attributes();
+            auto i = m.begin();
+            auto e = m.end();
+            while(i != e) {
+                keys.insert(i->first);
+                i ++;
+            }
+        }
+        
+        {
+            std::vector<String> vs;
+            
+            vs.push_back("");
+            
+            CString value = Element::get("status");
+            
+            if(value == nullptr) {
+                value = Element::get("in-status");
+            }
+            
+            if(value != nullptr) {
+                CStringSplit(value, " ", vs);
+            }
+            
+            std::vector<String>::iterator vi = vs.begin();
+            
+            while(vi != vs.end()) {
+                std::map<String,std::map<String,String>>::iterator i = _styles.find(*vi);
+                if(i != _styles.end()) {
+                    std::map<String,String> & attrs = i->second;
+                    std::map<String,String>::iterator ikey = attrs.begin();
+                    while(ikey != attrs.end()) {
+                        keys.insert(ikey->first);
+                        ikey ++;
+                    }
+                }
+                vi ++;
+            }
+        }
+    }
+    
     CString StyleElement::get(CString key) {
         
         CString v = Element::get(key);

@@ -85,7 +85,7 @@ var ker;
                 var v = attrs[key];
                 if (key.substr(0, 2) == 'on') {
                     if (typeof v == 'string') {
-                        v_AttributeEvent(element, key, v);
+                        v_AttributeEvent(element, key.substr(2), v);
                     }
                 }
                 else if (v instanceof ker.Evaluate) {
@@ -125,11 +125,16 @@ var ker;
                             pageViewContext.push([]);
                             children(e, d);
                             pageViewContext.pop();
+                            d.set([indexKey_1], index, false);
+                            d.set([itemKey_1], item, false);
+                            d.changeKeys();
                         }
-                        d.begin();
-                        d.set([indexKey_1], index, false);
-                        d.set([itemKey_1], item, false);
-                        d.commit();
+                        else {
+                            d.begin();
+                            d.set([indexKey_1], index, false);
+                            d.set([itemKey_1], item, false);
+                            d.commit();
+                        }
                         index++;
                     };
                     if (value instanceof Array) {
@@ -170,7 +175,7 @@ var ker;
                         children(e, d);
                         pageViewContext.pop();
                     }
-                    data.changeKeys();
+                    d.changeKeys();
                     return true;
                 }
                 else if (e !== undefined) {
@@ -248,6 +253,7 @@ var ker;
         pageViewContext.pop();
         data.changeKeys();
         setLayout();
+        console.info(element.toString());
         object.document = document;
         object.data = data.object;
         object.setData = function (object) {

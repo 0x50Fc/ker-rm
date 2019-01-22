@@ -3,9 +3,8 @@
 #
 #  String data is always quoted for clarity.  Codepoints U+0000...U+00FF
 #  are identified with bytes 1:1 to allow even invalid UTF-8 strings to
-#  be represented.  Internal strings are represented as Symbols with a
-#  structured markup to avoid exposing the specific internal format (which
-#  begins with a 0x82 byte since Duktape 2.2).
+#  be represented.  Internal strings are marked with a leading \u00ff
+#  which maps to the byte 0xFF.
 #
 #  Built-in strings can be mostly scanned automatically based on what
 #  strings built-in objects need, but there are also dependencies on
@@ -443,10 +442,10 @@ strings:
   #  es6: true
   - str: "ownKeys"
     es6: true
-  - str: "apply"
-    es6: true
-  - str: "construct"
-    es6: true
+  #- str: "apply"
+  #  es6: true
+  #- str: "construct"
+  #  es6: true
   
   - str: "Reflect"
     es6: true
@@ -482,18 +481,6 @@ strings:
       type: symbol
       variant: wellknown
       string: "Symbol.toPrimitive"
-  - str:
-      type: symbol
-      variant: wellknown
-      string: "Symbol.hasInstance"
-  - str:
-      type: symbol
-      variant: wellknown
-      string: "Symbol.toStringTag"
-  - str:
-      type: symbol
-      variant: wellknown
-      string: "Symbol.isConcatSpreadable"
 
   # Misc
   - str: "setPrototypeOf"
@@ -771,17 +758,6 @@ strings:
   - str: "pointer"
     duktape: true
 
-  # GETPROPC delayed error, can use any shared hidden Symbol that can never
-  # occur in used visible values (which may be thrown and thus trigger special
-  # handling).  At present, use _Target which is only used by enumerator
-  # objects and nothing user visible.
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Target"
-    duktape: true
-    internal: true
-
   # internal property for primitive value (Boolean, Number, String)
   - str:
       type: symbol
@@ -791,95 +767,69 @@ strings:
     internal: true
 
   # internal properties for enumerator objects
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Target"
+  - str: "\u00ffTarget"
     duktape: true
     internal: true
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Next"
+  - str: "\u00ffNext"
     duktape: true
     internal: true
 
   # internal properties for RegExp instances
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Bytecode"
+  - str: "\u00ffBytecode"
     duktape: true
     internal: true
 
   # internal properties for function objects
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Formals"
+  - str: "\u00ffFormals"
     duktape: true
     internal: true
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Varmap"
+  - str: "\u00ffVarmap"
     duktape: true
     internal: true
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Source"
+  - str: "\u00ffSource"
     duktape: true
     internal: true
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Pc2line"
+  - str: "\u00ffPc2line"
     duktape: true
     internal: true
 
   # internal properties for thread objects
 
+  # internal properties for bound function objects
+  - str: "\u00ffTarget"  # [[TargetFunction]]
+    duktape: true
+    internal: true
+  - str: "\u00ffThis"    # [[BoundThis]]
+    duktape: true
+    internal: true
+  - str: "\u00ffArgs"    # [[BoundArguments]]
+    duktape: true
+    internal: true
+
   # internal properties for argument objects
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Map"
+  - str: "\u00ffMap"
     duktape: true
     internal: true
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Varenv"
+  - str: "\u00ffVarenv"
     duktape: true
     internal: true
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Callee"
+  - str: "\u00ffCallee"
     duktape: true
     internal: true
 
   # internal properties for general objects
-  #- str:
-  #    type: symbol
-  #    variant: hidden
-  #    string: "Metatable"
+  #- str: "\u00ffMetatable"
   #  duktape: true
   #  internal: true
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Finalizer"
+  - str: "\u00ffFinalizer"
     duktape: true
     internal: true
 
-  # internal property used for GETPROPC created error objects to delay
-  # their throwing (intentionally reuse an existing property name)
-  - str:
-      type: symbol
-      variant: hidden
-      string: "Value"
+  # internal properties for Proxy objects
+  - str: "\u00ffTarget"    # [[ProxyTarget]]
+    duktape: true
+    internal: true
+  - str: "\u00ffHandler"   # [[ProxyHandler]]
     duktape: true
     internal: true
 

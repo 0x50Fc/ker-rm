@@ -202,10 +202,6 @@
 #include "duk_unicode_re_canon_lookup.h"
 #endif
 
-#if defined(DUK_USE_REGEXP_CANON_BITMAP)
-#include "duk_unicode_re_canon_bitmap.h"
-#endif
-
 /*
  *  Extern
  */

@@ -71,11 +71,6 @@ var ker;
         function Evaluate(evaluateScript, keys) {
             this.evaluateScript = evaluateScript;
             this.keys = keys;
-            this.keySet = {};
-            for (var _i = 0, keys_1 = keys; _i < keys_1.length; _i++) {
-                var key = keys_1[_i];
-                this.keySet[key] = true;
-            }
         }
         Evaluate.prototype.exec = function (object, global) {
             var vs = [];
@@ -136,6 +131,7 @@ var ker;
             this._object = {};
             this._global = global;
             this._keyObserver = {};
+            this._defaultObserver = [];
         }
         Object.defineProperty(Data.prototype, "global", {
             get: function () {
@@ -183,7 +179,7 @@ var ker;
             this._keySet = undefined;
         };
         Data.prototype.changeKeys = function (keySet) {
-            var cbs = [];
+            var cbs = [].concat(this._defaultObserver);
             if (keySet === undefined) {
                 for (var key in this._keyObserver) {
                     var v = this._keyObserver[key];
@@ -222,14 +218,19 @@ var ker;
                 cb.priority = priority;
                 cb.keys = keys;
             }
-            for (var _i = 0, _a = cb.keys; _i < _a.length; _i++) {
-                var key = _a[_i];
-                var vs = this._keyObserver[key];
-                if (vs === undefined) {
-                    this._keyObserver[key] = [cb];
-                }
-                else {
-                    vs.push(cb);
+            if (cb.keys.length == 0) {
+                this._defaultObserver.push(cb);
+            }
+            else {
+                for (var _i = 0, _a = cb.keys; _i < _a.length; _i++) {
+                    var key = _a[_i];
+                    var vs = this._keyObserver[key];
+                    if (vs === undefined) {
+                        this._keyObserver[key] = [cb];
+                    }
+                    else {
+                        vs.push(cb);
+                    }
                 }
             }
         };
@@ -237,22 +238,39 @@ var ker;
             if (keys instanceof Evaluate) {
                 keys = keys.keys;
             }
-            for (var _i = 0, keys_2 = keys; _i < keys_2.length; _i++) {
-                var key = keys_2[_i];
+            if (keys.length == 0) {
                 if (func === undefined) {
-                    delete this._keyObserver[key];
+                    this._defaultObserver = [];
                 }
                 else {
-                    var cbs = this._keyObserver[key];
-                    if (cbs !== undefined) {
-                        var vs = [];
-                        for (var _a = 0, cbs_2 = cbs; _a < cbs_2.length; _a++) {
-                            var cb = cbs_2[_a];
-                            if (cb.func !== func) {
-                                vs.push(cb);
-                            }
+                    var vs = [];
+                    for (var _i = 0, _a = this._defaultObserver; _i < _a.length; _i++) {
+                        var cb = _a[_i];
+                        if (cb.func !== func) {
+                            vs.push(cb);
                         }
-                        this._keyObserver[key] = vs;
+                    }
+                    this._defaultObserver = vs;
+                }
+            }
+            else {
+                for (var _b = 0, keys_1 = keys; _b < keys_1.length; _b++) {
+                    var key = keys_1[_b];
+                    if (func === undefined) {
+                        delete this._keyObserver[key];
+                    }
+                    else {
+                        var cbs = this._keyObserver[key];
+                        if (cbs !== undefined) {
+                            var vs = [];
+                            for (var _c = 0, cbs_2 = cbs; _c < cbs_2.length; _c++) {
+                                var cb = cbs_2[_c];
+                                if (cb.func !== func) {
+                                    vs.push(cb);
+                                }
+                            }
+                            this._keyObserver[key] = vs;
+                        }
                     }
                 }
             }
@@ -299,6 +317,9 @@ var ker;
                 this.begin();
             }
             Data.set(this._object, keys, value);
+            if (this._keySet !== undefined && keys.length > 0) {
+                this._keySet[keys[0]] = true;
+            }
             if (changed) {
                 this.commit();
             }
@@ -444,7 +465,7 @@ var ker;
                 var v = attrs[key];
                 if (key.substr(0, 2) == 'on') {
                     if (typeof v == 'string') {
-                        v_AttributeEvent(element, key, v);
+                        v_AttributeEvent(element, key.substr(2), v);
                     }
                 }
                 else if (v instanceof ker.Evaluate) {
@@ -484,11 +505,16 @@ var ker;
                             pageViewContext.push([]);
                             children(e, d);
                             pageViewContext.pop();
+                            d.set([indexKey_1], index, false);
+                            d.set([itemKey_1], item, false);
+                            d.changeKeys();
                         }
-                        d.begin();
-                        d.set([indexKey_1], index, false);
-                        d.set([itemKey_1], item, false);
-                        d.commit();
+                        else {
+                            d.begin();
+                            d.set([indexKey_1], index, false);
+                            d.set([itemKey_1], item, false);
+                            d.commit();
+                        }
                         index++;
                     };
                     if (value instanceof Array) {
@@ -529,7 +555,7 @@ var ker;
                         children(e, d);
                         pageViewContext.pop();
                     }
-                    data.changeKeys();
+                    d.changeKeys();
                     return true;
                 }
                 else if (e !== undefined) {
@@ -607,6 +633,7 @@ var ker;
         pageViewContext.pop();
         data.changeKeys();
         setLayout();
+        console.info(element.toString());
         object.document = document;
         object.data = data.object;
         object.setData = function (object) {

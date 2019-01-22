@@ -15,15 +15,10 @@ namespace ker {
 
         evaluateScript: EvaluateScript
         keys: string[]
-        keySet: DataKeySet
 
         constructor(evaluateScript: EvaluateScript, keys: string[]) {
             this.evaluateScript = evaluateScript;
             this.keys = keys;
-            this.keySet = {};
-            for (let key of keys) {
-                this.keySet[key] = true;
-            }
         }
 
         exec(object: DataObject, global: DataObject): any {
@@ -102,11 +97,13 @@ namespace ker {
         private _keyObserver: KeyObserver
         private _parent: Data | undefined
         private _onDataFunction: DataFunction | undefined
+        private _defaultObserver: KeyCallback[]
 
         constructor(global: DataObject) {
             this._object = {};
             this._global = global;
             this._keyObserver = {};
+            this._defaultObserver = [];
         }
 
         get global(): DataObject {
@@ -154,7 +151,7 @@ namespace ker {
 
         changeKeys(keySet?: DataKeySet): void {
 
-            let cbs: KeyCallback[] = [];
+            let cbs: KeyCallback[] = [].concat(this._defaultObserver);
 
             if (keySet === undefined) {
 
@@ -164,7 +161,6 @@ namespace ker {
                         cbs = cbs.concat(v);
                     }
                 }
-
             } else {
                 for (let key in keySet) {
                     let v = this._keyObserver[key];
@@ -173,7 +169,6 @@ namespace ker {
                     }
                 }
             }
-
 
             cbs.sort((a: KeyCallback, b: KeyCallback): number => {
                 return a.priority - b.priority;
@@ -196,12 +191,17 @@ namespace ker {
                 cb.priority = priority
                 cb.keys = keys
             }
-            for (let key of cb.keys) {
-                let vs = this._keyObserver[key];
-                if (vs === undefined) {
-                    this._keyObserver[key] = [cb];
-                } else {
-                    vs.push(cb);
+
+            if (cb.keys.length == 0) {
+                this._defaultObserver.push(cb);
+            } else {
+                for (let key of cb.keys) {
+                    let vs = this._keyObserver[key];
+                    if (vs === undefined) {
+                        this._keyObserver[key] = [cb];
+                    } else {
+                        vs.push(cb);
+                    }
                 }
             }
         }
@@ -210,22 +210,36 @@ namespace ker {
             if (keys instanceof Evaluate) {
                 keys = keys.keys;
             }
-            for (let key of keys) {
+            if (keys.length == 0) {
                 if (func === undefined) {
-                    delete this._keyObserver[key];
+                    this._defaultObserver = [];
                 } else {
-                    let cbs = this._keyObserver[key];
-                    if (cbs !== undefined) {
-                        let vs: KeyCallback[] = [];
-                        for (let cb of cbs) {
-                            if (cb.func !== func) {
-                                vs.push(cb);
-                            }
+                    let vs: KeyCallback[] = [];
+                    for (let cb of this._defaultObserver) {
+                        if (cb.func !== func) {
+                            vs.push(cb);
                         }
-                        this._keyObserver[key] = vs;
                     }
+                    this._defaultObserver = vs;
                 }
+            } else {
+                for (let key of keys) {
+                    if (func === undefined) {
+                        delete this._keyObserver[key];
+                    } else {
+                        let cbs = this._keyObserver[key];
+                        if (cbs !== undefined) {
+                            let vs: KeyCallback[] = [];
+                            for (let cb of cbs) {
+                                if (cb.func !== func) {
+                                    vs.push(cb);
+                                }
+                            }
+                            this._keyObserver[key] = vs;
+                        }
+                    }
 
+                }
             }
         }
 
@@ -272,6 +286,9 @@ namespace ker {
                 this.begin();
             }
             Data.set(this._object, keys, value);
+            if(this._keySet !== undefined && keys.length > 0) {
+                this._keySet[keys[0]] = true;
+            }
             if (changed) {
                 this.commit();
             }

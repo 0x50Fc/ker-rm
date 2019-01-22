@@ -20,8 +20,8 @@
  *  Error codes: defined in duktape.h
  *
  *  Error codes are used as a shorthand to throw exceptions from inside
- *  the implementation.  The appropriate ECMAScript object is constructed
- *  based on the code.  ECMAScript code throws objects directly.  The error
+ *  the implementation.  The appropriate Ecmascript object is constructed
+ *  based on the code.  Ecmascript code throws objects directly.  The error
  *  codes are defined in the public API header because they are also used
  *  by calling code.
  */
@@ -171,10 +171,6 @@
 #define DUK_ERROR_INTERNAL(thr) do { \
 		duk_err_error_internal((thr), DUK_FILE_MACRO, (duk_int_t) DUK_LINE_MACRO); \
 	} while (0)
-#define DUK_DCERROR_INTERNAL(thr) do { \
-		DUK_ERROR_INTERNAL((thr)); \
-		return 0; \
-	} while (0)
 #define DUK_ERROR_ALLOC_FAILED(thr) do { \
 		duk_err_error_alloc_failed((thr), DUK_FILE_MACRO, (duk_int_t) DUK_LINE_MACRO); \
 	} while (0)
@@ -199,10 +195,6 @@
 	} while (0)
 #define DUK_ERROR_RANGE_INVALID_COUNT(thr) do { \
 		DUK_ERROR_RANGE((thr), DUK_STR_INVALID_COUNT); \
-	} while (0)
-#define DUK_DCERROR_RANGE_INVALID_COUNT(thr) do { \
-		DUK_ERROR_RANGE_INVALID_COUNT((thr)); \
-		return 0; \
 	} while (0)
 #define DUK_ERROR_RANGE_INVALID_LENGTH(thr) do { \
 		DUK_ERROR_RANGE((thr), DUK_STR_INVALID_LENGTH); \
@@ -259,10 +251,6 @@
 #define DUK_ERROR_INTERNAL(thr) do { \
 		duk_err_error((thr)); \
 	} while (0)
-#define DUK_DCERROR_INTERNAL(thr) do { \
-		DUK_UNREF((thr)); \
-		return DUK_RET_ERROR; \
-	} while (0)
 #define DUK_ERROR_ALLOC_FAILED(thr) do { \
 		duk_err_error((thr)); \
 	} while (0)
@@ -287,10 +275,6 @@
 	} while (0)
 #define DUK_ERROR_RANGE_INVALID_COUNT(thr) do { \
 		duk_err_range((thr)); \
-	} while (0)
-#define DUK_DCERROR_RANGE_INVALID_COUNT(thr) do { \
-		DUK_UNREF((thr)); \
-		return DUK_RET_RANGE_ERROR; \
 	} while (0)
 #define DUK_ERROR_RANGE_INVALID_LENGTH(thr) do { \
 		duk_err_range((thr)); \
@@ -417,19 +401,6 @@
 	DUK_ASSERT(thr->valstack_top < thr->valstack_end)
 
 /*
- *  Helper to initialize a memory area (e.g. struct) with garbage when
- *  assertions enabled.
- */
-
-#if defined(DUK_USE_ASSERTIONS)
-#define DUK_ASSERT_SET_GARBAGE(ptr,size) do { \
-		duk_memset_unsafe((void *) (ptr), 0x5a, size); \
-	} while (0)
-#else
-#define DUK_ASSERT_SET_GARBAGE(ptr,size) do {} while (0)
-#endif
-
-/*
  *  Helper for valstack space
  *
  *  Caller of DUK_ASSERT_VALSTACK_SPACE() estimates the number of free stack entries
@@ -468,11 +439,8 @@ DUK_NORETURN(DUK_INTERNAL_DECL void duk_err_create_and_throw(duk_hthread *thr, d
 
 DUK_NORETURN(DUK_INTERNAL_DECL void duk_error_throw_from_negative_rc(duk_hthread *thr, duk_ret_t rc));
 
-#define DUK_AUGMENT_FLAG_NOBLAME_FILELINE  (1U << 0)  /* if set, don't blame C file/line for .fileName and .lineNumber */
-#define DUK_AUGMENT_FLAG_SKIP_ONE          (1U << 1)  /* if set, skip topmost activation in traceback construction */
-
 #if defined(DUK_USE_AUGMENT_ERROR_CREATE)
-DUK_INTERNAL_DECL void duk_err_augment_error_create(duk_hthread *thr, duk_hthread *thr_callstack, const char *filename, duk_int_t line, duk_small_uint_t flags);
+DUK_INTERNAL_DECL void duk_err_augment_error_create(duk_hthread *thr, duk_hthread *thr_callstack, const char *filename, duk_int_t line, duk_bool_t noblame_fileline);
 #endif
 #if defined(DUK_USE_AUGMENT_ERROR_THROW)
 DUK_INTERNAL_DECL void duk_err_augment_error_throw(duk_hthread *thr);

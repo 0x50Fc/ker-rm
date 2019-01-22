@@ -12,6 +12,7 @@
 
 @interface KerPageViewController : UIViewController<KerPageDelegate>
 
+@property(nonatomic,strong) UIView * contentView;
 @property(nonatomic,assign,readonly) KerId pageId;
 
 -(instancetype) initWithPageId:(KerId) pageId;

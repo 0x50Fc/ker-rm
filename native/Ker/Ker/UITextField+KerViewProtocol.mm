@@ -107,11 +107,13 @@
         self.secureTextEntry = value != nil && ![value isEqualToString:@"false"];
     } else if([key isEqualToString:@"placeholder"]) {
         self.placeholder = value;
-    } else if([key isEqualToString:@"disabled"]) {
+    } else if([key isEqualToString:@"enabled"]) {
         self.enabled = value != nil && ![value isEqualToString:@"false"];
     } else if([key isEqualToString:@"focus"]) {
         if(value != nil && ![value isEqualToString:@"false"]) {
             [self becomeFirstResponder];
+        } else if([self isFirstResponder]) {
+            [self resignFirstResponder];
         }
     } else if([key isEqualToString:@"confirm-type"]) {
         if([value isEqualToString:@"done"]) {

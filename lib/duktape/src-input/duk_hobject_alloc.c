@@ -72,7 +72,6 @@ DUK_INTERNAL duk_hobject *duk_hobject_alloc_unchecked(duk_heap *heap, duk_uint_t
 	/* different memory layout, alloc size, and init */
 	DUK_ASSERT((hobject_flags & DUK_HOBJECT_FLAG_COMPFUNC) == 0);
 	DUK_ASSERT((hobject_flags & DUK_HOBJECT_FLAG_NATFUNC) == 0);
-	DUK_ASSERT((hobject_flags & DUK_HOBJECT_FLAG_BOUNDFUNC) == 0);
 
 	res = (duk_hobject *) DUK_ALLOC_ZEROED(heap, sizeof(duk_hobject));
 	if (DUK_UNLIKELY(res == NULL)) {
@@ -123,27 +122,6 @@ DUK_INTERNAL duk_hnatfunc *duk_hnatfunc_alloc(duk_hthread *thr, duk_uint_t hobje
 	return res;
 }
 
-DUK_INTERNAL duk_hboundfunc *duk_hboundfunc_alloc(duk_heap *heap, duk_uint_t hobject_flags) {
-	duk_hboundfunc *res;
-
-	res = (duk_hboundfunc *) DUK_ALLOC(heap, sizeof(duk_hboundfunc));
-	if (!res) {
-		return NULL;
-	}
-	duk_memzero(res, sizeof(duk_hboundfunc));
-
-	duk__init_object_parts(heap, hobject_flags, &res->obj);
-
-	DUK_TVAL_SET_UNDEFINED(&res->target);
-	DUK_TVAL_SET_UNDEFINED(&res->this_binding);
-
-#if defined(DUK_USE_EXPLICIT_NULL_INIT)
-	res->args = NULL;
-#endif
-
-	return res;
-}
-
 #if defined(DUK_USE_BUFFEROBJECT_SUPPORT)
 DUK_INTERNAL duk_hbufobj *duk_hbufobj_alloc(duk_hthread *thr, duk_uint_t hobject_flags) {
 	duk_hbufobj *res;
@@ -172,7 +150,7 @@ DUK_INTERNAL duk_hthread *duk_hthread_alloc_unchecked(duk_heap *heap, duk_uint_t
 	if (DUK_UNLIKELY(res == NULL)) {
 		return NULL;
 	}
-	duk_memzero(res, sizeof(duk_hthread));
+	DUK_MEMZERO(res, sizeof(duk_hthread));
 
 	duk__init_object_parts(heap, hobject_flags, &res->obj);
 
@@ -181,10 +159,11 @@ DUK_INTERNAL duk_hthread *duk_hthread_alloc_unchecked(duk_heap *heap, duk_uint_t
 	res->heap = NULL;
 	res->valstack = NULL;
 	res->valstack_end = NULL;
-	res->valstack_alloc_end = NULL;
 	res->valstack_bottom = NULL;
 	res->valstack_top = NULL;
+	res->callstack = NULL;
 	res->callstack_curr = NULL;
+	res->catchstack = NULL;
 	res->resumer = NULL;
 	res->compile_ctx = NULL,
 #if defined(DUK_USE_HEAPPTR16)
@@ -199,12 +178,14 @@ DUK_INTERNAL duk_hthread *duk_hthread_alloc_unchecked(duk_heap *heap, duk_uint_t
 		}
 	}
 #endif
-	/* When nothing is running, API calls are in non-strict mode. */
+	/* when nothing is running, API calls are in non-strict mode */
 	DUK_ASSERT(res->strict == 0);
 
 	res->heap = heap;
+	res->valstack_max = DUK_VALSTACK_DEFAULT_MAX;
+	res->callstack_max = DUK_CALLSTACK_DEFAULT_MAX;
+	res->catchstack_max = DUK_CATCHSTACK_DEFAULT_MAX;
 
-	/* XXX: Any reason not to merge duk_hthread_alloc.c here? */
 	return res;
 }
 
@@ -214,7 +195,6 @@ DUK_INTERNAL duk_hthread *duk_hthread_alloc(duk_hthread *thr, duk_uint_t hobject
 	res = duk_hthread_alloc_unchecked(thr->heap, hobject_flags);
 	if (res == NULL) {
 		DUK_ERROR_ALLOC_FAILED(thr);
-		DUK_WO_NORETURN(return NULL;);
 	}
 	return res;
 }
@@ -240,7 +220,7 @@ DUK_INTERNAL duk_hdecenv *duk_hdecenv_alloc(duk_hthread *thr, duk_uint_t hobject
 
 	DUK_ASSERT(res->thread == NULL);
 	DUK_ASSERT(res->varmap == NULL);
-	DUK_ASSERT(res->regbase_byteoff == 0);
+	DUK_ASSERT(res->regbase == 0);
 
 	return res;
 }
@@ -254,18 +234,6 @@ DUK_INTERNAL duk_hobjenv *duk_hobjenv_alloc(duk_hthread *thr, duk_uint_t hobject
 #endif
 
 	DUK_ASSERT(res->target == NULL);
-
-	return res;
-}
-
-DUK_INTERNAL duk_hproxy *duk_hproxy_alloc(duk_hthread *thr, duk_uint_t hobject_flags) {
-	duk_hproxy *res;
-
-	res = (duk_hproxy *) duk__hobject_alloc_init(thr, hobject_flags, sizeof(duk_hproxy));
-
-	/* Leave ->target and ->handler uninitialized, as caller will always
-	 * explicitly initialize them before any side effects are possible.
-	 */
 
 	return res;
 }

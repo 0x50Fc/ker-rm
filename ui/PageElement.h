@@ -33,6 +33,9 @@ namespace kk {
             
             virtual void onObtainView(ViewContext * context,View * view);
             virtual void onRecycleView(View * view);
+            virtual void reloadPage();
+            virtual void loadPage(App * app,View * view);
+            virtual void unloadPage();
             
             kk::Strong<Page> _page;
             kk::Strong<EventFunction> _onEvent;

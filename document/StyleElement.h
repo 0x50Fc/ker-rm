@@ -32,7 +32,7 @@ namespace kk {
         virtual CString get(ElementKey key);
         virtual void set(ElementKey key,CString value);
         virtual void set(CString key,CString value);
-        
+        virtual void keys(std::set<String>& keys);
         
         Ker_CLASS(StyleElement,Element,"StyleElement")
         

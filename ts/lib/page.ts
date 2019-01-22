@@ -132,7 +132,7 @@ namespace ker {
                 let v = attrs[key];
                 if (key.substr(0, 2) == 'on') {
                     if (typeof v == 'string') {
-                        v_AttributeEvent(element, key, v);
+                        v_AttributeEvent(element, key.substr(2), v);
                     }
                 } else if (v instanceof Evaluate) {
                     v_AttributeEvaluate(element, data, key, v);
@@ -170,11 +170,15 @@ namespace ker {
                             pageViewContext.push([]);
                             children(e, d);
                             pageViewContext.pop();
+                            d!.set([indexKey], index, false);
+                            d!.set([itemKey], item, false);
+                            d!.changeKeys();
+                        } else {
+                            d!.begin();
+                            d!.set([indexKey], index, false);
+                            d!.set([itemKey], item, false);
+                            d!.commit();
                         }
-                        d!.begin();
-                        d!.set([indexKey], index, false);
-                        d!.set([itemKey], item, false);
-                        d!.commit();
                         index++;
                     };
                     if (value instanceof Array) {
@@ -219,7 +223,7 @@ namespace ker {
                         pageViewContext.pop();
                     }
 
-                    data.changeKeys();
+                    d.changeKeys();
 
                     return true;
                 } else if (e !== undefined) {
@@ -298,6 +302,8 @@ namespace ker {
         data.changeKeys();
 
         setLayout();
+
+        console.info(element.toString());
 
         object.document = document;
         object.data = data.object;

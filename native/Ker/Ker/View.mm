@@ -55,7 +55,29 @@ namespace kk {
                         
                         attrs[NSFontAttributeName] = [UIFont fontWithKerUIFont:&span.font];
                         attrs[NSForegroundColorAttributeName] = [UIColor colorWithKerUIColor:&span.color];
-                       
+                        attrs[NSKernAttributeName] = @(span.letterSpacing);
+                        
+                        NSMutableParagraphStyle * style = [[NSMutableParagraphStyle alloc] init];
+                        
+                        switch(span.textAlign) {
+                            case TextAlignLeft:
+                            case TextAlignStart:
+                                style.alignment = NSTextAlignmentLeft;
+                                break;
+                            case TextAlignEnd:
+                            case TextAlignRight:
+                                style.alignment = NSTextAlignmentRight;
+                                break;
+                            case TextAlignCenter:
+                                style.alignment = NSTextAlignmentCenter;
+                                break;
+                        }
+                        
+                        style.lineSpacing = span.lineSpacing;
+                        style.paragraphSpacing = span.paragraphSpacing;
+                        
+                        attrs[NSParagraphStyleAttributeName] = style;
+                        
                         NSString * v = [NSString stringWithCString:span.text.c_str() encoding:NSUTF8StringEncoding];
                         
                         if(v != nil) {

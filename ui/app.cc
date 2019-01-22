@@ -13,6 +13,8 @@
 #include <ui/package.h>
 #include <ui/ViewElement.h>
 #include <ui/TextElement.h>
+#include <ui/PageElement.h>
+#include <ui/ImageElement.h>
 #include <core/crypto.h>
 #include <core/uri.h>
 #include <core/net.h>
@@ -25,6 +27,7 @@
 #include <document/element.h>
 #include <document/StyleElement.h>
 #include <document/LayoutElement.h>
+#include <document/BlockElement.h>
 
 #ifdef KER_DEBUG
 #include <core/debugger.h>
@@ -244,10 +247,13 @@ namespace kk {
             kk::Document::Openlib();
             kk::ElementEvent::Openlib();
             kk::Element::Openlib();
+            kk::BlockElement::Openlib();
             kk::StyleElement::Openlib();
             kk::LayoutElement::Openlib();
             kk::ui::ViewElement::Openlib();
             kk::ui::TextElement::Openlib();
+            kk::ui::PageElement::Openlib();
+            kk::ui::ImageElement::Openlib();
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
                 

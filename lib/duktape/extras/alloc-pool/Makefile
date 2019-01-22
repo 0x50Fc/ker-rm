@@ -1,8 +1,7 @@
 # For manual testing; say 'make' in extras/alloc-pool and run ./test.
 
-CC = gcc
-DEFS =
-#DEFS += '-DDUK_ALLOC_POOL_DEBUG'
+DEFS=
+#DEFS+='-DDUK_ALLOC_POOL_DEBUG'
 
 .PHONY: test
 test:
@@ -13,7 +12,7 @@ test:
 		--output-directory ./prep \
 		--option-file ./opts.yaml \
 		--fixup-line 'extern void my_fatal(const char *msg);'
-	$(CC) -std=c99 -Wall -Wextra -m32 -Os -otest \
+	gcc -std=c99 -Wall -Wextra -m32 -Os -otest \
 		-I./prep ./prep/duktape.c \
 		$(DEFS) \
 		duk_alloc_pool.c test.c \
@@ -33,7 +32,7 @@ ptrcomptest:
 		--option-file ../../config/examples/low_memory.yaml \
 		--option-file ptrcomp.yaml \
 		--fixup-file ptrcomp_fixup.h
-	$(CC) -std=c99 -Wall -Wextra -m32 -Os -optrcomptest \
+	gcc -std=c99 -Wall -Wextra -m32 -Os -optrcomptest \
 		-I. -I./prep ./prep/duktape.c \
 		$(DEFS) \
 		duk_alloc_pool.c test.c \

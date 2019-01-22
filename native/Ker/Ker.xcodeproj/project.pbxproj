@@ -25,6 +25,10 @@
 		1A3AF07021E76454001C8759 /* ssl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAF7921E6EAC2000FAAE9 /* ssl.cc */; };
 		1A3AF07321EC7F0B001C8759 /* WebSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A3AF07121EC7F0B001C8759 /* WebSocket.h */; };
 		1A3AF07421EC7F0B001C8759 /* WebSocket.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AF07221EC7F0B001C8759 /* WebSocket.cc */; };
+		1A3F5FAD21F7102600675633 /* BlockElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A3F5FAB21F7102600675633 /* BlockElement.h */; };
+		1A3F5FAE21F7102600675633 /* BlockElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A3F5FAC21F7102600675633 /* BlockElement.cc */; };
+		1A3F5FB121F72CB400675633 /* ImageElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A3F5FAF21F72CB400675633 /* ImageElement.h */; };
+		1A3F5FB221F72CB400675633 /* ImageElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A3F5FB021F72CB400675633 /* ImageElement.cc */; };
 		1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */; };
 		1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -61,6 +65,7 @@
 		1AE0929D21F56A8A00133215 /* KerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0929B21F56A8A00133215 /* KerView.mm */; };
 		1AE092A021F56F2300133215 /* PageElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE0929E21F56F2300133215 /* PageElement.h */; };
 		1AE092A121F56F2300133215 /* PageElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0929F21F56F2300133215 /* PageElement.cc */; };
+		1AE092A421F6C6EF00133215 /* duk_config_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE092A321F6C6EF00133215 /* duk_config_debug.h */; };
 		1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CBE21CB7AC80055C932 /* zombies.cc */; };
 		1AE91CC921D741C90055C932 /* KerWeak.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AE91CC721D741C90055C932 /* KerWeak.h */; };
 		1AE91CCA21D741C90055C932 /* KerWeak.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE91CC821D741C90055C932 /* KerWeak.m */; };
@@ -130,7 +135,6 @@
 		1AF4CE3A21A56DF600AE1249 /* UILabel+KerViewProtocol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE3821A56DF600AE1249 /* UILabel+KerViewProtocol.mm */; };
 		1AFDAD2A21E327C7000FAAE9 /* storage.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2921E327C7000FAAE9 /* storage.cc */; };
 		1AFDAD2D21E34FBB000FAAE9 /* debugger.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */; };
-		1AFDAD2F21E355BD000FAAE9 /* duk_config_debug.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */; };
 		1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAF7021E4AC8A000FAAE9 /* net.cc */; };
 		1AFDAF7321E4AC8A000FAAE9 /* net.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAF7121E4AC8A000FAAE9 /* net.h */; };
 		1AFDAF7A21E6EAC2000FAAE9 /* ssl.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAF7821E6EAC2000FAAE9 /* ssl.h */; };
@@ -151,6 +155,10 @@
 /* Begin PBXFileReference section */
 		1A3AF07121EC7F0B001C8759 /* WebSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebSocket.h; sourceTree = "<group>"; };
 		1A3AF07221EC7F0B001C8759 /* WebSocket.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WebSocket.cc; sourceTree = "<group>"; };
+		1A3F5FAB21F7102600675633 /* BlockElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlockElement.h; sourceTree = "<group>"; };
+		1A3F5FAC21F7102600675633 /* BlockElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BlockElement.cc; sourceTree = "<group>"; };
+		1A3F5FAF21F72CB400675633 /* ImageElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageElement.h; sourceTree = "<group>"; };
+		1A3F5FB021F72CB400675633 /* ImageElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ImageElement.cc; sourceTree = "<group>"; };
 		1A53C63B21AF99F400170AB7 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerPageWindowController.h; sourceTree = "<group>"; };
 		1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerPageWindowController.m; sourceTree = "<group>"; };
@@ -192,6 +200,7 @@
 		1AE0929B21F56A8A00133215 /* KerView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KerView.mm; sourceTree = "<group>"; };
 		1AE0929E21F56F2300133215 /* PageElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageElement.h; sourceTree = "<group>"; };
 		1AE0929F21F56F2300133215 /* PageElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PageElement.cc; sourceTree = "<group>"; };
+		1AE092A321F6C6EF00133215 /* duk_config_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = duk_config_debug.h; path = ../../../lib/duktape/src/duk_config_debug.h; sourceTree = "<group>"; };
 		1AE91CBE21CB7AC80055C932 /* zombies.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = zombies.cc; sourceTree = "<group>"; };
 		1AE91CC721D741C90055C932 /* KerWeak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerWeak.h; sourceTree = "<group>"; };
 		1AE91CC821D741C90055C932 /* KerWeak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerWeak.m; sourceTree = "<group>"; };
@@ -267,7 +276,6 @@
 		1AFDAD2921E327C7000FAAE9 /* storage.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = storage.cc; sourceTree = "<group>"; };
 		1AFDAD2B21E34FB0000FAAE9 /* debugger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = debugger.h; sourceTree = "<group>"; };
 		1AFDAD2C21E34FBB000FAAE9 /* debugger.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = debugger.cc; sourceTree = "<group>"; };
-		1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = duk_config_debug.h; path = "../../../../kk-duktape/lib/duktape/src/duk_config_debug.h"; sourceTree = "<group>"; };
 		1AFDAF7021E4AC8A000FAAE9 /* net.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = net.cc; sourceTree = "<group>"; };
 		1AFDAF7121E4AC8A000FAAE9 /* net.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = net.h; sourceTree = "<group>"; };
 		1AFDAF7821E6EAC2000FAAE9 /* ssl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ssl.h; sourceTree = "<group>"; };
@@ -319,6 +327,8 @@
 				1AE0928821EDDA5600133215 /* StyleElement.cc */,
 				1AE0928B21EDDC6C00133215 /* LayoutElement.h */,
 				1AE0928C21EDDC6C00133215 /* LayoutElement.cc */,
+				1A3F5FAB21F7102600675633 /* BlockElement.h */,
+				1A3F5FAC21F7102600675633 /* BlockElement.cc */,
 			);
 			name = document;
 			path = ../../../document;
@@ -442,7 +452,7 @@
 		1AF065B2219D51A000F8F7A8 /* duktape */ = {
 			isa = PBXGroup;
 			children = (
-				1AFDAD2E21E355BD000FAAE9 /* duk_config_debug.h */,
+				1AE092A321F6C6EF00133215 /* duk_config_debug.h */,
 				1AF065B5219D51C000F8F7A8 /* duk_config.h */,
 				1AF065B4219D51C000F8F7A8 /* duktape.c */,
 				1AF065B3219D51C000F8F7A8 /* duktape.h */,
@@ -472,6 +482,8 @@
 				ACD6575421EE819E00D63256 /* TextElement.cc */,
 				1AE0929E21F56F2300133215 /* PageElement.h */,
 				1AE0929F21F56F2300133215 /* PageElement.cc */,
+				1A3F5FAF21F72CB400675633 /* ImageElement.h */,
+				1A3F5FB021F72CB400675633 /* ImageElement.cc */,
 			);
 			name = ui;
 			path = ../../../ui;
@@ -503,6 +515,7 @@
 				1AF065FE219D555E00F8F7A8 /* UITextView+KerViewProtocol.h in Headers */,
 				1AE0928121EDBEDA00133215 /* document.h in Headers */,
 				1AF065AE219D518200F8F7A8 /* dispatch.h in Headers */,
+				1A3F5FB121F72CB400675633 /* ImageElement.h in Headers */,
 				1AE0928D21EDDC6C00133215 /* LayoutElement.h in Headers */,
 				1AE0929C21F56A8A00133215 /* KerView.h in Headers */,
 				1AF065AB219D518200F8F7A8 /* timer.h in Headers */,
@@ -515,7 +528,7 @@
 				1AF06601219D555E00F8F7A8 /* WKWebView+KerViewProtocol.h in Headers */,
 				1AF065C8219D52AC00F8F7A8 /* app.h in Headers */,
 				1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */,
-				1AFDAD2F21E355BD000FAAE9 /* duk_config_debug.h in Headers */,
+				1AE092A421F6C6EF00133215 /* duk_config_debug.h in Headers */,
 				1AF065A7219D518200F8F7A8 /* container.h in Headers */,
 				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
@@ -539,6 +552,7 @@
 				1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */,
 				1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */,
 				1AE0929121EDF78C00133215 /* ViewElement.h in Headers */,
+				1A3F5FAD21F7102600675633 /* BlockElement.h in Headers */,
 				1AA4AC3F21BFBC3A00C636F5 /* zip.h in Headers */,
 				1AF065FB219D555E00F8F7A8 /* UITextField+KerViewProtocol.h in Headers */,
 				1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */,
@@ -667,6 +681,7 @@
 				1AF065D5219D536D00F8F7A8 /* Image.mm in Sources */,
 				1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */,
 				1AF065A9219D518200F8F7A8 /* bio.cc in Sources */,
+				1A3F5FAE21F7102600675633 /* BlockElement.cc in Sources */,
 				1A3AF07021E76454001C8759 /* ssl.cc in Sources */,
 				1AE0929221EDF78C00133215 /* ViewElement.cc in Sources */,
 				1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */,
@@ -689,6 +704,7 @@
 				1AE91CD621DDB84D0055C932 /* KerStrong.mm in Sources */,
 				1AF065C6219D52AC00F8F7A8 /* view.cc in Sources */,
 				1AF065AD219D518200F8F7A8 /* timer.cc in Sources */,
+				1A3F5FB221F72CB400675633 /* ImageElement.cc in Sources */,
 				1AE91CD021DCA1660055C932 /* uri.cc in Sources */,
 				1AE91CCD21DC92290055C932 /* http.cc in Sources */,
 				1AE092A121F56F2300133215 /* PageElement.cc in Sources */,

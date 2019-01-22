@@ -23,6 +23,8 @@ typedef void (^KerUIOpenCallback)(KerId appid,NSString * errmsg);
 
 +(void) setTextViewClass:(Class) viewClass name:(NSString *) name;
 
++(void) setPageViewClass:(Class) viewClass name:(NSString *) name;
+
 +(KerPage *) getPage:(KerId) pageId;
 
 +(void) removePage:(KerId) pageId;

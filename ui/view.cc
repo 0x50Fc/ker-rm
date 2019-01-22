@@ -29,10 +29,25 @@ namespace kk {
             append(image,width,height,{top,left,bottom,right});
         }
         
-        void AttributedText::append(kk::CString text,kk::ui::Font font,kk::ui::Color color) {
+        void AttributedText::append(kk::CString text,kk::ui::Font font,kk::ui::Color color,TextAlign textAlign,Float lineSpacing,Float letterSpacing,Float paragraphSpacing) {
             AttributedTextSpan v = {AttributedTextSpanTypeText,text};
             v.font = font;
             v.color = color;
+            v.lineSpacing = lineSpacing;
+            v.letterSpacing = letterSpacing;
+            v.paragraphSpacing = paragraphSpacing;
+            v.textAlign = textAlign;
+            _spans.push_back(v);
+        }
+        
+        void AttributedText::append(kk::CString text,kk::CString font,kk::ui::Color color,kk::CString textAlign,Float lineSpacing,Float letterSpacing,Float paragraphSpacing) {
+            AttributedTextSpan v = {AttributedTextSpanTypeText,text};
+            v.font = font;
+            v.color = color;
+            v.lineSpacing = lineSpacing;
+            v.letterSpacing = letterSpacing;
+            v.paragraphSpacing = paragraphSpacing;
+            v.textAlign = TextAlignFromString(textAlign);
             _spans.push_back(v);
         }
         
@@ -57,7 +72,7 @@ namespace kk {
                 kk::PushClass<AttributedText>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutMethod<AttributedText,void>(ctx, -1, "clear", &AttributedText::clear);
-                    kk::PutMethod<AttributedText,void,kk::CString,kk::ui::Font,kk::ui::Color>(ctx, -1, "appendText", &AttributedText::append);
+                    kk::PutMethod<AttributedText,void,kk::CString,kk::CString,kk::ui::Color,kk::CString,kk::ui::Float,kk::ui::Float,kk::ui::Float>(ctx, -1, "appendText", &AttributedText::append);
                     kk::PutMethod<AttributedText,void,kk::ui::Image *,kk::Uint,kk::Uint,kk::ui::Float,kk::ui::Float,kk::ui::Float,kk::ui::Float>(ctx, -1, "appendImage", &AttributedText::appendImage);
                 });
                 
@@ -319,6 +334,7 @@ namespace kk {
         }
         
         void View::setContentSize(Size & size) {
+            _contentSize = size;
             kk::Strong<ViewSetContentSizeCommand> cmd = new ViewSetContentSizeCommand();
             cmd->viewId = _viewId;
             cmd->size = size;
@@ -482,6 +498,29 @@ namespace kk {
             setContentOffset(p, animated);
         }
         
+        void View::scrollToTop(kk::Boolean animated) {
+            Point p = {_contentOffset.x,0};
+            setContentOffset(p, animated);
+        }
+        
+        void View::scrollToBottom(kk::Boolean animated) {
+            if(_contentSize.height > _frame.size.height) {
+                Point p = {_contentOffset.x, _contentSize.height - _frame.size.height};
+                setContentOffset(p, animated);
+            }
+        }
+        
+        void View::scrollToLeft(kk::Boolean animated) {
+            Point p = {0,_contentOffset.y};
+            setContentOffset(p, animated);
+        }
+        
+        void View::scrollToRight(kk::Boolean animated) {
+            if(_contentSize.width > _frame.size.width) {
+                Point p = {_contentSize.width - _frame.size.width, _contentOffset.y};
+                setContentOffset(p, animated);
+            }
+        }
         
         Point View::contentOffset() {
             return _contentOffset;
@@ -515,6 +554,10 @@ namespace kk {
                     kk::PutMethod<View,void,kk::ui::Image *>(ctx, -1, "setImage", &View::setImage);
                     kk::PutProperty<View,Point>(ctx, -1, "contentOffset", &View::contentOffset);
                     kk::PutStrongMethod<View,Canvas,Worker *>(ctx, -1, "createCanvas", &View::createCanvas);
+                    kk::PutMethod<View,void,kk::Boolean>(ctx, -1, "scrollToTop", &View::scrollToTop);
+                    kk::PutMethod<View,void,kk::Boolean>(ctx, -1, "scrollToBottom", &View::scrollToBottom);
+                    kk::PutMethod<View,void,kk::Boolean>(ctx, -1, "scrollToLeft", &View::scrollToLeft);
+                    kk::PutMethod<View,void,kk::Boolean>(ctx, -1, "scrollToRight", &View::scrollToRight);
                     
                 });
                 

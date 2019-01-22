@@ -1,16 +1,18 @@
 /*
- *  Examples for low memory techniques
+ *  'ajduk' specific functionality, examples for low memory techniques
  */
 
-#if defined(DUK_CMDLINE_LOWMEM)
+#if defined(DUK_CMDLINE_AJSHEAP)
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "ajs.h"
+#include "ajs_heap.h"
 #include "duktape.h"
-#include "duk_cmdline.h"
-#include "duk_alloc_pool.h"
+
+extern uint8_t dbgHEAPDUMP;
 
 #if defined(DUK_USE_ROM_OBJECTS) && defined(DUK_USE_HEAPPTR16)
 /* Pointer compression with ROM strings/objects:
@@ -25,53 +27,14 @@ extern const void * const duk_rom_compressed_pointers[];
 static const void *duk__romptr_low = NULL;
 static const void *duk__romptr_high = NULL;
 #define DUK__ROMPTR_COMPRESSION
-#define DUK__ROMPTR_FIRST ((duk_uint_t) DUK_USE_ROM_PTRCOMP_FIRST)
+#define DUK__ROMPTR_FIRST DUK_USE_ROM_PTRCOMP_FIRST
 #endif
 
-#define LOWMEM_NUM_POOLS 28
+/*
+ *  Helpers
+ */
 
-#define LOWMEM_HEAP_SIZE (255 * 1024)
-
-static const duk_pool_config lowmem_config[LOWMEM_NUM_POOLS] = {
-	{ 8,      10 * 8,     0 },
-	{ 12,     600 * 12,   0 },
-	{ 16,     300 * 16,   0 },
-	{ 20,     300 * 20,   0 },
-	{ 24,     300 * 24,   0 },
-	{ 28,     250 * 28,   0 },
-	{ 32,     150 * 32,   0 },
-	{ 40,     150 * 40,   0 },
-	{ 48,     50 * 48,    0 },
-	{ 52,     50 * 52,    0 },
-	{ 56,     50 * 56,    0 },
-	{ 60,     50 * 60,    0 },
-	{ 64,     50 * 64,    0 },
-	{ 96,     50 * 96,    0 },
-	{ 196,    0,          196 },  /* duk_heap, with heap ptr compression, ROM strings+objects */
-	{ 232,    0,          232 },  /* duk_hthread, with heap ptr compression, ROM strings+objects */
-	{ 256,    16 * 256,   0 },
-	{ 288,    1 * 288,    0 },
-	{ 320,    1 * 320,    0 },
-	{ 400,    0,          400 },  /* duk_hthread, with heap ptr compression, RAM strings+objects */
-	{ 520,    0,          520 },  /* duk_heap, with heap ptr compression, RAM strings+objects */
-	{ 512,    16 * 512,   0 },
-	{ 768,    0,          768 },  /* initial value stack for packed duk_tval */
-	{ 1024,   6 * 1024,   0 },
-	{ 2048,   5 * 2048,   0 },
-	{ 4096,   3 * 4096,   0 },
-	{ 8192,   3 * 8192,   0 },
-	{ 16384,  1 * 16384,  0 },
-};
-
-static duk_pool_state lowmem_state[LOWMEM_NUM_POOLS];
-
-static duk_pool_global lowmem_global;
-
-void *lowmem_pool_ptr = NULL;
-
-uint8_t *lowmem_ram = NULL;
-
-static void *duk__lose_const(const void *ptr) {
+static void *ajduk__lose_const(const void *ptr) {
 	/* Somewhat portable way of losing a const without warnings.
 	 * Another approach is to cast through intptr_t, but that
 	 * type is not always available.
@@ -84,50 +47,111 @@ static void *duk__lose_const(const void *ptr) {
 	return u.q;
 }
 
-static void duk__safe_print_chars(const char *p, duk_size_t len, int until_nul) {
+static void safe_print_chars(const char *p, duk_size_t len, int until_nul) {
 	duk_size_t i;
 
-	fprintf(stderr, "\"");
+	printf("\"");
 	for (i = 0; i < len; i++) {
 		unsigned char x = (unsigned char) p[i];
 		if (until_nul && x == 0U) {
 			break;
 		}
 		if (x < 0x20 || x >= 0x7e || x == '"' || x == '\'' || x == '\\') {
-			fprintf(stderr, "\\x%02x", (int) x);
+			printf("\\x%02x", (int) x);
 		} else {
-			fprintf(stderr, "%c", (char) x);
+			printf("%c", (char) x);
 		}
 	}
-	fprintf(stderr, "\"");
+	printf("\"");
 }
 
+/*
+ *  Heap initialization when using AllJoyn.js pool allocator (without any
+ *  other AllJoyn.js integration).  This serves as an example of how to
+ *  integrate Duktape with a pool allocator and is useful for low memory
+ *  testing.
+ *
+ *  The pool sizes are not optimized here.  The sizes are chosen so that
+ *  you can look at the high water mark (hwm) and use counts (use) and see
+ *  how much allocations are needed for each pool size.  To optimize pool
+ *  sizes more accurately, you can use --alloc-logging and inspect the memory
+ *  allocation log which provides exact byte counts etc.
+ *
+ *  https://git.allseenalliance.org/cgit/core/alljoyn-js.git
+ *  https://git.allseenalliance.org/cgit/core/alljoyn-js.git/tree/ajs.c
+ */
 
-void lowmem_init(void) {
-	void *ptr;
+static const AJS_HeapConfig ajsheap_config[] = {
+	{ 8,      10,   AJS_POOL_BORROW,  0 },
+	{ 12,     600,  AJS_POOL_BORROW,  0 },
+	{ 16,     300,  AJS_POOL_BORROW,  0 },
+	{ 20,     300,  AJS_POOL_BORROW,  0 },
+	{ 24,     300,  AJS_POOL_BORROW,  0 },
+	{ 28,     250,  AJS_POOL_BORROW,  0 },
+	{ 32,     150,  AJS_POOL_BORROW,  0 },
+	{ 40,     150,  AJS_POOL_BORROW,  0 },
+	{ 48,     50,   AJS_POOL_BORROW,  0 },
+	{ 52,     50,   AJS_POOL_BORROW,  0 },
+	{ 56,     50,   AJS_POOL_BORROW,  0 },
+	{ 60,     50,   AJS_POOL_BORROW,  0 },
+	{ 64,     50,   AJS_POOL_BORROW,  0 },
+	{ 96,     50,   AJS_POOL_BORROW,  0 },
+	{ 128,    80,   AJS_POOL_BORROW,  0 },
+	{ 200,    1,    AJS_POOL_BORROW,  0 },  /* duk_heap, with heap ptr compression, ROM strings+objects */
+	{ 256,    16,   AJS_POOL_BORROW,  0 },
+	{ 288,    1,    AJS_POOL_BORROW,  0 },
+	{ 320,    1,    AJS_POOL_BORROW,  0 },
+	{ 396,    1,    AJS_POOL_BORROW,  0 },  /* duk_hthread, with heap ptr compression, ROM strings+objects */
+	{ 400,    1,    AJS_POOL_BORROW,  0 },  /* duk_hthread, with heap ptr compression, RAM strings+objects */
+	{ 536,    1,    AJS_POOL_BORROW,  0 },  /* duk_heap, with heap ptr compression, RAM strings+objects */
+	{ 512,    16,   AJS_POOL_BORROW,  0 },
+	{ 1024,   6,    AJS_POOL_BORROW,  0 },
+	{ 2048,   5,    AJS_POOL_BORROW,  0 },
+	{ 4096,   3,    0,                0 },
+	{ 8192,   3,    0,                0 },
+	{ 16384,  1,    0,                0 },
+	{ 32768,  1,    0,                0 }
+};
 
-	lowmem_ram = (uint8_t *) malloc(LOWMEM_HEAP_SIZE);
-	if (lowmem_ram == NULL) {
-		fprintf(stderr, "Failed to allocate lowmem heap\n");
+uint8_t *ajsheap_ram = NULL;
+
+void ajsheap_init(void) {
+	size_t heap_sz[1];
+	uint8_t *heap_array[1];
+	uint8_t num_pools, i;
+	AJ_Status ret;
+
+	num_pools = (uint8_t) (sizeof(ajsheap_config) / sizeof(AJS_HeapConfig));
+	heap_sz[0] = AJS_HeapRequired(ajsheap_config,  /* heapConfig */
+	                              num_pools,       /* numPools */
+	                              0);              /* heapNum */
+	ajsheap_ram = (uint8_t *) malloc(heap_sz[0]);
+	if (ajsheap_ram == NULL) {
+		fprintf(stderr, "Failed to allocate AJS heap\n");
 		fflush(stderr);
 		exit(1);
 	}
+	heap_array[0] = ajsheap_ram;
 
-	ptr = duk_alloc_pool_init((char *) lowmem_ram,
-	                          LOWMEM_HEAP_SIZE,
-	                          lowmem_config,
-	                          lowmem_state,
-	                          LOWMEM_NUM_POOLS,
-	                          &lowmem_global);
-	if (ptr == NULL) {
-		free(lowmem_ram);
-		lowmem_ram = NULL;
-		fprintf(stderr, "Failed to init lowmem pool\n");
-		fflush(stderr);
-		exit(1);
+	fprintf(stderr, "Allocated AJS heap of %ld bytes, pools:", (long) heap_sz[0]);
+	for (i = 0; i < num_pools; i++) {
+		fprintf(stderr, " (sz:%ld,num:%ld,brw:%ld,idx:%ld)",
+		        (long) ajsheap_config[i].size, (long) ajsheap_config[i].entries,
+		        (long) ajsheap_config[i].borrow, (long) ajsheap_config[i].heapIndex);
 	}
+	fprintf(stderr, "\n");
+	fflush(stderr);
 
-	lowmem_pool_ptr = ptr;
+	ret = AJS_HeapInit((void **) heap_array,   /* heap */
+	                   (size_t *) heap_sz,     /* heapSz */
+	                   ajsheap_config,         /* heapConfig */
+	                   num_pools,              /* numPools */
+	                   1);                     /* numHeaps */
+	fprintf(stderr, "AJS_HeapInit() -> %ld\n", (long) ret);
+	fflush(stderr);
+
+	/* Enable heap dumps */
+	dbgHEAPDUMP = 1;
 
 #if defined(DUK__ROMPTR_COMPRESSION)
 	/* Scan ROM pointer range for faster detection of "is 'p' a ROM pointer"
@@ -152,70 +176,43 @@ void lowmem_init(void) {
 #endif
 }
 
-void lowmem_free(void) {
-	if (lowmem_ram != NULL) {
-		free(lowmem_ram);
-		lowmem_ram = NULL;
+void ajsheap_free(void) {
+	if (ajsheap_ram != NULL) {
+		free(ajsheap_ram);
+		ajsheap_ram = NULL;
 	}
-	lowmem_pool_ptr = NULL;
 }
 
-static duk_ret_t lowmem__dump_binding(duk_context *ctx) {
-	lowmem_dump();
+/* AjsHeap.dump(), allows Ecmascript code to dump heap status at suitable
+ * points.
+ */
+duk_ret_t ajsheap_dump_binding(duk_context *ctx) {
+	AJS_HeapDump();
+	fflush(stdout);
 	return 0;
 }
 
-void lowmem_dump(void) {
-	int i;
-	duk_pool_global_stats global_stats;
-
-	for (i = 0; i < LOWMEM_NUM_POOLS; i++) {
-		duk_pool_state *s = &lowmem_state[i];
-		duk_pool_stats stats;
-
-		duk_alloc_pool_get_pool_stats(s, &stats);
-
-		fprintf(stderr, "  %2ld: %4ld %5ldB | free %4ld %5ldB | used %4ld %5ldB | waste %5ldB | hwm %4ld (%3ld%%)%s\n",
-		        (long) i, (long) s->count, (long) s->size,
-		        (long) stats.free_count, (long) stats.free_bytes,
-		        (long) stats.used_count, (long) stats.used_bytes,
-		        (long) stats.waste_bytes, (long) stats.hwm_used_count,
-		        (long) ((double) stats.hwm_used_count / (double) s->count * 100.0),
-		        (stats.hwm_used_count == s->count ? " !" : ""));
-	}
-
-	/* This causes another walk over the individual pools which is a bit
-	 * inelegant, but we want the highwater mark stats too.
-	 */
-	duk_alloc_pool_get_global_stats(&lowmem_global, &global_stats);
-
-	fprintf(stderr, "  TOTAL: %ld bytes used, %ld bytes waste, %ld bytes free, %ld bytes total; highwater %ld used, %ld waste\n",
-	        (long) global_stats.used_bytes, (long) global_stats.waste_bytes,
-	        (long) global_stats.free_bytes, (long) (global_stats.used_bytes + global_stats.free_bytes),
-	        (long) global_stats.hwm_used_bytes, (long) global_stats.hwm_waste_bytes);
-	fflush(stderr);
+void ajsheap_dump(void) {
+	AJS_HeapDump();
+	fflush(stdout);
 }
 
-void lowmem_register(duk_context *ctx) {
-	duk_push_global_object(ctx);
-	duk_push_string(ctx, "dumpHeap");
-	duk_push_c_function(ctx, lowmem__dump_binding, 0);
-	duk_def_prop(ctx, -3, DUK_DEFPROP_SET_WRITABLE |
-	                      DUK_DEFPROP_CLEAR_ENUMERABLE |
-	                      DUK_DEFPROP_SET_CONFIGURABLE |
-	                      DUK_DEFPROP_HAVE_VALUE);
-	duk_pop(ctx);
+void ajsheap_register(duk_context *ctx) {
+	duk_push_object(ctx);
+	duk_push_c_function(ctx, ajsheap_dump_binding, 0);
+	duk_put_prop_string(ctx, -2, "dump");
+	duk_put_global_string(ctx, "AjsHeap");
 }
 
 /*
- *  Wrapped alloc functions
+ *  Wrapped ajs_heap.c alloc functions
  *
  *  Used to write an alloc log.
  */
 
-static FILE *lowmem_alloc_log = NULL;
+static FILE *ajsheap_alloc_log = NULL;
 
-static void lowmem_write_alloc_log(const char *fmt, ...) {
+static void ajsheap_write_alloc_log(const char *fmt, ...) {
 	va_list ap;
 	char buf[256];
 
@@ -224,61 +221,60 @@ static void lowmem_write_alloc_log(const char *fmt, ...) {
 	buf[sizeof(buf) - 1] = (char) 0;
 	va_end(ap);
 
-	if (lowmem_alloc_log == NULL) {
-		lowmem_alloc_log = fopen("/tmp/lowmem-alloc-log.txt", "wb");
-		if (lowmem_alloc_log == NULL) {
+	if (ajsheap_alloc_log == NULL) {
+		ajsheap_alloc_log = fopen("/tmp/ajduk-alloc-log.txt", "wb");
+		if (ajsheap_alloc_log == NULL) {
 			fprintf(stderr, "WARNING: failed to write alloc log, ignoring\n");
 			fflush(stderr);
 			return;
 		}
 	}
 
-	(void) fwrite((const void *) buf, 1, strlen(buf), lowmem_alloc_log);
-	(void) fflush(lowmem_alloc_log);
+	(void) fwrite((const void *) buf, 1, strlen(buf), ajsheap_alloc_log);
+	(void) fflush(ajsheap_alloc_log);
 }
 
-void *lowmem_alloc_wrapped(void *udata, duk_size_t size) {
-	void *ret = duk_alloc_pool(udata, size);
+void *ajsheap_alloc_wrapped(void *udata, duk_size_t size) {
+	void *ret = AJS_Alloc(udata, size);
 	if (size > 0 && ret == NULL) {
-		lowmem_write_alloc_log("A FAIL %ld\n", (long) size);
+		ajsheap_write_alloc_log("A FAIL %ld\n", (long) size);
 	} else if (ret == NULL) {
-		lowmem_write_alloc_log("A NULL %ld\n", (long) size);
+		ajsheap_write_alloc_log("A NULL %ld\n", (long) size);
 	} else {
-		lowmem_write_alloc_log("A %p %ld\n", ret, (long) size);
+		ajsheap_write_alloc_log("A %p %ld\n", ret, (long) size);
 	}
 	return ret;
 }
 
-void *lowmem_realloc_wrapped(void *udata, void *ptr, duk_size_t size) {
-	void *ret = duk_realloc_pool(udata, ptr, size);
+void *ajsheap_realloc_wrapped(void *udata, void *ptr, duk_size_t size) {
+	void *ret = AJS_Realloc(udata, ptr, size);
 	if (size > 0 && ret == NULL) {
 		if (ptr == NULL) {
-			lowmem_write_alloc_log("R NULL -1 FAIL %ld\n", (long) size);
+			ajsheap_write_alloc_log("R NULL -1 FAIL %ld\n", (long) size);
 		} else {
-			lowmem_write_alloc_log("R %p -1 FAIL %ld\n", ptr, (long) size);
+			ajsheap_write_alloc_log("R %p -1 FAIL %ld\n", ptr, (long) size);
 		}
 	} else if (ret == NULL) {
 		if (ptr == NULL) {
-			lowmem_write_alloc_log("R NULL -1 NULL %ld\n", (long) size);
+			ajsheap_write_alloc_log("R NULL -1 NULL %ld\n", (long) size);
 		} else {
-			lowmem_write_alloc_log("R %p -1 NULL %ld\n", ptr, (long) size);
+			ajsheap_write_alloc_log("R %p -1 NULL %ld\n", ptr, (long) size);
 		}
 	} else {
 		if (ptr == NULL) {
-			lowmem_write_alloc_log("R NULL -1 %p %ld\n", ret, (long) size);
+			ajsheap_write_alloc_log("R NULL -1 %p %ld\n", ret, (long) size);
 		} else {
-			lowmem_write_alloc_log("R %p -1 %p %ld\n", ptr, ret, (long) size);
+			ajsheap_write_alloc_log("R %p -1 %p %ld\n", ptr, ret, (long) size);
 		}
 	}
 	return ret;
 }
 
-void lowmem_free_wrapped(void *udata, void *ptr) {
-	duk_free_pool(udata, ptr);
+void ajsheap_free_wrapped(void *udata, void *ptr) {
+	AJS_Free(udata, ptr);
 	if (ptr == NULL) {
-		/* Ignore. */
 	} else {
-		lowmem_write_alloc_log("F %p -1\n", ptr);
+		ajsheap_write_alloc_log("F %p -1\n", ptr);
 	}
 }
 
@@ -289,9 +285,9 @@ void lowmem_free_wrapped(void *udata, void *ptr) {
  *  which is reserved for NULL pointers.
  */
 
-duk_uint16_t lowmem_enc16(void *ud, void *p) {
+duk_uint16_t ajsheap_enc16(void *ud, void *p) {
 	duk_uint32_t ret;
-	char *base = (char *) lowmem_ram - 4;
+	char *base = (char *) ajsheap_ram - 4;
 
 #if defined(DUK__ROMPTR_COMPRESSION)
 	if (p >= duk__romptr_low && p <= duk__romptr_high) {
@@ -304,9 +300,9 @@ duk_uint16_t lowmem_enc16(void *ud, void *p) {
 		const void * const * ptrs = duk_rom_compressed_pointers;
 		while (*ptrs) {
 			if (*ptrs == p) {
-				ret = (duk_uint32_t) DUK__ROMPTR_FIRST + (duk_uint32_t) (ptrs - duk_rom_compressed_pointers);
+				ret = DUK__ROMPTR_FIRST + (ptrs - duk_rom_compressed_pointers);
 #if 0
-				fprintf(stderr, "lowmem_enc16: rom pointer: %p -> 0x%04lx\n", (void *) p, (long) ret);
+				fprintf(stderr, "ajsheap_enc16: rom pointer: %p -> 0x%04lx\n", (void *) p, (long) ret);
 				fflush(stderr);
 #endif
 				return (duk_uint16_t) ret;
@@ -319,7 +315,7 @@ duk_uint16_t lowmem_enc16(void *ud, void *p) {
 		 * pointers list, which are known at 'make dist' time.
 		 * We go on, causing a pointer compression error.
 		 */
-		fprintf(stderr, "lowmem_enc16: rom pointer: %p could not be compressed, should never happen\n", (void *) p);
+		fprintf(stderr, "ajsheap_enc16: rom pointer: %p could not be compressed, should never happen\n", (void *) p);
 		fflush(stderr);
 	}
 #endif
@@ -339,8 +335,8 @@ duk_uint16_t lowmem_enc16(void *ud, void *p) {
 	/* Ensure that we always get the heap_udata given in heap creation.
 	 * (Useful for Duktape development, not needed for user programs.)
 	 */
-	if (ud != (void *) lowmem_pool_ptr) {
-		fprintf(stderr, "invalid udata for lowmem_enc16: %p\n", ud);
+	if (ud != (void *) 0xdeadbeef) {
+		fprintf(stderr, "invalid udata for ajsheap_enc16: %p\n", ud);
 		fflush(stderr);
 	}
 #endif
@@ -351,7 +347,7 @@ duk_uint16_t lowmem_enc16(void *ud, void *p) {
 		ret = (duk_uint32_t) (((char *) p - base) >> 2);
 	}
 #if 0
-	fprintf(stderr, "lowmem_enc16: %p -> %u\n", p, (unsigned int) ret);
+	printf("ajsheap_enc16: %p -> %u\n", p, (unsigned int) ret);
 #endif
 	if (ret > 0xffffUL) {
 		fprintf(stderr, "Failed to compress pointer: %p (ret was %ld)\n", (void *) p, (long) ret);
@@ -359,7 +355,7 @@ duk_uint16_t lowmem_enc16(void *ud, void *p) {
 		abort();
 	}
 #if defined(DUK__ROMPTR_COMPRESSION)
-	if (ret >= (duk_uint32_t) DUK__ROMPTR_FIRST) {
+	if (ret >= DUK__ROMPTR_FIRST) {
 		fprintf(stderr, "Failed to compress pointer, in 16-bit range but matches romptr range: %p (ret was %ld)\n", (void *) p, (long) ret);
 		fflush(stderr);
 		abort();
@@ -368,31 +364,31 @@ duk_uint16_t lowmem_enc16(void *ud, void *p) {
 	return (duk_uint16_t) ret;
 }
 
-void *lowmem_dec16(void *ud, duk_uint16_t x) {
+void *ajsheap_dec16(void *ud, duk_uint16_t x) {
 	void *ret;
-	char *base = (char *) lowmem_ram - 4;
+	char *base = (char *) ajsheap_ram - 4;
 
 #if defined(DUK__ROMPTR_COMPRESSION)
-	if (x >= (duk_uint16_t) DUK__ROMPTR_FIRST) {
+	if (x >= DUK__ROMPTR_FIRST) {
 		/* This is a blind lookup, could check index validity.
 		 * Duktape should never decompress a pointer which would
 		 * be out-of-bounds here.
 		 */
-		ret = (void *) duk__lose_const(duk_rom_compressed_pointers[x - (duk_uint16_t) DUK__ROMPTR_FIRST]);
+		ret = (void *) ajduk__lose_const(duk_rom_compressed_pointers[x - DUK__ROMPTR_FIRST]);
 #if 0
-		fprintf(stderr, "lowmem_dec16: rom pointer: 0x%04lx -> %p\n", (long) x, ret);
+		fprintf(stderr, "ajsheap_dec16: rom pointer: 0x%04lx -> %p\n", (long) x, ret);
 		fflush(stderr);
 #endif
 		return ret;
 	}
 #endif
 
-	/* See userdata discussion in lowmem_enc16(). */
+	/* See userdata discussion in ajsheap_enc16(). */
 	(void) ud;
 #if 1
 	/* Ensure that we always get the heap_udata given in heap creation. */
-	if (ud != (void *) lowmem_pool_ptr) {
-		fprintf(stderr, "invalid udata for lowmem_dec16: %p\n", ud);
+	if (ud != (void *) 0xdeadbeef) {
+		fprintf(stderr, "invalid udata for ajsheap_dec16: %p\n", ud);
 		fflush(stderr);
 	}
 #endif
@@ -403,7 +399,7 @@ void *lowmem_dec16(void *ud, duk_uint16_t x) {
 		ret = (void *) (base + (((duk_uint32_t) x) << 2));
 	}
 #if 0
-	fprintf(stderr, "lowmem_dec16: %u -> %p\n", (unsigned int) x, ret);
+	printf("ajsheap_dec16: %u -> %p\n", (unsigned int) x, ret);
 #endif
 	return ret;
 }
@@ -422,16 +418,16 @@ void *lowmem_dec16(void *ud, duk_uint16_t x) {
  *  Duktape itself).
  */
 
-static uint8_t lowmem_strdata[65536];
-static size_t lowmem_strdata_used = 0;
+static uint8_t ajsheap_strdata[65536];
+static size_t ajsheap_strdata_used = 0;
 
-const void *lowmem_extstr_check_1(const void *ptr, duk_size_t len) {
+const void *ajsheap_extstr_check_1(const void *ptr, duk_size_t len) {
 	uint8_t *p, *p_end;
 	uint8_t initial;
 	uint8_t *ret;
 	size_t left;
 
-	(void) duk__safe_print_chars;  /* potentially unused */
+	(void) safe_print_chars;  /* potentially unused */
 
 	if (len <= 3) {
 		/* It's not worth it to make very small strings external, as
@@ -448,7 +444,7 @@ const void *lowmem_extstr_check_1(const void *ptr, duk_size_t len) {
 	 */
 
 	initial = ((const uint8_t *) ptr)[0];
-	for (p = lowmem_strdata, p_end = p + lowmem_strdata_used; p != p_end; p++) {
+	for (p = ajsheap_strdata, p_end = p + ajsheap_strdata_used; p != p_end; p++) {
 		if (*p != initial) {
 			continue;
 		}
@@ -458,11 +454,11 @@ const void *lowmem_extstr_check_1(const void *ptr, duk_size_t len) {
 		    p[len] == 0) {
 			ret = p;
 #if 0
-			fprintf(stderr, "lowmem_extstr_check_1: ptr=%p, len=%ld ",
+			printf("ajsheap_extstr_check_1: ptr=%p, len=%ld ",
 			       (void *) ptr, (long) len);
-			duk__safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
-			fprintf(stderr, " -> existing %p (used=%ld)\n",
-			       (void *) ret, (long) lowmem_strdata_used);
+			safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
+			printf(" -> existing %p (used=%ld)\n",
+			       (void *) ret, (long) ajsheap_strdata_used);
 #endif
 			return ret;
 		}
@@ -473,11 +469,11 @@ const void *lowmem_extstr_check_1(const void *ptr, duk_size_t len) {
 	 *  ensure there is space for a NUL following the input data.
 	 */
 
-	if (lowmem_strdata_used + len + 1 > sizeof(lowmem_strdata)) {
+	if (ajsheap_strdata_used + len + 1 > sizeof(ajsheap_strdata)) {
 #if 0
-		fprintf(stderr, "lowmem_extstr_check_1: ptr=%p, len=%ld ", (void *) ptr, (long) len);
-		duk__safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
-		fprintf(stderr, " -> no space (used=%ld)\n", (long) lowmem_strdata_used);
+		printf("ajsheap_extstr_check_1: ptr=%p, len=%ld ", (void *) ptr, (long) len);
+		safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
+		printf(" -> no space (used=%ld)\n", (long) ajsheap_strdata_used);
 #endif
 		return NULL;
 	}
@@ -487,25 +483,25 @@ const void *lowmem_extstr_check_1(const void *ptr, duk_size_t len) {
 	 *  to append the NUL.
 	 */
 
-	ret = lowmem_strdata + lowmem_strdata_used;
+	ret = ajsheap_strdata + ajsheap_strdata_used;
 	memcpy(ret, ptr, len);
 	ret[len] = (uint8_t) 0;
-	lowmem_strdata_used += len + 1;
+	ajsheap_strdata_used += len + 1;
 
 #if 0
-	fprintf(stderr, "lowmem_extstr_check_1: ptr=%p, len=%ld -> ", (void *) ptr, (long) len);
-	duk__safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
-	fprintf(stderr, " -> %p (used=%ld)\n", (void *) ret, (long) lowmem_strdata_used);
+	printf("ajsheap_extstr_check_1: ptr=%p, len=%ld -> ", (void *) ptr, (long) len);
+	safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
+	printf(" -> %p (used=%ld)\n", (void *) ret, (long) ajsheap_strdata_used);
 #endif
 	return (const void *) ret;
 }
 
-void lowmem_extstr_free_1(const void *ptr) {
+void ajsheap_extstr_free_1(const void *ptr) {
 	(void) ptr;
 #if 0
-	fprintf(stderr, "lowmem_extstr_free_1: freeing extstr %p -> ", ptr);
-	duk__safe_print_chars((const char *) ptr, DUK_SIZE_MAX, 1 /*until_nul*/);
-	fprintf(stderr, "\n");
+	printf("ajsheap_extstr_free_1: freeing extstr %p -> ", ptr);
+	safe_print_chars((const char *) ptr, DUK_SIZE_MAX, 1 /*until_nul*/);
+	printf("\n");
 #endif
 }
 
@@ -585,27 +581,27 @@ static const char *strdata_duk_builtin_strings[] = {
 	"errThrow",
 	"errCreate",
 	"compile",
-	"\x82" "Regbase",
-	"\x82" "Thread",
-	"\x82" "Handler",
-	"\x82" "Finalizer",
-	"\x82" "Callee",
-	"\x82" "Map",
-	"\x82" "Args",
-	"\x82" "This",
-	"\x82" "Pc2line",
-	"\x82" "Source",
-	"\x82" "Varenv",
-	"\x82" "Lexenv",
-	"\x82" "Varmap",
-	"\x82" "Formals",
-	"\x82" "Bytecode",
-	"\x82" "Next",
-	"\x82" "Target",
-	"\x82" "Value",
+	"\xff" "Regbase",
+	"\xff" "Thread",
+	"\xff" "Handler",
+	"\xff" "Finalizer",
+	"\xff" "Callee",
+	"\xff" "Map",
+	"\xff" "Args",
+	"\xff" "This",
+	"\xff" "Pc2line",
+	"\xff" "Source",
+	"\xff" "Varenv",
+	"\xff" "Lexenv",
+	"\xff" "Varmap",
+	"\xff" "Formals",
+	"\xff" "Bytecode",
+	"\xff" "Next",
+	"\xff" "Target",
+	"\xff" "Value",
 	"pointer",
 	"buffer",
-	"\x82" "Tracedata",
+	"\xff" "Tracedata",
 	"lineNumber",
 	"fileName",
 	"pc",
@@ -876,10 +872,10 @@ static const char *strdata_duk_builtin_strings[] = {
 	/* ... */
 };
 
-const void *lowmem_extstr_check_2(const void *ptr, duk_size_t len) {
+const void *ajsheap_extstr_check_2(const void *ptr, duk_size_t len) {
 	int i, n;
 
-	(void) duk__safe_print_chars;  /* potentially unused */
+	(void) safe_print_chars;  /* potentially unused */
 
 	/* Linear scan.  An actual implementation would need some acceleration
 	 * structure, e.g. select a sublist based on first character.
@@ -896,30 +892,30 @@ const void *lowmem_extstr_check_2(const void *ptr, duk_size_t len) {
 		str = strdata_duk_builtin_strings[i];
 		if (strlen(str) == len && memcmp(ptr, (const void *) str, len) == 0) {
 #if 0
-			fprintf(stderr, "lowmem_extstr_check_2: ptr=%p, len=%ld ",
+			printf("ajsheap_extstr_check_2: ptr=%p, len=%ld ",
 			       (void *) ptr, (long) len);
-			duk__safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
-			fprintf(stderr, " -> constant string index %ld\n", (long) i);
+			safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
+			printf(" -> constant string index %ld\n", (long) i);
 #endif
-			return (void *) duk__lose_const(strdata_duk_builtin_strings[i]);
+			return (void *) ajduk__lose_const(strdata_duk_builtin_strings[i]);
 		}
 	}
 
 #if 0
-	fprintf(stderr, "lowmem_extstr_check_2: ptr=%p, len=%ld ",
+	printf("ajsheap_extstr_check_2: ptr=%p, len=%ld ",
 	       (void *) ptr, (long) len);
-	duk__safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
-	fprintf(stderr, " -> not found\n");
+	safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
+	printf(" -> not found\n");
 #endif
 	return NULL;
 }
 
-void lowmem_extstr_free_2(const void *ptr) {
+void ajsheap_extstr_free_2(const void *ptr) {
 	(void) ptr;
 #if 0
-	fprintf(stderr, "lowmem_extstr_free_2: freeing extstr %p -> ", ptr);
-	duk__safe_print_chars((const char *) ptr, DUK_SIZE_MAX, 1 /*until_nul*/);
-	fprintf(stderr, "\n");
+	printf("ajsheap_extstr_free_2: freeing extstr %p -> ", ptr);
+	safe_print_chars((const char *) ptr, DUK_SIZE_MAX, 1 /*until_nul*/);
+	printf("\n");
 #endif
 }
 
@@ -929,18 +925,18 @@ void lowmem_extstr_free_2(const void *ptr) {
  *  that strings are e.g. freed exactly once.
  */
 
-const void *lowmem_extstr_check_3(const void *ptr, duk_size_t len) {
+const void *ajsheap_extstr_check_3(const void *ptr, duk_size_t len) {
 	duk_uint8_t *ret;
 
-	(void) duk__safe_print_chars;  /* potentially unused */
+	(void) safe_print_chars;  /* potentially unused */
 
 	ret = malloc((size_t) len + 1);
 	if (ret == NULL) {
 #if 0
-		fprintf(stderr, "lowmem_extstr_check_3: ptr=%p, len=%ld ",
+		printf("ajsheap_extstr_check_3: ptr=%p, len=%ld ",
 		       (void *) ptr, (long) len);
-		duk__safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
-		fprintf(stderr, " -> malloc failed, return NULL\n");
+		safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
+		printf(" -> malloc failed, return NULL\n");
 #endif
 		return (const void *) NULL;
 	}
@@ -951,22 +947,22 @@ const void *lowmem_extstr_check_3(const void *ptr, duk_size_t len) {
 	ret[len] = (duk_uint8_t) 0;
 
 #if 0
-	fprintf(stderr, "lowmem_extstr_check_3: ptr=%p, len=%ld ",
+	printf("ajsheap_extstr_check_3: ptr=%p, len=%ld ",
 	       (void *) ptr, (long) len);
-	duk__safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
-	fprintf(stderr, " -> %p\n", (void *) ret);
+	safe_print_chars((const char *) ptr, len, 0 /*until_nul*/);
+	printf(" -> %p\n", (void *) ret);
 #endif
 	return (const void *) ret;
 }
 
-void lowmem_extstr_free_3(const void *ptr) {
+void ajsheap_extstr_free_3(const void *ptr) {
 	(void) ptr;
 #if 0
-	fprintf(stderr, "lowmem_extstr_free_3: freeing extstr %p -> ", ptr);
-	duk__safe_print_chars((const char *) ptr, DUK_SIZE_MAX, 1 /*until_nul*/);
-	fprintf(stderr, "\n");
+	printf("ajsheap_extstr_free_3: freeing extstr %p -> ", ptr);
+	safe_print_chars((const char *) ptr, DUK_SIZE_MAX, 1 /*until_nul*/);
+	printf("\n");
 #endif
-	free((void *) duk__lose_const(ptr));
+	free((void *) ajduk__lose_const(ptr));
 }
 
 /*
@@ -978,15 +974,15 @@ void lowmem_extstr_free_3(const void *ptr) {
 static time_t curr_pcall_start = 0;
 static long exec_timeout_check_counter = 0;
 
-void lowmem_start_exec_timeout(void) {
+void ajsheap_start_exec_timeout(void) {
 	curr_pcall_start = time(NULL);
 }
 
-void lowmem_clear_exec_timeout(void) {
+void ajsheap_clear_exec_timeout(void) {
 	curr_pcall_start = 0;
 }
 
-duk_bool_t lowmem_exec_timeout_check(void *udata) {
+duk_bool_t ajsheap_exec_timeout_check(void *udata) {
 	time_t now = time(NULL);
 	time_t diff = now - curr_pcall_start;
 
@@ -994,9 +990,9 @@ duk_bool_t lowmem_exec_timeout_check(void *udata) {
 
 	exec_timeout_check_counter++;
 #if 0
-	fprintf(stderr, "exec timeout check %ld: now=%ld, start=%ld, diff=%ld\n",
+	printf("exec timeout check %ld: now=%ld, start=%ld, diff=%ld\n",
 	       (long) exec_timeout_check_counter, (long) now, (long) curr_pcall_start, (long) diff);
-	fflush(stderr);
+	fflush(stdout);
 #endif
 
 	if (curr_pcall_start == 0) {
@@ -1009,8 +1005,8 @@ duk_bool_t lowmem_exec_timeout_check(void *udata) {
 	return 0;
 }
 
-#else  /* DUK_CMDLINE_LOWMEM */
+#else  /* DUK_CMDLINE_AJSHEAP */
 
-int duk_lowmem_dummy = 0;  /* to avoid empty source file */
+int ajs_dummy = 0;  /* to avoid empty source file */
 
-#endif  /* DUK_CMDLINE_LOWMEM */
+#endif  /* DUK_CMDLINE_AJSHEAP */

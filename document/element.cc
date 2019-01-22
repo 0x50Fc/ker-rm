@@ -26,6 +26,14 @@ namespace kk  {
         _cancelBubble = v;
     }
     
+    Object * ElementEvent::dataSet() {
+        return _dataSet;
+    }
+    
+    void ElementEvent::setDataSet(Object * object) {
+        _dataSet = object;
+    }
+    
     void ElementEvent::Openlib() {
         
         kk::Openlib<>::add([](duk_context * ctx)->void{
@@ -34,6 +42,7 @@ namespace kk  {
                 
                 kk::PutProperty<ElementEvent,Element *>(ctx, -1, "element", &ElementEvent::element);
                 kk::PutProperty<ElementEvent,kk::Boolean>(ctx, -1, "cancelBubble", &ElementEvent::cancelBubble,&ElementEvent::setCancelBubble);
+                kk::PutProperty<ElementEvent,kk::Object *>(ctx, -1, "dataSet", &ElementEvent::dataSet,&ElementEvent::setDataSet);
             });
             
         });
@@ -458,6 +467,23 @@ namespace kk  {
         return v;
     }
     
+    kk::Strong<Object> Element::dataSet() {
+        kk::Strong<Object> v = new TObject<kk::String, kk::String>();
+        TObject<kk::String, kk::String> * object = v;
+        
+        auto i = _attributes.begin();
+        auto e = _attributes.end();
+        
+        while(i != e) {
+            if(kk::CStringHasPrefix(i->first.c_str(), "data-")) {
+                (*object)[i->first.substr(5)] = i->second;
+            }
+            i ++;
+        }
+        
+        return v;
+    }
+    
     String Element::toString() {
         String v;
         
@@ -491,7 +517,9 @@ namespace kk  {
                 
                 v.append("\n");
                 
-                v.append(e->toString());
+                kk::String s = e->toString();
+                
+                v.append(s);
                 
                 e = e->nextSibling();
                 
@@ -542,6 +570,7 @@ namespace kk  {
                 kk::PutMethod<Element,void,kk::CString,kk::Object *>(ctx, -1, "setObject", &Element::setObject);
                 kk::PutMethod<Element,kk::Object *,kk::CString>(ctx, -1, "object", &Element::object);
                 kk::PutMethod<Element,void,kk::CString,Event *>(ctx, -1, "dispatchEvent", &Element::dispatchEvent);
+                kk::PutMethod<Element,kk::String>(ctx, -1, "toString", &Element::toString);
                 
                 
             });

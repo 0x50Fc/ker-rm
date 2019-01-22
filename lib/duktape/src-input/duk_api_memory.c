@@ -4,38 +4,50 @@
 
 #include "duk_internal.h"
 
-DUK_EXTERNAL void *duk_alloc_raw(duk_hthread *thr, duk_size_t size) {
-	DUK_ASSERT_API_ENTRY(thr);
+DUK_EXTERNAL void *duk_alloc_raw(duk_context *ctx, duk_size_t size) {
+	duk_hthread *thr = (duk_hthread *) ctx;
+
+	DUK_ASSERT_CTX_VALID(ctx);
 
 	return DUK_ALLOC_RAW(thr->heap, size);
 }
 
-DUK_EXTERNAL void duk_free_raw(duk_hthread *thr, void *ptr) {
-	DUK_ASSERT_API_ENTRY(thr);
+DUK_EXTERNAL void duk_free_raw(duk_context *ctx, void *ptr) {
+	duk_hthread *thr = (duk_hthread *) ctx;
+
+	DUK_ASSERT_CTX_VALID(ctx);
 
 	DUK_FREE_RAW(thr->heap, ptr);
 }
 
-DUK_EXTERNAL void *duk_realloc_raw(duk_hthread *thr, void *ptr, duk_size_t size) {
-	DUK_ASSERT_API_ENTRY(thr);
+DUK_EXTERNAL void *duk_realloc_raw(duk_context *ctx, void *ptr, duk_size_t size) {
+	duk_hthread *thr = (duk_hthread *) ctx;
+
+	DUK_ASSERT_CTX_VALID(ctx);
 
 	return DUK_REALLOC_RAW(thr->heap, ptr, size);
 }
 
-DUK_EXTERNAL void *duk_alloc(duk_hthread *thr, duk_size_t size) {
-	DUK_ASSERT_API_ENTRY(thr);
+DUK_EXTERNAL void *duk_alloc(duk_context *ctx, duk_size_t size) {
+	duk_hthread *thr = (duk_hthread *) ctx;
+
+	DUK_ASSERT_CTX_VALID(ctx);
 
 	return DUK_ALLOC(thr->heap, size);
 }
 
-DUK_EXTERNAL void duk_free(duk_hthread *thr, void *ptr) {
-	DUK_ASSERT_API_ENTRY(thr);
+DUK_EXTERNAL void duk_free(duk_context *ctx, void *ptr) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 
-	DUK_FREE_CHECKED(thr, ptr);
+	DUK_ASSERT_CTX_VALID(ctx);
+
+	DUK_FREE(thr->heap, ptr);
 }
 
-DUK_EXTERNAL void *duk_realloc(duk_hthread *thr, void *ptr, duk_size_t size) {
-	DUK_ASSERT_API_ENTRY(thr);
+DUK_EXTERNAL void *duk_realloc(duk_context *ctx, void *ptr, duk_size_t size) {
+	duk_hthread *thr = (duk_hthread *) ctx;
+
+	DUK_ASSERT_CTX_VALID(ctx);
 
 	/*
 	 *  Note: since this is an exposed API call, there should be
@@ -50,10 +62,11 @@ DUK_EXTERNAL void *duk_realloc(duk_hthread *thr, void *ptr, duk_size_t size) {
 	return DUK_REALLOC(thr->heap, ptr, size);
 }
 
-DUK_EXTERNAL void duk_get_memory_functions(duk_hthread *thr, duk_memory_functions *out_funcs) {
+DUK_EXTERNAL void duk_get_memory_functions(duk_context *ctx, duk_memory_functions *out_funcs) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_heap *heap;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
 	DUK_ASSERT(out_funcs != NULL);
 	DUK_ASSERT(thr != NULL);
 	DUK_ASSERT(thr->heap != NULL);
@@ -65,11 +78,12 @@ DUK_EXTERNAL void duk_get_memory_functions(duk_hthread *thr, duk_memory_function
 	out_funcs->udata = heap->heap_udata;
 }
 
-DUK_EXTERNAL void duk_gc(duk_hthread *thr, duk_uint_t flags) {
+DUK_EXTERNAL void duk_gc(duk_context *ctx, duk_uint_t flags) {
+	duk_hthread *thr = (duk_hthread *) ctx;
 	duk_heap *heap;
 	duk_small_uint_t ms_flags;
 
-	DUK_ASSERT_API_ENTRY(thr);
+	DUK_ASSERT_CTX_VALID(ctx);
 	heap = thr->heap;
 	DUK_ASSERT(heap != NULL);
 

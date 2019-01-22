@@ -26,6 +26,7 @@ namespace kk {
             virtual void set(kk::CString v);
             virtual void set(const TextFont &v);
             virtual Font font(LayoutContext * context);
+            virtual String toString(ViewContext * context);
         };
         
         class SpanElement : public kk::StyleElement {
@@ -34,7 +35,7 @@ namespace kk {
             virtual void changedKey(CString key);
             TextFont font;
             Color color;
-            
+            Pixel letterSpacing;
             Ker_CLASS(SpanElement,kk::StyleElement,"UISpanElement")
         };
         
@@ -67,14 +68,21 @@ namespace kk {
             virtual void changedKey(CString key);
             virtual AttributedText * text(ViewContext * context);
             
+            virtual void onLayout(LayoutContext * context);
+            
             Ker_CLASS(TextElement,ViewElement,"UITextElement")
             
             TextFont font;
             Color color;
+            Pixel lineSpacing;
+            Pixel letterSpacing;
+            Pixel paragraphSpacing;
+            TextAlign textAlign;
             
             static void Openlib();
             static void library(kk::CString name);
         protected:
+            virtual void setViewKey(ViewContext * context,View * view,CString key, CString value);
             virtual void onDidAddChildren(Element * element);
             virtual void onWillRemoveChildren(Element * element);
             virtual void onObtainView(ViewContext * context,View * view);

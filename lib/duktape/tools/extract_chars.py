@@ -12,7 +12,7 @@
 #  typically contains an ASCII fast path so ASCII characters don't need
 #  to be considered in the Unicode tables.  "NONBMP" excludes codepoints
 #  above U+FFFF which is useful because such codepoints don't need to be
-#  supported in standard ECMAScript.
+#  supported in standard Ecmascript.
 #
 
 import os

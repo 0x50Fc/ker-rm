@@ -92,8 +92,6 @@ Install DukLuv:
 
 * ``git clone https://github.com/creationix/dukluv.git``
 
-* ``cd dukluv``
-
 * ``git submodule init; git submodule update``
 
 * ``make``

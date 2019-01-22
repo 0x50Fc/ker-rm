@@ -26,18 +26,12 @@
         _page = page;
         _page->retain();
         _type = page->type() == nullptr ? nil : [NSString stringWithCString:page->type() encoding:NSUTF8StringEncoding];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardVisible:) name:UIKeyboardWillShowNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardHidden:) name:UIKeyboardWillHideNotification object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardVisible:) name:UIKeyboardWillChangeFrameNotification object:nil];
     }
     return self;
 }
 
 -(void) dealloc {
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillChangeFrameNotification object:nil];
     
     if(_page) {
         kk::ui::Page * page = _page;
@@ -78,20 +72,6 @@
     });
 }
 
--(void) keyboardVisible:(NSNotification *) notification {
-    
-    CGRect frame = [[[notification userInfo] valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    
-    [self keyboard:frame visible:YES];
-    
-}
-
--(void) keyboardHidden:(NSNotification *) notification {
-    
-    CGRect frame = [[[notification userInfo] valueForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    
-    [self keyboard:frame visible:NO];
-}
 
 -(void) recycle {
     if(_page) {

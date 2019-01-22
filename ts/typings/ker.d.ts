@@ -3,7 +3,6 @@
 declare class Event {
     data: any
     returnValue: any
-    v:String
 }
 
 type EventFunction = (event: Event,name:string) => void
@@ -19,6 +18,13 @@ type ElementKey = number
 
 declare interface AttributeMap {
     [key: string]: string
+}
+
+declare class ElementEvent extends Event {
+    dataSet:any
+    cancelBubble:boolean
+    readonly element:Element
+    constructor(element:Element)
 }
 
 declare class Element extends EventEmitter {
@@ -43,6 +49,8 @@ declare class Element extends EventEmitter {
     setObject(key: string, object: any): void
     object(key: string): any
     dispatchEvent(name: string, event: Event): void
+    toString():string
+    readonly dataSet:any
 }
 
 declare class StyleElement extends Element {
@@ -250,10 +258,18 @@ declare interface UIPage extends EventEmitter {
     close(animated: boolean): void
 }
 
+declare interface UIScreen {
+    readonly width:number
+    readonly height:number
+    readonly density:number
+    readonly scale:number
+}
+
 declare var app: UIApp
 declare var userAgent: string
 declare var platform: string
 declare var path:string
 declare var query:any
 declare var page: UIPage
+declare var screen:UIScreen
 
