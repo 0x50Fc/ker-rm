@@ -55,6 +55,9 @@
 
 -(void) KerViewObtain:(KerId) viewId app:(KerId) app {
     [super KerViewObtain:viewId app:app];
+    if (@available(iOS 11.0, *)) {
+       self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
     UIScrollViewKKViewProtocol * object = [[UIScrollViewKKViewProtocol alloc] init];
     object.viewId = viewId;
     object.app = app;
