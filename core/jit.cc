@@ -886,6 +886,129 @@ namespace kk {
         kk::Openlib<>::add(std::move(func));
     }
     
+    void duk_push_require(duk_context * ctx,kk::CString basePath,JSResource * res) {
+        
+        duk_push_c_function(ctx, [](duk_context * ctx)->duk_ret_t{
+            
+            duk_push_current_function(ctx);
+            
+            duk_get_prop_string(ctx, -1, "__res");
+            
+            JSResource * res = (JSResource *) duk_to_pointer(ctx, -1);
+            
+            duk_pop(ctx);
+            
+            duk_get_prop_string(ctx, -1, "__basePath");
+            
+            kk::CString basePath = duk_to_string(ctx, -1);
+            
+            duk_pop(ctx);
+            
+            duk_pop(ctx);
+            
+            if(duk_is_string(ctx, -1)) {
+                
+                kk::CString path = duk_to_string(ctx, -1);
+                
+                if(path && res) {
+                    
+                    kk::String p;
+                    
+                    if(kk::CStringHasPrefix(path, "~/")) {
+                        p.append(path + 2);
+                    } else if(kk::CStringHasPrefix(path, "@")) {
+                        p.append(path);
+                    } else if(basePath != nullptr) {
+                        p = CStringPathAppend(basePath, path);
+                    } else {
+                        p.append(path);
+                    }
+                    
+                    if(!kk::CStringHasSuffix(path, ".js")) {
+                        p.append(".js");
+                    }
+                    
+                    return duk_require(ctx, p.c_str(), res);
+                }
+            }
+            
+            return 0;
+        }, 1);
+        
+        duk_push_pointer(ctx, res);
+        duk_put_prop_string(ctx, -2, "__res");
+        
+        if(basePath != nullptr) {
+            duk_push_string(ctx, basePath);
+            duk_put_prop_string(ctx, -2, "__basePath");
+        }
+    }
+    
+    duk_ret_t duk_require(duk_context * ctx,kk::CString path,JSResource * res) {
+        
+        kk::String key("__m_");
+        
+        key.append(res->getResourceKey(path));
+        
+        duk_push_heap_stash(ctx);
+        duk_get_prop_string(ctx, -1, key.c_str());
+        
+        if(!duk_is_object(ctx, -1)) {
+            
+            duk_pop(ctx);
+            
+            duk_push_object(ctx);
+            
+            kk::String v;
+            v.append("(function(module,exports,require){");
+            kk::String code = res->getTextContent(path);
+            v.append(code);
+            v.append("})");
+            
+            duk_push_string(ctx, path);
+            duk_compile_string_filename(ctx, 0, v.c_str());
+            
+            if(!duk_is_function(ctx, -1)) {
+                duk_pop_n(ctx,3);
+                return 0;
+            }
+            
+            if(::duk_pcall(ctx, 0) != DUK_EXEC_SUCCESS) {
+                Error(ctx, -1, "[duk_require]");
+                duk_pop_n(ctx,3);
+                return 0;
+            }
+            
+            duk_dup(ctx, -2);
+            duk_push_object(ctx);
+            duk_dup(ctx, -1);
+            duk_put_prop_string(ctx, -3, "exports");
+            
+            kk::String basePath = CStringPathDirname(path);
+            
+            duk_push_require(ctx, basePath.c_str(), res);
+            
+            if(::duk_pcall(ctx, 3) != DUK_EXEC_SUCCESS) {
+                Error(ctx, -1, "[duk_require]");
+                duk_pop_n(ctx,3);
+                return 0;
+            }
+            
+            duk_pop(ctx);
+            
+            duk_dup(ctx, -1);
+            duk_put_prop_string(ctx, -3, key.c_str());
+         
+        }
+        
+        duk_get_prop_string(ctx, -1, "exports");
+        
+        duk_remove(ctx, -2);
+        duk_remove(ctx, -2);
+        
+        return 1;
+    }
+    
     void OpenBaselib(){
         
         kk::Openlib<>::add([](duk_context * ctx)->void{
@@ -967,6 +1090,14 @@ namespace kk {
             duk_put_global_string(ctx, "compile");
             
         });
+        
+        kk::Openlib<JSResource *>::add([](duk_context * ctx,JSResource * res)->void{
+            
+            duk_push_require(ctx, nullptr, res);
+            duk_put_global_string(ctx, "require");
+            
+        });
+        
     }
     
     

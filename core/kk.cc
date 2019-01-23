@@ -1247,6 +1247,48 @@ namespace kk {
         return n1 >= n2 && strncmp(string, prefix, n2) == 0;
     }
 
+    String CStringPathNormalize(CString path) {
+        std::vector<kk::String> vs;
+        CStringSplit(path, "/", vs);
+        auto i = vs.begin();
+        while(i != vs.end()) {
+            auto & v = * i;
+            if(kk::CStringEqual(v.c_str(), ".")) {
+                i = vs.erase(i);
+                continue;
+            } else if(kk::CStringEqual(v.c_str(), "..")) {
+                i = vs.erase(i);
+                if(i != vs.begin()) {
+                    i = vs.erase(i + 1);
+                }
+                continue;
+            } else if(kk::CStringEqual(v.c_str(), "") && i != vs.begin()) {
+                i = vs.erase(i);
+                continue;
+            }
+            i ++;
+        }
+        return CStringJoin(vs, "/");
+    }
+    
+    String CStringPathDirname(CString path) {
+        String p;
+        
+        if(path == nullptr) {
+            return p;
+        }
+        
+        p.append(path);
+        
+        auto i = p.find_last_of("/");
+        
+        if(i != std::string::npos) {
+            p = p.substr(0,i);
+        }
+        
+        return p;
+    }
+    
     Boolean CStringHasSubstring(CString string,CString substr) {
 
         if(string == substr) {

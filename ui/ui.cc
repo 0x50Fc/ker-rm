@@ -9,6 +9,7 @@
 #include <ui/ui.h>
 #include <ui/view.h>
 #include <core/jit.h>
+#include <core/crypto.h>
 #include <ui/app.h>
 #include <ui/package.h>
 #include <core/uri.h>
@@ -332,7 +333,9 @@ namespace kk {
                 kk::Debugger::debug(_jsContext);
 #endif
                 kk::Openlib<>::openlib(_jsContext);
+                kk::Openlib<JSResource *>::openlib(_jsContext,dynamic_cast<JSResource *>(this));
                 kk::Openlib<kk::Container *>::openlib(_jsContext, this);
+                kk::Openlib<Context *>::openlib(_jsContext, this);
             });
         }
         
@@ -414,17 +417,22 @@ namespace kk {
             
         }
         
-        void Context::exec(kk::CString path,TObject<String, Any> * librarys) {
+        String Context::getResourceKey(kk::CString path) {
+            kk::String p = CStringPathNormalize(path);
+            Crypto C;
+            return C.MD5(p.c_str());
+        }
+        
+        void Context::exec(kk::CString path,std::vector<kk::String>& keys,std::vector<kk::Any>& librarys) {
             
-            kk::String code("(function(");
+            kk::String code("(function(require");
             
-            if(librarys != nullptr) {
-                auto i = librarys->begin();
-                while(i != librarys->end()) {
-                    if(i != librarys->begin()) {
-                        code.append(",");
-                    }
-                    code.append(i->first);
+            {
+                auto i = keys.begin();
+                auto e = keys.end();
+                while(i != e) {
+                    code.append(",");
+                    code.append(* i);
                     i ++;
                 }
             }
@@ -445,21 +453,23 @@ namespace kk {
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
                     duk_idx_t n =0;
-
-                    if(librarys != nullptr) {
-
-                        auto i = librarys->begin();
-
-                        while(i != librarys->end()) {
-
-                            PushAny(ctx, i->second);
-
+                    
+                    kk::String basePath = CStringPathDirname(path);
+                    
+                    duk_push_require(ctx, basePath.c_str(), (JSResource *) dynamic_cast<JSResource *>(this));
+                    
+                    n ++;
+                    
+                    {
+                        auto i = librarys.begin();
+                        auto e = librarys.end();
+                        while(i != e) {
+                            PushAny(ctx, * i);
                             i ++;
                             n ++;
                         }
-
                     }
-
+                    
                     if(duk_pcall(ctx, n) != DUK_EXEC_SUCCESS) {
                         Error(ctx, -1, "[Context::exec] ");
                     }
@@ -467,18 +477,37 @@ namespace kk {
                 } else {
                     Error(ctx, -1, "[Context::exec] ");
                 }
-    
+                
             }
             
             duk_pop(ctx);
             
         }
         
+        void Context::exec(kk::CString path,TObject<String, Any> * librarys) {
+            
+            std::vector<kk::String> keys;
+            std::vector<kk::Any> values;
+            
+            if(librarys != nullptr) {
+                auto i = librarys->begin();
+                auto e = librarys->end();
+                while(i != e) {
+                    keys.push_back(i->first);
+                    values.push_back(i->second);
+                    i ++;
+                }
+            }
+            
+            exec(path, keys,values);
+            
+        }
+        
         void Context::exec(kk::CString path,JSObject * librarys) {
             
-            kk::String code("(function(");
-            
-            std::vector<std::shared_ptr<Any>> vs;
+
+            std::vector<kk::String> keys;
+            std::vector<kk::Any> values;
             
             if(librarys != nullptr) {
                 
@@ -490,16 +519,16 @@ namespace kk {
                     
                     duk_enum(ctx, -1, DUK_ENUM_INCLUDE_SYMBOLS);
                     
+                    Any name;
+                    Any value;
+                    
                     while(duk_next(ctx, -1, 1)) {
-                        Any name;
                         GetAny(ctx, -2, name);
                         kk::CString cname = name;
                         if(cname) {
-                            if(vs.size() != 0) {
-                                code.append(",");
-                            }
-                            code.append(cname);
-                            vs.push_back(GetAnyPtr(ctx, -1));
+                            GetAny(ctx, -1, value);
+                            keys.push_back(cname);
+                            values.push_back(value);
                         }
                         
                         duk_pop_2(ctx);
@@ -510,40 +539,7 @@ namespace kk {
                 
             }
             
-            code.append("){");
-            
-            code.append(getTextContent(path));
-            
-            code.append("})");
-            
-            duk_context * ctx = jsContext();
-            
-            duk_push_string(ctx, path);
-            duk_compile_string_filename(ctx, 0, code.c_str());
-            
-            if(duk_is_function(ctx, -1)) {
-                
-                if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
-                    
-                    auto i = vs.begin();
-                    
-                    while(i != vs.end()) {
-                        std::shared_ptr<Any> & v = (*i);
-                        PushAny(ctx, * v);
-                        i ++;
-                    }
-                    
-                    if(duk_pcall(ctx, (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
-                        Error(ctx, -1, "[Context::exec] ");
-                    }
-                    
-                } else {
-                    Error(ctx, -1, "[Context::exec] ");
-                }
-                
-            }
-            
-            duk_pop(ctx);
+            exec(path, keys,values);
             
         }
         

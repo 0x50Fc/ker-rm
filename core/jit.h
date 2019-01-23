@@ -62,6 +62,16 @@ namespace kk {
     
     void OpenBaselib();
     
+    class JSResource {
+    public:
+        virtual String getTextContent(kk::CString path) = 0;
+        virtual String getResourceKey(kk::CString path) = 0;
+    };
+    
+    void duk_push_require(duk_context * ctx,kk::CString basePath,JSResource * res);
+    
+    duk_ret_t duk_require(duk_context * ctx,kk::CString path,JSResource * res);
+    
     void addOpenlib(std::function<void(duk_context *)> && func);
     
     void SetPrototype(duk_context * ctx, duk_idx_t idx, const Class * isa);

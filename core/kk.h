@@ -591,7 +591,8 @@ static const kk::Class * Class() { \
     String CStringPathDeleteLast(CString path);
     String CStringPathDeleteExtension(CString path);
     Boolean CStringHasSubstring(CString string,CString substr);
-    
+    String CStringPathNormalize(CString path);
+    String CStringPathDirname(CString path);
 }
 
 #endif /* kk_h */

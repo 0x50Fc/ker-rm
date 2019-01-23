@@ -247,7 +247,7 @@ namespace kk {
         
         class Canvas;
         
-        class Context : public EventEmitter, public Container {
+        class Context : public EventEmitter, public Container, public JSResource {
         public:
             Context(kk::CString basePath,kk::DispatchQueue * queue);
             virtual ~Context();
@@ -256,6 +256,7 @@ namespace kk {
             virtual duk_context * jsContext();
             virtual kk::String absolutePath(kk::CString path);
             virtual kk::String getTextContent(kk::CString path);
+            virtual String getResourceKey(kk::CString path);
             virtual void set(kk::Object * object);
             virtual kk::Object * get(kk::Object * object);
             virtual void remove(kk::Object * object);
@@ -272,6 +273,7 @@ namespace kk {
             Ker_CLASS(Context, EventEmitter, "UIContext");
             
         protected:
+            virtual void exec(kk::CString path,std::vector<kk::String>& keys,std::vector<kk::Any>& librarys);
             kk::Weak<Context> _parent;
             kk::String _basePath;
             kk::Strong<kk::DispatchQueue> _queue;
