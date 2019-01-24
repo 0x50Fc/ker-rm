@@ -2,7 +2,7 @@
 
 tsc -p tsconfig.json
 
-LIST="console.js data.js page.js audio.js export.js"
+LIST="console.js data.js page.js audio.js"
 
 echo "" > ker.js
 for FILE in $LIST

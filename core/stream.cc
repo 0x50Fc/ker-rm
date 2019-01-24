@@ -8,6 +8,8 @@
 
 #include "stream.h"
 #include "jit.h"
+#include <sys/stat.h>
+#include <unistd.h>
 
 namespace kk  {
     
@@ -46,6 +48,13 @@ namespace kk  {
     }
     
     FileOutputStream::FileOutputStream(kk::CString path,StreamFileType fileType) {
+        
+        struct stat st;
+        
+        if(-1 != stat(path, &st)) {
+            unlink(path);
+        }
+        
         switch (fileType) {
             case StreamFileTypeText:
                 _fd = fopen(path, "w");
@@ -119,8 +128,7 @@ namespace kk  {
         return n;
     }
     
-    BufferOutputStream::BufferOutputStream(OutputStream * output,kk::Uint size):_output(output) {
-        _maxSize = MIN(2048,size);
+    BufferOutputStream::BufferOutputStream(OutputStream * output,kk::Uint size):_output(output),_maxSize(size) {
     }
     
     BufferOutputStream::~BufferOutputStream() {

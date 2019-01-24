@@ -47,8 +47,8 @@
 		1AF4CE14219E7BB800AE1249 /* KerWX.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AF06611219D56E500F8F7A8 /* KerWX.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AF4CE1E219ECB2A00AE1249 /* KerWXObject+Http.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AF4CE1F219ECB2A00AE1249 /* KerWXObject+Http.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */; };
+		AC9BE92C21F9EC3200D58282 /* Ker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AC9BE92B21F9EC2700D58282 /* Ker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		ACBE54BA21F88A44009E3216 /* 1.0 in Resources */ = {isa = PBXBuildFile; fileRef = ACBE54B921F88A44009E3216 /* 1.0 */; };
-		ACD6575221EE789000D63256 /* app in Resources */ = {isa = PBXBuildFile; fileRef = ACD6575021EE789000D63256 /* app */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +66,27 @@
 			remoteGlobalIDString = 1AF06610219D56E500F8F7A8;
 			remoteInfo = KerWX;
 		};
+		AC9BE92A21F9EC2700D58282 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1AF0661C219D56FB00F8F7A8 /* Ker.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1AF06588219D516000F8F7A8;
+			remoteInfo = Ker;
+		};
+		AC9BE92D21F9EC3800D58282 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1AF0661C219D56FB00F8F7A8 /* Ker.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AF06587219D516000F8F7A8;
+			remoteInfo = Ker;
+		};
+		AC9BE92F21F9ECCA00D58282 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1AF0661C219D56FB00F8F7A8 /* Ker.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AF06587219D516000F8F7A8;
+			remoteInfo = Ker;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -75,6 +96,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				AC9BE92C21F9EC3200D58282 /* Ker.framework in Embed Frameworks */,
 				1AF4CE14219E7BB800AE1249 /* KerWX.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -114,7 +136,6 @@
 		1AF4CE1C219ECB2A00AE1249 /* KerWXObject+Http.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KerWXObject+Http.h"; sourceTree = "<group>"; };
 		1AF4CE1D219ECB2A00AE1249 /* KerWXObject+Http.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "KerWXObject+Http.m"; sourceTree = "<group>"; };
 		ACBE54B921F88A44009E3216 /* 1.0 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = 1.0; path = ../../../../../git.sc.weibo.com/kk/eddy/bin/1.0; sourceTree = SOURCE_ROOT; };
-		ACD6575021EE789000D63256 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; name = app; path = ../../app; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,7 +213,6 @@
 			isa = PBXGroup;
 			children = (
 				ACBE54B921F88A44009E3216 /* 1.0 */,
-				ACD6575021EE789000D63256 /* app */,
 				1AF4CDFB219E7B9400AE1249 /* AppDelegate.h */,
 				1AF4CDFC219E7B9400AE1249 /* AppDelegate.m */,
 				1AF4CDFE219E7B9400AE1249 /* ViewController.h */,
@@ -204,6 +224,14 @@
 				1AF4CE0A219E7B9400AE1249 /* main.m */,
 			);
 			path = demo;
+			sourceTree = "<group>";
+		};
+		AC9BE92621F9EC2700D58282 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AC9BE92B21F9EC2700D58282 /* Ker.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -240,6 +268,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				AC9BE93021F9ECCA00D58282 /* PBXTargetDependency */,
 			);
 			name = KerWX;
 			productName = KerWX;
@@ -258,6 +287,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				AC9BE92E21F9EC3800D58282 /* PBXTargetDependency */,
 				1AF4CE16219E7BB800AE1249 /* PBXTargetDependency */,
 			);
 			name = demo;
@@ -296,6 +326,12 @@
 			mainGroup = 1AF06607219D56E500F8F7A8;
 			productRefGroup = 1AF06612219D56E500F8F7A8 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = AC9BE92621F9EC2700D58282 /* Products */;
+					ProjectRef = 1AF0661C219D56FB00F8F7A8 /* Ker.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				1AF06610219D56E500F8F7A8 /* KerWX */,
@@ -304,6 +340,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		AC9BE92B21F9EC2700D58282 /* Ker.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Ker.framework;
+			remoteRef = AC9BE92A21F9EC2700D58282 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1AF0660F219D56E500F8F7A8 /* Resources */ = {
@@ -319,7 +365,6 @@
 			files = (
 				ACBE54BA21F88A44009E3216 /* 1.0 in Resources */,
 				1AF4CE08219E7B9400AE1249 /* LaunchScreen.storyboard in Resources */,
-				ACD6575221EE789000D63256 /* app in Resources */,
 				1AF4CE05219E7B9400AE1249 /* Assets.xcassets in Resources */,
 				1AF4CE03219E7B9400AE1249 /* Main.storyboard in Resources */,
 			);
@@ -385,6 +430,16 @@
 			isa = PBXTargetDependency;
 			target = 1AF06610219D56E500F8F7A8 /* KerWX */;
 			targetProxy = 1AF4CE15219E7BB800AE1249 /* PBXContainerItemProxy */;
+		};
+		AC9BE92E21F9EC3800D58282 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Ker;
+			targetProxy = AC9BE92D21F9EC3800D58282 /* PBXContainerItemProxy */;
+		};
+		AC9BE93021F9ECCA00D58282 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Ker;
+			targetProxy = AC9BE92F21F9ECCA00D58282 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

@@ -32,8 +32,8 @@ namespace ker {
         recycle();
 
         let uri = "ker-tmp:///ker_Audio_startRecord.spx";
-        let input = app.openInputStream(uri)!
-        let buffer = new BufferOutputStream(input);
+        let input = app.openOutputStream(uri)!
+        let buffer = new BufferOutputStream(input,2048);
 
         output = new SpeexFileOutputStream(buffer);
 
@@ -46,6 +46,7 @@ namespace ker {
             if(object.complete !== undefined) {
                 object.complete();
             }
+            recycle();
         });
 
         queue.on("done",function(e:Event){
@@ -57,8 +58,11 @@ namespace ker {
             if(object.complete !== undefined) {
                 object.complete();
             }
-            object = undefined;
+            recycle();
         });
+
+        queue.start();
+
     }
 
     export function stopRecord(): void {

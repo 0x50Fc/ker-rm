@@ -87,6 +87,5 @@ declare namespace ker {
     function startRecord(object: KerAudioStartRecordObject): void
     function stopRecord(): void 
 
+    function Page(object: UIPageObject,page:UIPage, setTimeout:any): void
 }
-
-declare function Page(object: ker.UIPageObject,page:UIPage, setTimeout:any): void

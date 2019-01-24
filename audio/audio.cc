@@ -76,16 +76,20 @@ namespace kk {
             emit("done", e);
         }
         
-        void AudioQueue::run() {
-            
-        }
-        
         AudioQueueInput::AudioQueueInput(AudioCodec * codec,OutputStream * output):AudioQueue(codec),_output(output){
-            
+
         }
         
         OutputStream * AudioQueueInput::output() {
             return _output;
+        }
+        
+        AudioQueueOutput::AudioQueueOutput(AudioCodec * codec,InputStream * input):AudioQueue(codec),_input(input) {
+            
+        }
+        
+        InputStream * AudioQueueOutput::input() {
+            return _input;
         }
         
         void Audio::startSession(AudioSessionCategory category,JSObject * func) {

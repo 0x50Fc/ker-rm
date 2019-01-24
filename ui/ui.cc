@@ -332,6 +332,8 @@ namespace kk {
 #ifdef KER_DEBUG
                 kk::Debugger::debug(_jsContext);
 #endif
+                duk_push_object(_jsContext);
+                duk_put_global_string(_jsContext, "ker");
                 kk::Openlib<>::openlib(_jsContext);
                 kk::Openlib<JSResource *>::openlib(_jsContext,dynamic_cast<JSResource *>(this));
                 kk::Openlib<kk::Container *>::openlib(_jsContext, this);
@@ -443,7 +445,7 @@ namespace kk {
         
         void Context::exec(kk::CString path,std::vector<kk::String>& keys,std::vector<kk::Any>& librarys) {
             
-            kk::String code("(function(require");
+            kk::String code("(function(ker,require");
             
             {
                 auto i = keys.begin();
@@ -471,6 +473,10 @@ namespace kk {
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
                     duk_idx_t n =0;
+                    
+                    duk_get_global_string(ctx, "ker");
+                    
+                    n++;
                     
                     kk::String basePath = CStringPathDirname(path);
                     

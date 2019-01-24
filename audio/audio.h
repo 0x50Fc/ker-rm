@@ -39,7 +39,6 @@ namespace kk {
         
         class AudioQueue : public EventEmitter {
         public:
-            AudioQueue(AudioCodec * codec);
             virtual ~AudioQueue();
             virtual AudioQueueState state();
             virtual AudioCodec * codec();
@@ -51,7 +50,8 @@ namespace kk {
             Ker_CLASS(AudioQueue, EventEmitter, "AudioQueue");
             
         protected:
-            virtual void run();
+            AudioQueue(AudioCodec * codec);
+            virtual void run() = 0;
             virtual void doError(kk::CString errmsg);
             virtual void doDone();
             AudioQueueState _state;
@@ -73,6 +73,21 @@ namespace kk {
         protected:
             virtual void run();
             kk::Strong<OutputStream> _output;
+        };
+        
+        class AudioQueueOutput : public AudioQueue {
+        public:
+            
+            AudioQueueOutput(AudioCodec * codec,InputStream * input);
+            
+            virtual InputStream * input();
+            
+            
+            Ker_CLASS(AudioQueueOutput, AudioQueue, "AudioQueueOutput");
+            
+        protected:
+            virtual void run();
+            kk::Strong<InputStream> _input;
         };
         
         enum {

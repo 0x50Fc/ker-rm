@@ -167,7 +167,7 @@ namespace kk {
         
         void Page::run(kk::CString path , Object * query) {
 
-            kk::String code("(function(page,path,query,require");
+            kk::String code("(function(page,path,query,require,ker");
             
             std::vector<kk::Any> vs;
             
@@ -197,6 +197,7 @@ namespace kk {
                     PushObject(ctx, query);
                     kk::String basePath = CStringPathDirname(path);
                     duk_push_require(ctx, basePath.c_str(), (JSResource *) _app);
+                    duk_get_global_string(ctx, "ker");
                     
                     auto i = vs.begin();
                     
@@ -205,7 +206,7 @@ namespace kk {
                         i ++;
                     }
                     
-                    if(duk_pcall(ctx, 4 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
+                    if(duk_pcall(ctx, 5 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
                         Error(ctx, -1, "[Page::run] ");
                     }
                     

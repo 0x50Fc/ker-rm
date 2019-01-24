@@ -21,6 +21,7 @@
 #include <core/http.h>
 #include <core/ssl.h>
 #include <core/WebSocket.h>
+#include <core/stream.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -29,6 +30,7 @@
 #include <document/LayoutElement.h>
 #include <document/BlockElement.h>
 #include <audio/audio.h>
+#include <audio/speex.h>
 
 #ifdef KER_DEBUG
 #include <core/debugger.h>
@@ -255,7 +257,9 @@ namespace kk {
             kk::ui::TextElement::Openlib();
             kk::ui::PageElement::Openlib();
             kk::ui::ImageElement::Openlib();
+            kk::Stream::Openlib();
             kk::audio::Audio::Openlib();
+            kk::audio::SpeexCodec::Openlib();
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
                 
