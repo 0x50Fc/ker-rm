@@ -211,6 +211,8 @@ declare interface Storage {
 }
 
 declare interface UIApp extends UIContext {
+    openInputStream(uri:string):InputStream|undefined
+    openOutputStream(uri:string):OutputStream|undefined
     open(uri: string, animated: boolean): void
     back(delta: number, animated: boolean): void
     getAttributedTextContentSize(text: UIAttributedText, maxWidth: number): Size
@@ -263,6 +265,72 @@ declare interface UIScreen {
     readonly height:number
     readonly density:number
     readonly scale:number
+}
+
+declare interface AudioCodec {
+
+}
+
+declare interface Stream {
+    close():void
+}
+
+declare interface InputStream extends Stream {
+
+}
+
+declare class BufferInputStream implements InputStream {
+    constructor(input:InputStream,size?:number)
+    close():void
+}
+
+declare interface OutputStream extends Stream {
+
+}
+
+declare class BufferOutputStream implements OutputStream {
+    constructor(output:OutputStream,size?:number)
+    flush():boolean
+    close():void
+}
+
+declare class Audio {
+    static readonly Ambient:number
+    static readonly SoloAmbient:number
+    static readonly Playback:number
+    static readonly Record:number
+    static readonly PlayAndRecord:number
+    static startSession(category:number,cb:(errmsg:string|undefined)=>void):void 
+}
+
+declare class AudioQueue extends EventEmitter {
+    readonly codec:AudioCodec
+    start():void
+    stop():void
+    resume():void
+    pause():void
+}
+
+declare class AudioQueueInput extends AudioQueue {
+    constructor(codec:AudioCodec,output:OutputStream);
+    readonly output:OutputStream
+}
+
+declare class SpeexCodec implements AudioCodec {
+    constructor()
+    quality:number
+}
+
+declare class SpeexFileOutputStream implements OutputStream {
+    constructor(output:OutputStream,codec?:SpeexCodec)
+    readonly codec:SpeexCodec
+    close(): void
+}
+
+declare class SpeexFileInputStream implements InputStream {
+    constructor(input:InputStream)
+    readonly codec:SpeexCodec|undefined
+    close(): void
 }
 
 declare var app: UIApp

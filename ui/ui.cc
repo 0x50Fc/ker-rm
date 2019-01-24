@@ -417,6 +417,24 @@ namespace kk {
             
         }
         
+        kk::Strong<InputStream> Context::openInputStream(kk::CString uri) {
+            kk::String p;
+            if(kk::CStringHasSubstring(uri, "://")) {
+                p = ResolvePath(uri);
+            } else {
+                p = absolutePath(uri);
+            }
+            return new FileInputStream(p.c_str(),StreamFileTypeBinary);
+        }
+        
+        kk::Strong<OutputStream> Context::openOutputStream(kk::CString uri) {
+            if(kk::CStringHasSubstring(uri, "://")) {
+                kk::String p = ResolvePath(uri);
+                return new FileOutputStream(p.c_str(),StreamFileTypeBinary);
+            }
+            return nullptr;
+        }
+        
         String Context::getResourceKey(kk::CString path) {
             kk::String p = CStringPathNormalize(path);
             Crypto C;
@@ -740,6 +758,10 @@ namespace kk {
                     kk::PutStrongMethod<Context,Canvas>(ctx, -1, "createCanvas", &Context::createCanvas);
                     
                     kk::PutStrongMethod<Context,Image,kk::CString>(ctx, -1, "createImage", &Context::createImage);
+                    
+                    kk::PutStrongMethod<Context,InputStream,kk::CString>(ctx, -1, "openInputStream", &Context::openInputStream);
+                    
+                    kk::PutStrongMethod<Context,OutputStream,kk::CString>(ctx, -1, "openOutputStream", &Context::openOutputStream);
                     
                 });
                 

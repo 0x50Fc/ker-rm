@@ -260,7 +260,6 @@ namespace kk {
         
         kk::Boolean ViewElement::isVisibleChildren(ViewElement * element) {
             if(element == nullptr
-               || element->hidden
                || element->frame.size.width <=0.0f
                || element->frame.size.height <=0.0f) {
                 return false;

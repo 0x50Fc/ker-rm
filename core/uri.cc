@@ -320,7 +320,13 @@ namespace kk {
         kk::String v;
         if(kk::CStringHasPrefix(u.scheme(), "ker-")) {
             v.append(GetDirectory(u.scheme() + 4));
-            v.append(u.path());
+            if(kk::CStringHasSuffix(v.c_str(), "/") && kk::CStringHasPrefix(u.path(), "/")) {
+                v.append(u.path() + 1);
+            } else {
+                v.append(u.path());
+            }
+        } else if(kk::CStringHasPrefix(u.path(), "/")){
+            v.append(u.path() + 1);
         } else {
             v.append(u.path());
         }

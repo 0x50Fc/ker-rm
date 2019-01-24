@@ -26,7 +26,7 @@ kk::Strong<kk::Object> KerObjectToObject(id object);
 namespace kk {
     
     namespace objc {
-        
+
         void PushInterface(duk_context * ctx, ::Class isa);
         
         void PushProtocol(duk_context * ctx, Protocol * protocol);

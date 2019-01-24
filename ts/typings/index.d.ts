@@ -73,6 +73,20 @@ declare namespace ker {
         static set(object: any, keys: string[], value: any, index?: number): void
 
     }
+
+    interface KerAudioStartRecordRes {
+        readonly tempFilePath: string
+    }
+
+    interface KerAudioStartRecordObject {
+        success?: (res: KerAudioStartRecordRes) => void
+        fail?: (errmsg?: string) => void
+        complete?: () => void
+    }
+
+    function startRecord(object: KerAudioStartRecordObject): void
+    function stopRecord(): void 
+
 }
 
 declare function Page(object: ker.UIPageObject,page:UIPage, setTimeout:any): void

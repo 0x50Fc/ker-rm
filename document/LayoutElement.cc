@@ -595,7 +595,6 @@ namespace kk {
     }
     
     void LayoutElement::changedKey(CString key) {
-        StyleElement::changedKey(key);
         if(kk::CStringEqual(key, "left")) {
             left.set(get(key));
         } else if(kk::CStringEqual(key, "top")) {
@@ -625,6 +624,7 @@ namespace kk {
         } else if(kk::CStringEqual(key, "hidden")) {
             hidden = kk::CStringEqual(get(key), "true");
         }
+        StyleElement::changedKey(key);
     }
     
     void LayoutElement::onLayout(LayoutContext * context) {

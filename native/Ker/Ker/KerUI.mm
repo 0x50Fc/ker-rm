@@ -25,6 +25,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "KerURLProtocol.h"
 #import "KerView.h"
+#import "KerAudio.h"
 
 static NSMutableDictionary * KerUIPages = nil;
 static NSMutableDictionary * KerUIViews = nil;
@@ -1051,6 +1052,9 @@ static NSString * gKerAppUserAgent = nil;
         }
         
     });
+    
+    [KerAudio openlib];
+    
 }
 
 

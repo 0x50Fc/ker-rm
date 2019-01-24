@@ -28,6 +28,7 @@
 #include <document/StyleElement.h>
 #include <document/LayoutElement.h>
 #include <document/BlockElement.h>
+#include <audio/audio.h>
 
 #ifdef KER_DEBUG
 #include <core/debugger.h>
@@ -254,6 +255,7 @@ namespace kk {
             kk::ui::TextElement::Openlib();
             kk::ui::PageElement::Openlib();
             kk::ui::ImageElement::Openlib();
+            kk::audio::Audio::Openlib();
             
             kk::Openlib<>::add([](duk_context * ctx)->void{
                 

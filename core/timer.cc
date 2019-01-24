@@ -27,7 +27,7 @@ namespace kk {
         if(_source != nullptr) {
             _source->cancel();
         }
-        kk::Log("[Timer] [dealloc]");
+//        kk::Log("[Timer] [dealloc]");
     }
     
     void Timer::resume() {

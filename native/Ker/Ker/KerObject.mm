@@ -62,10 +62,37 @@ void KerAddAppOpenlib(KerAddOpenlibFunction func) {
             func(
                  [NSString stringWithCString:app->basePath() encoding:NSUTF8StringEncoding],
                  [NSString stringWithCString:app->appkey() encoding:NSUTF8StringEncoding],
-                 ^(NSString * name,id object){
+                 ^(NSString * name,id object)
+            {
                 kk::Any v((__bridge kk::Native *)object);
-                kk::PushAny(ctx, v);
-                duk_put_global_string(ctx, [name UTF8String]);
+                NSArray * keys = [name componentsSeparatedByString:@"."];
+                
+                int n = duk_get_top(ctx);
+                
+                duk_push_global_object(ctx);
+                
+                NSInteger i = 0;
+                
+                for(NSString * key in keys) {
+                    
+                    if(i == [keys count] -1) {
+                        kk::PushAny(ctx, v);
+                        duk_put_prop_string(ctx, -2, [key UTF8String]);
+                    } else {
+                        duk_get_prop_string(ctx, -1, [key UTF8String]);
+                        if(!duk_is_object(ctx, -1)) {
+                            duk_pop(ctx);
+                            duk_push_object(ctx);
+                            duk_dup(ctx, -1);
+                            duk_put_prop_string(ctx, -3, [key UTF8String]);
+                        }
+                    }
+                    
+                    i ++;
+                }
+                
+                duk_pop_n(ctx, duk_get_top(ctx) - n);
+                
             });
             
         }

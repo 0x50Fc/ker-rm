@@ -111,7 +111,7 @@ namespace kk {
         virtual ~GCDDispatchSource() {
             dispatch_source_set_event_handler(_source, nullptr);
             dispatch_release(_source);
-            kk::Log("[GCDDispatchSource] [dealloc]");
+//            kk::Log("[GCDDispatchSource] [dealloc]");
         }
         
         virtual void suspend() {

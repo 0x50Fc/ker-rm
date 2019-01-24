@@ -15,6 +15,7 @@
 #include <core/jit.h>
 #include <core/timer.h>
 #include <core/sqlite.h>
+#include <core/stream.h>
 
 namespace kk {
     
@@ -256,6 +257,8 @@ namespace kk {
             virtual duk_context * jsContext();
             virtual kk::String absolutePath(kk::CString path);
             virtual kk::String getTextContent(kk::CString path);
+            virtual kk::Strong<InputStream> openInputStream(kk::CString uri);
+            virtual kk::Strong<OutputStream> openOutputStream(kk::CString uri);
             virtual String getResourceKey(kk::CString path);
             virtual void set(kk::Object * object);
             virtual kk::Object * get(kk::Object * object);

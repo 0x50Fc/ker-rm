@@ -1,6 +1,6 @@
 import { ViewContext } from "./ViewContext";
 import { App } from "./App";
-import { dirname } from "./func";
+import { dirname ,relativePath} from "./func";
 
 export class Component {
     private _viewContext: ViewContext
@@ -49,7 +49,7 @@ export class Component {
                     }, v);
                 },
                 function (path: string) {
-                    var p = wx.relativePath(path, basePath);
+                    var p = relativePath(path, basePath);
                     if (!p.endsWith(".js")) {
                         p = p + ".js";
                     }
@@ -77,7 +77,7 @@ export class Component {
 
             webview.evaluateJavaScript("kk.setData(" + JSON.stringify(component.object.data) + "," + id + ");");
 
-        })(this, wx.dirname(path), this._view, this._app.object);
+        })(this, dirname(path), this._view, this._app.object);
 
         var fn: any;
         var lifetimes = this.object['lifetimes'];
