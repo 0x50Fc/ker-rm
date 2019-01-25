@@ -1,6 +1,12 @@
 <view class="container">
   <button open-type='getFileInfo' bindgetuserinfo="getFileInfo" bindtap= "getFileInfo">getFileInfo</button>
 
+  <button open-type='saveFile' bindgetuserinfo="saveFile" bindtap= "saveFile">saveFile</button>
+
+  <button open-type='getSavedFileList' bindgetuserinfo="getSavedFileList" bindtap= "getSavedFileList">getSavedFileList</button>
+
+  <button open-type='getSavedFileInfo' bindgetuserinfo="getSavedFileInfo" bindtap= "getSavedFileInfo">getSavedFileInfo</button>
+
 
 
 
