@@ -418,6 +418,45 @@ namespace kk {
         duk_def_prop(ctx, idx - 2, DUK_DEFPROP_HAVE_GETTER | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_SET_CONFIGURABLE);
     }
     
+    template<class TObject,typename T>
+    void PutStrongProperty(duk_context * ctx, duk_idx_t idx, CString name, kk::Strong<T> (TObject::*getter)()) {
+        
+        auto getter_fn = [](duk_context * ctx) -> duk_ret_t {
+            duk_push_this(ctx);
+            TObject * object = (TObject *) GetObject(ctx, -1);
+            duk_pop(ctx);
+            
+            Method<TObject,kk::Strong<T>> * GETTER = nullptr;
+            
+            duk_push_current_function(ctx);
+            duk_get_prop_string(ctx, -1, "__func");
+            GETTER = (Method<TObject,kk::Strong<T>> *) duk_get_buffer(ctx, -1, nullptr);
+            duk_pop_2(ctx);
+            if(object && GETTER && GETTER->method != nullptr) {
+                kk::Strong<T> strong = (object->*GETTER->method)();
+                Any v = strong.get();
+                PushAny(ctx, v);
+                return 1;
+            }
+            return 0;
+        };
+        
+        
+        Method<TObject,kk::Strong<T>> GETTER;
+        
+        GETTER.method = getter;
+        
+        duk_push_string(ctx, name);
+        duk_push_c_function(ctx, getter_fn, 0);
+        {
+            void * v = duk_push_fixed_buffer(ctx, sizeof(GETTER));
+            memcpy(v,&GETTER,sizeof(GETTER));
+            duk_put_prop_string(ctx, -2, "__func");
+        }
+        
+        duk_def_prop(ctx, idx - 2, DUK_DEFPROP_HAVE_GETTER | DUK_DEFPROP_SET_ENUMERABLE | DUK_DEFPROP_SET_CONFIGURABLE);
+    }
+    
     template<class TObject,typename TReturn,typename ... TArgs>
     void PutMethod(duk_context * ctx, duk_idx_t idx, CString name, TReturn (TObject::*method)(TArgs ...),typename std::enable_if<std::is_void<TReturn>::value>::type* = 0) {
     

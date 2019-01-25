@@ -62,7 +62,7 @@ namespace kk {
             if(cb->isCanceled()) {
                 return;
             }
-            
+
             cb->write(inBuffer->mAudioData);
             inBuffer->mAudioDataByteSize = 0;
             AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, NULL);
@@ -155,18 +155,18 @@ namespace kk {
                             AudioQueuePause(queue);
                         }
                     }
-                    CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.017, false);
+                    CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.017, true);
                 }
                 
                 cb.cancel();
                 
                 AudioQueueStop(queue, true);
                 
-                for(int i=0;i<AUDIO_RECORD_BUFFER_SIZE;i++){
-                    AudioQueueFreeBuffer(queue,buffers[i]);
-                }
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.017, true);
                 
                 AudioQueueDispose(queue, true);
+                
+                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.017, true);
                 
                 doDone();
              

@@ -129,6 +129,10 @@ namespace kk {
         return _respHeaders;
     }
     
+    kk::Strong<TObject<kk::String,kk::String>> HTTPRequest::responseHeaders() {
+        return new TObject<kk::String, kk::String>(_respHeaders);
+    }
+    
     kk::Native * HTTPRequest::native() {
         if(_native != nullptr) {
             return _native->native();
@@ -352,11 +356,27 @@ namespace kk {
             
             kk::PushClass<HTTPRequest>(ctx, [](duk_context * ctx)->void{
                 
-                kk::PutMethod<HTTPRequest,void,kk::CString,kk::CString>(ctx, -1, "open", &HTTPRequest::open);
+                duk_push_int(ctx, HTTPResponseTypeNone);
+                duk_put_prop_string(ctx, -3, "ResponseTypeNone");
+                duk_push_int(ctx, HTTPResponseTypeArrayBuffer);
+                duk_put_prop_string(ctx, -3, "ResponseTypeArrayBuffer");
+                duk_push_int(ctx, HTTPResponseTypeString);
+                duk_put_prop_string(ctx, -3, "ResponseTypeString");
+                duk_push_int(ctx, HTTPResponseTypeFile);
+                duk_put_prop_string(ctx, -3, "ResponseTypeFile");
+                duk_push_int(ctx, HTTPResponseTypeUnzip);
+                duk_put_prop_string(ctx, -3, "ResponseTypeUnzip");
+                
+                kk::PutMethod<HTTPRequest,void,kk::CString,kk::CString,HTTPResponseType>(ctx, -1, "open", &HTTPRequest::open);
                 kk::PutMethod<HTTPRequest,void,kk::Any>(ctx, -1, "send", &HTTPRequest::send);
+                kk::PutMethod<HTTPRequest,void>(ctx, -1, "cancel", &HTTPRequest::cancel);
                 kk::PutMethod<HTTPRequest,void,kk::CString,kk::CString>(ctx, -1, "setRequestHeader", &HTTPRequest::setRequestHeader);
                 kk::PutMethod<HTTPRequest,kk::CString,kk::CString>(ctx, -1, "getResponseHeader", &HTTPRequest::getResponseHeader);
-                kk::PutMethod<HTTPRequest,kk::Int>(ctx, -1, "statusCode", &HTTPRequest::statusCode);
+                kk::PutProperty<HTTPRequest,kk::Int>(ctx, -1, "statusCode", &HTTPRequest::statusCode);
+                kk::PutProperty<HTTPRequest,kk::String>(ctx, -1, "responseText", &HTTPRequest::responseText);
+                kk::PutProperty<HTTPRequest,kk::String>(ctx, -1, "responseFile", &HTTPRequest::responseFile);
+                kk::PutStrongProperty<HTTPRequest,kk::ArrayBuffer>(ctx, -1, "responseArrayBuffer", &HTTPRequest::responseArrayBuffer);
+                kk::PutStrongProperty<HTTPRequest,kk::TObject<kk::String, kk::String>>(ctx, -1, "responseHeaders", &HTTPRequest::responseHeaders);
                 
             });
             

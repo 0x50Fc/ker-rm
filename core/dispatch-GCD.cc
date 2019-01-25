@@ -20,7 +20,6 @@ namespace kk {
         
         GCDDispatchQueue(kk::CString name):DispatchQueue() {
             _queue = ::dispatch_queue_create(name, DISPATCH_QUEUE_SERIAL);
-            dispatch_retain(_queue);
             dispatch_queue_set_specific(_queue, kGCDDispatchQueueKey, this, nullptr);
         }
         
@@ -99,8 +98,6 @@ namespace kk {
             }
             
             _source = ::dispatch_source_create(t, (uintptr_t) fd, 0, queue->queue());
-            
-            dispatch_retain(_source);
             
             dispatch_source_set_event_handler(_source, ^{
                 this->onEvent();

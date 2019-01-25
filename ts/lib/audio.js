@@ -2,6 +2,7 @@ var ker;
 (function (ker) {
     var queue;
     var output;
+    var uri = "ker-tmp:///ker_startRecord_" + mktemp("XXXXXXXX") + ".spx";
     function recycle() {
         if (queue !== undefined) {
             queue.off();
@@ -12,10 +13,10 @@ var ker;
             output.close();
             output = undefined;
         }
+        app.removeURI(uri);
     }
     function startRecord(object) {
         recycle();
-        var uri = "ker-tmp:///ker_Audio_startRecord.spx";
         var input = app.openOutputStream(uri);
         var buffer = new BufferOutputStream(input, 2048);
         output = new SpeexFileOutputStream(buffer);

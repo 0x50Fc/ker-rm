@@ -104,7 +104,7 @@ namespace kk {
             if(speex_preprocess_run(_preprocessState, enc)) {
                 speex_bits_reset(&_bits);
                 speex_encode_int(_encodeState, enc, &_bits);
-                return (ssize_t) speex_bits_write(&_bits, (char *) outBytes, (int) _frameBytes);
+                return speex_bits_write(&_bits, (char *) outBytes, (int) _packageBytes);
             }
             
             return 0;

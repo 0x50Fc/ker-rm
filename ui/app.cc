@@ -9,6 +9,7 @@
 #include <ui/app.h>
 #include <ui/page.h>
 #include <ui/view.h>
+#include <ui/screen.h>
 #include <ui/CGContext.h>
 #include <ui/package.h>
 #include <ui/ViewElement.h>
@@ -68,7 +69,19 @@ namespace kk {
             
         }
         
+        Screen * App::screen() {
+            return _screen;
+        }
+        
+        void App::setScreen(Screen * v) {
+            _screen = v;
+            PushObject(_jsContext, v);
+            duk_put_global_string(_jsContext, "screen");
+        }
+        
         App::~App() {
+            
+            _showViews.clear();
             
             UI::main()->removeApp(_appid);
             
@@ -101,9 +114,37 @@ namespace kk {
         
         void App::back(kk::Uint delta,kk::Boolean animated) {
             kk::Strong<AppBackCommand> cmd = new AppBackCommand();
+            cmd->appid = _appid;
             cmd->delta = delta;
             cmd->animated = animated;
             execCommand(cmd);
+        }
+        
+        void App::showView(View * view) {
+            if(view == nullptr) {
+                return;
+            }
+            _showViews[view->viewId()] = view;
+            kk::Strong<AppShowViewCommand> cmd = new AppShowViewCommand();
+            cmd->appid = _appid;
+            cmd->viewId = view->viewId();
+            execCommand(cmd);
+        }
+        
+        void App::hideView(View * view) {
+            if(view == nullptr) {
+                return;
+            }
+            kk::Strong<AppHideViewCommand> cmd = new AppHideViewCommand();
+            cmd->appid = _appid;
+            cmd->viewId = view->viewId();
+            execCommand(cmd);
+            {
+                auto i = _showViews.find(view->viewId());
+                if(i != _showViews.end()) {
+                    _showViews.erase(i);
+                }
+            }
         }
         
         kk::Strong<View> App::createView(kk::CString name,ViewConfiguration * configuration) {
@@ -247,6 +288,7 @@ namespace kk {
             kk::ui::Page::Openlib();
             kk::ui::CG::Context::Openlib();
             kk::ui::Package::Openlib();
+            kk::ui::Screen::Openlib();
             kk::Document::Openlib();
             kk::ElementEvent::Openlib();
             kk::Element::Openlib();
@@ -273,6 +315,8 @@ namespace kk {
                     kk::PutStrongMethod<App,View,kk::CString,ViewConfiguration *>(ctx,-1,"createView",&App::createView);
                     kk::PutProperty<App,kk::CString>(ctx, -1, "appkey", &App::appkey);
                     kk::PutProperty<App,kk::Storage *>(ctx, -1, "storage", &App::storage);
+                    kk::PutMethod<App,void,View *>(ctx, -1, "showView", &App::showView);
+                    kk::PutMethod<App,void,View *>(ctx, -1, "hideView", &App::hideView);
                     
                 });
                 

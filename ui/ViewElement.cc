@@ -343,6 +343,17 @@ namespace kk {
         }
         
         void ViewElement::setViewKey(ViewContext * context,View * view,CString key, CString value) {
+            
+            if(kk::CStringEqual(key, "enabled")) {
+                if(value && !kk::CStringEqual(value, "false")) {
+                    removeStatus("disabled");
+                    changedStatus();
+                } else {
+                    addStatus("disabled");
+                    changedStatus();
+                }
+            }
+            
             if(kk::CStringEqual(key, "scrollToTop") && value && !kk::CStringEqual(value, "false")) {
                 view->scrollToTop(true);
             } else if(kk::CStringEqual(key, "scrollToBottom") && value && !kk::CStringEqual(value, "false")) {

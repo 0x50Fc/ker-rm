@@ -167,7 +167,7 @@ namespace kk {
         
         void Page::run(kk::CString path , Object * query) {
 
-            kk::String code("(function(page,path,query,require,ker");
+            kk::String code("(function(page,path,query,require,global");
             
             std::vector<kk::Any> vs;
             
@@ -197,7 +197,7 @@ namespace kk {
                     PushObject(ctx, query);
                     kk::String basePath = CStringPathDirname(path);
                     duk_push_require(ctx, basePath.c_str(), (JSResource *) _app);
-                    duk_get_global_string(ctx, "ker");
+                    duk_push_global_object(ctx);
                     
                     auto i = vs.begin();
                     
@@ -252,6 +252,8 @@ namespace kk {
                     kk::PutMethod<Page,void,Object *>(ctx, -1, "setOptions", &Page::setOptions);
                     
                     kk::PutMethod<Page,void,kk::Boolean>(ctx, -1, "close", &Page::close);
+                    
+                    kk::PutProperty<Page,kk::Uint64>(ctx, -1, "id", &Page::pageId);
                     
                 });
                 

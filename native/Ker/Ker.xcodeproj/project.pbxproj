@@ -29,6 +29,8 @@
 		1A3F5FAE21F7102600675633 /* BlockElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A3F5FAC21F7102600675633 /* BlockElement.cc */; };
 		1A3F5FB121F72CB400675633 /* ImageElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A3F5FAF21F72CB400675633 /* ImageElement.h */; };
 		1A3F5FB221F72CB400675633 /* ImageElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A3F5FB021F72CB400675633 /* ImageElement.cc */; };
+		1A3F5FB621FAEDD100675633 /* screen.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A3F5FB421FAEDD100675633 /* screen.h */; };
+		1A3F5FB721FAEDD100675633 /* screen.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A3F5FB521FAEDD100675633 /* screen.cc */; };
 		1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */; };
 		1A53C6E821B8EA2D00170AB7 /* KerURLProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6E621B8EA2D00170AB7 /* KerURLProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -138,8 +140,6 @@
 		1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AFDAF7021E4AC8A000FAAE9 /* net.cc */; };
 		1AFDAF7321E4AC8A000FAAE9 /* net.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAF7121E4AC8A000FAAE9 /* net.h */; };
 		1AFDAF7A21E6EAC2000FAAE9 /* ssl.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AFDAF7821E6EAC2000FAAE9 /* ssl.h */; };
-		AC9BE90921F9494100D58282 /* KerAudio.h in Headers */ = {isa = PBXBuildFile; fileRef = AC9BE90721F9494100D58282 /* KerAudio.h */; };
-		AC9BE90A21F9494100D58282 /* KerAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = AC9BE90821F9494100D58282 /* KerAudio.m */; };
 		AC9BE90C21F9532000D58282 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC9BE90B21F9532000D58282 /* AVFoundation.framework */; };
 		AC9BE91221F9770400D58282 /* audio.h in Headers */ = {isa = PBXBuildFile; fileRef = AC9BE91021F9770400D58282 /* audio.h */; };
 		AC9BE91321F9770400D58282 /* audio.cc in Sources */ = {isa = PBXBuildFile; fileRef = AC9BE91121F9770400D58282 /* audio.cc */; };
@@ -172,6 +172,8 @@
 		1A3F5FAC21F7102600675633 /* BlockElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BlockElement.cc; sourceTree = "<group>"; };
 		1A3F5FAF21F72CB400675633 /* ImageElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageElement.h; sourceTree = "<group>"; };
 		1A3F5FB021F72CB400675633 /* ImageElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ImageElement.cc; sourceTree = "<group>"; };
+		1A3F5FB421FAEDD100675633 /* screen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = screen.h; sourceTree = "<group>"; };
+		1A3F5FB521FAEDD100675633 /* screen.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = screen.cc; sourceTree = "<group>"; };
 		1A53C63B21AF99F400170AB7 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		1A53C6C221B8C8D500170AB7 /* KerPageWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerPageWindowController.h; sourceTree = "<group>"; };
 		1A53C6C321B8C8D500170AB7 /* KerPageWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerPageWindowController.m; sourceTree = "<group>"; };
@@ -293,8 +295,6 @@
 		1AFDAF7121E4AC8A000FAAE9 /* net.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = net.h; sourceTree = "<group>"; };
 		1AFDAF7821E6EAC2000FAAE9 /* ssl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ssl.h; sourceTree = "<group>"; };
 		1AFDAF7921E6EAC2000FAAE9 /* ssl.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ssl.cc; sourceTree = "<group>"; };
-		AC9BE90721F9494100D58282 /* KerAudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerAudio.h; sourceTree = "<group>"; };
-		AC9BE90821F9494100D58282 /* KerAudio.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerAudio.m; sourceTree = "<group>"; };
 		AC9BE90B21F9532000D58282 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		AC9BE91021F9770400D58282 /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = audio.h; sourceTree = "<group>"; };
 		AC9BE91121F9770400D58282 /* audio.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = audio.cc; sourceTree = "<group>"; };
@@ -433,8 +433,6 @@
 				1AE91CD121DCB2510055C932 /* KerHttp.mm */,
 				1AE91CD321DDB84D0055C932 /* KerStrong.h */,
 				1AE91CD421DDB84D0055C932 /* KerStrong.mm */,
-				AC9BE90721F9494100D58282 /* KerAudio.h */,
-				AC9BE90821F9494100D58282 /* KerAudio.m */,
 				AC9BE91721F9952200D58282 /* KerAudioSession.mm */,
 			);
 			path = Ker;
@@ -506,6 +504,8 @@
 				1AF065BD219D52AC00F8F7A8 /* app.cc */,
 				1AF065BA219D52AC00F8F7A8 /* page.h */,
 				1AF065C2219D52AC00F8F7A8 /* page.cc */,
+				1A3F5FB421FAEDD100675633 /* screen.h */,
+				1A3F5FB521FAEDD100675633 /* screen.cc */,
 				1AF065C3219D52AC00F8F7A8 /* CGContext.h */,
 				1AF065C1219D52AC00F8F7A8 /* CGContext.cc */,
 				1AE0929821F0325000133215 /* SKCGContext.cc */,
@@ -587,10 +587,10 @@
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
 				1AFDAF7321E4AC8A000FAAE9 /* net.h in Headers */,
 				1AF4CE3521A56B5A00AE1249 /* UIColor+Ker.h in Headers */,
+				1A3F5FB621FAEDD100675633 /* screen.h in Headers */,
 				1AA4AC3D21BFBC3A00C636F5 /* unzip.h in Headers */,
 				1AF0658D219D516000F8F7A8 /* Ker.h in Headers */,
 				1AF065CF219D52E200F8F7A8 /* KerViewProtocol.h in Headers */,
-				AC9BE90921F9494100D58282 /* KerAudio.h in Headers */,
 				1AE91CC921D741C90055C932 /* KerWeak.h in Headers */,
 				1A3AF07321EC7F0B001C8759 /* WebSocket.h in Headers */,
 				1AF4CE3921A56DF600AE1249 /* UILabel+KerViewProtocol.h in Headers */,
@@ -740,7 +740,6 @@
 				1A3F5FAE21F7102600675633 /* BlockElement.cc in Sources */,
 				1A3AF07021E76454001C8759 /* ssl.cc in Sources */,
 				1AE0929221EDF78C00133215 /* ViewElement.cc in Sources */,
-				AC9BE90A21F9494100D58282 /* KerAudio.m in Sources */,
 				1AE91CBF21CB7AC80055C932 /* zombies.cc in Sources */,
 				1AA4AC4721C21B2A00C636F5 /* crypto.cc in Sources */,
 				ACD6575621EE819E00D63256 /* TextElement.cc in Sources */,
@@ -774,6 +773,7 @@
 				1AFDAD2A21E327C7000FAAE9 /* storage.cc in Sources */,
 				1AF065CB219D52AC00F8F7A8 /* CGContext.cc in Sources */,
 				1AA4AC3E21BFBC3A00C636F5 /* zip.c in Sources */,
+				1A3F5FB721FAEDD100675633 /* screen.cc in Sources */,
 				1AF065CA219D52AC00F8F7A8 /* ui.cc in Sources */,
 				1A53C6C521B8C8D500170AB7 /* KerPageWindowController.m in Sources */,
 				1AE0928621EDC31E00133215 /* element.cc in Sources */,

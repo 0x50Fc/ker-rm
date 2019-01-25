@@ -10,6 +10,7 @@
 #include <ui/app.h>
 #include <ui/page.h>
 #include <ui/package.h>
+#include <ui/screen.h>
 #include <ui/ViewElement.h>
 #include <ui/TextElement.h>
 #include <ui/PageElement.h>
@@ -25,7 +26,6 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "KerURLProtocol.h"
 #import "KerView.h"
-#import "KerAudio.h"
 
 static NSMutableDictionary * KerUIPages = nil;
 static NSMutableDictionary * KerUIViews = nil;
@@ -41,6 +41,10 @@ static NSMutableDictionary * KerUIViews = nil;
 +(void) execCanvasCommand:(kk::ui::CanvasCommand *) command app:(KerId) appid;
 
 +(void) execPageCommand:(kk::ui::PageCommand *) command app:(KerId) appid;
+
++(void) showView:(KerId) viewId;
+
++(void) hideView:(KerId) viewId;
 
 @end
 
@@ -85,6 +89,45 @@ namespace kk {
                     return;
                 }
             }
+            
+            {
+                kk::ui::AppShowViewCommand * cmd = dynamic_cast<kk::ui::AppShowViewCommand *>(command);
+                
+                if(cmd) {
+                    
+                    @autoreleasepool {
+                        
+                        kk::Uint64 viewId = cmd->viewId;
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [KerUI showView:viewId];
+                        });
+                        
+                    }
+                    
+                    return;
+                }
+            }
+            
+            {
+                kk::ui::AppHideViewCommand * cmd = dynamic_cast<kk::ui::AppHideViewCommand *>(command);
+                
+                if(cmd) {
+                    
+                    @autoreleasepool {
+                        
+                        kk::Uint64 viewId = cmd->viewId;
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [KerUI hideView:viewId];
+                        });
+                        
+                    }
+                    
+                    return;
+                }
+            }
+            
             
             
             {
@@ -276,6 +319,44 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     }
     gKerUIViewClass[name] = viewClass;
     kk::ui::ImageElement::library([name UTF8String]);
+}
+
+
++(void) showView:(KerId) viewId {
+    
+    if(KerUIViews == nil) {
+        return ;
+    }
+    
+    id key = @(viewId);
+    
+    UIView * view = [KerUIViews objectForKey:key];
+    
+    if(view == nil) {
+        return;
+    }
+    
+    [view removeFromSuperview];
+    
+    [[UIApplication sharedApplication].keyWindow addSubview:view];
+}
+
++(void) hideView:(KerId) viewId {
+    
+    if(KerUIViews == nil) {
+        return ;
+    }
+    
+    id key = @(viewId);
+    
+    UIView * view = [KerUIViews objectForKey:key];
+    
+    if(view == nil) {
+        return;
+    }
+    
+    [view removeFromSuperview];
+    
 }
 
 +(void) createView:(kk::ui::ViewCreateCommand *) command app:(KerId) appid {
@@ -1053,10 +1134,31 @@ static NSString * gKerAppUserAgent = nil;
         
     });
     
-    [KerAudio openlib];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(screenChanged) name:UIDeviceOrientationDidChangeNotification object:nil];
+    
+    [self screenChanged];
     
 }
 
++(void) screenChanged {
+    
+    kk::ui::UI::main()->queue()->async([]()->void{
+        
+        kk::ui::Screen * screen = kk::ui::UI::main()->mainScreen();
+        
+        @autoreleasepool {
+            
+            UIScreen * mainScreen = [UIScreen mainScreen];
+            
+            screen->set((kk::Uint) mainScreen.bounds.size.width,
+                        (kk::Uint) mainScreen.bounds.size.width,
+                        1.0f, (kk::Float) mainScreen.scale);
+            
+        }
+        
+    });
+    
+}
 
 +(void) setUserAgent:(NSString *)v {
     gKerAppUserAgent = v;

@@ -1,11 +1,10 @@
 
-
 declare class Event {
     data: any
     returnValue: any
 }
 
-type EventFunction = (event: Event,name:string) => void
+type EventFunction = (event: Event, name: string) => void
 
 declare class EventEmitter {
     on(name: string, func: EventFunction): void
@@ -21,10 +20,10 @@ declare interface AttributeMap {
 }
 
 declare class ElementEvent extends Event {
-    dataSet:any
-    cancelBubble:boolean
-    readonly element:Element
-    constructor(element:Element)
+    dataSet: any
+    cancelBubble: boolean
+    readonly element: Element
+    constructor(element: Element)
 }
 
 declare class Element extends EventEmitter {
@@ -49,8 +48,8 @@ declare class Element extends EventEmitter {
     setObject(key: string, object: any): void
     object(key: string): any
     dispatchEvent(name: string, event: Event): void
-    toString():string
-    readonly dataSet:any
+    toString(): string
+    readonly dataSet: any
 }
 
 declare class StyleElement extends Element {
@@ -121,6 +120,9 @@ declare interface Image extends EventEmitter {
 }
 
 declare interface UIContext extends EventEmitter {
+    openInputStream(uri: string): InputStream | undefined
+    openOutputStream(uri: string): OutputStream | undefined
+    removeURI(uri: string): void
     exec(path: string, library?: Library): void
     getTextContent(path: string): string
     createWorker(path: string): Worker
@@ -211,13 +213,13 @@ declare interface Storage {
 }
 
 declare interface UIApp extends UIContext {
-    openInputStream(uri:string):InputStream|undefined
-    openOutputStream(uri:string):OutputStream|undefined
     open(uri: string, animated: boolean): void
     back(delta: number, animated: boolean): void
     getAttributedTextContentSize(text: UIAttributedText, maxWidth: number): Size
     createSqlite(path: string): Sqlite
-    createView(name: string, configuration: UIViewConfiguration): UIView
+    createView(name: string, configuration?: UIViewConfiguration): UIView
+    showView(view: UIView): void
+    hideView(view: UIView): void
     readonly appkey: string
     readonly storage: Storage
 }
@@ -260,11 +262,11 @@ declare interface UIPage extends EventEmitter {
     close(animated: boolean): void
 }
 
-declare interface UIScreen {
-    readonly width:number
-    readonly height:number
-    readonly density:number
-    readonly scale:number
+declare interface UIScreen extends EventEmitter {
+    readonly width: number
+    readonly height: number
+    readonly density: number
+    readonly scale: number
 }
 
 declare interface AudioCodec {
@@ -272,7 +274,7 @@ declare interface AudioCodec {
 }
 
 declare interface Stream {
-    close():void
+    close(): void
 }
 
 declare interface InputStream extends Stream {
@@ -280,8 +282,8 @@ declare interface InputStream extends Stream {
 }
 
 declare class BufferInputStream implements InputStream {
-    constructor(input:InputStream,size?:number)
-    close():void
+    constructor(input: InputStream, size?: number)
+    close(): void
 }
 
 declare interface OutputStream extends Stream {
@@ -289,55 +291,79 @@ declare interface OutputStream extends Stream {
 }
 
 declare class BufferOutputStream implements OutputStream {
-    constructor(output:OutputStream,size?:number)
-    flush():boolean
-    close():void
+    constructor(output: OutputStream, size?: number)
+    flush(): boolean
+    close(): void
 }
 
 declare class Audio {
-    static readonly Ambient:number
-    static readonly SoloAmbient:number
-    static readonly Playback:number
-    static readonly Record:number
-    static readonly PlayAndRecord:number
-    static startSession(category:number,cb:(errmsg:string|undefined)=>void):void 
+    static readonly Ambient: number
+    static readonly SoloAmbient: number
+    static readonly Playback: number
+    static readonly Record: number
+    static readonly PlayAndRecord: number
+    static startSession(category: number, cb: (errmsg: string | undefined) => void): void
 }
 
 declare class AudioQueue extends EventEmitter {
-    readonly codec:AudioCodec
-    start():void
-    stop():void
-    resume():void
-    pause():void
+    readonly codec: AudioCodec
+    start(): void
+    stop(): void
+    resume(): void
+    pause(): void
 }
 
 declare class AudioQueueInput extends AudioQueue {
-    constructor(codec:AudioCodec,output:OutputStream);
-    readonly output:OutputStream
+    constructor(codec: AudioCodec, output: OutputStream);
+    readonly output: OutputStream
 }
 
 declare class SpeexCodec implements AudioCodec {
     constructor()
-    quality:number
+    quality: number
 }
 
 declare class SpeexFileOutputStream implements OutputStream {
-    constructor(output:OutputStream,codec?:SpeexCodec)
-    readonly codec:SpeexCodec
+    constructor(output: OutputStream, codec?: SpeexCodec)
+    readonly codec: SpeexCodec
     close(): void
 }
 
 declare class SpeexFileInputStream implements InputStream {
-    constructor(input:InputStream)
-    readonly codec:SpeexCodec|undefined
+    constructor(input: InputStream)
+    readonly codec: SpeexCodec | undefined
     close(): void
+}
+
+declare interface HeaderSet {
+    [key: string]: string
+}
+
+declare class HttpRequest extends EventEmitter {
+    static ResponseTypeNone: number
+    static ResponseTypeString: number
+    static ResponseTypeArrayBuffer: number
+    static ResponseTypeFile: number
+    static ResponseTypeUnzip: number
+    constructor()
+    open(method: string, url: string, responseType: number): void
+    send(value?: any): void
+    cancel(): void
+    setRequestHeader(key: string, value: string): void
+    getResponseHeader(key: string): string | undefined
+    readonly statusCode: number
+    readonly responseText: string | undefined
+    readonly responseFile: string | undefined
+    readonly responseArrayBuffer: ArrayBuffer | undefined
+    readonly responseHeaders: HeaderSet
 }
 
 declare var app: UIApp
 declare var userAgent: string
 declare var platform: string
-declare var path:string
-declare var query:any
+declare var path: string
+declare var query: any
 declare var page: UIPage
-declare var screen:UIScreen
-declare function compile(code:string,path:string):any
+declare var screen: UIScreen
+declare function compile(code: string, path: string): any
+declare function mktemp(format: string): string

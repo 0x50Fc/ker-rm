@@ -355,66 +355,8 @@ var ker;
 })(ker || (ker = {}));
 var ker;
 (function (ker) {
-    function Page(object, page, setTimeout) {
-        arguments.callee.caller;
-        var basename = object.path;
-        var i = basename.lastIndexOf(".");
-        if (i >= 0) {
-            basename = basename.substr(0, i);
-        }
-        if (object.view === undefined) {
-            object.view = "view";
-        }
-        var document = new Document();
-        var context = new UIViewContext(app);
-        var layouting = false;
-        var element = document.createElement("view");
-        var data = new ker.Data(object);
+    function View(document, object, cb) {
         var pageViewContext = [];
-        if (object.data !== undefined) {
-            data.object = object.data;
-        }
-        document.rootElement = element;
-        var layout = function () {
-            if (page.view) {
-                context.layout(element);
-                context.obtainView(element);
-            }
-            layouting = false;
-        };
-        var setLayout = function () {
-            if (layouting) {
-                return;
-            }
-            layouting = true;
-            setTimeout(layout, 0);
-        };
-        page.on("resize", function () {
-            context.setSize(page.width, page.height);
-            element.setFrame(0, 0, page.width, page.height);
-            setLayout();
-        });
-        page.on("unload", function () {
-            element.recycleView();
-            if (object.onunload !== undefined) {
-                object.onunload();
-            }
-        });
-        page.on("ready", function () {
-            context.view = page.view;
-            element.setFrame(0, 0, page.width, page.height);
-            layout();
-        });
-        page.on("data", function (e, name) {
-            var v = e.data;
-            if (typeof v == 'object') {
-                data.setData(v);
-                setLayout();
-            }
-        });
-        document.on("layout", function () {
-            setLayout();
-        });
         function v_AttributeEvaluate(element, data, key, evaluate) {
             data.on(evaluate, function (value, changedKeys) {
                 if (key == 'data') {
@@ -596,16 +538,78 @@ var ker;
             }
         }
         ;
-        pageViewContext.push([]);
-        app.exec(basename + "_" + object.view + ".js", {
-            element: element,
-            data: data,
-            V: v_Element,
-            E: function (func, keys) {
-                return new ker.Evaluate(func, keys);
+    }
+    ker.View = View;
+})(ker || (ker = {}));
+var ker;
+(function (ker) {
+    function Page(object, page, setTimeout) {
+        arguments.callee.caller;
+        var basename = object.path;
+        var i = basename.lastIndexOf(".");
+        if (i >= 0) {
+            basename = basename.substr(0, i);
+        }
+        if (object.view === undefined) {
+            object.view = "view";
+        }
+        var document = new Document();
+        var context = new UIViewContext(app);
+        var layouting = false;
+        var element = document.createElement("view");
+        var data = new ker.Data(object);
+        if (object.data !== undefined) {
+            data.object = object.data;
+        }
+        document.rootElement = element;
+        var layout = function () {
+            if (page.view) {
+                context.layout(element);
+                context.obtainView(element);
+            }
+            layouting = false;
+        };
+        var setLayout = function () {
+            if (layouting) {
+                return;
+            }
+            layouting = true;
+            setTimeout(layout, 0);
+        };
+        page.on("resize", function () {
+            context.setSize(page.width, page.height);
+            element.setFrame(0, 0, page.width, page.height);
+            setLayout();
+        });
+        page.on("unload", function () {
+            element.recycleView();
+            if (object.onunload !== undefined) {
+                object.onunload();
             }
         });
-        pageViewContext.pop();
+        page.on("ready", function () {
+            context.view = page.view;
+            element.setFrame(0, 0, page.width, page.height);
+            layout();
+        });
+        page.on("data", function (e, name) {
+            var v = e.data;
+            if (typeof v == 'object') {
+                data.setData(v);
+                setLayout();
+            }
+        });
+        document.on("layout", function () {
+            setLayout();
+        });
+        ker.View(document, object, function (V, E) {
+            app.exec(basename + "_" + object.view + ".js", {
+                element: element,
+                data: data,
+                V: V,
+                E: E
+            });
+        });
         data.changeKeys();
         setLayout();
         console.info(element.toString());
@@ -625,6 +629,7 @@ var ker;
 (function (ker) {
     var queue;
     var output;
+    var uri = "ker-tmp:///ker_startRecord_" + mktemp("XXXXXXXX") + ".spx";
     function recycle() {
         if (queue !== undefined) {
             queue.off();
@@ -635,10 +640,10 @@ var ker;
             output.close();
             output = undefined;
         }
+        app.removeURI(uri);
     }
     function startRecord(object) {
         recycle();
-        var uri = "ker-tmp:///ker_Audio_startRecord.spx";
         var input = app.openOutputStream(uri);
         var buffer = new BufferOutputStream(input, 2048);
         output = new SpeexFileOutputStream(buffer);
@@ -673,3 +678,217 @@ var ker;
     }
     ker.stopRecord = stopRecord;
 })(ker || (ker = {}));
+var ker;
+(function (ker) {
+    var RequestRes = /** @class */ (function () {
+        function RequestRes() {
+        }
+        return RequestRes;
+    }());
+    ker.RequestRes = RequestRes;
+    var RequestTask = /** @class */ (function () {
+        function RequestTask(request) {
+            var _this = this;
+            this._request = request;
+            request.on("response", function (event) {
+                _this.onResponse(request.responseHeaders);
+            });
+        }
+        RequestTask.prototype.onResponse = function (header) {
+            if (this._onHeadersReceived !== undefined) {
+                this._onHeadersReceived(header);
+            }
+        };
+        RequestTask.prototype.onHeadersReceived = function (v) {
+            this._onHeadersReceived = v;
+        };
+        RequestTask.prototype.offHeadersReceived = function (v) {
+            if (v === undefined || v == this._onHeadersReceived) {
+                this._onHeadersReceived = undefined;
+            }
+        };
+        RequestTask.prototype.abort = function () {
+            this._request.cancel();
+        };
+        return RequestTask;
+    }());
+    ker.RequestTask = RequestTask;
+    function request(object) {
+        var responseType = HttpRequest.ResponseTypeString;
+        var url = object.url;
+        var method = object.method || "GET";
+        if (object.responseType == "arraybuffer") {
+            responseType = HttpRequest.ResponseTypeArrayBuffer;
+        }
+        if (method == 'GET') {
+            if (typeof object.data == 'object') {
+                var vs = [];
+                for (var key in object.data) {
+                    var v = object.data[key];
+                    vs.push(key + '=' + encodeURIComponent(v + ''));
+                }
+                if (vs.length > 0) {
+                    if (url.endsWith("?")) {
+                        url += vs.join("&");
+                    }
+                    else if (url.indexOf("?") >= 0) {
+                        url += "&" + vs.join("&");
+                    }
+                    else {
+                        url += "?" + vs.join("&");
+                    }
+                }
+            }
+        }
+        var req = new HttpRequest();
+        var contentType;
+        if (object.header) {
+            for (var key in object.header) {
+                req.setRequestHeader(key, object.header[key]);
+                if (key.toLowerCase() == 'content-type') {
+                    contentType = object.header[key];
+                }
+            }
+        }
+        if (contentType === undefined && method != 'GET') {
+            contentType = 'application/x-www-form-urlencoded';
+            req.setRequestHeader('Content-Type', contentType);
+        }
+        req.on("done", function (event) {
+            if (object.success !== undefined) {
+                var res = new RequestRes();
+                if (object.responseType == "arraybuffer") {
+                    res.data = req.responseArrayBuffer;
+                }
+                else if (object.dataType === undefined || object.dataType == 'json') {
+                    try {
+                        res.data = JSON.parse(req.responseText);
+                    }
+                    catch (e) {
+                        if (object.fail !== undefined) {
+                            object.fail(e + '');
+                        }
+                        if (object.complete !== undefined) {
+                            object.complete();
+                        }
+                        return;
+                    }
+                }
+                else {
+                    res.data = req.responseText;
+                }
+                res.statusCode = req.statusCode;
+                res.header = req.responseHeaders;
+                object.success(res);
+            }
+            if (object.complete !== undefined) {
+                object.complete();
+            }
+        });
+        req.on("error", function (event) {
+            if (object.fail !== undefined) {
+                object.fail(event.data.errmsg);
+            }
+            if (object.complete !== undefined) {
+                object.complete();
+            }
+        });
+        req.open(method, url, responseType);
+        if (method != 'GET') {
+            if (object.data instanceof ArrayBuffer) {
+                req.send(object.data);
+            }
+            else if (typeof object.data == 'string') {
+                req.send(object.data);
+            }
+            else if (typeof object.data == 'object') {
+                if (contentType == 'json') {
+                    req.send(JSON.stringify(object.data));
+                }
+                else {
+                    var vs = [];
+                    for (var key in object.data) {
+                        var v = object.data[key];
+                        vs.push(key + '=' + encodeURIComponent(v + ''));
+                    }
+                    req.send(vs.join('&'));
+                }
+            }
+            else {
+                req.send();
+            }
+        }
+        else {
+            req.send();
+        }
+        return new RequestTask(req);
+    }
+    ker.request = request;
+})(ker || (ker = {}));
+var ker;
+(function (ker) {
+    var ToastView = /** @class */ (function () {
+        function ToastView() {
+            var _this = this;
+            this._data = new ker.Data(global);
+            this._view = app.createView("view");
+            this._viewContext = new UIViewContext(app);
+            this._viewContext.view = this._view;
+            this._document = new Document();
+            this._element = this._document.createElement("layout");
+            this._document.rootElement = this._element;
+            ker.View(this._document, {}, function (V, E) {
+                V(_this._element, _this._data, "view", {
+                    'max-width': '400rpx',
+                    'padding': '20rpx',
+                    'background-color': 'rgba(0,0,0,0.75)',
+                    'border-radius': '8rpx'
+                }, function (element, data) {
+                    _this._viewElement = element;
+                    V(element, data, "text", {
+                        '#text': E(function (title) { return title; }, ['title']),
+                        'font': '28rpx',
+                        'color': '#fff'
+                    }, function (element, data) { });
+                });
+            });
+        }
+        ToastView.prototype.layout = function () {
+            this._viewContext.setSize(screen.width, screen.height);
+            this._viewContext.setUnit("px", screen.density, 0);
+            this._element.setFrame(0, 0, screen.width, screen.height);
+            this._viewContext.layout(this._element);
+            this._viewContext.obtainView(this._viewElement);
+        };
+        ToastView.prototype.setData = function (data) {
+            this._data.setData(data);
+            this.layout();
+        };
+        Object.defineProperty(ToastView.prototype, "view", {
+            get: function () {
+                return this._view;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return ToastView;
+    }());
+    var views = [];
+    screen.on("change", function (event) {
+        for (var _i = 0, views_1 = views; _i < views_1.length; _i++) {
+            var v = views_1[_i];
+            v.layout();
+        }
+    });
+    function showToast(object) {
+    }
+    ker.showToast = showToast;
+    function hideToast(object) {
+        if (views.length > 0) {
+            var view = views.pop();
+            app.hideView;
+        }
+    }
+    ker.hideToast = hideToast;
+})(ker || (ker = {}));
+global.ker = ker;

@@ -22,12 +22,13 @@ namespace kk {
                     _state = AudioQueueStateStop;
                 }
                 _queue->sync([]()->void{});
+                _queue = nullptr;
             }
         }
         
         void AudioQueue::start() {
             if(_state == AudioQueueStateNone) {
-                _queue = createDispatchQueue("AudioQueue");
+                _queue = createDispatchQueue("kk::audio::AudioQueue");
                 _state = AudioQueueStateStart;
                 run();
             }

@@ -47,24 +47,29 @@ namespace kk  {
         return fread(data, 1, length, _fd);
     }
     
-    FileOutputStream::FileOutputStream(kk::CString path,StreamFileType fileType) {
+    FileOutputStream::FileOutputStream(kk::CString path,StreamFileType fileType,kk::Boolean append) {
         
         struct stat st;
+        char mode[8] = {0};
         
-        if(-1 != stat(path, &st)) {
-            unlink(path);
+        if(append) {
+            if(-1 == stat(path, &st)) {
+                mode[0] = 'w';
+            } else {
+                mode[0] = 'a';
+            }
+        } else {
+            mode[0] = 'w';
         }
         
-        switch (fileType) {
-            case StreamFileTypeText:
-                _fd = fopen(path, "w");
-                break;
-            case StreamFileTypeBinary:
-                _fd = fopen(path, "wb");
-                break;
-            default:
-                break;
+        if(fileType == StreamFileTypeBinary) {
+            mode[1] = 'b';
         }
+        
+        if(* mode) {
+            _fd = fopen(path, mode);
+        }
+        
     }
     
     FileOutputStream::~FileOutputStream() {

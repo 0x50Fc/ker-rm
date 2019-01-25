@@ -21,6 +21,8 @@ namespace kk {
     
     namespace ui {
         
+        
+        
         typedef kk::Float Float;
         
         struct Point {
@@ -258,7 +260,8 @@ namespace kk {
             virtual kk::String absolutePath(kk::CString path);
             virtual kk::String getTextContent(kk::CString path);
             virtual kk::Strong<InputStream> openInputStream(kk::CString uri);
-            virtual kk::Strong<OutputStream> openOutputStream(kk::CString uri);
+            virtual kk::Strong<OutputStream> openOutputStream(kk::CString uri,kk::Boolean append);
+            virtual void removeURI(kk::CString uri);
             virtual String getResourceKey(kk::CString path);
             virtual void set(kk::Object * object);
             virtual kk::Object * get(kk::Object * object);
@@ -288,8 +291,8 @@ namespace kk {
             
         };
         
-        
         class App;
+        class Screen;
         
         class UI : public Object {
         protected:
@@ -308,6 +311,7 @@ namespace kk {
             virtual void open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func);
             virtual void startTransaction();
             virtual kk::Sqlite * database();
+            virtual Screen * mainScreen();
             
             static UI * main();
             
@@ -319,6 +323,7 @@ namespace kk {
             kk::Uint64 _autoId;
             std::map<kk::Uint64,kk::Weak<App>> _apps;
             kk::Boolean _transaction;
+            kk::Strong<Screen> _mainScreen;
         };
         
     }

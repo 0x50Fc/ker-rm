@@ -20,12 +20,28 @@ namespace kk {
         class Package;
         class Page;
         
+        class AppCommand : public Command {
+        public:
+            kk::Uint64 appid;
+        };
         
-        class AppBackCommand : public Command {
+        class AppBackCommand : public AppCommand {
         public:
             kk::Uint delta;
             kk::Boolean animated;
         };
+        
+        class AppShowViewCommand : public AppCommand {
+        public:
+            kk::Uint64 viewId;
+        };
+        
+        class AppHideViewCommand : public AppCommand {
+        public:
+            kk::Uint64 viewId;
+        };
+        
+        class Screen;
         
         class App : public Context {
         public:
@@ -41,6 +57,10 @@ namespace kk {
             virtual void back(kk::Uint delta,kk::Boolean animated);
             
             virtual void run(kk::Object * query);
+            
+            virtual void showView(View * view);
+            
+            virtual void hideView(View * view);
             
             virtual kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration);
             
@@ -76,6 +96,10 @@ namespace kk {
             
             virtual Storage * storage();
             
+            virtual Screen * screen();
+            
+            virtual void setScreen(Screen * v);
+            
             static void Openlib();
             
             Ker_CLASS(App,Context,"UIApp")
@@ -87,6 +111,8 @@ namespace kk {
             std::map<kk::Uint64,kk::Weak<Page>> _pages;
             kk::Uint64 _appid;
             kk::Strong<Storage> _storage;
+            std::map<kk::Uint64,kk::Strong<View>> _showViews;
+            kk::Strong<Screen> _screen;
         };
         
         

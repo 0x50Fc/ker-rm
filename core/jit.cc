@@ -960,7 +960,7 @@ namespace kk {
             duk_push_object(ctx);
             
             kk::String v;
-            v.append("(function(module,exports,require){");
+            v.append("(function(module,exports,require,global){");
             kk::String code = res->getTextContent(path);
             v.append(code);
             v.append("})");
@@ -987,8 +987,9 @@ namespace kk {
             kk::String basePath = CStringPathDirname(path);
             
             duk_push_require(ctx, basePath.c_str(), res);
+            duk_push_global_object(ctx);
             
-            if(::duk_pcall(ctx, 3) != DUK_EXEC_SUCCESS) {
+            if(::duk_pcall(ctx, 4) != DUK_EXEC_SUCCESS) {
                 Error(ctx, -1, "[duk_require]");
                 duk_pop_n(ctx,3);
                 return 0;
@@ -1088,6 +1089,28 @@ namespace kk {
             }, 2);
             
             duk_put_global_string(ctx, "compile");
+            
+            duk_push_c_function(ctx, [](duk_context * ctx)->duk_ret_t{
+                
+                if(duk_is_string(ctx, -1)) {
+                    
+                    char m[256] = "";
+                    
+                    strncpy(m, duk_to_string(ctx, -1), sizeof(m));
+                    
+                    mktemp(m);
+                    
+                    duk_push_string(ctx, m);
+                    
+                    return 1;
+                    
+                }
+                
+                return 0;
+                
+            }, 1);
+            
+            duk_put_global_string(ctx, "mktemp");
             
         });
         

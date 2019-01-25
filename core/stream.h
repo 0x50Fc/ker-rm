@@ -52,7 +52,7 @@ namespace kk {
     
     class FileOutputStream : public OutputStream {
     public:
-        FileOutputStream(kk::CString path,StreamFileType fileType);
+        FileOutputStream(kk::CString path,StreamFileType fileType,kk::Boolean append);
         virtual ~FileOutputStream();
         virtual void close();
         virtual ssize_t write(const void * data, size_t length);

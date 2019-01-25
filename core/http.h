@@ -47,6 +47,7 @@ namespace kk {
         virtual DispatchQueue * queue();
         virtual std::map<kk::String,kk::String> & reqHeaders();
         virtual std::map<kk::String,kk::String> & respHeaders();
+        virtual kk::Strong<TObject<kk::String,kk::String>> responseHeaders();
         virtual kk::Native * native();
         virtual void setNative(kk::Native * native);
         

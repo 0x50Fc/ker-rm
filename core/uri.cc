@@ -288,7 +288,6 @@ namespace kk {
     kk::CString kNativeDirectory = "native";
     kk::CString Directorys[] = {kTemporaryDirectory,kDataDirectory,kAppDirectory,kNativeDirectory,nullptr};
     
-
     kk::String ResolveURI(kk::CString path) {
         
         kk::CString *p = Directorys;
@@ -333,6 +332,9 @@ namespace kk {
         return v;
     }
     
-
+    kk::Boolean isWritableURI(kk::CString uri) {
+        kk::URI u(uri);
+        return kk::CStringEqual(u.scheme(), "ker-data") || kk::CStringEqual(u.scheme(), "ker-tmp");
+    }
     
 }

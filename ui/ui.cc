@@ -8,12 +8,14 @@
 
 #include <ui/ui.h>
 #include <ui/view.h>
+#include <ui/screen.h>
 #include <core/jit.h>
 #include <core/crypto.h>
 #include <ui/app.h>
 #include <ui/package.h>
 #include <core/uri.h>
 #include <core/storage.h>
+#include <unistd.h>
 
 #ifdef KER_DEBUG
 #include <core/debugger.h>
@@ -332,8 +334,6 @@ namespace kk {
 #ifdef KER_DEBUG
                 kk::Debugger::debug(_jsContext);
 #endif
-                duk_push_object(_jsContext);
-                duk_put_global_string(_jsContext, "ker");
                 kk::Openlib<>::openlib(_jsContext);
                 kk::Openlib<JSResource *>::openlib(_jsContext,dynamic_cast<JSResource *>(this));
                 kk::Openlib<kk::Container *>::openlib(_jsContext, this);
@@ -429,12 +429,19 @@ namespace kk {
             return new FileInputStream(p.c_str(),StreamFileTypeBinary);
         }
         
-        kk::Strong<OutputStream> Context::openOutputStream(kk::CString uri) {
+        kk::Strong<OutputStream> Context::openOutputStream(kk::CString uri,kk::Boolean append) {
             if(kk::CStringHasSubstring(uri, "://")) {
                 kk::String p = ResolvePath(uri);
-                return new FileOutputStream(p.c_str(),StreamFileTypeBinary);
+                return new FileOutputStream(p.c_str(),StreamFileTypeBinary,append);
             }
             return nullptr;
+        }
+        
+        void Context::removeURI(kk::CString uri) {
+            if(kk::isWritableURI(uri)) {
+                kk::String p = ResolvePath(uri);
+                unlink(p.c_str());
+            }
         }
         
         String Context::getResourceKey(kk::CString path) {
@@ -445,7 +452,7 @@ namespace kk {
         
         void Context::exec(kk::CString path,std::vector<kk::String>& keys,std::vector<kk::Any>& librarys) {
             
-            kk::String code("(function(ker,require");
+            kk::String code("(function(require,global");
             
             {
                 auto i = keys.begin();
@@ -474,15 +481,11 @@ namespace kk {
                     
                     duk_idx_t n =0;
                     
-                    duk_get_global_string(ctx, "ker");
-                    
-                    n++;
-                    
                     kk::String basePath = CStringPathDirname(path);
                     
-                    duk_push_require(ctx, basePath.c_str(), (JSResource *) dynamic_cast<JSResource *>(this));
+                    duk_push_require(ctx, basePath.c_str(), (JSResource *) dynamic_cast<JSResource *>(this)); n++ ;
                     
-                    n ++;
+                    duk_push_global_object(ctx); n++ ;
                     
                     {
                         auto i = librarys.begin();
@@ -767,7 +770,9 @@ namespace kk {
                     
                     kk::PutStrongMethod<Context,InputStream,kk::CString>(ctx, -1, "openInputStream", &Context::openInputStream);
                     
-                    kk::PutStrongMethod<Context,OutputStream,kk::CString>(ctx, -1, "openOutputStream", &Context::openOutputStream);
+                    kk::PutStrongMethod<Context,OutputStream,kk::CString,kk::Boolean>(ctx, -1, "openOutputStream", &Context::openOutputStream);
+                    
+                    kk::PutMethod<Context,void,kk::CString>(ctx, -1, "removeURI", &Context::removeURI);
                     
                 });
                 
@@ -805,7 +810,7 @@ namespace kk {
             return v;
         }
         
-        UI::UI():_autoId(0),_transaction(false){
+        UI::UI():_autoId(0),_transaction(false),_mainScreen(new Screen()){
             _queue = kk::createDispatchQueue("kk::ui::UI");
         }
         
@@ -821,9 +826,14 @@ namespace kk {
             return ++_autoId;
         }
         
+        Screen * UI::mainScreen() {
+            return _mainScreen;
+        }
+        
         kk::Strong<App> UI::createApp(kk::CString basePath,kk::CString appkey) {
             kk::Strong<App> app = new App(++_autoId,basePath,appkey);
             _apps[app->appid()] = (App *) app;
+            app->setScreen(_mainScreen);
             app->openlib();
             return app;
         }
@@ -900,6 +910,14 @@ namespace kk {
                 SqliteStorage::install(_database);
             }
             return _database;
+        }
+        
+        View * UI::view() {
+            return _view;
+        }
+        
+        void UI::setView(View * view) {
+            _view = view;
         }
         
         void UI::open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func) {

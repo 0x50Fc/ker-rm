@@ -3,8 +3,10 @@ namespace ker {
 
     let queue:AudioQueueInput|undefined
     let output:SpeexFileOutputStream|undefined;
+    let uri = "ker-tmp:///ker_startRecord_" + mktemp("XXXXXXXX") + ".spx";
 
     function recycle():void {
+
         if(queue !== undefined) {
             queue.off();
             queue.stop();
@@ -15,6 +17,9 @@ namespace ker {
             output.close();
             output = undefined;
         }
+
+        app.removeURI(uri);
+        
     }
     
     export interface KerAudioStartRecordRes {
@@ -31,7 +36,6 @@ namespace ker {
         
         recycle();
 
-        let uri = "ker-tmp:///ker_Audio_startRecord.spx";
         let input = app.openOutputStream(uri)!
         let buffer = new BufferOutputStream(input,2048);
 

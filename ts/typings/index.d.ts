@@ -1,17 +1,6 @@
 
 declare namespace ker {
 
-    interface UIPageObject {
-        [key: string]: any
-        path: string
-        view?: string
-        document?: Document
-        data?: DataObject
-        setData?: (object: DataObject) => void
-        onload?: (document: Document) => void
-        onunload?: () => void
-    }
-
     interface DataObject {
         [key: string]: any
     }
@@ -74,6 +63,26 @@ declare namespace ker {
 
     }
 
+
+    interface ViewObject {
+        [key: string]: any
+    }
+
+    type ViewElementFuntion = (element: Element, data: Data, name: string, attrs: ViewAttributeSet, children: (element: Element, data: Data) => void)=>void
+    type ViewEvaluateFuntion = (func: EvaluateScript, keys: string[]) => Evaluate 
+    
+    function View(document: Document, object:ViewObject, cb: (V:ViewElementFuntion,E:ViewEvaluateFuntion)=>void): void 
+
+    interface UIPageObject extends ViewObject {
+        path: string
+        view?: string
+        document?: Document
+        data?: DataObject
+        setData?: (object: DataObject) => void
+        onload?: (document: Document) => void
+        onunload?: () => void
+    }
+
     interface KerAudioStartRecordRes {
         readonly tempFilePath: string
     }
@@ -85,7 +94,34 @@ declare namespace ker {
     }
 
     function startRecord(object: KerAudioStartRecordObject): void
-    function stopRecord(): void 
+    function stopRecord(): void
 
-    function Page(object: UIPageObject,page:UIPage, setTimeout:any): void
+    class RequestRes {
+        data: any
+        statusCode: number
+        header: HeaderSet
+    }
+
+    interface RequestObject {
+        url: string
+        data?: any
+        header?: HeaderSet
+        method?: string
+        dataType?: string
+        responseType?: string
+        success?: (res: RequestRes) => void
+        fail?: (errmsg?: string) => void
+        complete?: () => void
+    }
+
+    class RequestTask {
+        constructor(request: HttpRequest)
+        onHeadersReceived(v: (header: HeaderSet) => void): void
+        offHeadersReceived(v?: (header: HeaderSet) => void): void
+        abort(): void
+    }
+
+    function request(object: RequestObject): RequestTask;
+
+    function Page(object: UIPageObject, page: UIPage, setTimeout: any): void
 }
