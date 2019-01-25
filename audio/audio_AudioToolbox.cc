@@ -314,7 +314,7 @@ namespace kk {
                 for(int i=0;i<AUDIO_RECORD_BUFFER_SIZE;i++){
                     
                     if(cb.read(buffers[i]->mAudioData)) {
-                        AudioQueueEnqueueBuffer(_queue, buffers[i], 0, NULL);
+                        AudioQueueEnqueueBuffer(queue, buffers[i], 0, NULL);
                     } else {
                         break;
                     }
