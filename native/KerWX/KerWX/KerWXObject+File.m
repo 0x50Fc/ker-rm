@@ -421,9 +421,6 @@ NSString * ker_CreateFileDirectory(NSString * path){
 @end
 
 
-
-
-
 @implementation NSString (File)
 
 +(NSString *)ker_uuidString{
