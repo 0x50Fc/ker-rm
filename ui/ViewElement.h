@@ -59,6 +59,7 @@ namespace kk {
             static void Openlib();
             static void library(kk::CString name);
         protected:
+            virtual void obtainViewKey(ViewContext * context);
             virtual ViewElement * parentViewElement();
             virtual void setViewKey(ViewContext * context,View * view,CString key, CString value);
             virtual kk::Boolean canRecycleView();

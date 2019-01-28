@@ -223,6 +223,14 @@ namespace kk {
             }
 
             if(_view != nullptr) {
+                obtainViewKey(context);
+                obtainChildrenView(context);
+            }
+            
+        }
+        
+        void ViewElement::obtainViewKey(ViewContext * context) {
+            if(_view != nullptr) {
                 auto i = _changedKeys.begin();
                 auto e = _changedKeys.end();
                 while(i != e) {
@@ -233,11 +241,6 @@ namespace kk {
                 }
                 _changedKeys.clear();
             }
-            
-            if(_view != nullptr){
-                obtainChildrenView(context);
-            }
-            
         }
         
         void ViewElement::recycleView() {

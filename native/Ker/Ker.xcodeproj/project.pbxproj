@@ -154,6 +154,8 @@
 		AC9BE93321FB3CAA00D58282 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC9BE90B21F9532000D58282 /* AVFoundation.framework */; };
 		AC9BE95021FBE8BF00D58282 /* file.h in Headers */ = {isa = PBXBuildFile; fileRef = AC9BE94E21FBE8BF00D58282 /* file.h */; };
 		AC9BE95121FBE8BF00D58282 /* file.cc in Sources */ = {isa = PBXBuildFile; fileRef = AC9BE94F21FBE8BF00D58282 /* file.cc */; };
+		ACB2A50621FF12E700C07902 /* BarElement.h in Headers */ = {isa = PBXBuildFile; fileRef = ACB2A50421FF12E700C07902 /* BarElement.h */; };
+		ACB2A50721FF12E700C07902 /* BarElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = ACB2A50521FF12E700C07902 /* BarElement.cc */; };
 		ACD6575521EE819E00D63256 /* TextElement.h in Headers */ = {isa = PBXBuildFile; fileRef = ACD6575321EE819E00D63256 /* TextElement.h */; };
 		ACD6575621EE819E00D63256 /* TextElement.cc in Sources */ = {isa = PBXBuildFile; fileRef = ACD6575421EE819E00D63256 /* TextElement.cc */; };
 /* End PBXBuildFile section */
@@ -312,6 +314,8 @@
 		AC9BE93121FB3C7C00D58282 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		AC9BE94E21FBE8BF00D58282 /* file.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = file.h; sourceTree = "<group>"; };
 		AC9BE94F21FBE8BF00D58282 /* file.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = file.cc; sourceTree = "<group>"; };
+		ACB2A50421FF12E700C07902 /* BarElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BarElement.h; sourceTree = "<group>"; };
+		ACB2A50521FF12E700C07902 /* BarElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BarElement.cc; sourceTree = "<group>"; };
 		ACD6575321EE819E00D63256 /* TextElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextElement.h; sourceTree = "<group>"; };
 		ACD6575421EE819E00D63256 /* TextElement.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextElement.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -528,6 +532,8 @@
 				1AE0929F21F56F2300133215 /* PageElement.cc */,
 				1A3F5FAF21F72CB400675633 /* ImageElement.h */,
 				1A3F5FB021F72CB400675633 /* ImageElement.cc */,
+				ACB2A50421FF12E700C07902 /* BarElement.h */,
+				ACB2A50521FF12E700C07902 /* BarElement.cc */,
 			);
 			name = ui;
 			path = ../../../ui;
@@ -586,6 +592,7 @@
 				1AF065A8219D518200F8F7A8 /* kk.h in Headers */,
 				1AE91CDF21DE0A6C0055C932 /* KerUI.h in Headers */,
 				1AA4AC4321BFBC3A00C636F5 /* ioapi.h in Headers */,
+				ACB2A50621FF12E700C07902 /* BarElement.h in Headers */,
 				AC9BE91221F9770400D58282 /* audio.h in Headers */,
 				1AE0928521EDC31E00133215 /* element.h in Headers */,
 				1AE91CD521DDB84D0055C932 /* KerStrong.h in Headers */,
@@ -738,6 +745,7 @@
 				1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */,
 				1AF065B7219D51C000F8F7A8 /* duktape.c in Sources */,
 				1A3AF07421EC7F0B001C8759 /* WebSocket.cc in Sources */,
+				ACB2A50721FF12E700C07902 /* BarElement.cc in Sources */,
 				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
 				1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */,
 				1AA4AC3C21BFBC3A00C636F5 /* unzip.c in Sources */,

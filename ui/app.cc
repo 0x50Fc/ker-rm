@@ -16,6 +16,7 @@
 #include <ui/TextElement.h>
 #include <ui/PageElement.h>
 #include <ui/ImageElement.h>
+#include <ui/BarElement.h>
 #include <core/crypto.h>
 #include <core/uri.h>
 #include <core/net.h>
@@ -306,6 +307,7 @@ namespace kk {
             kk::ui::TextElement::Openlib();
             kk::ui::PageElement::Openlib();
             kk::ui::ImageElement::Openlib();
+            kk::ui::BarElement::Openlib();
             kk::Stream::Openlib();
             kk::audio::Audio::Openlib();
             kk::audio::SpeexCodec::Openlib();
