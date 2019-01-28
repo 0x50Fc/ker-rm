@@ -203,7 +203,7 @@ namespace kk {
         }
         
         
-        View::View(kk::CString name,ViewConfiguration * configuration,App * app,kk::Uint64 viewId):_configuration(configuration),_app(app),_viewId(viewId) {
+        View::View(kk::CString name,ViewConfiguration * configuration,App * app,kk::Uint64 viewId):_configuration(configuration),_app(app),_viewId(viewId),_showToScreen(false) {
             
             {
                 kk::Strong<ViewCreateCommand> cmd = new ViewCreateCommand();
@@ -214,7 +214,7 @@ namespace kk {
             }
         }
         
-        View::View(kk::Native * native,Rect & frame,App * app,kk::Uint64 viewId):_app(app),_viewId(viewId),_frame(frame) {
+        View::View(kk::Native * native,Rect & frame,App * app,kk::Uint64 viewId):_app(app),_viewId(viewId),_frame(frame),_showToScreen(false) {
             
             {
                 kk::Strong<ViewNativeCreateCommand> cmd = new ViewNativeCreateCommand();
@@ -228,6 +228,13 @@ namespace kk {
         View::~View() {
             App * app = _app;
             if(app != nullptr){
+                if(_showToScreen) {
+                    {
+                        kk::Strong<ViewRemoveCommand> cmd = new ViewRemoveCommand();
+                        cmd->viewId = _viewId;
+                        app->execCommand(cmd);
+                    }
+                }
                 {
                     kk::Strong<ViewDeleteCommand> cmd = new ViewDeleteCommand();
                     cmd->viewId = _viewId;
@@ -236,6 +243,15 @@ namespace kk {
                 app->removeView(_viewId);
             }
             kk::Log("[View] [dealloc]");
+        }
+        
+        void View::showToScreen() {
+            if(_app != nullptr){
+                kk::Strong<ViewShowToScreenCommand> cmd = new ViewShowToScreenCommand();
+                cmd->viewId = _viewId;
+                _app->execCommand(cmd);
+            }
+            _showToScreen = true;
         }
         
         Rect & View::frame() {
@@ -371,24 +387,25 @@ namespace kk {
         
         void View::removeView() {
             
+            _showToScreen = false;
+            
             View * p = _parent;
+            kk::Strong<View> v = this;
+            kk::Uint64 viewId = _viewId;
+            kk::Strong<App> app = (App *) _app;
             
             if(p != nullptr) {
-                
-                kk::Strong<App> app = (App *) _app;
-                kk::Uint64 viewId = _viewId;
-                
                 _parent = nullptr;
-
                 auto i = p->_subviews.find(this);
                 if(i != p->_subviews.end()) {
                     p->_subviews.erase(i);
                 }
-                
-                kk::Strong<ViewRemoveCommand> cmd = new ViewRemoveCommand();
-                cmd->viewId = viewId;
-                app->execCommand(cmd);
             }
+            
+            kk::Strong<ViewRemoveCommand> cmd = new ViewRemoveCommand();
+            cmd->viewId = viewId;
+            app->execCommand(cmd);
+            
         }
         
         void View::removeAllSubviews() {
@@ -558,6 +575,7 @@ namespace kk {
                     kk::PutMethod<View,void,kk::Boolean>(ctx, -1, "scrollToBottom", &View::scrollToBottom);
                     kk::PutMethod<View,void,kk::Boolean>(ctx, -1, "scrollToLeft", &View::scrollToLeft);
                     kk::PutMethod<View,void,kk::Boolean>(ctx, -1, "scrollToRight", &View::scrollToRight);
+                    kk::PutMethod<View,void>(ctx, -1, "showToScreen", &View::showToScreen);
                     
                 });
                 

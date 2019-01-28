@@ -28,7 +28,6 @@ namespace kk {
         
     protected:
         kk::Strong<Object> _dataSet;
-        kk::Strong<Element> _element;
         kk::Boolean _cancelBubble;
     };
     

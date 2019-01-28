@@ -167,7 +167,7 @@ namespace kk {
         
         void Page::run(kk::CString path , Object * query) {
 
-            kk::String code("(function(page,path,query,require,global");
+            kk::String code("(function(page,path,query,require,global,module,exports");
             
             std::vector<kk::Any> vs;
             
@@ -199,6 +199,11 @@ namespace kk {
                     duk_push_require(ctx, basePath.c_str(), (JSResource *) _app);
                     duk_push_global_object(ctx);
                     
+                    duk_push_object(ctx);
+                    duk_push_object(ctx);
+                    duk_dup(ctx, -1);
+                    duk_put_prop_string(ctx, -3, "exports");
+                    
                     auto i = vs.begin();
                     
                     while (i != vs.end()) {
@@ -206,7 +211,7 @@ namespace kk {
                         i ++;
                     }
                     
-                    if(duk_pcall(ctx, 5 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
+                    if(duk_pcall(ctx, 7 + (duk_idx_t) vs.size()) != DUK_EXEC_SUCCESS) {
                         Error(ctx, -1, "[Page::run] ");
                     }
                     

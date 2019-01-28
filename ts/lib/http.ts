@@ -21,8 +21,8 @@ namespace ker {
 
     export class RequestTask {
         private _onHeadersReceived?: (header: HeaderSet) => void
-        private _request: HttpRequest
-        constructor(request: HttpRequest) {
+        private _request: HTTPRequest
+        constructor(request: HTTPRequest) {
             this._request = request;
             request.on("response", (event: Event): void => {
                 this.onResponse(request.responseHeaders);
@@ -49,12 +49,12 @@ namespace ker {
     export function request(object: RequestObject): RequestTask {
 
 
-        let responseType = HttpRequest.ResponseTypeString;
+        let responseType = HTTPRequest.ResponseTypeString;
         let url = object.url;
         let method = object.method || "GET";
 
         if (object.responseType == "arraybuffer") {
-            responseType = HttpRequest.ResponseTypeArrayBuffer;
+            responseType = HTTPRequest.ResponseTypeArrayBuffer;
         }
 
         if (method == 'GET') {
@@ -78,7 +78,7 @@ namespace ker {
             }
         }
 
-        let req = new HttpRequest();
+        let req = new HTTPRequest();
         let contentType: string | undefined;
 
         if (object.header) {

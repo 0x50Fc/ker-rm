@@ -47,7 +47,7 @@ declare namespace ker {
 
         on(keys: string[] | Evaluate, func: DataFunction, priority?: number): void
 
-        off(keys: string[] | Evaluate, func: DataFunction | undefined): void
+        off(keys: string[] | Evaluate, func?: DataFunction): void
 
         setParent(parent: Data | undefined): void
 
@@ -68,10 +68,14 @@ declare namespace ker {
         [key: string]: any
     }
 
-    type ViewElementFuntion = (element: Element, data: Data, name: string, attrs: ViewAttributeSet, children: (element: Element, data: Data) => void)=>void
-    type ViewEvaluateFuntion = (func: EvaluateScript, keys: string[]) => Evaluate 
-    
-    function View(document: Document, object:ViewObject, cb: (V:ViewElementFuntion,E:ViewEvaluateFuntion)=>void): void 
+    interface ViewAttributeSet {
+        [key: string]: string | Evaluate
+    }
+
+    type ViewElementFuntion = (element: Element, data: Data, name: string, attrs: ViewAttributeSet, children: (element: Element, data: Data) => void) => void
+    type ViewEvaluateFuntion = (func: EvaluateScript, keys: string[]) => Evaluate
+
+    function View(document: Document, object: ViewObject, cb: (V: ViewElementFuntion, E: ViewEvaluateFuntion) => void): void
 
     interface UIPageObject extends ViewObject {
         path: string
@@ -82,6 +86,45 @@ declare namespace ker {
         onload?: (document: Document) => void
         onunload?: () => void
     }
+
+    class Dialog {
+
+        recycle(): void
+
+        setLayout(): void
+
+        setData(data: DataObject): void
+
+        readonly view: UIView
+
+        readonly document: Document
+
+        create(object: ViewObject, func: (element: Element, data: Data, V: ViewElementFuntion, E: ViewEvaluateFuntion) => void): void
+
+        open(path: string, object: ViewObject): void
+
+        show(): void
+
+        hide(): void
+    }
+
+    interface ShowToastObject {
+        title: string
+        duration?: number
+        success?: () => void
+        fail?: (errmsg?: string) => void
+        complete?: () => void
+    }
+
+    function showToast(object: ShowToastObject): void
+
+    interface HideToastObject {
+        success?: () => void
+        fail?: (errmsg?: string) => void
+        complete?: () => void
+    }
+
+    function hideToast(object: HideToastObject): void
 
     interface KerAudioStartRecordRes {
         readonly tempFilePath: string
@@ -114,14 +157,87 @@ declare namespace ker {
         complete?: () => void
     }
 
-    class RequestTask {
-        constructor(request: HttpRequest)
+    interface RequestTask {
         onHeadersReceived(v: (header: HeaderSet) => void): void
         offHeadersReceived(v?: (header: HeaderSet) => void): void
         abort(): void
     }
 
     function request(object: RequestObject): RequestTask;
+
+    enum DBIndexType {
+        NONE, ASC, DESC
+    }
+
+    enum DBFieldType {
+        VARCHAR, INT, TINYINT, BIGINT, DOUBLE, TEXT, BLOB
+    }
+
+    interface DBField {
+        readonly name: string
+        readonly type: DBFieldType
+        readonly index: DBIndexType
+        readonly length: number
+        readonly default: DatabaseValue
+    }
+
+    interface DBEntry {
+        readonly name: string
+        readonly fields: DBField[]
+    }
+
+    interface DBObject {
+        id: number
+        [key: string]: DatabaseValue
+    }
+
+    enum DBCommandType {
+        ADD, SET, REMOVE
+    }
+
+    interface DBCommand {
+        readonly type: DBCommandType
+    }
+
+    interface DBAddCommand extends DBCommand {
+        readonly object: DBObject
+        readonly entry: DBEntry
+    }
+
+    interface DBSetCommand extends DBCommand {
+        readonly object: DBObject
+        readonly entry: DBEntry
+        readonly keys: string[]
+    }
+
+    interface DBRemoveCommand extends DBCommand {
+        readonly objects: DBObject[]
+        readonly entry: DBEntry
+    }
+
+    interface DBFieldSet {
+        [key: string]: DBField
+    }
+
+    class DBContext extends EventEmitter {
+        constructor(db: Database)
+
+        readonly db: Database
+
+        addEntry(entry: DBEntry): void
+
+        query(sql: string, data: DatabaseValue[], done: (objects: DatabaseRow[], errmsg: string | undefined) => void): void
+
+        exec(sql: string, data: DatabaseValue[], done: (id: number, errmsg: string | undefined) => void): void
+
+        queryEntry(entry: DBEntry, sql: string, data: DatabaseValue[], done: (objects: DBObject[], errmsg: string | undefined) => void): void
+
+        add(object: DBObject, entry: DBEntry, done?: (errmsg: string | undefined) => void): void
+
+        remove(objects: DBObject[], entry: DBEntry, done?: (errmsg: string | undefined) => void): void
+
+        set(object: DBObject, entry: DBEntry, keys?: string[] | undefined, done?: (errmsg: string | undefined) => void): void
+    }
 
     function Page(object: UIPageObject, page: UIPage, setTimeout: any): void
 }

@@ -38,8 +38,8 @@ namespace kk {
     
     class SqliteStorage : public Storage {
     public:
-        SqliteStorage(Sqlite * db,kk::DispatchQueue * queue,kk::CString prefix);
-        SqliteStorage(Sqlite * db,kk::CString prefix);
+        SqliteStorage(Sqlite * db,kk::DispatchQueue * queue,kk::CString name);
+        SqliteStorage(Sqlite * db,kk::CString name);
         virtual kk::String get(kk::CString key);
         virtual void set(kk::CString key,kk::CString value);
         virtual void load(kk::CString key,JSObject * callback);
@@ -50,11 +50,11 @@ namespace kk {
         static void install(Sqlite * db);
         
     protected:
-        static void get(Sqlite * db,kk::CString key,kk::String & v);
-        static void set(Sqlite * db,kk::CString key,kk::CString v);
-        static void clear(Sqlite * db,kk::CString prefix);
-        static void keys(Sqlite * db,kk::CString prefix,kk::Array<kk::String> * keys);
-        kk::String _prefix;
+        static void get(Sqlite * db,kk::CString name,kk::CString key,kk::String & v);
+        static void set(Sqlite * db,kk::CString name,kk::CString key,kk::CString v);
+        static void clear(Sqlite * db,kk::CString name);
+        static void keys(Sqlite * db,kk::CString name,kk::Array<kk::String> * keys);
+        kk::String _name;
         kk::Strong<DispatchQueue> _queue;
         kk::Strong<Sqlite> _db;
     };

@@ -538,6 +538,11 @@ var ker;
             }
         }
         ;
+        pageViewContext.push([]);
+        cb(v_Element, function (func, keys) {
+            return new ker.Evaluate(func, keys);
+        });
+        pageViewContext.pop();
     }
     ker.View = View;
 })(ker || (ker = {}));
@@ -714,11 +719,11 @@ var ker;
     }());
     ker.RequestTask = RequestTask;
     function request(object) {
-        var responseType = HttpRequest.ResponseTypeString;
+        var responseType = HTTPRequest.ResponseTypeString;
         var url = object.url;
         var method = object.method || "GET";
         if (object.responseType == "arraybuffer") {
-            responseType = HttpRequest.ResponseTypeArrayBuffer;
+            responseType = HTTPRequest.ResponseTypeArrayBuffer;
         }
         if (method == 'GET') {
             if (typeof object.data == 'object') {
@@ -740,7 +745,7 @@ var ker;
                 }
             }
         }
-        var req = new HttpRequest();
+        var req = new HTTPRequest();
         var contentType;
         if (object.header) {
             for (var key in object.header) {
@@ -827,8 +832,8 @@ var ker;
 })(ker || (ker = {}));
 var ker;
 (function (ker) {
-    var ToastView = /** @class */ (function () {
-        function ToastView() {
+    var Dialog = /** @class */ (function () {
+        function Dialog() {
             var _this = this;
             this._data = new ker.Data(global);
             this._view = app.createView("view");
@@ -837,14 +842,113 @@ var ker;
             this._document = new Document();
             this._element = this._document.createElement("layout");
             this._document.rootElement = this._element;
-            ker.View(this._document, {}, function (V, E) {
-                V(_this._element, _this._data, "view", {
+            this._viewElement = this._document.createElement("view");
+            this._element.append(this._viewElement);
+            this._layouting = false;
+            this._onLayout = function (event) {
+                _this.setLayout();
+            };
+            screen.on("change", this._onLayout);
+        }
+        Dialog.prototype.recycle = function () {
+            screen.off("change", this._onLayout);
+            this._data.off([]);
+            this._viewElement.recycleView();
+            this._view.removeView();
+        };
+        Dialog.prototype.layout = function () {
+            this._viewContext.setSize(screen.width, screen.height);
+            this._viewContext.setUnit("px", screen.density, 0);
+            this._element.setFrame(0, 0, screen.width, screen.height);
+            this._viewContext.layout(this._element);
+            this._viewContext.obtainView(this._viewElement);
+            this._layouting = false;
+        };
+        Dialog.prototype.setLayout = function () {
+            var _this = this;
+            if (this._layouting) {
+                return;
+            }
+            this._layouting = true;
+            setTimeout(function () {
+                _this.layout();
+            }, 0);
+        };
+        Dialog.prototype.setData = function (data) {
+            this._data.setData(data);
+            this.setLayout();
+        };
+        Object.defineProperty(Dialog.prototype, "view", {
+            get: function () {
+                return this._view;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Dialog.prototype, "document", {
+            get: function () {
+                return this._document;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Dialog.prototype.create = function (object, func) {
+            var _this = this;
+            ker.View(this._document, object, function (V, E) {
+                func(_this._viewElement, _this._data, V, E);
+            });
+            this.setLayout();
+        };
+        Dialog.prototype.open = function (path, object) {
+            var _this = this;
+            ker.View(this._document, object, function (V, E) {
+                app.exec(path, {
+                    element: _this._viewElement,
+                    data: _this._data,
+                    V: V,
+                    E: E
+                });
+            });
+            this.setLayout();
+        };
+        Dialog.prototype.show = function () {
+            this._view.showToScreen();
+        };
+        Dialog.prototype.hide = function () {
+            this._view.removeView();
+        };
+        return Dialog;
+    }());
+    ker.Dialog = Dialog;
+})(ker || (ker = {}));
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var ker;
+(function (ker) {
+    var ToastView = /** @class */ (function (_super) {
+        __extends(ToastView, _super);
+        function ToastView() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ToastView.prototype.create = function (object) {
+            _super.prototype.create.call(this, object, function (element, data, V, E) {
+                V(element, data, "body", {
                     'max-width': '400rpx',
                     'padding': '20rpx',
                     'background-color': 'rgba(0,0,0,0.75)',
                     'border-radius': '8rpx'
                 }, function (element, data) {
-                    _this._viewElement = element;
                     V(element, data, "text", {
                         '#text': E(function (title) { return title; }, ['title']),
                         'font': '28rpx',
@@ -852,41 +956,55 @@ var ker;
                     }, function (element, data) { });
                 });
             });
-        }
-        ToastView.prototype.layout = function () {
-            this._viewContext.setSize(screen.width, screen.height);
-            this._viewContext.setUnit("px", screen.density, 0);
-            this._element.setFrame(0, 0, screen.width, screen.height);
-            this._viewContext.layout(this._element);
-            this._viewContext.obtainView(this._viewElement);
         };
-        ToastView.prototype.setData = function (data) {
-            this._data.setData(data);
-            this.layout();
-        };
-        Object.defineProperty(ToastView.prototype, "view", {
-            get: function () {
-                return this._view;
-            },
-            enumerable: true,
-            configurable: true
-        });
         return ToastView;
-    }());
-    var views = [];
-    screen.on("change", function (event) {
-        for (var _i = 0, views_1 = views; _i < views_1.length; _i++) {
-            var v = views_1[_i];
-            v.layout();
-        }
-    });
+    }(ker.Dialog));
+    var audoId = 0;
+    var viewSet = {};
     function showToast(object) {
+        if (object.duration === undefined) {
+            object.duration = 1500;
+        }
+        var id = (++audoId) + '';
+        var view = new ToastView();
+        view.create({});
+        view.setData({
+            title: object.title
+        });
+        view.show();
+        viewSet[id] = view;
+        setTimeout(function () {
+            view.hide();
+            view.recycle();
+            delete viewSet[id];
+        }, object.duration);
+        if (object.success !== undefined) {
+            object.success();
+        }
+        if (object.complete !== undefined) {
+            object.complete();
+        }
     }
     ker.showToast = showToast;
     function hideToast(object) {
-        if (views.length > 0) {
-            var view = views.pop();
-            app.hideView;
+        var view;
+        var id = 0;
+        for (var key in viewSet) {
+            if (parseInt(key) > id) {
+                id = parseInt(key);
+                view = viewSet[key];
+            }
+        }
+        if (view !== undefined) {
+            view.hide();
+            view.recycle();
+            delete viewSet[id + ''];
+        }
+        if (object.success !== undefined) {
+            object.success();
+        }
+        if (object.complete !== undefined) {
+            object.complete();
         }
     }
     ker.hideToast = hideToast;

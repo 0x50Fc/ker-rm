@@ -16,13 +16,17 @@ namespace kk {
     
     class Event : public Object {
     public:
+        Event();
+        Event(Object * target);
         virtual Object * data();
         virtual void setData(Object * data);
         virtual Any & returnValue();
         virtual void setReturnValue(Any & v);
+        virtual Object * target();
         Ker_CLASS(Event,Object,"Event")
         static void Openlib();
     protected:
+        Strong<Object> _target;
         Strong<Object> _data;
         Any _returnValue;
     };

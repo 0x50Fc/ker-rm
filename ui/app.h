@@ -31,16 +31,7 @@ namespace kk {
             kk::Boolean animated;
         };
         
-        class AppShowViewCommand : public AppCommand {
-        public:
-            kk::Uint64 viewId;
-        };
-        
-        class AppHideViewCommand : public AppCommand {
-        public:
-            kk::Uint64 viewId;
-        };
-        
+
         class Screen;
         
         class App : public Context {
@@ -57,10 +48,6 @@ namespace kk {
             virtual void back(kk::Uint delta,kk::Boolean animated);
             
             virtual void run(kk::Object * query);
-            
-            virtual void showView(View * view);
-            
-            virtual void hideView(View * view);
             
             virtual kk::Strong<View> createView(kk::CString name,ViewConfiguration * configuration);
             
@@ -82,7 +69,9 @@ namespace kk {
             
             virtual Size getAttributedTextContentSize(AttributedText * text,Float maxWidth);
             
-            virtual kk::Strong<Sqlite> createSqlite(kk::CString path);
+            virtual kk::Strong<Database> openDataBase(kk::CString path);
+            
+            virtual kk::Strong<File> openDataFile(kk::CString path,kk::CString type);
             
             virtual kk::CString appkey();
             
@@ -111,7 +100,6 @@ namespace kk {
             std::map<kk::Uint64,kk::Weak<Page>> _pages;
             kk::Uint64 _appid;
             kk::Strong<Storage> _storage;
-            std::map<kk::Uint64,kk::Strong<View>> _showViews;
             kk::Strong<Screen> _screen;
         };
         

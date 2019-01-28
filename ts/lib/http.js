@@ -34,11 +34,11 @@ var ker;
     }());
     ker.RequestTask = RequestTask;
     function request(object) {
-        var responseType = HttpRequest.ResponseTypeString;
+        var responseType = HTTPRequest.ResponseTypeString;
         var url = object.url;
         var method = object.method || "GET";
         if (object.responseType == "arraybuffer") {
-            responseType = HttpRequest.ResponseTypeArrayBuffer;
+            responseType = HTTPRequest.ResponseTypeArrayBuffer;
         }
         if (method == 'GET') {
             if (typeof object.data == 'object') {
@@ -60,7 +60,7 @@ var ker;
                 }
             }
         }
-        var req = new HttpRequest();
+        var req = new HTTPRequest();
         var contentType;
         if (object.header) {
             for (var key in object.header) {

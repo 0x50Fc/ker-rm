@@ -89,11 +89,27 @@ namespace kk {
     }
     
 
-    SqliteStorage::SqliteStorage(Sqlite * db,kk::DispatchQueue * queue,kk::CString prefix):_db(db),_queue(queue),_prefix(prefix) {
+    SqliteStorage::SqliteStorage(Sqlite * db,kk::DispatchQueue * queue,kk::CString name):_db(db),_queue(queue),_name(name) {
+        
+        kk::String n(name);
+        kk::Strong<Sqlite> v = db;
+        
+        _queue->async([n,v]()->void{
+            try {
+                kk::String sql;
+                sql.append("CREATE TABLE IF NOT EXISTS [_");
+                sql.append(n);
+                sql.append("] (key VARCHAR(4096) PRIMARY KEY , value TEXT)");
+                v->exec(sql.c_str(), (kk::Array<kk::Any> *) nullptr);
+            }
+            catch(kk::CString errmsg) {
+                kk::Log("[SqliteStorage::SqliteStorage] %s",errmsg);
+            }
+        });
         
     }
     
-    SqliteStorage::SqliteStorage(Sqlite * db,kk::CString prefix):SqliteStorage(db,IODispatchQueue(),prefix) {
+    SqliteStorage::SqliteStorage(Sqlite * db,kk::CString name):SqliteStorage(db,IODispatchQueue(),name) {
         
     }
     
@@ -101,12 +117,12 @@ namespace kk {
         if(key == nullptr) {
             return kk::Any();
         }
-        kk::String n(_prefix);
-        n.append(key);
+        kk::String n(_name);
+        kk::String k(key);
         kk::String v;
         kk::Strong<Sqlite> db = _db;
-        _queue->sync([n,&v,db]()->void{
-            SqliteStorage::get(db.operator->(),n.c_str(),v);
+        _queue->sync([n,k,&v,db]()->void{
+            SqliteStorage::get(db.operator->(),n.c_str(),k.c_str(),v);
         });
         return v;
     }
@@ -117,23 +133,23 @@ namespace kk {
             return;
         }
         
-        kk::String n(_prefix);
-        n.append(key);
+        kk::String n(_name);
+        kk::String k(key);
         kk::String v;
         if(value) {
             v.append(value);
         }
         kk::Strong<Sqlite> db = _db;
-        _queue->async([n,value,db,v]()->void{
-            SqliteStorage::set(db.operator->(),n.c_str(), v.empty() ? nullptr : v.c_str() );
+        _queue->async([n,k,value,db,v]()->void{
+            SqliteStorage::set(db.operator->(),n.c_str(),k.c_str(), v.empty() ? nullptr : v.c_str() );
         });
     }
     
     void SqliteStorage::clear() {
-        kk::String p(_prefix);
+        kk::String n(_name);
         kk::Strong<Sqlite> db = _db;
-        _queue->async([p,db]()->void{
-            SqliteStorage::clear(db.operator->(),p.c_str());
+        _queue->async([n,db]()->void{
+            SqliteStorage::clear(db.operator->(),n.c_str());
         });
     }
     
@@ -152,13 +168,13 @@ namespace kk {
         
         kk::Strong<DispatchQueue> queue = getCurrentDispatchQueue();
         kk::Strong<JSObject> cb = callback;
-        kk::String n(_prefix);
-        n.append(key);
+        kk::String n(_name);
+        kk::String k(key);
         kk::Any v;
         kk::Strong<Sqlite> db = _db;
-        _queue->async([n,db,cb,queue]()->void{
+        _queue->async([n,k,db,cb,queue]()->void{
             kk::String v;
-            SqliteStorage::get(db.operator->(),n.c_str(),v);
+            SqliteStorage::get(db.operator->(),n.c_str(),k.c_str(),v);
             queue->async([v,cb]()->void{
                 JSObject * callback = cb.operator->();
                 if(callback) {
@@ -169,7 +185,7 @@ namespace kk {
     }
     
     kk::Strong<kk::Array<kk::String>> SqliteStorage::keys() {
-        kk::String n(_prefix);
+        kk::String n(_name);
         kk::Array<kk::String> * v = new kk::Array<kk::String>();
         kk::Strong<Sqlite> db = _db;
         _queue->sync([n,v,db]()->void{
@@ -185,7 +201,7 @@ namespace kk {
         }
         
         kk::Strong<DispatchQueue> queue = getCurrentDispatchQueue();
-        kk::String n(_prefix);
+        kk::String n(_name);
         kk::Strong<Sqlite> db = _db;
         kk::Strong<JSObject> cb = callback;
         _queue->sync([n,db,cb,queue]()->void{
@@ -201,7 +217,7 @@ namespace kk {
         
     }
     
-    void SqliteStorage::get(Sqlite * db,kk::CString key,kk::String & v) {
+    void SqliteStorage::get(Sqlite * db,kk::CString name,kk::CString key,kk::String & v) {
         
         if(key == nullptr) {
             return;
@@ -211,7 +227,11 @@ namespace kk {
             
             kk::Strong<kk::Array<kk::Any>> data = new kk::Array<kk::Any>({key});
             
-            auto rs = db->query("SELECT value FROM Storage WHERE key=?", (kk::Array<kk::Any> *) data);
+            kk::String sql;
+            
+            sql.append("SELECT value FROM [_").append(name).append("] WHERE key=?");
+            
+            auto rs = db->query(sql.c_str(), (kk::Array<kk::Any> *) data);
             
             if(rs->next()) {
                 kk::Any r = rs->getValue(0);
@@ -229,7 +249,7 @@ namespace kk {
         
     }
     
-    void SqliteStorage::set(Sqlite * db,kk::CString key,kk::CString v) {
+    void SqliteStorage::set(Sqlite * db,kk::CString name, kk::CString key,kk::CString v) {
         
         if(key == nullptr) {
             return;
@@ -241,7 +261,11 @@ namespace kk {
             
             kk::Strong<kk::Array<kk::Any>> data = new kk::Array<kk::Any>({key});
             
-            auto rs = db->query("SELECT COUNT(*) FROM Storage WHERE key=?", (kk::Array<kk::Any> *) data);
+            kk::String sql;
+            
+            sql.append("SELECT COUNT(*) FROM [_").append(name).append("] WHERE key=?");
+            
+            auto rs = db->query(sql.c_str(), (kk::Array<kk::Any> *) data);
             
             if(rs->next()) {
                 kk::Any v = rs->getValue(0);
@@ -252,14 +276,20 @@ namespace kk {
             
             if(hasKey) {
                 if(v == nullptr) {
-                    db->exec("DELETE FROM Storage WHERE key=?", (kk::Array<kk::Any> *) data);
+                    sql.clear();
+                    sql.append("DELETE FROM [_").append(name).append("] WHERE key=?");
+                    db->exec(sql.c_str(), (kk::Array<kk::Any> *) data);
                 } else {
+                    sql.clear();
+                    sql.append("UPDATE [_").append(name).append("] SET value=? WHERE key=?");
                     data = new kk::Array<kk::Any>({v,key});
-                    db->exec("UPDATE Storage SET value=? WHERE key=?", (kk::Array<kk::Any> *) data);
+                    db->exec(sql.c_str(), (kk::Array<kk::Any> *) data);
                 }
             } else if(v != nullptr) {
+                sql.clear();
+                sql.append("INSERT INTO [_").append(name).append("](key,value) VALUES(?,?)");
                 data = new kk::Array<kk::Any>({key,v});
-                db->exec("INSERT INTO Storage(key,value) VALUES(?,?)", (kk::Array<kk::Any> *) data);
+                db->exec(sql.c_str(), (kk::Array<kk::Any> *) data);
             }
             
         } catch(kk::CString errmsg) {
@@ -267,13 +297,14 @@ namespace kk {
         }
     }
     
-    void SqliteStorage::clear(Sqlite * db,kk::CString prefix) {
+    void SqliteStorage::clear(Sqlite * db,kk::CString name) {
         
         try {
-            kk::String p = prefix;
-            p.append("%");
+            kk::String sql;
             
-            db->exec("DELETE FROM Storage WHERE key LIKE ?", new kk::Array<kk::Any>({p.c_str()}));
+            sql.append("DELETE FROM [_").append(name).append("]");
+            
+            db->exec(sql.c_str(), (kk::Array<kk::Any> * ) nullptr);
             
         } catch(kk::CString errmsg) {
             kk::Log("[SqliteStorage::set] %s",errmsg);
@@ -281,16 +312,15 @@ namespace kk {
         
     }
     
-    void SqliteStorage::keys(Sqlite * db,kk::CString prefix,kk::Array<kk::String> * keys) {
+    void SqliteStorage::keys(Sqlite * db,kk::CString name,kk::Array<kk::String> * keys) {
         
         try {
             
-            kk::String p = prefix;
-            p.append("%");
+            kk::String sql;
             
-            kk::Strong<kk::Array<kk::Any>> data = new kk::Array<kk::Any>({p.c_str()});
+            sql.append("SELECT key FROM [_").append(name).append("]");
             
-            auto rs = db->query("SELECT key FROM Storage WHERE key LIKE ?", (kk::Array<kk::Any> *) data);
+            auto rs = db->query(sql.c_str(), (kk::Array<kk::Any> *) nullptr);
             
             while(rs->next()) {
                 kk::Any v = rs->getValue(0);
@@ -307,17 +337,5 @@ namespace kk {
         }
         
     }
-    
-    void SqliteStorage::install(Sqlite * db) {
-        try {
-            db->exec("CREATE TABLE IF NOT EXISTS Storage(key VARCHAR(4096) PRIMARY KEY , value TEXT)", (kk::Array<kk::Any> *) nullptr);
-        }
-        catch(kk::CString errmsg) {
-            kk::Log("[SqliteStorage::install] %s",errmsg);
-        }
-    }
-    
-    
-    
     
 }

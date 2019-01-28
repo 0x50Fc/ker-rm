@@ -325,6 +325,13 @@ namespace kk {
         return v;
     }
     
+    kk::CString Buffer::toCString(){
+        capacity(byteLength() + 1);
+        kk::Ubyte * b = data();
+        b[byteLength()] = 0;
+        return (kk::CString) b;
+    }
+    
     Ref::Ref():_object(nullptr) {
         
     }
@@ -1259,7 +1266,7 @@ namespace kk {
             } else if(kk::CStringEqual(v.c_str(), "..")) {
                 i = vs.erase(i);
                 if(i != vs.begin()) {
-                    i = vs.erase(i + 1);
+                    i = vs.erase(i - 1);
                 }
                 continue;
             } else if(kk::CStringEqual(v.c_str(), "") && i != vs.begin()) {
@@ -1287,6 +1294,22 @@ namespace kk {
         }
         
         return p;
+    }
+    
+    CString CStringPathBasename(CString path) {
+        
+        if(path == nullptr) {
+            return nullptr;
+        }
+        char * b = (char *) path;
+        char * p = b;
+        while(*p) {
+            if(*p == '/') {
+                b = p + 1;
+            }
+            p ++;
+        }
+        return b;
     }
     
     Boolean CStringHasSubstring(CString string,CString substr) {

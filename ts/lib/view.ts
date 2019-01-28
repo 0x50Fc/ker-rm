@@ -202,7 +202,13 @@ namespace ker {
             }
         };
 
+        pageViewContext.push([]);
         
+        cb(v_Element,(func: EvaluateScript, keys: string[]):Evaluate=>{
+            return new Evaluate(func,keys);
+        });
+
+        pageViewContext.pop();
 
     }
 }

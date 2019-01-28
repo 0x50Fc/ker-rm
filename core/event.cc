@@ -10,6 +10,14 @@
 
 namespace kk {
     
+    Event::Event():_target(nullptr) {
+        
+    }
+    
+    Event::Event(Object * target):_target(target) {
+        
+    }
+    
     Object * Event::data() {
         return _data;
     }
@@ -27,11 +35,15 @@ namespace kk {
         _returnValue = v;
     }
     
+    Object * Event::target() {
+        return _target;
+    }
+    
     void Event::Openlib() {
         
         kk::Openlib<>::add([](duk_context * ctx)->void{
             
-            kk::PushClass<Event>(ctx, [](duk_context * ctx)->void{
+            kk::PushClass<Event,Object *>(ctx, [](duk_context * ctx)->void{
                 kk::PutProperty<Event,Object *>(ctx, -1, "data", &Event::data,&Event::setData);
                 kk::PutProperty<Event,Any&>(ctx, -1, "returnValue", &Event::returnValue,&Event::setReturnValue);
             });

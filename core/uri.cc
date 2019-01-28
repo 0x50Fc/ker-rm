@@ -333,8 +333,15 @@ namespace kk {
     }
     
     kk::Boolean isWritableURI(kk::CString uri) {
-        kk::URI u(uri);
-        return kk::CStringEqual(u.scheme(), "ker-data") || kk::CStringEqual(u.scheme(), "ker-tmp");
+        return kk::CStringEqual(uri, "ker-data://") || kk::CStringEqual(uri, "ker-tmp://");
     }
+    
+    kk::Boolean isURLInDirectory(kk::CString uri) {
+        return kk::CStringEqual(uri, "ker-data://")
+            || kk::CStringEqual(uri, "ker-tmp://")
+            || kk::CStringEqual(uri, "ker-app://")
+            || kk::CStringEqual(uri, "ker-native://");
+    }
+
     
 }

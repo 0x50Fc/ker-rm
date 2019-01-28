@@ -192,6 +192,9 @@ namespace kk {
             kk::Strong<Image> image;
         };
         
+        class ViewShowToScreenCommand : public ViewCommand {
+        };
+        
         class View : public EventEmitter {
         public:
             View(kk::CString name,ViewConfiguration * configuration,App * app,kk::Uint64 viewId);
@@ -233,6 +236,8 @@ namespace kk {
             
             virtual View * parent();
             
+            virtual void showToScreen();
+            
             Ker_CLASS(View, EventEmitter, "UIView");
             
             static void Openlib();
@@ -248,6 +253,7 @@ namespace kk {
             kk::Strong<kk::TFunction<void, kk::CString, Event *>> _onImageLoadFunc;
             Rect _frame;
             Size _contentSize;
+            kk::Boolean _showToScreen;
         };
         
         typedef kk::Uint WebViewActionPolicy;

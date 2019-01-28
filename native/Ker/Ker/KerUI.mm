@@ -42,10 +42,6 @@ static NSMutableDictionary * KerUIViews = nil;
 
 +(void) execPageCommand:(kk::ui::PageCommand *) command app:(KerId) appid;
 
-+(void) showView:(KerId) viewId;
-
-+(void) hideView:(KerId) viewId;
-
 @end
 
 namespace kk {
@@ -89,45 +85,6 @@ namespace kk {
                     return;
                 }
             }
-            
-            {
-                kk::ui::AppShowViewCommand * cmd = dynamic_cast<kk::ui::AppShowViewCommand *>(command);
-                
-                if(cmd) {
-                    
-                    @autoreleasepool {
-                        
-                        kk::Uint64 viewId = cmd->viewId;
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [KerUI showView:viewId];
-                        });
-                        
-                    }
-                    
-                    return;
-                }
-            }
-            
-            {
-                kk::ui::AppHideViewCommand * cmd = dynamic_cast<kk::ui::AppHideViewCommand *>(command);
-                
-                if(cmd) {
-                    
-                    @autoreleasepool {
-                        
-                        kk::Uint64 viewId = cmd->viewId;
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [KerUI hideView:viewId];
-                        });
-                        
-                    }
-                    
-                    return;
-                }
-            }
-            
             
             
             {
@@ -319,44 +276,6 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     }
     gKerUIViewClass[name] = viewClass;
     kk::ui::ImageElement::library([name UTF8String]);
-}
-
-
-+(void) showView:(KerId) viewId {
-    
-    if(KerUIViews == nil) {
-        return ;
-    }
-    
-    id key = @(viewId);
-    
-    UIView * view = [KerUIViews objectForKey:key];
-    
-    if(view == nil) {
-        return;
-    }
-    
-    [view removeFromSuperview];
-    
-    [[UIApplication sharedApplication].keyWindow addSubview:view];
-}
-
-+(void) hideView:(KerId) viewId {
-    
-    if(KerUIViews == nil) {
-        return ;
-    }
-    
-    id key = @(viewId);
-    
-    UIView * view = [KerUIViews objectForKey:key];
-    
-    if(view == nil) {
-        return;
-    }
-    
-    [view removeFromSuperview];
-    
 }
 
 +(void) createView:(kk::ui::ViewCreateCommand *) command app:(KerId) appid {
@@ -629,6 +548,24 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     [view removeFromSuperview];
 }
 
++(void) showToScreen:(KerId) viewId {
+    
+    if(KerUIViews == nil) {
+        return ;
+    }
+    
+    id key = @(viewId);
+    
+    UIView * view = [KerUIViews objectForKey:key];
+    
+    if(view == nil) {
+        return;
+    }
+    
+    [view removeFromSuperview];
+    [[[UIApplication sharedApplication] keyWindow] addSubview:view];
+}
+
 +(void) execViewCommand:(kk::ui::ViewCommand *) command app:(KerId) app {
     
     {
@@ -863,7 +800,23 @@ static NSMutableDictionary * gKerUIViewClass = nil;
         }
     }
     
+    {
+        kk::ui::ViewShowToScreenCommand * v = dynamic_cast<kk::ui::ViewShowToScreenCommand *>(command);
+        
+        if(v != nullptr) {
+            
+            kk::Uint64 viewId = v->viewId;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [KerUI showToScreen:viewId];
+            });
+            
+            return;
+        }
+    }
+    
 }
+
 
 +(void) execCanvasCommand:(kk::ui::CanvasCommand *) command app:(KerId) app {
  
@@ -1151,7 +1104,7 @@ static NSString * gKerAppUserAgent = nil;
             UIScreen * mainScreen = [UIScreen mainScreen];
             
             screen->set((kk::Uint) mainScreen.bounds.size.width,
-                        (kk::Uint) mainScreen.bounds.size.width,
+                        (kk::Uint) mainScreen.bounds.size.height,
                         1.0f, (kk::Float) mainScreen.scale);
             
         }

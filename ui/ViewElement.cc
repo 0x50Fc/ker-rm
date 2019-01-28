@@ -44,36 +44,32 @@ namespace kk {
             LayoutElement::onLayout(context);
             
             if(_view != nullptr) {
-                
-                Rect r = {{frame.origin.x,frame.origin.y},{frame.size.width,frame.size.height}};
-                
-                _view->setFrame(r);
-                
-                Size s = {contentSize.width,contentSize.height};
-                
-                if(kk::CStringEqual(get("overflow-x"), "hidden")) {
-                    s.width = 0;
-                } else {
-                    s.width = MAX(s.width,r.size.width + 1);
-                }
-                
-                if(kk::CStringEqual(get("overflow-y"), "hidden")) {
-                    s.height = 0;
-                } else {
-                    s.height = MAX(s.height,r.size.height + 1);
-                }
-                
-                _view->setContentSize(s);
-                
-                ViewContext * v = dynamic_cast<ViewContext *>(context);
-                
-                if(v != nullptr) {
-                    obtainChildrenView(v);
-                }
-                
+                onViewLayout();
+            }
+ 
+        }
+        
+        void ViewElement::onViewLayout() {
+            
+            Rect r = {{frame.origin.x,frame.origin.y},{frame.size.width,frame.size.height}};
+            
+            _view->setFrame(r);
+            
+            Size s = {contentSize.width,contentSize.height};
+            
+            if(kk::CStringEqual(get("overflow-x"), "hidden")) {
+                s.width = 0;
+            } else {
+                s.width = MAX(s.width,r.size.width + 1);
             }
             
+            if(kk::CStringEqual(get("overflow-y"), "hidden")) {
+                s.height = 0;
+            } else {
+                s.height = MAX(s.height,r.size.height + 1);
+            }
             
+            _view->setContentSize(s);
             
         }
         
@@ -213,7 +209,7 @@ namespace kk {
                     }
                     
                     onObtainView(context,_view);
-                
+                    onViewLayout();
                 }
                 
             }

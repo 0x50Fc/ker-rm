@@ -183,6 +183,11 @@ var ker;
             }
         }
         ;
+        pageViewContext.push([]);
+        cb(v_Element, function (func, keys) {
+            return new ker.Evaluate(func, keys);
+        });
+        pageViewContext.pop();
     }
     ker.View = View;
 })(ker || (ker = {}));

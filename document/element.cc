@@ -10,12 +10,12 @@
 
 namespace kk  {
     
-    ElementEvent::ElementEvent(Element * element):Event(),_element(element),_cancelBubble(false) {
+    ElementEvent::ElementEvent(Element * element):Event(element),_cancelBubble(false) {
         
     }
     
     Element * ElementEvent::element() {
-        return _element;
+        return _target;
     }
     
     kk::Boolean ElementEvent::cancelBubble() {

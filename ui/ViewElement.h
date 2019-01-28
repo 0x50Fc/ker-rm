@@ -62,6 +62,7 @@ namespace kk {
             virtual void onObtainView(ViewContext * context,View * view);
             virtual void onRecycleView(View * view);
             virtual void obtainChildrenView(ViewContext * context);
+            virtual void onViewLayout();
             virtual Strong<View> createView(ViewContext * context);
             virtual kk::Boolean isVisibleChildren(ViewElement * element);
             virtual kk::Boolean isVisible();

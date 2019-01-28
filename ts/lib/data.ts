@@ -206,7 +206,7 @@ namespace ker {
             }
         }
 
-        off(keys: string[] | Evaluate, func: DataFunction | undefined): void {
+        off(keys: string[] | Evaluate, func?: DataFunction): void {
             if (keys instanceof Evaluate) {
                 keys = keys.keys;
             }

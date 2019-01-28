@@ -23,6 +23,7 @@
 #include <core/ssl.h>
 #include <core/WebSocket.h>
 #include <core/stream.h>
+#include <core/file.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -62,11 +63,9 @@ namespace kk {
         }
         
         void App::openlib() {
-            
-            _queue->sync([this]()->void{
-                kk::Openlib<App *>::openlib(_jsContext, this);
-            });
-            
+            kk::Openlib<App *>::openlib(_jsContext, this);
+            PushObject(_jsContext, _screen);
+            duk_put_global_string(_jsContext, "screen");
         }
         
         Screen * App::screen() {
@@ -75,14 +74,10 @@ namespace kk {
         
         void App::setScreen(Screen * v) {
             _screen = v;
-            PushObject(_jsContext, v);
-            duk_put_global_string(_jsContext, "screen");
         }
         
         App::~App() {
-            
-            _showViews.clear();
-            
+  
             UI::main()->removeApp(_appid);
             
             kk::Log("[App] [dealloc]");
@@ -118,33 +113,6 @@ namespace kk {
             cmd->delta = delta;
             cmd->animated = animated;
             execCommand(cmd);
-        }
-        
-        void App::showView(View * view) {
-            if(view == nullptr) {
-                return;
-            }
-            _showViews[view->viewId()] = view;
-            kk::Strong<AppShowViewCommand> cmd = new AppShowViewCommand();
-            cmd->appid = _appid;
-            cmd->viewId = view->viewId();
-            execCommand(cmd);
-        }
-        
-        void App::hideView(View * view) {
-            if(view == nullptr) {
-                return;
-            }
-            kk::Strong<AppHideViewCommand> cmd = new AppHideViewCommand();
-            cmd->appid = _appid;
-            cmd->viewId = view->viewId();
-            execCommand(cmd);
-            {
-                auto i = _showViews.find(view->viewId());
-                if(i != _showViews.end()) {
-                    _showViews.erase(i);
-                }
-            }
         }
         
         kk::Strong<View> App::createView(kk::CString name,ViewConfiguration * configuration) {
@@ -235,7 +203,7 @@ namespace kk {
             exec("main.js", (kk::TObject<kk::String, kk::Any> *) librarys);
         }
         
-        kk::Strong<Sqlite> App::createSqlite(kk::CString path) {
+        kk::Strong<Database> App::openDataBase(kk::CString path) {
             if(path == nullptr) {
                 return nullptr;
             }
@@ -243,12 +211,26 @@ namespace kk {
             u.append("ker-data:///");
             u.append(_appkey);
             u.append("/");
+            u.append(path);
             kk::String p = kk::ResolvePath(u.c_str());
-            mkdir(p.c_str(), 0777);
-            p.append(path);
+            kk::String dir = CStringPathDirname(p.c_str());
+            File::mkdir(dir.c_str());
             kk::Strong<Sqlite> v = new Sqlite();
             v->open(p.c_str());
-            return v;
+            return new SqliteDatabase(v);
+        }
+        
+        kk::Strong<File> App::openDataFile(kk::CString path,kk::CString type) {
+            if(path == nullptr) {
+                return nullptr;
+            }
+            kk::String u;
+            u.append("ker-data:///");
+            u.append(_appkey);
+            u.append("/");
+            u.append(path);
+            
+            return File::openURI(u.c_str(), type);
         }
         
         Storage * App::storage(){
@@ -273,12 +255,15 @@ namespace kk {
             kk::EventEmitter::Openlib();
             kk::Timer::Openlib();
             kk::Sqlite::Openlib();
+            kk::Database::Openlib();
+            kk::SqliteDatabase::Openlib();
             kk::Crypto::Openlib();
             kk::Storage::Openlib();
             kk::TCPConnection::Openlib();
             kk::SSLConnection::Openlib();
             kk::HTTPRequest::Openlib();
             kk::WebSocket::Openlib();
+            kk::File::Openlib();
             kk::ui::Context::Openlib();
             kk::ui::View::Openlib();
             kk::ui::Canvas::Openlib();
@@ -310,13 +295,12 @@ namespace kk {
                     kk::PutMethod<App,void,kk::CString,kk::Boolean>(ctx, -1, "open", &App::open);
                     kk::PutMethod<App,void,kk::Uint,kk::Boolean>(ctx, -1, "back", &App::back);
                     kk::PutMethod<App,Size,AttributedText *,Float>(ctx, -1, "getAttributedTextContentSize", &App::getAttributedTextContentSize);
-                    kk::PutStrongMethod<App,kk::Sqlite,kk::CString>(ctx, -1, "createSqlite", &App::createSqlite);
+                    kk::PutStrongMethod<App,kk::Database,kk::CString>(ctx, -1, "openDataBase", &App::openDataBase);
+                    kk::PutStrongMethod<App,File,kk::CString,kk::CString>(ctx, -1, "openDataFile", &App::openDataFile);
                 
                     kk::PutStrongMethod<App,View,kk::CString,ViewConfiguration *>(ctx,-1,"createView",&App::createView);
                     kk::PutProperty<App,kk::CString>(ctx, -1, "appkey", &App::appkey);
                     kk::PutProperty<App,kk::Storage *>(ctx, -1, "storage", &App::storage);
-                    kk::PutMethod<App,void,View *>(ctx, -1, "showView", &App::showView);
-                    kk::PutMethod<App,void,View *>(ctx, -1, "hideView", &App::hideView);
                     
                 });
                 

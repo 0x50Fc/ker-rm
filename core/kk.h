@@ -563,6 +563,7 @@ static const kk::Class * Class() { \
         virtual void append(Any v);
         virtual void drain(kk::Uint length);
         virtual kk::String toString();
+        virtual kk::CString toCString();
         
         Ker_CLASS(Buffer,Object,"Buffer");
         
@@ -593,6 +594,7 @@ static const kk::Class * Class() { \
     Boolean CStringHasSubstring(CString string,CString substr);
     String CStringPathNormalize(CString path);
     String CStringPathDirname(CString path);
+    CString CStringPathBasename(CString path);
 }
 
 #endif /* kk_h */

@@ -1,7 +1,9 @@
 
 declare class Event {
+    constructor(target?: any)
     data: any
     returnValue: any
+    readonly target: any
 }
 
 type EventFunction = (event: Event, name: string) => void
@@ -122,7 +124,6 @@ declare interface Image extends EventEmitter {
 declare interface UIContext extends EventEmitter {
     openInputStream(uri: string): InputStream | undefined
     openOutputStream(uri: string): OutputStream | undefined
-    removeURI(uri: string): void
     exec(path: string, library?: Library): void
     getTextContent(path: string): string
     createWorker(path: string): Worker
@@ -139,21 +140,6 @@ declare class UIAttributedText {
 declare interface Size {
     width: number;
     height: number
-}
-
-declare interface SqliteResultSet {
-    getColumnCount(): number
-    getColumnName(index: number): string
-    getValue(index: number): any
-    next(): boolean
-    close(): void
-}
-
-declare interface Sqlite {
-    exec(sql: String, args: any[]): void
-    query(sql: String, args: any[]): SqliteResultSet
-    lastInsertRowId(): number
-    close(): void
 }
 
 declare class UIViewConfiguration {
@@ -198,6 +184,7 @@ declare interface UIView extends EventEmitter {
     setImage(image: Image | undefined): void
     contentOffset(): Point
     createCanvas(worker?: Worker): UICanvas
+    showToScreen(): void
 }
 
 type StorageLoadCallback = (value: string | undefined) => void
@@ -216,10 +203,9 @@ declare interface UIApp extends UIContext {
     open(uri: string, animated: boolean): void
     back(delta: number, animated: boolean): void
     getAttributedTextContentSize(text: UIAttributedText, maxWidth: number): Size
-    createSqlite(path: string): Sqlite
+    openDataBase(name: string): Database
+    openDataFile(path: string): File
     createView(name: string, configuration?: UIViewConfiguration): UIView
-    showView(view: UIView): void
-    hideView(view: UIView): void
     readonly appkey: string
     readonly storage: Storage
 }
@@ -339,7 +325,7 @@ declare interface HeaderSet {
     [key: string]: string
 }
 
-declare class HttpRequest extends EventEmitter {
+declare class HTTPRequest extends EventEmitter {
     static ResponseTypeNone: number
     static ResponseTypeString: number
     static ResponseTypeArrayBuffer: number
@@ -356,6 +342,51 @@ declare class HttpRequest extends EventEmitter {
     readonly responseFile: string | undefined
     readonly responseArrayBuffer: ArrayBuffer | undefined
     readonly responseHeaders: HeaderSet
+}
+
+declare type DatabaseValue = string | number | boolean | ArrayBuffer | undefined
+
+declare interface DatabaseRow {
+    [key: string]: DatabaseValue
+}
+
+declare interface Database {
+    exec(sql: string, data: DatabaseValue[], cb: (id: number, errmsg: string | undefined) => void): void;
+    query(sql: string, data: DatabaseValue[], cb: (items: DatabaseRow[], errmsg: string | undefined) => void): void;
+    close(): void
+}
+
+declare interface Blob {
+    readonly size: number
+    readonly type: string
+}
+
+declare class File implements Blob {
+    static open(uri: string, type?: string): File | undefined
+    readonly size: number
+    readonly type: string
+    readonly name: string
+    readonly lastModified: number
+    remove(done?: () => void): void
+    move(to: File, done?: () => void): void
+    copy(to: File, done?: () => void): void
+}
+
+type FileList = File[]
+
+declare class FileReader extends EventEmitter {
+    static readonly EMPTY: number
+    static readonly LOADING: number
+    static readonly DONE: number
+    readonly readyState: number
+    readonly result: string | ArrayBuffer | undefined
+    readonly error: string | undefined
+    readAsText(v: Blob | File): void
+    readAsDataURL(v: Blob | File): void
+    readAsArrayBuffer(v: Blob | File): void
+    abort(): void;
+    onload?: EventFunction
+    onerror?: EventFunction
 }
 
 declare var app: UIApp

@@ -419,31 +419,6 @@ namespace kk {
             
         }
         
-        kk::Strong<InputStream> Context::openInputStream(kk::CString uri) {
-            kk::String p;
-            if(kk::CStringHasSubstring(uri, "://")) {
-                p = ResolvePath(uri);
-            } else {
-                p = absolutePath(uri);
-            }
-            return new FileInputStream(p.c_str(),StreamFileTypeBinary);
-        }
-        
-        kk::Strong<OutputStream> Context::openOutputStream(kk::CString uri,kk::Boolean append) {
-            if(kk::CStringHasSubstring(uri, "://")) {
-                kk::String p = ResolvePath(uri);
-                return new FileOutputStream(p.c_str(),StreamFileTypeBinary,append);
-            }
-            return nullptr;
-        }
-        
-        void Context::removeURI(kk::CString uri) {
-            if(kk::isWritableURI(uri)) {
-                kk::String p = ResolvePath(uri);
-                unlink(p.c_str());
-            }
-        }
-        
         String Context::getResourceKey(kk::CString path) {
             kk::String p = CStringPathNormalize(path);
             Crypto C;
@@ -452,7 +427,7 @@ namespace kk {
         
         void Context::exec(kk::CString path,std::vector<kk::String>& keys,std::vector<kk::Any>& librarys) {
             
-            kk::String code("(function(require,global");
+            kk::String code("(function(module,exports,require,global");
             
             {
                 auto i = keys.begin();
@@ -480,6 +455,11 @@ namespace kk {
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
                     duk_idx_t n =0;
+                    
+                    duk_push_object(ctx); n ++;
+                    duk_push_object(ctx); n ++;
+                    duk_dup(ctx, -1);
+                    duk_put_prop_string(ctx, -3, "exports");
                     
                     kk::String basePath = CStringPathDirname(path);
                     
@@ -768,12 +748,6 @@ namespace kk {
                     
                     kk::PutStrongMethod<Context,Image,kk::CString>(ctx, -1, "createImage", &Context::createImage);
                     
-                    kk::PutStrongMethod<Context,InputStream,kk::CString>(ctx, -1, "openInputStream", &Context::openInputStream);
-                    
-                    kk::PutStrongMethod<Context,OutputStream,kk::CString,kk::Boolean>(ctx, -1, "openOutputStream", &Context::openOutputStream);
-                    
-                    kk::PutMethod<Context,void,kk::CString>(ctx, -1, "removeURI", &Context::removeURI);
-                    
                 });
                 
                 kk::PushInterface<Image>(ctx, [](duk_context * ctx)->void{
@@ -907,19 +881,11 @@ namespace kk {
                 kk::String p = kk::ResolvePath("ker-data:///data.db");
                 _database = new Sqlite();
                 _database->open(p.c_str());
-                SqliteStorage::install(_database);
             }
             return _database;
         }
         
-        View * UI::view() {
-            return _view;
-        }
-        
-        void UI::setView(View * view) {
-            _view = view;
-        }
-        
+
         void UI::open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func) {
             kk::String u = uri;
             kk::Strong<kk::Object> q = query;

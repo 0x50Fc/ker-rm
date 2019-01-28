@@ -26,6 +26,7 @@ namespace kk {
     kk::String ResolvePath(kk::CString uri);
     kk::String ResolvePath(URI &u);
     kk::Boolean isWritableURI(kk::CString uri);
+    kk::Boolean isURLInDirectory(kk::CString uri);
     extern kk::String GetDirectory(kk::CString name);
     
     class URI : public Object {

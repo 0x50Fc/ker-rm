@@ -10,6 +10,73 @@
 
 namespace kk {
     
+    void Database::exec(kk::CString sql,JSObject * data,JSObject * func) {
+
+        kk::Strong<kk::Array<kk::Any>> v;
+        
+        if(data != nullptr) {
+            kk::Strong<Object> s = data->copy();
+            v = (kk::Array<kk::Any> *) s;
+        }
+        
+        if(func == nullptr) {
+            exec(sql, v, nullptr);
+        } else {
+            kk::Strong<JSObject> f = func;
+            exec(sql, v, [f](kk::Int64 id,kk::CString errmsg)->void{
+                if(errmsg == nullptr) {
+                    f->invoke<void,kk::Int64>(nullptr, id);
+                } else {
+                    f->invoke<void,kk::Int64,kk::CString>(nullptr, id,errmsg);
+                }
+            });
+        }
+        
+    }
+    
+    void Database::query(kk::CString sql,JSObject * data,JSObject * func) {
+        
+        kk::Strong<kk::Array<kk::Any>> v;
+        
+        if(data != nullptr) {
+            kk::Strong<Object> s = data->copy();
+            v = (kk::Array<kk::Any> *) s;
+        }
+        
+        if(func == nullptr) {
+            query(sql, v, nullptr);
+        } else {
+            kk::Strong<JSObject> f = func;
+            query(sql, v, [f](Array<kk::Any> * items,kk::CString errmsg)->void{
+                if(errmsg == nullptr) {
+                    f->invoke<void,Array<kk::Any> *>(nullptr, items);
+                } else {
+                    f->invoke<void,Array<kk::Any> *,kk::CString>(nullptr, items,errmsg);
+                }
+            });
+        }
+        
+    }
+    
+    void Database::Openlib() {
+        
+        kk::Openlib<>::add([](duk_context * ctx)->void{
+            
+            kk::PushInterface<Database>(ctx, [](duk_context * ctx)->void{
+                
+                kk::PutMethod<Database,void,kk::CString,JSObject *,JSObject *>(ctx, -1, "exec", &Database::exec);
+                
+                kk::PutMethod<Database,void,kk::CString,JSObject *,JSObject *>(ctx, -1, "query", &Database::exec);
+                
+                kk::PutMethod<Database,void>(ctx, -1, "close", &Database::close);
+                
+            });
+            
+        });
+        
+        
+    }
+    
     SqliteResultSet::SqliteResultSet(sqlite3_stmt * stmt):_stmt(stmt) {
         
     }
@@ -362,8 +429,143 @@ namespace kk {
             
         });
         
+        
     }
     
+    
+    SqliteDatabase::SqliteDatabase(Sqlite * sqlite):_sqlite(sqlite) {
+        
+    }
+    
+    void SqliteDatabase::exec(kk::CString sql,kk::Array<kk::Any> * data,std::function<void(kk::Int64,kk::CString)> && func) {
+        
+        if(sql == nullptr) {
+            if(func != nullptr) {
+                func(0,"SQL is null");
+            }
+            return;
+        }
+        
+        if(_sqlite == nullptr) {
+            if(func != nullptr) {
+                func(0,"Sqlite is closed");
+            }
+            return;
+        }
+        
+        kk::Strong<DispatchQueue> queue = getCurrentDispatchQueue();
+        kk::Strong<Sqlite> s = _sqlite;
+        kk::Strong<kk::Array<kk::Any>> v = data;
+        kk::String sq(sql);
+        
+        IODispatchQueue()->async([sq,s,queue,func,v]()->void{
+            
+            try {
+                s->exec(sq.c_str(), v.operator->());
+                kk::Int64 id = s->lastInsertRowId();
+                queue->async([id,func]()->void{
+                    if(func != nullptr) {
+                        func(id,nullptr);
+                    }
+                });
+            } catch(kk::CString errmsg) {
+                kk::String e(errmsg);
+                queue->async([e,func]()->void{
+                    if(func != nullptr) {
+                        func(0,e.c_str());
+                    }
+                });
+            }
+            
+        });
+        
+    }
+    
+    void SqliteDatabase::query(kk::CString sql,kk::Array<kk::Any> * data,std::function<void(kk::Array<kk::Any> *,kk::CString)> && func) {
+        
+        if(sql == nullptr) {
+            if(func != nullptr) {
+                func(nullptr,"SQL is null");
+            }
+            return;
+        }
+        if(_sqlite == nullptr) {
+            if(func != nullptr) {
+                func(nullptr,"Sqlite is closed");
+            }
+            return;
+        }
+        
+        kk::Strong<DispatchQueue> queue = getCurrentDispatchQueue();
+        kk::Strong<Sqlite> s = _sqlite;
+        kk::Strong<kk::Array<kk::Any>> v = data;
+        kk::String sq(sql);
+        
+        IODispatchQueue()->async([sq,s,queue,func,v]()->void{
+            
+            try {
+                kk::Strong<SqliteResultSet> rs = s->query(sq.c_str(), v.operator->());
+                kk::Strong<kk::Array<kk::Any>> items = new kk::Array<kk::Any>();
+                kk::Any item;
+                while(rs->next()) {
+                    kk::Strong<kk::TObject<kk::String,kk::Any>> item = new kk::TObject<kk::String,kk::Any>();
+                    
+                    kk::Uint n = rs->getColumnCount();
+                    
+                    for(kk::Int i= 0;i<n;i++ ){
+                        kk::CString name = rs->getColumnName(i);
+                        if(name != nullptr) {
+                            (*item)[name] = rs->getValue(i);
+                        }
+                    }
+                    
+                    kk::Any i = item.get();
+                    items->push(i);
+                }
+                rs->close();
+                queue->async([items,func]()->void{
+                    if(func != nullptr) {
+                        func(items.operator->(),nullptr);
+                    }
+                });
+            } catch(kk::CString errmsg) {
+                kk::String e(errmsg);
+                queue->async([e,func]()->void{
+                    if(func != nullptr) {
+                        func(nullptr,e.c_str());
+                    }
+                });
+            }
+        
+        });
+        
+    }
+    
+    void SqliteDatabase::close() {
+        
+        if(_sqlite == nullptr) {
+            return;
+        }
+        
+        kk::Strong<Sqlite> s = _sqlite;
+        _sqlite = nullptr;
+        
+        IODispatchQueue()->async([s]()->void{
+            s->close();
+        });
+        
+    }
+    
+    void SqliteDatabase::Openlib() {
+        
+        kk::Openlib<>::add([](duk_context * ctx)->void{
+            
+            kk::PushClass<SqliteDatabase,Sqlite *>(ctx, [](duk_context * ctx)->void{
+                
+            });
+            
+        });
+    }
     
 }
 
