@@ -842,6 +842,78 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     
 }
 
++(void) page:(KerId) pageId setLeftView:(KerId) viewId {
+    
+    if(KerUIViews == nil) {
+        return ;
+    }
+    
+    id key = @(viewId);
+    
+    UIView * view = [KerUIViews objectForKey:key];
+    
+    if(view == nil) {
+        return;
+    }
+    
+    KerPage * page = [self getPage:pageId];
+    
+    if(page == nil) {
+        return;
+    }
+    
+    [page setLeftView:view];
+    
+}
+
++(void) page:(KerId) pageId setRightView:(KerId) viewId {
+    
+    if(KerUIViews == nil) {
+        return ;
+    }
+    
+    id key = @(viewId);
+    
+    UIView * view = [KerUIViews objectForKey:key];
+    
+    if(view == nil) {
+        return;
+    }
+    
+    KerPage * page = [self getPage:pageId];
+    
+    if(page == nil) {
+        return;
+    }
+    
+    [page setRightView:view];
+    
+}
+
++(void) page:(KerId) pageId setTitleView:(KerId) viewId {
+    
+    if(KerUIViews == nil) {
+        return ;
+    }
+    
+    id key = @(viewId);
+    
+    UIView * view = [KerUIViews objectForKey:key];
+    
+    if(view == nil) {
+        return;
+    }
+    
+    KerPage * page = [self getPage:pageId];
+    
+    if(page == nil) {
+        return;
+    }
+    
+    [page setTitleView:view];
+    
+}
+
 +(void) execPageCommand:(kk::ui::PageCommand *) command app:(KerId) appid {
     
     {
@@ -872,6 +944,48 @@ static NSMutableDictionary * gKerUIViewClass = nil;
                     if(page) {
                         [page close:animated];
                     }
+                });
+            }
+            return;
+        }
+    }
+    
+    {
+        kk::ui::PageSetLeftViewCommand * v = dynamic_cast<kk::ui::PageSetLeftViewCommand *>(command);
+        if(v != nullptr) {
+            @autoreleasepool {
+                kk::Uint64 pageId = v->pageId;
+                kk::Uint64 viewId = v->viewId;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [KerUI page:pageId setLeftView:viewId];
+                });
+            }
+            return;
+        }
+    }
+    
+    {
+        kk::ui::PageSetRightViewCommand * v = dynamic_cast<kk::ui::PageSetRightViewCommand *>(command);
+        if(v != nullptr) {
+            @autoreleasepool {
+                kk::Uint64 pageId = v->pageId;
+                kk::Uint64 viewId = v->viewId;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [KerUI page:pageId setRightView:viewId];
+                });
+            }
+            return;
+        }
+    }
+    
+    {
+        kk::ui::PageSetTitleViewCommand * v = dynamic_cast<kk::ui::PageSetTitleViewCommand *>(command);
+        if(v != nullptr) {
+            @autoreleasepool {
+                kk::Uint64 pageId = v->pageId;
+                kk::Uint64 viewId = v->viewId;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [KerUI page:pageId setTitleView:viewId];
                 });
             }
             return;

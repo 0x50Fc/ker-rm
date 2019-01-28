@@ -1159,6 +1159,9 @@ namespace kk {
             
         } else if(_size > 0){
             * (char *) _data = 0;
+            length = 0;
+        } else {
+            length = 0;
         }
     }
     
@@ -1290,10 +1293,10 @@ namespace kk {
         auto i = p.find_last_of("/");
         
         if(i != std::string::npos) {
-            p = p.substr(0,i);
+            return p.substr(0,i);
         }
         
-        return p;
+        return "";
     }
     
     CString CStringPathBasename(CString path) {

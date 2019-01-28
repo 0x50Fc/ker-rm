@@ -294,11 +294,9 @@ namespace kk {
             return nullptr;
         }
         
-        struct stat st;
+        struct stat st = {0};
         
-        if(-1 == stat(path, &st)) {
-            return nullptr;
-        }
+        stat(path, &st);
         
         if(type == nullptr) {
             if(kk::CStringHasSuffix(path, ".jpg")) {

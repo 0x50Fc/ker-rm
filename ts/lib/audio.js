@@ -2,7 +2,7 @@ var ker;
 (function (ker) {
     var queue;
     var output;
-    var uri = "ker-tmp:///ker_startRecord_" + mktemp("XXXXXXXX") + ".spx";
+    var file;
     function recycle() {
         if (queue !== undefined) {
             queue.off();
@@ -13,11 +13,15 @@ var ker;
             output.close();
             output = undefined;
         }
-        app.removeURI(uri);
+        if (file !== undefined) {
+            file.remove();
+            file = undefined;
+        }
     }
     function startRecord(object) {
         recycle();
-        var input = app.openOutputStream(uri);
+        file = app.openTempFile("ker_startRecord_", ".spx");
+        var input = file.openOutputStream();
         var buffer = new BufferOutputStream(input, 2048);
         output = new SpeexFileOutputStream(buffer);
         queue = new AudioQueueInput(output.codec, output);
@@ -33,7 +37,8 @@ var ker;
         queue.on("done", function (e) {
             if (object.success !== undefined) {
                 object.success({
-                    tempFilePath: uri
+                    tempFile: file,
+                    tempFilePath: file.name
                 });
             }
             if (object.complete !== undefined) {

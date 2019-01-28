@@ -136,7 +136,9 @@ namespace kk {
     }
     
     void LogV(const char * format, va_list va) {
-        NSLogv([NSString stringWithFormat:@"[Ker] %s",format], va);
+        char data[209600];
+        vsnprintf(data, sizeof(data), format,va);
+        NSLog(@"[Ker] %s",data);
     }
     
     void PushNative(duk_context * ctx, kk::Native * native) {

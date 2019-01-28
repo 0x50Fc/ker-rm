@@ -1090,28 +1090,6 @@ namespace kk {
             
             duk_put_global_string(ctx, "compile");
             
-            duk_push_c_function(ctx, [](duk_context * ctx)->duk_ret_t{
-                
-                if(duk_is_string(ctx, -1)) {
-                    
-                    char m[256] = "";
-                    
-                    strncpy(m, duk_to_string(ctx, -1), sizeof(m));
-                    
-                    mktemp(m);
-                    
-                    duk_push_string(ctx, m);
-                    
-                    return 1;
-                    
-                }
-                
-                return 0;
-                
-            }, 1);
-            
-            duk_put_global_string(ctx, "mktemp");
-            
         });
         
         kk::Openlib<JSResource *>::add([](duk_context * ctx,JSResource * res)->void{

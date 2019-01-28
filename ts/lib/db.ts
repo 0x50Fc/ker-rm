@@ -104,18 +104,32 @@ namespace ker {
         return type;
     }
 
-    export class DBContext extends EventEmitter {
+    export class DBContext {
 
+        private _emitter: EventEmitter;
         private _db: Database;
 
         constructor(db: Database) {
-            super()
+            this._emitter = new EventEmitter();
             this._db = db;
-            this._db.exec("CREATE TABLE IF NOT EXISTS __entrys ] (name VARCHAR(255) PRIMARY KEY , value TEXT)", [], (id: number, errmsg: string | undefined): void => {
+            this._db.exec("CREATE TABLE IF NOT EXISTS __entrys(name VARCHAR(255) PRIMARY KEY , value TEXT)", [], (id: number, errmsg: string | undefined): void => {
                 if (errmsg !== undefined) {
                     console.error("[DBContext] [constructor]", errmsg);
                 }
             });
+        }
+
+        on(name: string, func: EventFunction): void {
+            this._emitter.on(name, func);
+        }
+        off(name?: string, func?: EventFunction): void {
+            this._emitter.off(name, func);
+        }
+        has(name: string): boolean {
+            return this._emitter.has(name);
+        }
+        emit(name: string, event: Event): void {
+            this._emitter.emit(name, event);
         }
 
         get db(): Database {
@@ -179,21 +193,34 @@ namespace ker {
                     }
 
                     if (sql.length > 0) {
-                        sql.push("UPDATE __entrys SET value=? WHERE key=?;");
+
+                        console.info("[SQL]", sql.join(''));
                         this._db.exec(sql.join(''),
+                            [],
+                            (id: number, errmsg: string | undefined): void => {
+                                if (errmsg !== undefined) {
+                                    console.error("[DBContext] [addEntry]", errmsg);
+                                }
+                            });
+
+                        console.info("[SQL]", "UPDATE __entrys SET value=? WHERE key=?;");
+                        this._db.exec("UPDATE __entrys SET value=? WHERE key=?;",
                             [JSON.stringify(entry), entry.name],
                             (id: number, errmsg: string | undefined): void => {
                                 if (errmsg !== undefined) {
                                     console.error("[DBContext] [addEntry]", errmsg);
                                 }
                             });
+
                     }
 
                 } else {
 
                     let sql: string[] = [];
 
-                    sql.push("CREATE TABLE IF NOT EXISTS [](id INTEGER AUTO_INCREMENT");
+                    sql.push("CREATE TABLE IF NOT EXISTS [");
+                    sql.push(entry.name);
+                    sql.push("](id INTEGER PRIMARY KEY AUTOINCREMENT");
 
                     for (let fd of entry.fields) {
                         sql.push(",[");
@@ -204,11 +231,21 @@ namespace ker {
                         sql.push(DBSQLDefaultValue(fd));
                     }
 
-                    sql.push(",PRIMARY KEY (id));")
+                    sql.push(");")
 
-                    sql.push("INSERT INTO __entrys(name,value) VALUES(?,?);");
+                    console.info("[SQL]", sql.join(''));
 
                     this._db.exec(sql.join(''),
+                        [],
+                        (id: number, errmsg: string | undefined): void => {
+                            if (errmsg !== undefined) {
+                                console.error("[DBContext] [addEntry]", errmsg);
+                            }
+                        });
+
+                    console.info("[SQL]", "INSERT INTO __entrys(name,value) VALUES(?,?);");
+
+                    this._db.exec("INSERT INTO __entrys(name,value) VALUES(?,?);",
                         [entry.name, JSON.stringify(entry)],
                         (id: number, errmsg: string | undefined): void => {
                             if (errmsg !== undefined) {
@@ -254,16 +291,18 @@ namespace ker {
             sql.push(valus.join(','));
             sql.push(')')
 
+            console.info("[SQL]", sql.join(''), vs);
+
             this._db.exec(sql.join(''), vs, (id: number, errmsg: string | undefined): void => {
 
                 if (errmsg === undefined) {
                     object.id = id;
                     let e = new Event();
-                    e.data({
+                    e.data = {
                         type: DBCommandType.ADD,
                         object: object,
                         entry: entry
-                    });
+                    };
                     this.emit("change", e);
                 }
                 if (done !== undefined) {
@@ -287,15 +326,17 @@ namespace ker {
             sql.push(as.join(','))
             sql.push(")")
 
+            console.info("[SQL]", sql.join(''), vs);
+
             this._db.exec(sql.join(''), vs, (id: number, errmsg: string | undefined): void => {
 
                 if (errmsg === undefined) {
                     let e = new Event();
-                    e.data({
+                    e.data = {
                         type: DBCommandType.REMOVE,
                         objects: objects,
                         entry: entry
-                    });
+                    };
                     this.emit("change", e);
                 }
                 if (done !== undefined) {
@@ -338,16 +379,18 @@ namespace ker {
 
             vs.push(object.id);
 
+            console.info("[SQL]", sql.join(''), vs);
+
             this._db.exec(sql.join(''), vs, (id: number, errmsg: string | undefined): void => {
 
                 if (errmsg === undefined) {
                     let e = new Event();
-                    e.data({
+                    e.data = {
                         type: DBCommandType.SET,
                         object: object,
                         entry: entry,
                         keys: keys
-                    });
+                    };
                     this.emit("change", e);
                 }
                 if (done !== undefined) {

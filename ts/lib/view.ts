@@ -89,6 +89,8 @@ namespace ker {
                             d!.set([indexKey], index, false);
                             d!.set([itemKey], item, false);
                             d!.changeKeys();
+                            elements.push(e);
+                            datas.push(d);
                         } else {
                             d!.begin();
                             d!.set([indexKey], index, false);

@@ -10,6 +10,7 @@
 #define kk_uri_h
 
 #include <core/kk.h>
+#include <core/jit.h>
 
 namespace kk {
     
@@ -49,11 +50,16 @@ namespace kk {
         virtual kk::TObject<kk::String,kk::String> & queryObject();
         virtual kk::CString get(kk::CString key);
         virtual void set(kk::CString key,kk::CString value);
+        virtual kk::Strong<kk::TObject<kk::String,kk::String>> object();
         virtual kk::String toString();
         
         static kk::String encodeURL(kk::CString value);
         static kk::String decodeURL(kk::CString value);
        
+        Ker_CLASS(URI, Object, "URI")
+        
+        static void Openlib();
+        
     protected:
         kk::String _scheme;
         kk::String _host;

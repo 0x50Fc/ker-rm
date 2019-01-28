@@ -137,6 +137,27 @@
     
 }
 
+
+-(void) KerPage:(KerPage *) page setLeftView:(UIView *) leftView {
+    if(leftView == nil) {
+        self.navigationItem.leftBarButtonItem = nil;
+    } else {
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftView];
+    }
+}
+
+-(void) KerPage:(KerPage *) page setRightView:(UIView *) rightView {
+    if(rightView == nil) {
+        self.navigationItem.rightBarButtonItem = nil;
+    } else {
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightView];
+    }
+}
+
+-(void) KerPage:(KerPage *) page setTitleView:(UIView *) titleView {
+    self.navigationItem.titleView = titleView;
+}
+
 -(void) viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     if([self.navigationController isNavigationBarHidden]) {

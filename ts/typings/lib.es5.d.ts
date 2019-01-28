@@ -4214,6 +4214,8 @@ interface String {
 
     startsWith(s:string):boolean;
     
+    repeat(n: number): string;
+    
 }
 
 interface Number {

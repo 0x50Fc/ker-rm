@@ -12,6 +12,7 @@
 #include <document/LayoutElement.h>
 #include <ui/view.h>
 #include <ui/app.h>
+#include <ui/page.h>
 
 namespace kk {
     
@@ -25,6 +26,8 @@ namespace kk {
             virtual View * view();
             virtual void setView(View * view);
             virtual App * app();
+            virtual Page * page();
+            virtual void setPage(Page * page);
             
             virtual void obtainView(ViewElement * element);
             
@@ -33,6 +36,7 @@ namespace kk {
         protected:
             kk::Strong<View> _view;
             kk::Weak<App> _app;
+            kk::Weak<Page> _page;
         };
         
         typedef void (*ViewElementSetFunction)(ViewContext * context,View * view,CString key, CString value);

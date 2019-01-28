@@ -158,6 +158,22 @@
     }
 }
 
+-(void) setLeftView:(UIView *) view {
+    if([(id)_delegate respondsToSelector:@selector(KerPage:setLeftView:)]) {
+        [_delegate KerPage:self setLeftView:view];
+    }
+}
 
+-(void) setRightView:(UIView *) view {
+    if([(id)_delegate respondsToSelector:@selector(KerPage:setRightView:)]) {
+        [_delegate KerPage:self setRightView:view];
+    }
+}
+
+-(void) setTitleView:(UIView *) view {
+    if([(id)_delegate respondsToSelector:@selector(KerPage:setTitleView:)]) {
+        [_delegate KerPage:self setTitleView:view];
+    }
+}
 
 @end

@@ -31,6 +31,22 @@ namespace kk {
             kk::Boolean animated;
         };
         
+        class PageSetLeftViewCommand : public PageCommand {
+        public:
+            kk::Uint64 viewId;
+        };
+        
+        class PageSetRightViewCommand : public PageCommand {
+        public:
+            kk::Uint64 viewId;
+        };
+        
+        class PageSetTitleViewCommand : public PageCommand {
+        public:
+            kk::Uint64 viewId;
+        };
+        
+        
         class Page : public EventEmitter , public kk::Container {
         public:
             Page(App * app,kk::Uint64 pageId,kk::CString type);
@@ -39,6 +55,13 @@ namespace kk {
             virtual kk::DispatchQueue * queue();
             virtual View * view();
             virtual void setView(View * v);
+            virtual View * leftView();
+            virtual void setLeftView(View * v);
+            virtual View * rightView();
+            virtual void setRightView(View * v);
+            virtual View * titleView();
+            virtual void setTitleView(View * v);
+            
             kk::Object * get(kk::Object * object);
             virtual void set(kk::Object * object);
             virtual void remove(kk::Object * object);
@@ -65,6 +88,9 @@ namespace kk {
             kk::Strong<App> _app;
             kk::Strong<kk::TFunction<void,kk::CString,kk::Event *>> _func;
             kk::Strong<View> _view;
+            kk::Strong<View> _leftView;
+            kk::Strong<View> _rightView;
+            kk::Strong<View> _titleView;
             kk::Strong<kk::TObject<kk::String, kk::Any>> _librarys;
             std::map<void *,kk::Strong<kk::Object>> _objects;
             Size _size;

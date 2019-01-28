@@ -220,16 +220,37 @@ namespace kk {
             return new SqliteDatabase(v);
         }
         
-        kk::Strong<File> App::openDataFile(kk::CString path,kk::CString type) {
-            if(path == nullptr) {
-                return nullptr;
+        kk::Strong<File> App::openFile(kk::CString directory,kk::CString path,kk::CString type) {
+            if(kk::CStringEqual(directory, kTemporaryDirectory)) {
+                kk::String u;
+                u.append("ker-tmp:///");
+                u.append(path);
+                return File::openURI(u.c_str(), type);
+            } else if(kk::CStringEqual(directory, kDataDirectory)) {
+                kk::String u;
+                u.append("ker-data:///");
+                u.append(_appkey);
+                u.append("/");
+                u.append(path);
+                return File::openURI(u.c_str(), type);
+            } else {
+                kk::String p = absolutePath(path);
+                kk::String u = ResolveURI(p.c_str());
+                return File::openURI(u.c_str(), type);
             }
+        }
+        
+        kk::Strong<File> App::openTempFile(kk::CString prefix,kk::CString suffix,kk::CString type) {
             kk::String u;
-            u.append("ker-data:///");
-            u.append(_appkey);
-            u.append("/");
-            u.append(path);
-            
+            u.append("ker-tmp:///");
+            if(prefix) {
+                u.append(prefix);
+            }
+            char fmt[] = "XXXXXXXXXXXXXXXX";
+            u.append(mktemp(fmt));
+            if(suffix) {
+                u.append(suffix);
+            }
             return File::openURI(u.c_str(), type);
         }
         
@@ -264,6 +285,7 @@ namespace kk {
             kk::HTTPRequest::Openlib();
             kk::WebSocket::Openlib();
             kk::File::Openlib();
+            kk::URI::Openlib();
             kk::ui::Context::Openlib();
             kk::ui::View::Openlib();
             kk::ui::Canvas::Openlib();
@@ -292,12 +314,19 @@ namespace kk {
                 
                 kk::PushInterface<App>(ctx, [](duk_context * ctx)->void{
                     
+                    duk_push_string(ctx, kDataDirectory);
+                    duk_put_prop_string(ctx, -3, "kDataDirectory");
+                    
+                    duk_push_string(ctx, kTemporaryDirectory);
+                    duk_put_prop_string(ctx, -3, "kTemporaryDirectory");
+                    
                     kk::PutMethod<App,void,kk::CString,kk::Boolean>(ctx, -1, "open", &App::open);
                     kk::PutMethod<App,void,kk::Uint,kk::Boolean>(ctx, -1, "back", &App::back);
                     kk::PutMethod<App,Size,AttributedText *,Float>(ctx, -1, "getAttributedTextContentSize", &App::getAttributedTextContentSize);
                     kk::PutStrongMethod<App,kk::Database,kk::CString>(ctx, -1, "openDataBase", &App::openDataBase);
-                    kk::PutStrongMethod<App,File,kk::CString,kk::CString>(ctx, -1, "openDataFile", &App::openDataFile);
-                
+                    kk::PutStrongMethod<App,File,kk::CString,kk::CString,kk::CString>(ctx, -1, "openFile", &App::openFile);
+                    kk::PutStrongMethod<App,File,kk::CString,kk::CString,kk::CString>(ctx, -1, "openTempFile", &App::openTempFile);
+                    
                     kk::PutStrongMethod<App,View,kk::CString,ViewConfiguration *>(ctx,-1,"createView",&App::createView);
                     kk::PutProperty<App,kk::CString>(ctx, -1, "appkey", &App::appkey);
                     kk::PutProperty<App,kk::Storage *>(ctx, -1, "storage", &App::storage);

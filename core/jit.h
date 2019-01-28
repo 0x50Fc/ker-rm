@@ -666,7 +666,6 @@ namespace kk {
         };
         
         duk_push_c_function(ctx, fn, sizeof...(TArgs));
-        
     }
     
     template<class T,typename ... TArgs>

@@ -66,7 +66,7 @@ namespace kk {
                 
                 kk::PutMethod<Database,void,kk::CString,JSObject *,JSObject *>(ctx, -1, "exec", &Database::exec);
                 
-                kk::PutMethod<Database,void,kk::CString,JSObject *,JSObject *>(ctx, -1, "query", &Database::exec);
+                kk::PutMethod<Database,void,kk::CString,JSObject *,JSObject *>(ctx, -1, "query", &Database::query);
                 
                 kk::PutMethod<Database,void>(ctx, -1, "close", &Database::close);
                 

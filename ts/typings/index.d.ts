@@ -128,6 +128,7 @@ declare namespace ker {
 
     interface KerAudioStartRecordRes {
         readonly tempFilePath: string
+        readonly tempFile: File
     }
 
     interface KerAudioStartRecordObject {

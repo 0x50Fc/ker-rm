@@ -337,7 +337,7 @@ Page.prototype = Object.create(Object.prototype, {
                             ontext: ontext,
                             onclosetag: onclosetag,
                             onerror: onerror
-                        }, { decodeEntities: true, recognizeSelfClosing: true });
+                        }, { decodeEntities: true, recognizeSelfClosing: true, lowerCaseAttributeNames: false, lowerCaseTags: false });
 
                         var p = path.join(basePath, src);
                         var v = fs.readFileSync(p, { encoding: 'utf8' });
@@ -361,7 +361,7 @@ Page.prototype = Object.create(Object.prototype, {
                 ontext: ontext,
                 onclosetag: onclosetag,
                 onerror: onerror
-            }, { decodeEntities: true, recognizeSelfClosing: true });
+            }, { decodeEntities: true, recognizeSelfClosing: true, lowerCaseAttributeNames: false, lowerCaseTags: false });
 
             parse.write(fs.readFileSync(wxmlPath, { encoding: 'utf8' }));
             parse.end();
@@ -371,7 +371,7 @@ Page.prototype = Object.create(Object.prototype, {
             for (var element of element.children) {
                 View(element, path.relative(relativePath, basePaths[basePaths.length - 1]));
             }
-            
+
             function View(element, basePath) {
                 vs.push("\t".repeat(level));
                 vs.push("V(element,data,");

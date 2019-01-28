@@ -1,16 +1,3 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var ker;
 (function (ker) {
     var DBIndexType;
@@ -83,18 +70,28 @@ var ker;
         }
         return type;
     }
-    var DBContext = /** @class */ (function (_super) {
-        __extends(DBContext, _super);
+    var DBContext = /** @class */ (function () {
         function DBContext(db) {
-            var _this = _super.call(this) || this;
-            _this._db = db;
-            _this._db.exec("CREATE TABLE IF NOT EXISTS __entrys ] (name VARCHAR(255) PRIMARY KEY , value TEXT)", [], function (id, errmsg) {
+            this._emitter = new EventEmitter();
+            this._db = db;
+            this._db.exec("CREATE TABLE IF NOT EXISTS __entrys(name VARCHAR(255) PRIMARY KEY , value TEXT)", [], function (id, errmsg) {
                 if (errmsg !== undefined) {
                     console.error("[DBContext] [constructor]", errmsg);
                 }
             });
-            return _this;
         }
+        DBContext.prototype.on = function (name, func) {
+            this._emitter.on(name, func);
+        };
+        DBContext.prototype.off = function (name, func) {
+            this._emitter.off(name, func);
+        };
+        DBContext.prototype.has = function (name) {
+            return this._emitter.has(name);
+        };
+        DBContext.prototype.emit = function (name, event) {
+            this._emitter.emit(name, event);
+        };
         Object.defineProperty(DBContext.prototype, "db", {
             get: function () {
                 return this._db;
@@ -163,8 +160,14 @@ var ker;
                         }
                     }
                     if (sql.length > 0) {
-                        sql.push("UPDATE __entrys SET value=? WHERE key=?;");
-                        _this._db.exec(sql.join(''), [JSON.stringify(entry), entry.name], function (id, errmsg) {
+                        console.info("[SQL]", sql.join(''));
+                        _this._db.exec(sql.join(''), [], function (id, errmsg) {
+                            if (errmsg !== undefined) {
+                                console.error("[DBContext] [addEntry]", errmsg);
+                            }
+                        });
+                        console.info("[SQL]", "UPDATE __entrys SET value=? WHERE key=?;");
+                        _this._db.exec("UPDATE __entrys SET value=? WHERE key=?;", [JSON.stringify(entry), entry.name], function (id, errmsg) {
                             if (errmsg !== undefined) {
                                 console.error("[DBContext] [addEntry]", errmsg);
                             }
@@ -173,7 +176,9 @@ var ker;
                 }
                 else {
                     var sql = [];
-                    sql.push("CREATE TABLE IF NOT EXISTS [](id INTEGER AUTO_INCREMENT");
+                    sql.push("CREATE TABLE IF NOT EXISTS [");
+                    sql.push(entry.name);
+                    sql.push("](id INTEGER PRIMARY KEY AUTOINCREMENT");
                     for (var _d = 0, _e = entry.fields; _d < _e.length; _d++) {
                         var fd = _e[_d];
                         sql.push(",[");
@@ -183,9 +188,15 @@ var ker;
                         sql.push(" DEFAULT ");
                         sql.push(DBSQLDefaultValue(fd));
                     }
-                    sql.push(",PRIMARY KEY (id));");
-                    sql.push("INSERT INTO __entrys(name,value) VALUES(?,?);");
-                    _this._db.exec(sql.join(''), [entry.name, JSON.stringify(entry)], function (id, errmsg) {
+                    sql.push(");");
+                    console.info("[SQL]", sql.join(''));
+                    _this._db.exec(sql.join(''), [], function (id, errmsg) {
+                        if (errmsg !== undefined) {
+                            console.error("[DBContext] [addEntry]", errmsg);
+                        }
+                    });
+                    console.info("[SQL]", "INSERT INTO __entrys(name,value) VALUES(?,?);");
+                    _this._db.exec("INSERT INTO __entrys(name,value) VALUES(?,?);", [entry.name, JSON.stringify(entry)], function (id, errmsg) {
                         if (errmsg !== undefined) {
                             console.error("[DBContext] [addEntry]", errmsg);
                         }
@@ -224,15 +235,16 @@ var ker;
             sql.push(') VALUES(');
             sql.push(valus.join(','));
             sql.push(')');
+            console.info("[SQL]", sql.join(''), vs);
             this._db.exec(sql.join(''), vs, function (id, errmsg) {
                 if (errmsg === undefined) {
                     object.id = id;
                     var e = new Event();
-                    e.data({
+                    e.data = {
                         type: DBCommandType.ADD,
                         object: object,
                         entry: entry
-                    });
+                    };
                     _this.emit("change", e);
                 }
                 if (done !== undefined) {
@@ -252,14 +264,15 @@ var ker;
             }
             sql.push(as.join(','));
             sql.push(")");
+            console.info("[SQL]", sql.join(''), vs);
             this._db.exec(sql.join(''), vs, function (id, errmsg) {
                 if (errmsg === undefined) {
                     var e = new Event();
-                    e.data({
+                    e.data = {
                         type: DBCommandType.REMOVE,
                         objects: objects,
                         entry: entry
-                    });
+                    };
                     _this.emit("change", e);
                 }
                 if (done !== undefined) {
@@ -296,15 +309,16 @@ var ker;
             sql.push(items.join(","));
             sql.push(" WHERE [id]=?");
             vs.push(object.id);
+            console.info("[SQL]", sql.join(''), vs);
             this._db.exec(sql.join(''), vs, function (id, errmsg) {
                 if (errmsg === undefined) {
                     var e = new Event();
-                    e.data({
+                    e.data = {
                         type: DBCommandType.SET,
                         object: object,
                         entry: entry,
                         keys: keys
-                    });
+                    };
                     _this.emit("change", e);
                 }
                 if (done !== undefined) {
@@ -313,6 +327,6 @@ var ker;
             });
         };
         return DBContext;
-    }(EventEmitter));
+    }());
     ker.DBContext = DBContext;
 })(ker || (ker = {}));

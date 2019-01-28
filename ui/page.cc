@@ -118,6 +118,54 @@ namespace kk {
             _view = v;
         }
         
+        View * Page::leftView() {
+            return _leftView;
+        }
+        
+        void Page::setLeftView(View * v) {
+            _leftView = v;
+            
+            {
+                kk::Strong<PageSetLeftViewCommand> cmd = new PageSetLeftViewCommand();
+                cmd->pageId = _pageId;
+                cmd->viewId = v == nullptr ? 0:v->viewId();
+                _app->execCommand(cmd);
+            }
+            
+        }
+        
+        View * Page::rightView() {
+            return _rightView;
+        }
+        
+        void Page::setRightView(View * v) {
+            _rightView = v;
+            
+            {
+                kk::Strong<PageSetRightViewCommand> cmd = new PageSetRightViewCommand();
+                cmd->pageId = _pageId;
+                cmd->viewId = v == nullptr ? 0:v->viewId();
+                _app->execCommand(cmd);
+            }
+            
+        }
+        
+        View * Page::titleView() {
+            return _titleView;
+        }
+        
+        void Page::setTitleView(View * v) {
+            _titleView = v;
+            
+            {
+                kk::Strong<PageSetTitleViewCommand> cmd = new PageSetTitleViewCommand();
+                cmd->pageId = _pageId;
+                cmd->viewId = v == nullptr ? 0:v->viewId();
+                _app->execCommand(cmd);
+            }
+            
+        }
+        
         void Page::setSize(Size & size) {
             Size v = _size;
             _size = size;
@@ -245,6 +293,10 @@ namespace kk {
                     kk::PutProperty<Page,App *>(ctx, -1, "app", &Page::app);
                     
                     kk::PutProperty<Page,View *>(ctx, -1, "view", &Page::view);
+                    
+                    kk::PutProperty<Page,View *>(ctx, -1, "leftView", &Page::leftView, &Page::setLeftView);
+                    kk::PutProperty<Page,View *>(ctx, -1, "rightView", &Page::rightView, &Page::setRightView);
+                    kk::PutProperty<Page,View *>(ctx, -1, "titleView", &Page::titleView, &Page::setTitleView);
                     
                     kk::PutMethod<Page,void,Object *>(ctx, -1, "set", &Page::set);
                     

@@ -121,7 +121,7 @@ declare interface Image extends EventEmitter {
     readonly state: ImageState
 }
 
-declare interface UIContext extends EventEmitter {
+declare class UIContext extends EventEmitter {
     openInputStream(uri: string): InputStream | undefined
     openOutputStream(uri: string): OutputStream | undefined
     exec(path: string, library?: Library): void
@@ -199,12 +199,15 @@ declare interface Storage {
     loadKeys(cb: StorageLoadKeysCallback): void
 }
 
-declare interface UIApp extends UIContext {
+declare class UIApp extends UIContext {
+    static readonly kDataDirectory: string
+    static readonly kTemporaryDirectory: string
     open(uri: string, animated: boolean): void
     back(delta: number, animated: boolean): void
     getAttributedTextContentSize(text: UIAttributedText, maxWidth: number): Size
     openDataBase(name: string): Database
-    openDataFile(path: string): File
+    openFile(directory: string, path: string, type?: string): File
+    openTempFile(prefix?: string, suffix?: string, type?: string): File
     createView(name: string, configuration?: UIViewConfiguration): UIView
     readonly appkey: string
     readonly storage: Storage
@@ -370,6 +373,8 @@ declare class File implements Blob {
     remove(done?: () => void): void
     move(to: File, done?: () => void): void
     copy(to: File, done?: () => void): void
+    openInputStream():InputStream
+    openOutputStream(append?:boolean):OutputStream
 }
 
 type FileList = File[]
@@ -389,6 +394,25 @@ declare class FileReader extends EventEmitter {
     onerror?: EventFunction
 }
 
+declare class URIQueryObject{
+    [key:string]:string    
+}
+
+declare class URI {
+    constructor(v:string)
+    scheme:string
+    host:string
+    hostname:string
+    port:string
+    query:string
+    fragment:string
+    path:string
+    readonly queryObject:URIQueryObject
+    get(key:string):string
+    set(keu:string,value:string):void
+    toString():string
+}
+
 declare var app: UIApp
 declare var userAgent: string
 declare var platform: string
@@ -397,4 +421,3 @@ declare var query: any
 declare var page: UIPage
 declare var screen: UIScreen
 declare function compile(code: string, path: string): any
-declare function mktemp(format: string): string

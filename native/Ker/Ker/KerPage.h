@@ -34,6 +34,12 @@ typedef void * KerPageCPointer;
 
 -(void) KerPage:(KerPage *) page close:(BOOL) animated;
 
+-(void) KerPage:(KerPage *) page setLeftView:(UIView *) leftView;
+
+-(void) KerPage:(KerPage *) page setRightView:(UIView *) rightView;
+
+-(void) KerPage:(KerPage *) page setTitleView:(UIView *) titleView;
+
 @end
 
 @interface KerPage : NSObject
@@ -56,6 +62,12 @@ typedef void * KerPageCPointer;
 -(void) open:(UIView *) view;
 
 -(void) viewDidLayoutSubviews;
+
+-(void) setLeftView:(UIView *) view;
+
+-(void) setRightView:(UIView *) view;
+
+-(void) setTitleView:(UIView *) view;
 
 @end
 

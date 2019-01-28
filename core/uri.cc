@@ -282,6 +282,34 @@ namespace kk {
         
     }
     
+    kk::Strong<kk::TObject<kk::String,kk::String>> URI::object() {
+        return _queryObject;
+    }
+    
+    void URI::Openlib() {
+        
+        kk::Openlib<>::add([](duk_context * ctx)->void{
+            
+            kk::PushClass<URI,kk::CString>(ctx, [](duk_context * ctx)->void{
+                
+                kk::PutProperty(ctx, -1, "scheme", &URI::scheme, &URI::setScheme);
+                kk::PutProperty(ctx, -1, "host", &URI::host, &URI::setHost);
+                kk::PutProperty(ctx, -1, "hostname", &URI::hostname, &URI::setHostname);
+                kk::PutProperty(ctx, -1, "port", &URI::port, &URI::setPort);
+                kk::PutProperty(ctx, -1, "path", &URI::path, &URI::setPath);
+                kk::PutProperty(ctx, -1, "query", &URI::query, &URI::setQuery);
+                kk::PutProperty(ctx, -1, "fragment", &URI::fragment, &URI::setFragment);
+                kk::PutStrongProperty<URI,kk::TObject<kk::String,kk::String>>(ctx, -1, "queryObject", &URI::object);
+                kk::PutMethod(ctx, -1, "toString", &URI::toString);
+                kk::PutMethod(ctx, -1, "get", &URI::get);
+                kk::PutMethod(ctx, -1, "set", &URI::set);
+                
+            });
+            
+        });
+        
+    }
+    
     kk::CString kTemporaryDirectory = "tmp";
     kk::CString kDataDirectory = "data";
     kk::CString kAppDirectory = "app";
@@ -333,15 +361,17 @@ namespace kk {
     }
     
     kk::Boolean isWritableURI(kk::CString uri) {
-        return kk::CStringEqual(uri, "ker-data://") || kk::CStringEqual(uri, "ker-tmp://");
+        return kk::CStringHasPrefix(uri, "ker-data://") || kk::CStringHasPrefix(uri, "ker-tmp://");
     }
     
     kk::Boolean isURLInDirectory(kk::CString uri) {
-        return kk::CStringEqual(uri, "ker-data://")
-            || kk::CStringEqual(uri, "ker-tmp://")
-            || kk::CStringEqual(uri, "ker-app://")
-            || kk::CStringEqual(uri, "ker-native://");
+        return kk::CStringHasPrefix(uri, "ker-data://")
+            || kk::CStringHasPrefix(uri, "ker-tmp://")
+            || kk::CStringHasPrefix(uri, "ker-app://")
+            || kk::CStringHasPrefix(uri, "ker-native://");
     }
+    
+    
 
     
 }

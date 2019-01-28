@@ -29,6 +29,14 @@ namespace kk {
             _view = view;
         }
         
+        Page * ViewContext::page() {
+            return _page;
+        }
+        
+        void ViewContext::setPage(Page * page) {
+            _page = page;
+        }
+        
         void ViewContext::obtainView(ViewElement * element) {
             if(_view == nullptr || element == nullptr) {
                 return;
@@ -392,6 +400,7 @@ namespace kk {
                 kk::PushClass<ViewContext,App *>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutProperty<ViewContext,View *>(ctx, -1, "view", &ViewContext::view,&ViewContext::setView);
+                    kk::PutProperty<ViewContext,Page *>(ctx, -1, "page", &ViewContext::page,&ViewContext::setPage);
                     kk::PutMethod<ViewContext,void,ViewElement *>(ctx, -1, "obtainView", &ViewContext::obtainView);
                     
                 });

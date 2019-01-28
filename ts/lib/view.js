@@ -70,6 +70,8 @@ var ker;
                             d.set([indexKey_1], index, false);
                             d.set([itemKey_1], item, false);
                             d.changeKeys();
+                            elements_1.push(e);
+                            datas_1.push(d);
                         }
                         else {
                             d.begin();

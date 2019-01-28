@@ -1,29 +1,33 @@
 
 namespace ker {
 
-    let queue:AudioQueueInput|undefined
-    let output:SpeexFileOutputStream|undefined;
-    let uri = "ker-tmp:///ker_startRecord_" + mktemp("XXXXXXXX") + ".spx";
+    let queue: AudioQueueInput | undefined
+    let output: SpeexFileOutputStream | undefined;
+    let file: File | undefined;
 
-    function recycle():void {
+    function recycle(): void {
 
-        if(queue !== undefined) {
+        if (queue !== undefined) {
             queue.off();
             queue.stop();
             queue = undefined;
         }
 
-        if(output !== undefined) {
+        if (output !== undefined) {
             output.close();
             output = undefined;
         }
 
-        app.removeURI(uri);
-        
+        if (file !== undefined) {
+            file.remove();
+            file = undefined;
+        }
+
     }
-    
+
     export interface KerAudioStartRecordRes {
         readonly tempFilePath: string
+        readonly tempFile: File
     }
 
     export interface KerAudioStartRecordObject {
@@ -33,33 +37,36 @@ namespace ker {
     }
 
     export function startRecord(object: KerAudioStartRecordObject): void {
-        
+
         recycle();
 
-        let input = app.openOutputStream(uri)!
-        let buffer = new BufferOutputStream(input,2048);
+        file = app.openTempFile("ker_startRecord_", ".spx");
+        
+        let input = file.openOutputStream();
+        let buffer = new BufferOutputStream(input, 2048);
 
         output = new SpeexFileOutputStream(buffer);
 
-        queue = new AudioQueueInput(output.codec,output);
+        queue = new AudioQueueInput(output.codec, output);
 
-        queue.on("error",function(e:Event){
-            if(object.fail !== undefined) {
+        queue.on("error", function (e: Event) {
+            if (object.fail !== undefined) {
                 object.fail(e.data.errmsg);
             }
-            if(object.complete !== undefined) {
+            if (object.complete !== undefined) {
                 object.complete();
             }
             recycle();
         });
 
-        queue.on("done",function(e:Event){
-            if(object.success !== undefined) {
+        queue.on("done", function (e: Event) {
+            if (object.success !== undefined) {
                 object.success({
-                    tempFilePath : uri
+                    tempFile: file,
+                    tempFilePath: file.name
                 });
             }
-            if(object.complete !== undefined) {
+            if (object.complete !== undefined) {
                 object.complete();
             }
             recycle();
@@ -70,7 +77,7 @@ namespace ker {
     }
 
     export function stopRecord(): void {
-        if(queue !== undefined) {
+        if (queue !== undefined) {
             queue.stop()
         }
     }
