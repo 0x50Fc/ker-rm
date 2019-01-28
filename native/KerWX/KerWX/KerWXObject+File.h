@@ -35,6 +35,10 @@
 @property (nonatomic, copy) NSString * filePath;
 @end
 
+@protocol WXRemoveSavedFileObject <WXCallbackFunction>
+@property (nonatomic, copy) NSString * filePath;
+@end
+
 @interface KerWXObject (File)
 
 -(void) saveFile: (KerJSObject *) object;

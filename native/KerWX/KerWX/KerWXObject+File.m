@@ -291,6 +291,52 @@ NSString * ker_CreateFileDirectory(NSString * path){
 
 -(void) removeSavedFile: (KerJSObject *) object{
     
+    id<WXRemoveSavedFileObject> v = [object implementProtocol:@protocol(WXRemoveSavedFileObject)];
+    NSString * storePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES).firstObject stringByAppendingString:@"/store"];
+    if ([v.filePath hasPrefix:storePath]) {
+        
+        if ([[NSFileManager defaultManager] fileExistsAtPath:v.filePath]){
+            
+            NSError * err;
+            BOOL success = [[NSFileManager defaultManager] removeItemAtPath:v.filePath error:&err];
+            
+            if (err) {
+                
+                WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"removeSavedFile:fail err %@", err.description];
+                [v fail:res];
+                [v complete:res];
+                
+            } else if (!success) {
+                
+                WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"removeSavedFile:fail"];
+                [v fail:res];
+                [v complete:res];
+                
+            } else {
+                
+                WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"removeSavedFile:ok"];
+                [v success:res];
+                [v complete:res];
+                
+            }
+            
+        }else{
+            
+            //文件不存在
+            WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"removeSavedFile:fail file doesn't exist"];
+            [v fail:res];
+            [v complete:res];
+            
+        }
+        
+    }else{
+        
+        //不是 sotre文件夹
+        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"removeSavedFile:fail not a store filePath"];
+        [v fail:res];
+        [v complete:res];
+    }
+    
 }
 
 @end
