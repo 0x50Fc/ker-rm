@@ -26,18 +26,19 @@
 @property (nonatomic, copy) NSString * tempFilePath;
 @end
 
-@protocol WXGetFileInfoObject <WXCallbackFunction>
+@protocol WXKerFileObject <WXCallbackFunction>
 @property (nonatomic, copy) NSString * filePath;
+@end
+
+@protocol WXGetFileInfoObject <WXKerFileObject>
 @property (nonatomic, copy) NSString * digestAlgorithm;
 @end
 
-@protocol WXGetSavedFileInfoObject <WXCallbackFunction>
-@property (nonatomic, copy) NSString * filePath;
+@protocol WXOpenDocumentObject <WXKerFileObject>
+@property (nonatomic, copy) NSString * fileType;
 @end
 
-@protocol WXRemoveSavedFileObject <WXCallbackFunction>
-@property (nonatomic, copy) NSString * filePath;
-@end
+
 
 @interface KerWXObject (File)
 
@@ -46,6 +47,8 @@
 -(void) getSavedFileList: (KerJSObject *) object;
 -(void) getSavedFileInfo: (KerJSObject *) object;
 -(void) removeSavedFile: (KerJSObject *) object;
+
+-(void) openDocument: (KerJSObject *) object;
 
 @end
 

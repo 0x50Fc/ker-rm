@@ -7,6 +7,8 @@
 
   <button open-type='getSavedFileInfo' bindgetuserinfo="getSavedFileInfo" bindtap= "getSavedFileInfo">getSavedFileInfo</button>
 
+  <button open-type='openDocument' bindgetuserinfo="openDocument" bindtap="openDocument">openDocument</button>
+
 
 
 

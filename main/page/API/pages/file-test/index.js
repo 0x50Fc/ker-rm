@@ -85,6 +85,24 @@ Page({
         console.log("getSavedFileInfo complete = %@", res);
       }
     });
+  },
+
+
+
+  openDocument(e){
+    wx.openDocument({
+      filePath:"路径不太对啊，需要有下载api然后进行真机测试，模拟器可以桌面访问沙盒目录测试",
+      fileType:"pdf",
+      success(res){
+        console.log("openDocument success = %@", res);
+      },
+      fail(res){
+        console.log("openDocument fail = %@", res);
+      },
+      complete(res){
+        console.log("openDocument complete = %@", res);
+      }
+    });
   }
 
 

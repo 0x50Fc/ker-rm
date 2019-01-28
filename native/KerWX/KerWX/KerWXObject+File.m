@@ -7,7 +7,11 @@
 //
 
 #import "KerWXObject+File.h"
-#include <CommonCrypto/CommonDigest.h>
+#import <CommonCrypto/CommonDigest.h>
+#import <objc/runtime.h>
+#import <QuickLook/QuickLook.h>
+
+#define WXKerFileOpenDocumentManagerKey "WXKerFileOpenDocumentManagerKey"
 
 @implementation WXSaveFileRes
 -(instancetype)initWithErrMsg:(NSString *)errMsg path:(NSString *)path{
@@ -106,8 +110,77 @@ NSString * ker_CreateFileDirectory(NSString * path){
 }
 
 
+@interface WXKerFileOpenDocumentManager : NSObject <QLPreviewControllerDelegate,QLPreviewControllerDataSource>
+
+@property (nonatomic, strong) KerJSObject * openObject;
+
+@end
+
+@implementation WXKerFileOpenDocumentManager
+
+-(void) openDocument: (KerJSObject *) object{
+    
+    self.openObject = object;
+    id<WXOpenDocumentObject> v = [object implementProtocol:@protocol(WXOpenDocumentObject)];
+
+    if (![[NSFileManager defaultManager] fileExistsAtPath:v.filePath]) {
+
+        //文件不存在
+        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"openDocument:fail file not exist"];
+        [v fail:res];
+        [v complete:res];
+
+    }else {
+    
+        //打开预览
+        QLPreviewController * viewController = [[QLPreviewController alloc] init];
+        viewController.delegate = self;
+        viewController.dataSource = self;
+        viewController.currentPreviewItemIndex = 0;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIViewController * topViewController = [[UIApplication sharedApplication] keyWindow].rootViewController;
+            if ([topViewController isKindOfClass:[UINavigationController class]]) {
+                UINavigationController * nav = (UINavigationController *)topViewController;
+                [nav pushViewController:viewController animated:YES];
+            }
+        });
+        
+        WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"openDocument:ok"];
+        [v fail:res];
+        [v complete:res];
+        
+    }
+
+}
+
+- (NSInteger)numberOfPreviewItemsInPreviewController:(nonnull QLPreviewController *)controller {
+    return 1;
+}
+
+- (nonnull id<QLPreviewItem>)previewController:(nonnull QLPreviewController *)controller previewItemAtIndex:(NSInteger)index {
+    
+//    NSString * testPath = [NSTemporaryDirectory() stringByAppendingString:@"/2019_PDF.pdf"];
+//    return [NSURL fileURLWithPath:testPath];
+    
+    id<WXOpenDocumentObject> v = [self.openObject implementProtocol:@protocol(WXOpenDocumentObject)];
+    return [NSURL fileURLWithPath:v.filePath];
+}
+
+
+
+@end
 
 @implementation KerWXObject (File)
+
+-(WXKerFileOpenDocumentManager *)WXKerFileOpenDocumentManager{
+    WXKerFileOpenDocumentManager * manager = objc_getAssociatedObject(self, WXKerFileOpenDocumentManagerKey);
+    if (manager == nil) {
+        manager = [[WXKerFileOpenDocumentManager alloc]init];
+        objc_setAssociatedObject(self, WXKerFileOpenDocumentManagerKey, manager, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return manager;
+}
 
 -(void) saveFile: (KerJSObject *) object{
     
@@ -253,7 +326,7 @@ NSString * ker_CreateFileDirectory(NSString * path){
 
 -(void) getSavedFileInfo: (KerJSObject *) object{
     
-    id<WXGetSavedFileInfoObject> v = [object implementProtocol:@protocol(WXGetSavedFileInfoObject)];
+    id<WXKerFileObject> v = [object implementProtocol:@protocol(WXKerFileObject)];
     NSString * storePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES).firstObject stringByAppendingString:@"/store"];
     //NSLog(@"storePath = %@", storePath);
     //NSLog(@"filePath = %@", v.filePath);
@@ -291,7 +364,7 @@ NSString * ker_CreateFileDirectory(NSString * path){
 
 -(void) removeSavedFile: (KerJSObject *) object{
     
-    id<WXRemoveSavedFileObject> v = [object implementProtocol:@protocol(WXRemoveSavedFileObject)];
+    id<WXKerFileObject> v = [object implementProtocol:@protocol(WXKerFileObject)];
     NSString * storePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask,YES).firstObject stringByAppendingString:@"/store"];
     if ([v.filePath hasPrefix:storePath]) {
         
@@ -302,7 +375,7 @@ NSString * ker_CreateFileDirectory(NSString * path){
             
             if (err) {
                 
-                WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:@"removeSavedFile:fail err %@", err.description];
+                WXCallbackRes * res = [[WXCallbackRes alloc] initWithErrMsg:[NSString stringWithFormat:@"removeSavedFile:fail err %@", err.description]];
                 [v fail:res];
                 [v complete:res];
                 
@@ -339,7 +412,16 @@ NSString * ker_CreateFileDirectory(NSString * path){
     
 }
 
+-(void) openDocument: (KerJSObject *) object{
+    
+    [self.WXKerFileOpenDocumentManager openDocument:object];
+
+}
+
 @end
+
+
+
 
 
 @implementation NSString (File)
