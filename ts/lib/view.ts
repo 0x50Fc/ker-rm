@@ -107,10 +107,7 @@ namespace ker {
                     while (index < elements.length) {
                         let e = elements.pop()!;
                         let d = datas.pop()!;
-                        if (e instanceof UIViewElement) {
-                            e.recycleView();
-                        }
-                        e.off();
+                        e.recycle();
                         e.remove();
                         d.recycle();
                     }
@@ -145,10 +142,7 @@ namespace ker {
     
                     return true;
                 } else if (e !== undefined) {
-                    if (e instanceof UIViewElement) {
-                        e.recycleView();
-                    }
-                    e.off();
+                    e.recycle();
                     e.remove();
                     e = undefined;
                     d!.recycle();

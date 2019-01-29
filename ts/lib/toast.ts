@@ -3,8 +3,12 @@ namespace ker {
 
     class ToastView extends Dialog {
 
-        create(object: ViewObject) {
-            super.create(object, (element: Element, data: Data, V: ViewElementFuntion, E: ViewEvaluateFuntion): void => {
+        constructor(object:ViewObject) {
+            super(object)
+        }
+
+        create() {
+            super.create((element: Element, data: Data, V: ViewElementFuntion, E: ViewEvaluateFuntion): void => {
                 V(element, data, "body", {
                     'max-width': '400rpx',
                     'padding': '20rpx',
@@ -44,8 +48,8 @@ namespace ker {
         }
 
         let id = (++audoId) + '';
-        let view = new ToastView();
-        view.create({});
+        let view = new ToastView({});
+        view.create();
         view.setData({
             title: object.title
         });

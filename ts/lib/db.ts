@@ -143,7 +143,7 @@ namespace ker {
                 } else if (items && items.length > 0) {
                     let e: DBEntry = JSON.parse(items[0]['value'] as string);
                     let fds: DBFieldSet = {};
-                    let sql: string[] = [];
+                    let hasUpdate = false;
 
                     for (let fd of e.fields) {
                         fds[fd.name] = fd;
@@ -152,8 +152,9 @@ namespace ker {
                     for (let fd of entry.fields) {
                         let f = fds[fd.name];
                         if (f === undefined) {
+                            let sql: string[] = [];
                             sql.push('ALTER TABLE [');
-                            sql.push("entry.name");
+                            sql.push(entry.name);
                             sql.push("] ADD [");
                             sql.push(fd.name);
                             sql.push("] ");
@@ -161,9 +162,19 @@ namespace ker {
                             sql.push(" DEFAULT ");
                             sql.push(DBSQLDefaultValue(fd));
                             sql.push("; ");
+                            console.info("[SQL]", sql.join(''));
+                            this._db.exec(sql.join(''),
+                                [],
+                                (id: number, errmsg: string | undefined): void => {
+                                    if (errmsg !== undefined) {
+                                        console.error("[DBContext] [addEntry]", errmsg);
+                                    }
+                                });
+                            hasUpdate = true;
                         } else if (f.type != fd.type || f.length != fd.length) {
+                            let sql: string[] = [];
                             sql.push('ALTER TABLE [');
-                            sql.push("entry.name");
+                            sql.push(entry.name);
                             sql.push("] CHANGE [");
                             sql.push(fd.name);
                             sql.push("] [");
@@ -173,7 +184,19 @@ namespace ker {
                             sql.push(" DEFAULT ");
                             sql.push(DBSQLDefaultValue(fd));
                             sql.push("; ");
+
+                            console.info("[SQL]", sql.join(''));
+                            this._db.exec(sql.join(''),
+                                [],
+                                (id: number, errmsg: string | undefined): void => {
+                                    if (errmsg !== undefined) {
+                                        console.error("[DBContext] [addEntry]", errmsg);
+                                    }
+                                });
+                            hasUpdate = true;
+
                         } else if (fd.index != DBIndexType.NONE && f.index == DBIndexType.NONE) {
+                            let sql: string[] = [];
                             sql.push('CREATE INDEX [');
                             sql.push(entry.name)
                             sql.push('_')
@@ -189,22 +212,22 @@ namespace ker {
                                 sql.push('ASC');
                             }
                             sql.push(');');
+                            console.info("[SQL]", sql.join(''));
+                            this._db.exec(sql.join(''),
+                                [],
+                                (id: number, errmsg: string | undefined): void => {
+                                    if (errmsg !== undefined) {
+                                        console.error("[DBContext] [addEntry]", errmsg);
+                                    }
+                                });
+                            hasUpdate = true;
                         }
                     }
 
-                    if (sql.length > 0) {
+                    if (hasUpdate) {
 
-                        console.info("[SQL]", sql.join(''));
-                        this._db.exec(sql.join(''),
-                            [],
-                            (id: number, errmsg: string | undefined): void => {
-                                if (errmsg !== undefined) {
-                                    console.error("[DBContext] [addEntry]", errmsg);
-                                }
-                            });
-
-                        console.info("[SQL]", "UPDATE __entrys SET value=? WHERE key=?;");
-                        this._db.exec("UPDATE __entrys SET value=? WHERE key=?;",
+                        console.info("[SQL]", "UPDATE __entrys SET value=? WHERE name=?;");
+                        this._db.exec("UPDATE __entrys SET value=? WHERE name=?;",
                             [JSON.stringify(entry), entry.name],
                             (id: number, errmsg: string | undefined): void => {
                                 if (errmsg !== undefined) {

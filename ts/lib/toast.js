@@ -15,11 +15,11 @@ var ker;
 (function (ker) {
     var ToastView = /** @class */ (function (_super) {
         __extends(ToastView, _super);
-        function ToastView() {
-            return _super !== null && _super.apply(this, arguments) || this;
+        function ToastView(object) {
+            return _super.call(this, object) || this;
         }
-        ToastView.prototype.create = function (object) {
-            _super.prototype.create.call(this, object, function (element, data, V, E) {
+        ToastView.prototype.create = function () {
+            _super.prototype.create.call(this, function (element, data, V, E) {
                 V(element, data, "body", {
                     'max-width': '400rpx',
                     'padding': '20rpx',
@@ -43,8 +43,8 @@ var ker;
             object.duration = 1500;
         }
         var id = (++audoId) + '';
-        var view = new ToastView();
-        view.create({});
+        var view = new ToastView({});
+        view.create();
         view.setData({
             title: object.title
         });

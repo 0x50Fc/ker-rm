@@ -449,7 +449,7 @@ namespace kk {
             auto i = _obtainViews.find(reuse);
             
             if(i != _obtainViews.end()) {
-                auto q = i->second;
+                auto & q = i->second;
                 auto n = q.begin();
                 if(n != q.end()) {
                     kk::Strong<View> v = * n;
@@ -471,7 +471,8 @@ namespace kk {
             auto i = _obtainViews.find(reuse);
             
             if(i != _obtainViews.end()) {
-                i->second.push_back(view);
+                auto & q = i->second;
+                q.push_back(view);
             } else {
                 _obtainViews[reuse] = {view};
             }
@@ -492,7 +493,7 @@ namespace kk {
             
             while(i != _obtainViews.end()) {
                 
-                auto q = i->second;
+                auto & q = i->second;
                 auto n = q.begin();
                 
                 while(n != q.end()) {

@@ -72,6 +72,8 @@ namespace kk {
         
         virtual kk::Strong<Object> dataSet();
         
+        virtual void recycle();
+        
         Ker_CLASS(Element,EventEmitter,"Element")
         
         static void Openlib();

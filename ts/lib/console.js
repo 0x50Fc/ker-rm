@@ -6,7 +6,13 @@
 			var v = args[i];
 			switch (typeof v) {
 				case 'object':
-					vs.push(JSON.stringify(v, undefined, 4));
+					var s;
+					try {
+						s = JSON.stringify(v, undefined, 4);
+					} catch(e) {
+						s = v + '';
+					}
+					vs.push(s);
 					break;
 				default:
 					vs.push(v + '');

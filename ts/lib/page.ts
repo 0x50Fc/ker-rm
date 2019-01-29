@@ -75,6 +75,7 @@ namespace ker {
 
         page.on("ready", function () {
 
+            context.page = page;
             context.view = page.view;
 
             element.setFrame(0, 0, page.width, page.height);

@@ -12,7 +12,7 @@ namespace kk {
 
     namespace audio {
         
-        AudioQueue::AudioQueue(AudioCodec * codec):_codec(codec),_state(AudioQueueStateNone) {
+        AudioQueue::AudioQueue(AudioCodec * codec):_codec(codec),_state(AudioQueueStateNone),_duration(0) {
             
         }
         
@@ -77,6 +77,11 @@ namespace kk {
             emit("done", e);
         }
         
+        kk::Uint64 AudioQueue::duration() {
+            return _duration;
+        }
+        
+        
         AudioQueueInput::AudioQueueInput(AudioCodec * codec,OutputStream * output):AudioQueue(codec),_output(output){
 
         }
@@ -140,12 +145,19 @@ namespace kk {
                     kk::PutMethod(ctx,-1,"resume",&AudioQueue::resume);
                     kk::PutProperty(ctx, -1, "state", &AudioQueue::state);
                     kk::PutProperty(ctx, -1, "codec", &AudioQueue::codec);
+                    kk::PutProperty(ctx, -1, "duration", &AudioQueue::duration);
                     
                 });
                 
                 kk::PushClass<AudioQueueInput,AudioCodec*,OutputStream *>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutMethod(ctx,-1,"output",&AudioQueueInput::output);
+                    
+                });
+                
+                kk::PushClass<AudioQueueOutput,AudioCodec*,InputStream *>(ctx, [](duk_context * ctx)->void{
+                    
+                    kk::PutMethod(ctx,-1,"input",&AudioQueueOutput::input);
                     
                 });
             });

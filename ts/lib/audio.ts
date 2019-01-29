@@ -26,8 +26,8 @@ namespace ker {
     }
 
     export interface KerAudioStartRecordRes {
-        readonly tempFilePath: string
         readonly tempFile: File
+        readonly duration: number
     }
 
     export interface KerAudioStartRecordObject {
@@ -40,45 +40,170 @@ namespace ker {
 
         recycle();
 
-        file = app.openTempFile("ker_startRecord_", ".spx");
-        
-        let input = file.openOutputStream();
-        let buffer = new BufferOutputStream(input, 2048);
+        Audio.startSession(Audio.Record, (errmsg?: string): void => {
 
-        output = new SpeexFileOutputStream(buffer);
+            if (errmsg) {
+                if (object.fail !== undefined) {
+                    object.fail(errmsg);
+                }
+                if (object.complete !== undefined) {
+                    object.complete();
+                }
+            } else {
 
-        queue = new AudioQueueInput(output.codec, output);
+                file = app.openTempFile("ker_startRecord_", ".spx");
 
-        queue.on("error", function (e: Event) {
-            if (object.fail !== undefined) {
-                object.fail(e.data.errmsg);
-            }
-            if (object.complete !== undefined) {
-                object.complete();
-            }
-            recycle();
-        });
+                let input = file.openOutputStream();
+                let buffer = new BufferOutputStream(input, 2048);
 
-        queue.on("done", function (e: Event) {
-            if (object.success !== undefined) {
-                object.success({
-                    tempFile: file,
-                    tempFilePath: file.name
+                output = new SpeexFileOutputStream(buffer);
+
+                queue = new AudioQueueInput(output.codec, output);
+
+                queue.on("error", function (e: Event) {
+                    if (object.fail !== undefined) {
+                        object.fail(e.data.errmsg);
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    recycle();
                 });
+
+                queue.on("done", function (e: Event) {
+                    if (object.success !== undefined) {
+                        object.success({
+                            tempFile: file,
+                            duration: queue.duration
+                        });
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    recycle();
+                });
+
+                queue.start();
             }
-            if (object.complete !== undefined) {
-                object.complete();
-            }
-            recycle();
         });
-
-        queue.start();
-
     }
 
     export function stopRecord(): void {
         if (queue !== undefined) {
             queue.stop()
+        }
+    }
+
+    export interface AudioPlayVoiceObject {
+        file: File
+        success?: () => void
+        fail?: (errmsg?: string) => void
+        complete?: () => void
+    }
+
+    export interface AudioStopVoiceObject {
+        success?: () => void
+        fail?: (errmsg?: string) => void
+        complete?: () => void
+    }
+
+    let playQueue: AudioQueueOutput | undefined
+    let playInput: SpeexFileInputStream | undefined;
+
+    function playRecycle(): void {
+
+        if (playQueue !== undefined) {
+            playQueue.off();
+            playQueue.stop();
+            playQueue = undefined;
+        }
+
+        if (playInput !== undefined) {
+            playInput.close();
+            playInput = undefined;
+        }
+
+    }
+
+    export function playVoice(object: AudioPlayVoiceObject): void {
+
+        playRecycle();
+
+        Audio.startSession(Audio.Ambient, (errmsg?: string): void => {
+
+            if (errmsg) {
+                if (object.fail !== undefined) {
+                    object.fail(errmsg);
+                }
+                if (object.complete !== undefined) {
+                    object.complete();
+                }
+            } else {
+
+                let input = object.file.openInputStream();
+
+                if(input === undefined) {
+                    if (object.fail !== undefined) {
+                        object.fail("未找到文件");
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    return;
+                }
+
+                let buffer = new BufferInputStream(input, 2048);
+
+                playInput = new SpeexFileInputStream(buffer);
+
+                if(playInput === undefined || playInput.codec === undefined) {
+                    playRecycle();
+                    if (object.fail !== undefined) {
+                        object.fail("无法识别文件");
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    return;
+                }
+
+                playQueue = new AudioQueueOutput(playInput.codec, playInput);
+
+                playQueue.on("error", function (e: Event) {
+                    if (object.fail !== undefined) {
+                        object.fail(e.data.errmsg);
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    playRecycle();
+                });
+
+                playQueue.on("done", function (e: Event) {
+                    if (object.success !== undefined) {
+                        object.success();
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    playRecycle();
+                });
+
+                playQueue.start();
+
+            }
+        });
+
+
+    }
+
+    export function stopVoice(object: AudioStopVoiceObject): void {
+        playRecycle();
+        if (object.success !== undefined) {
+            object.success();
+        }
+        if (object.complete !== undefined) {
+            object.complete();
         }
     }
 }

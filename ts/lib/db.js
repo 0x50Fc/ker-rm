@@ -108,7 +108,7 @@ var ker;
                 else if (items && items.length > 0) {
                     var e = JSON.parse(items[0]['value']);
                     var fds = {};
-                    var sql = [];
+                    var hasUpdate = false;
                     for (var _i = 0, _a = e.fields; _i < _a.length; _i++) {
                         var fd = _a[_i];
                         fds[fd.name] = fd;
@@ -117,8 +117,9 @@ var ker;
                         var fd = _c[_b];
                         var f = fds[fd.name];
                         if (f === undefined) {
+                            var sql = [];
                             sql.push('ALTER TABLE [');
-                            sql.push("entry.name");
+                            sql.push(entry.name);
                             sql.push("] ADD [");
                             sql.push(fd.name);
                             sql.push("] ");
@@ -126,10 +127,18 @@ var ker;
                             sql.push(" DEFAULT ");
                             sql.push(DBSQLDefaultValue(fd));
                             sql.push("; ");
+                            console.info("[SQL]", sql.join(''));
+                            _this._db.exec(sql.join(''), [], function (id, errmsg) {
+                                if (errmsg !== undefined) {
+                                    console.error("[DBContext] [addEntry]", errmsg);
+                                }
+                            });
+                            hasUpdate = true;
                         }
                         else if (f.type != fd.type || f.length != fd.length) {
+                            var sql = [];
                             sql.push('ALTER TABLE [');
-                            sql.push("entry.name");
+                            sql.push(entry.name);
                             sql.push("] CHANGE [");
                             sql.push(fd.name);
                             sql.push("] [");
@@ -139,8 +148,16 @@ var ker;
                             sql.push(" DEFAULT ");
                             sql.push(DBSQLDefaultValue(fd));
                             sql.push("; ");
+                            console.info("[SQL]", sql.join(''));
+                            _this._db.exec(sql.join(''), [], function (id, errmsg) {
+                                if (errmsg !== undefined) {
+                                    console.error("[DBContext] [addEntry]", errmsg);
+                                }
+                            });
+                            hasUpdate = true;
                         }
                         else if (fd.index != DBIndexType.NONE && f.index == DBIndexType.NONE) {
+                            var sql = [];
                             sql.push('CREATE INDEX [');
                             sql.push(entry.name);
                             sql.push('_');
@@ -157,17 +174,18 @@ var ker;
                                 sql.push('ASC');
                             }
                             sql.push(');');
+                            console.info("[SQL]", sql.join(''));
+                            _this._db.exec(sql.join(''), [], function (id, errmsg) {
+                                if (errmsg !== undefined) {
+                                    console.error("[DBContext] [addEntry]", errmsg);
+                                }
+                            });
+                            hasUpdate = true;
                         }
                     }
-                    if (sql.length > 0) {
-                        console.info("[SQL]", sql.join(''));
-                        _this._db.exec(sql.join(''), [], function (id, errmsg) {
-                            if (errmsg !== undefined) {
-                                console.error("[DBContext] [addEntry]", errmsg);
-                            }
-                        });
-                        console.info("[SQL]", "UPDATE __entrys SET value=? WHERE key=?;");
-                        _this._db.exec("UPDATE __entrys SET value=? WHERE key=?;", [JSON.stringify(entry), entry.name], function (id, errmsg) {
+                    if (hasUpdate) {
+                        console.info("[SQL]", "UPDATE __entrys SET value=? WHERE name=?;");
+                        _this._db.exec("UPDATE __entrys SET value=? WHERE name=?;", [JSON.stringify(entry), entry.name], function (id, errmsg) {
                             if (errmsg !== undefined) {
                                 console.error("[DBContext] [addEntry]", errmsg);
                             }

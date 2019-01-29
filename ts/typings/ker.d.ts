@@ -51,6 +51,7 @@ declare class Element extends EventEmitter {
     object(key: string): any
     dispatchEvent(name: string, event: Event): void
     toString(): string
+    recycle(): void
     readonly dataSet: any
 }
 
@@ -222,6 +223,7 @@ declare class UIViewElement extends LayoutElement {
 declare class UIViewContext extends LayoutContext {
     constructor(app: UIApp)
     view: UIView | undefined
+    page: UIPage | undefined
     obtainView(element: UIViewElement): void
 }
 
@@ -300,11 +302,17 @@ declare class AudioQueue extends EventEmitter {
     stop(): void
     resume(): void
     pause(): void
+    readonly duration:number
 }
 
 declare class AudioQueueInput extends AudioQueue {
     constructor(codec: AudioCodec, output: OutputStream);
     readonly output: OutputStream
+}
+
+declare class AudioQueueOutput extends AudioQueue {
+    constructor(codec: AudioCodec, input: InputStream);
+    readonly input: InputStream
 }
 
 declare class SpeexCodec implements AudioCodec {
@@ -373,8 +381,8 @@ declare class File implements Blob {
     remove(done?: () => void): void
     move(to: File, done?: () => void): void
     copy(to: File, done?: () => void): void
-    openInputStream():InputStream
-    openOutputStream(append?:boolean):OutputStream
+    openInputStream(): InputStream
+    openOutputStream(append?: boolean): OutputStream
 }
 
 type FileList = File[]
@@ -394,23 +402,23 @@ declare class FileReader extends EventEmitter {
     onerror?: EventFunction
 }
 
-declare class URIQueryObject{
-    [key:string]:string    
+declare class URIQueryObject {
+    [key: string]: string
 }
 
 declare class URI {
-    constructor(v:string)
-    scheme:string
-    host:string
-    hostname:string
-    port:string
-    query:string
-    fragment:string
-    path:string
-    readonly queryObject:URIQueryObject
-    get(key:string):string
-    set(keu:string,value:string):void
-    toString():string
+    constructor(v: string)
+    scheme: string
+    host: string
+    hostname: string
+    port: string
+    query: string
+    fragment: string
+    path: string
+    readonly queryObject: URIQueryObject
+    get(key: string): string
+    set(keu: string, value: string): void
+    toString(): string
 }
 
 declare var app: UIApp

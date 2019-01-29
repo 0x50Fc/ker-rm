@@ -70,8 +70,8 @@ namespace kk {
                     _http->send();
                 }
             } else {
-                _appkey = C.MD5(URI);
-                _appkey = "9c0c6d7cba325384fbf72a9b8d85f092";
+                kk::String p = ResolveURI(u.path());
+                _appkey = C.MD5(p.c_str());
                 _path = u.path();
                 struct stat st;
                 if(-1 != stat(_path.c_str(), &st)) {

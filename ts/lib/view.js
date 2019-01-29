@@ -90,10 +90,7 @@ var ker;
                     while (index < elements_1.length) {
                         var e = elements_1.pop();
                         var d = datas_1.pop();
-                        if (e instanceof UIViewElement) {
-                            e.recycleView();
-                        }
-                        e.off();
+                        e.recycle();
                         e.remove();
                         d.recycle();
                     }
@@ -123,10 +120,7 @@ var ker;
                     return true;
                 }
                 else if (e !== undefined) {
-                    if (e instanceof UIViewElement) {
-                        e.recycleView();
-                    }
-                    e.off();
+                    e.recycle();
                     e.remove();
                     e = undefined;
                     d.recycle();

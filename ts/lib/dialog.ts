@@ -1,3 +1,4 @@
+
 namespace ker {
 
     export class Dialog {
@@ -10,9 +11,11 @@ namespace ker {
         private _data: Data;
         private _onLayout: EventFunction
         private _layouting: boolean
+        private _object:ViewObject
 
-        constructor() {
-            this._data = new Data(global);
+        constructor(object: ViewObject) {
+            this._object = object;
+            this._data = new Data(object);
             this._view = app.createView("view");
             this._viewContext = new UIViewContext(app);
             this._viewContext.view = this._view;
@@ -69,15 +72,15 @@ namespace ker {
             return this._document
         }
 
-        create(object: ViewObject, func: (element: Element, data: Data, V: ViewElementFuntion, E: ViewEvaluateFuntion) => void): void {
-            View(this._document, object, (V: ViewElementFuntion, E: ViewEvaluateFuntion): void => {
+        create(func: (element: Element, data: Data, V: ViewElementFuntion, E: ViewEvaluateFuntion) => void): void {
+            View(this._document, this._object, (V: ViewElementFuntion, E: ViewEvaluateFuntion): void => {
                 func(this._viewElement, this._data, V, E)
             });
             this.setLayout();
         }
 
-        open(path: string, object: ViewObject): void {
-            View(this._document, object, (V: ViewElementFuntion, E: ViewEvaluateFuntion): void => {
+        open(path: string): void {
+            View(this._document, this._object, (V: ViewElementFuntion, E: ViewEvaluateFuntion): void => {
                 app.exec(path, {
                     element: this._viewElement,
                     data: this._data,

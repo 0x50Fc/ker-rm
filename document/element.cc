@@ -543,6 +543,10 @@ namespace kk  {
         return v;
     }
     
+    void Element::recycle() {
+        off();
+    }
+    
     void Element::Openlib() {
         
         kk::Openlib<>::add([](duk_context * ctx)->void{
@@ -571,6 +575,7 @@ namespace kk  {
                 kk::PutMethod<Element,kk::Object *,kk::CString>(ctx, -1, "object", &Element::object);
                 kk::PutMethod<Element,void,kk::CString,Event *>(ctx, -1, "dispatchEvent", &Element::dispatchEvent);
                 kk::PutMethod<Element,kk::String>(ctx, -1, "toString", &Element::toString);
+                kk::PutMethod<Element,void>(ctx, -1, "recycle", &Element::recycle);
                 
                 
             });

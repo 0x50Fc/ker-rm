@@ -32,6 +32,11 @@ namespace kk {
                 if(_view != nullptr) {
                     reloadPage();
                 }
+            } else if(kk::CStringEqual(key, "hidden")) {
+                if(_page != nullptr) {
+                    kk::Strong<Event> e = new Event();
+                    _page->emit( hidden ? "hide" : "show", e);
+                }
             }
         }
         

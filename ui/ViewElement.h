@@ -53,6 +53,7 @@ namespace kk {
             virtual void recycleView();
             virtual View * view();
             virtual void changedKey(CString key);
+            virtual void recycle();
             
             Ker_CLASS(ViewElement,LayoutElement,"UIViewElement")
             
@@ -71,6 +72,7 @@ namespace kk {
             virtual Strong<View> createView(ViewContext * context);
             virtual kk::Boolean isVisibleChildren(ViewElement * element);
             virtual kk::Boolean isVisible();
+            kk::Boolean _obtaining;
             Point _contentOffset;
             kk::Strong<View> _view;
             std::set<kk::String> _changedKeys;

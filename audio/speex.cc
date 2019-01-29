@@ -173,12 +173,14 @@ namespace kk {
             
             if(sizeof(data) != _input->read(data, sizeof(data))){
                 _input = nullptr;
+                return;
             }
             
             SpeexHeader * header = speex_packet_to_header(data, sizeof(data));
             
             if(!header){
                 _input = nullptr;
+                return;
             }
             
             _codec = new SpeexCodec();

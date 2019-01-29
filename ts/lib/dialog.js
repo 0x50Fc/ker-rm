@@ -1,9 +1,10 @@
 var ker;
 (function (ker) {
     var Dialog = /** @class */ (function () {
-        function Dialog() {
+        function Dialog(object) {
             var _this = this;
-            this._data = new ker.Data(global);
+            this._object = object;
+            this._data = new ker.Data(object);
             this._view = app.createView("view");
             this._viewContext = new UIViewContext(app);
             this._viewContext.view = this._view;
@@ -60,16 +61,16 @@ var ker;
             enumerable: true,
             configurable: true
         });
-        Dialog.prototype.create = function (object, func) {
+        Dialog.prototype.create = function (func) {
             var _this = this;
-            ker.View(this._document, object, function (V, E) {
+            ker.View(this._document, this._object, function (V, E) {
                 func(_this._viewElement, _this._data, V, E);
             });
             this.setLayout();
         };
-        Dialog.prototype.open = function (path, object) {
+        Dialog.prototype.open = function (path) {
             var _this = this;
-            ker.View(this._document, object, function (V, E) {
+            ker.View(this._document, this._object, function (V, E) {
                 app.exec(path, {
                     element: _this._viewElement,
                     data: _this._data,

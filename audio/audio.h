@@ -46,6 +46,7 @@ namespace kk {
             virtual void stop();
             virtual void resume();
             virtual void pause();
+            virtual kk::Uint64 duration();
             
             Ker_CLASS(AudioQueue, EventEmitter, "AudioQueue");
             
@@ -57,6 +58,7 @@ namespace kk {
             AudioQueueState _state;
             kk::Strong<DispatchQueue> _queue;
             kk::Strong<AudioCodec> _codec;
+            kk::Uint64 _duration;
         };
  
         typedef kk::Uint AudioSessionCategory;

@@ -89,6 +89,8 @@ declare namespace ker {
 
     class Dialog {
 
+        constructor(object: ViewObject);
+
         recycle(): void
 
         setLayout(): void
@@ -129,6 +131,7 @@ declare namespace ker {
     interface KerAudioStartRecordRes {
         readonly tempFilePath: string
         readonly tempFile: File
+        readonly duration: number
     }
 
     interface KerAudioStartRecordObject {
@@ -240,5 +243,25 @@ declare namespace ker {
         set(object: DBObject, entry: DBEntry, keys?: string[] | undefined, done?: (errmsg: string | undefined) => void): void
     }
 
+    function dateFormat(d: Date | string | number, fmt: string): string
+
     function Page(object: UIPageObject, page: UIPage, setTimeout: any): void
+
+    interface AudioPlayVoiceObject {
+        file:File
+        success?: () => void
+        fail?: (errmsg?: string) => void
+        complete?: () => void
+    }
+
+    interface AudioStopVoiceObject {
+        success?: () => void
+        fail?: (errmsg?: string) => void
+        complete?: () => void
+    }
+
+    function playVoice(object:AudioPlayVoiceObject):void
+
+    function stopVoice(object:AudioStopVoiceObject):void
+    
 }

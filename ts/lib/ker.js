@@ -7,7 +7,13 @@
 			var v = args[i];
 			switch (typeof v) {
 				case 'object':
-					vs.push(JSON.stringify(v, undefined, 4));
+					var s;
+					try {
+						s = JSON.stringify(v, undefined, 4);
+					} catch(e) {
+						s = v + '';
+					}
+					vs.push(s);
 					break;
 				default:
 					vs.push(v + '');
@@ -40,6 +46,34 @@
 	};
 
 })();
+var ker;
+(function (ker) {
+    function dateFormat(d, fmt) {
+        if (fmt === void 0) { fmt = "yyyy-MM-dd hh:mm:ss"; }
+        if (!(d instanceof Date)) {
+            d = new Date(parseInt(d + ''));
+        }
+        var o = {
+            "M+": d.getMonth() + 1,
+            "d+": d.getDate(),
+            "h+": d.getHours(),
+            "m+": d.getMinutes(),
+            "s+": d.getSeconds(),
+            "q+": Math.floor((d.getMonth() + 3) / 3),
+            "S": d.getMilliseconds() //毫秒 
+        };
+        fmt = fmt.replace(/(y+)/, d.getFullYear() + "");
+        for (var k in o) {
+            var v = o[k] + '';
+            if (v.length < 2) {
+                v = '0' + v;
+            }
+            fmt = fmt.replace(new RegExp("(" + k + ")"), v);
+        }
+        return fmt;
+    }
+    ker.dateFormat = dateFormat;
+})(ker || (ker = {}));
 var ker;
 (function (ker) {
     var Evaluate = /** @class */ (function () {
@@ -445,10 +479,7 @@ var ker;
                     while (index < elements_1.length) {
                         var e = elements_1.pop();
                         var d = datas_1.pop();
-                        if (e instanceof UIViewElement) {
-                            e.recycleView();
-                        }
-                        e.off();
+                        e.recycle();
                         e.remove();
                         d.recycle();
                     }
@@ -478,10 +509,7 @@ var ker;
                     return true;
                 }
                 else if (e !== undefined) {
-                    if (e instanceof UIViewElement) {
-                        e.recycleView();
-                    }
-                    e.off();
+                    e.recycle();
                     e.remove();
                     e = undefined;
                     d.recycle();
@@ -595,6 +623,7 @@ var ker;
             }
         });
         page.on("ready", function () {
+            context.page = page;
             context.view = page.view;
             element.setFrame(0, 0, page.width, page.height);
             layout();
@@ -654,33 +683,45 @@ var ker;
     }
     function startRecord(object) {
         recycle();
-        file = app.openTempFile("ker_startRecord_", ".spx");
-        var input = file.openOutputStream();
-        var buffer = new BufferOutputStream(input, 2048);
-        output = new SpeexFileOutputStream(buffer);
-        queue = new AudioQueueInput(output.codec, output);
-        queue.on("error", function (e) {
-            if (object.fail !== undefined) {
-                object.fail(e.data.errmsg);
+        Audio.startSession(Audio.Record, function (errmsg) {
+            if (errmsg) {
+                if (object.fail !== undefined) {
+                    object.fail(errmsg);
+                }
+                if (object.complete !== undefined) {
+                    object.complete();
+                }
             }
-            if (object.complete !== undefined) {
-                object.complete();
-            }
-            recycle();
-        });
-        queue.on("done", function (e) {
-            if (object.success !== undefined) {
-                object.success({
-                    tempFile: file,
-                    tempFilePath: file.name
+            else {
+                file = app.openTempFile("ker_startRecord_", ".spx");
+                var input = file.openOutputStream();
+                var buffer = new BufferOutputStream(input, 2048);
+                output = new SpeexFileOutputStream(buffer);
+                queue = new AudioQueueInput(output.codec, output);
+                queue.on("error", function (e) {
+                    if (object.fail !== undefined) {
+                        object.fail(e.data.errmsg);
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    recycle();
                 });
+                queue.on("done", function (e) {
+                    if (object.success !== undefined) {
+                        object.success({
+                            tempFile: file,
+                            duration: queue.duration
+                        });
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    recycle();
+                });
+                queue.start();
             }
-            if (object.complete !== undefined) {
-                object.complete();
-            }
-            recycle();
         });
-        queue.start();
     }
     ker.startRecord = startRecord;
     function stopRecord() {
@@ -689,6 +730,87 @@ var ker;
         }
     }
     ker.stopRecord = stopRecord;
+    var playQueue;
+    var playInput;
+    function playRecycle() {
+        if (playQueue !== undefined) {
+            playQueue.off();
+            playQueue.stop();
+            playQueue = undefined;
+        }
+        if (playInput !== undefined) {
+            playInput.close();
+            playInput = undefined;
+        }
+    }
+    function playVoice(object) {
+        playRecycle();
+        Audio.startSession(Audio.Ambient, function (errmsg) {
+            if (errmsg) {
+                if (object.fail !== undefined) {
+                    object.fail(errmsg);
+                }
+                if (object.complete !== undefined) {
+                    object.complete();
+                }
+            }
+            else {
+                var input = object.file.openInputStream();
+                if (input === undefined) {
+                    if (object.fail !== undefined) {
+                        object.fail("未找到文件");
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    return;
+                }
+                var buffer = new BufferInputStream(input, 2048);
+                playInput = new SpeexFileInputStream(buffer);
+                if (playInput === undefined || playInput.codec === undefined) {
+                    playRecycle();
+                    if (object.fail !== undefined) {
+                        object.fail("无法识别文件");
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    return;
+                }
+                playQueue = new AudioQueueOutput(playInput.codec, playInput);
+                playQueue.on("error", function (e) {
+                    if (object.fail !== undefined) {
+                        object.fail(e.data.errmsg);
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    playRecycle();
+                });
+                playQueue.on("done", function (e) {
+                    if (object.success !== undefined) {
+                        object.success();
+                    }
+                    if (object.complete !== undefined) {
+                        object.complete();
+                    }
+                    playRecycle();
+                });
+                playQueue.start();
+            }
+        });
+    }
+    ker.playVoice = playVoice;
+    function stopVoice(object) {
+        playRecycle();
+        if (object.success !== undefined) {
+            object.success();
+        }
+        if (object.complete !== undefined) {
+            object.complete();
+        }
+    }
+    ker.stopVoice = stopVoice;
 })(ker || (ker = {}));
 var ker;
 (function (ker) {
@@ -947,7 +1069,7 @@ var ker;
                 else if (items && items.length > 0) {
                     var e = JSON.parse(items[0]['value']);
                     var fds = {};
-                    var sql = [];
+                    var hasUpdate = false;
                     for (var _i = 0, _a = e.fields; _i < _a.length; _i++) {
                         var fd = _a[_i];
                         fds[fd.name] = fd;
@@ -956,8 +1078,9 @@ var ker;
                         var fd = _c[_b];
                         var f = fds[fd.name];
                         if (f === undefined) {
+                            var sql = [];
                             sql.push('ALTER TABLE [');
-                            sql.push("entry.name");
+                            sql.push(entry.name);
                             sql.push("] ADD [");
                             sql.push(fd.name);
                             sql.push("] ");
@@ -965,10 +1088,18 @@ var ker;
                             sql.push(" DEFAULT ");
                             sql.push(DBSQLDefaultValue(fd));
                             sql.push("; ");
+                            console.info("[SQL]", sql.join(''));
+                            _this._db.exec(sql.join(''), [], function (id, errmsg) {
+                                if (errmsg !== undefined) {
+                                    console.error("[DBContext] [addEntry]", errmsg);
+                                }
+                            });
+                            hasUpdate = true;
                         }
                         else if (f.type != fd.type || f.length != fd.length) {
+                            var sql = [];
                             sql.push('ALTER TABLE [');
-                            sql.push("entry.name");
+                            sql.push(entry.name);
                             sql.push("] CHANGE [");
                             sql.push(fd.name);
                             sql.push("] [");
@@ -978,8 +1109,16 @@ var ker;
                             sql.push(" DEFAULT ");
                             sql.push(DBSQLDefaultValue(fd));
                             sql.push("; ");
+                            console.info("[SQL]", sql.join(''));
+                            _this._db.exec(sql.join(''), [], function (id, errmsg) {
+                                if (errmsg !== undefined) {
+                                    console.error("[DBContext] [addEntry]", errmsg);
+                                }
+                            });
+                            hasUpdate = true;
                         }
                         else if (fd.index != DBIndexType.NONE && f.index == DBIndexType.NONE) {
+                            var sql = [];
                             sql.push('CREATE INDEX [');
                             sql.push(entry.name);
                             sql.push('_');
@@ -996,17 +1135,18 @@ var ker;
                                 sql.push('ASC');
                             }
                             sql.push(');');
+                            console.info("[SQL]", sql.join(''));
+                            _this._db.exec(sql.join(''), [], function (id, errmsg) {
+                                if (errmsg !== undefined) {
+                                    console.error("[DBContext] [addEntry]", errmsg);
+                                }
+                            });
+                            hasUpdate = true;
                         }
                     }
-                    if (sql.length > 0) {
-                        console.info("[SQL]", sql.join(''));
-                        _this._db.exec(sql.join(''), [], function (id, errmsg) {
-                            if (errmsg !== undefined) {
-                                console.error("[DBContext] [addEntry]", errmsg);
-                            }
-                        });
-                        console.info("[SQL]", "UPDATE __entrys SET value=? WHERE key=?;");
-                        _this._db.exec("UPDATE __entrys SET value=? WHERE key=?;", [JSON.stringify(entry), entry.name], function (id, errmsg) {
+                    if (hasUpdate) {
+                        console.info("[SQL]", "UPDATE __entrys SET value=? WHERE name=?;");
+                        _this._db.exec("UPDATE __entrys SET value=? WHERE name=?;", [JSON.stringify(entry), entry.name], function (id, errmsg) {
                             if (errmsg !== undefined) {
                                 console.error("[DBContext] [addEntry]", errmsg);
                             }
@@ -1172,9 +1312,10 @@ var ker;
 var ker;
 (function (ker) {
     var Dialog = /** @class */ (function () {
-        function Dialog() {
+        function Dialog(object) {
             var _this = this;
-            this._data = new ker.Data(global);
+            this._object = object;
+            this._data = new ker.Data(object);
             this._view = app.createView("view");
             this._viewContext = new UIViewContext(app);
             this._viewContext.view = this._view;
@@ -1231,16 +1372,16 @@ var ker;
             enumerable: true,
             configurable: true
         });
-        Dialog.prototype.create = function (object, func) {
+        Dialog.prototype.create = function (func) {
             var _this = this;
-            ker.View(this._document, object, function (V, E) {
+            ker.View(this._document, this._object, function (V, E) {
                 func(_this._viewElement, _this._data, V, E);
             });
             this.setLayout();
         };
-        Dialog.prototype.open = function (path, object) {
+        Dialog.prototype.open = function (path) {
             var _this = this;
-            ker.View(this._document, object, function (V, E) {
+            ker.View(this._document, this._object, function (V, E) {
                 app.exec(path, {
                     element: _this._viewElement,
                     data: _this._data,
@@ -1277,11 +1418,11 @@ var ker;
 (function (ker) {
     var ToastView = /** @class */ (function (_super) {
         __extends(ToastView, _super);
-        function ToastView() {
-            return _super !== null && _super.apply(this, arguments) || this;
+        function ToastView(object) {
+            return _super.call(this, object) || this;
         }
-        ToastView.prototype.create = function (object) {
-            _super.prototype.create.call(this, object, function (element, data, V, E) {
+        ToastView.prototype.create = function () {
+            _super.prototype.create.call(this, function (element, data, V, E) {
                 V(element, data, "body", {
                     'max-width': '400rpx',
                     'padding': '20rpx',
@@ -1305,8 +1446,8 @@ var ker;
             object.duration = 1500;
         }
         var id = (++audoId) + '';
-        var view = new ToastView();
-        view.create({});
+        var view = new ToastView({});
+        view.create();
         view.setData({
             title: object.title
         });

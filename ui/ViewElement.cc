@@ -44,7 +44,7 @@ namespace kk {
             element->obtainView(this);
         }
         
-        ViewElement::ViewElement(Document * document,CString name, ElementKey elementId):kk::LayoutElement(document,name,elementId) {
+        ViewElement::ViewElement(Document * document,CString name, ElementKey elementId):kk::LayoutElement(document,name,elementId),_obtaining(false) {
             
         }
         
@@ -131,7 +131,7 @@ namespace kk {
                 
                 if(isVisibleChildren(e)) {
                     e->obtainView(context);
-                } else if(canRecycleView()){
+                } else if(e->canRecycleView()){
                     e->recycleView();
                 }
                 
@@ -174,6 +174,8 @@ namespace kk {
         void ViewElement::obtainView(ViewContext * context) {
             
             if(_view == nullptr) {
+                
+                _obtaining = true;
                 
                 View * v = nullptr;
                 
@@ -225,6 +227,7 @@ namespace kk {
             if(_view != nullptr) {
                 obtainViewKey(context);
                 obtainChildrenView(context);
+                _obtaining = false;
             }
             
         }
@@ -241,6 +244,11 @@ namespace kk {
                 }
                 _changedKeys.clear();
             }
+        }
+        
+        void ViewElement::recycle() {
+            recycleView();
+            LayoutElement::recycle();
         }
         
         void ViewElement::recycleView() {
@@ -299,7 +307,7 @@ namespace kk {
             if(kk::CStringEqual(name, "scroll")) {
                 if(_view != nullptr) {
                     Point p = _view->contentOffset();
-                    setContentOffset(context, p.y, p.y);
+                    setContentOffset(context, p.x, p.y);
                 }
             } else if(kk::CStringEqual(name, "hover")) {
                 addStatus("hover");
@@ -362,13 +370,13 @@ namespace kk {
             }
             
             if(kk::CStringEqual(key, "scrollToTop") && value && !kk::CStringEqual(value, "false")) {
-                view->scrollToTop(true);
+                view->scrollToTop(!_obtaining);
             } else if(kk::CStringEqual(key, "scrollToBottom") && value && !kk::CStringEqual(value, "false")) {
-                view->scrollToBottom(true);
+                view->scrollToBottom(!_obtaining);
             } else if(kk::CStringEqual(key, "scrollToLeft") && value && !kk::CStringEqual(value, "false")) {
-                view->scrollToLeft(true);
+                view->scrollToLeft(!_obtaining);
             } else if(kk::CStringEqual(key, "scrollToRight") && value && !kk::CStringEqual(value, "false")) {
-                view->scrollToRight(true);
+                view->scrollToRight(!_obtaining);
             } else if(kk::CStringEqual(key, "border-radius")) {
                 ViewElementSetPixelValue(context, view, key, value);
             } else if(kk::CStringEqual(key, "border-width")) {

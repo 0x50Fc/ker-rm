@@ -18,9 +18,10 @@ namespace kk {
         class AudioQueueInputCallback {
         public:
             
-            AudioQueueInputCallback(AudioCodec * codec,OutputStream * output):_codec(codec),_output(output),_cancel(false){
+            AudioQueueInputCallback(AudioCodec * codec,OutputStream * output):_codec(codec),_output(output),_cancel(false),_duration(0){
                 _size = codec->packageBytes();
                 _data = malloc(codec->packageBytes());
+                _preDuration = codec->frameSize() * 1000 / codec->samplingRate();
             }
             
             virtual ~AudioQueueInputCallback() {
@@ -31,6 +32,7 @@ namespace kk {
                 memset(_data, 0, _size);
                 _codec->encode(data, _data);
                 _output->write(_data, _size);
+                _duration += _preDuration;
             }
             
             virtual void cancel() {
@@ -41,12 +43,18 @@ namespace kk {
                 return _cancel;
             }
             
+            virtual kk::Uint64 duration() {
+                return _duration;
+            }
+            
         protected:
             kk::Strong<OutputStream> _output;
             kk::Strong<AudioCodec> _codec;
             void * _data;
             size_t _size;
             kk::Boolean _cancel;
+            kk::Uint64 _duration;
+            kk::Uint64 _preDuration;
         };
         
         static void AudioQueueInput_AudioQueueInputCallback(
@@ -160,13 +168,18 @@ namespace kk {
                 
                 cb.cancel();
                 
+                _duration = cb.duration();
+                
                 AudioQueueStop(queue, true);
                 
-                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.017, true);
+                
+                for(int i=0;i<AUDIO_RECORD_BUFFER_SIZE;i++){
+                    
+                    AudioQueueFreeBuffer(queue,buffers[i]);
+                    
+                }
                 
                 AudioQueueDispose(queue, true);
-                
-                CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.017, true);
                 
                 doDone();
              
@@ -178,9 +191,11 @@ namespace kk {
         class AudioQueueOutputCallback {
         public:
             
-            AudioQueueOutputCallback(AudioCodec * codec,InputStream * input):_codec(codec),_input(input),_cancel(false),_length(0){
+            AudioQueueOutputCallback(AudioCodec * codec,InputStream * input):_codec(codec),_input(input),_cancel(false),_length(0),_duration(0){
                 _size = codec->packageBytes();
                 _data = (kk::Ubyte *) malloc(_size);
+                _frameBytes = codec->frameBytes();
+                _preDuration = codec->frameSize() * 1000 / codec->samplingRate();
             }
             
             virtual ~AudioQueueOutputCallback() {
@@ -203,8 +218,11 @@ namespace kk {
                     return false;
                 }
                 
+                memset(data, 0, _frameBytes);
                 _codec->decode(_data, _length, data);
                 _length = 0;
+                
+                _duration += _preDuration;
                 
                 return true;
             }
@@ -221,13 +239,20 @@ namespace kk {
                 return _size;
             }
             
+            virtual kk::Uint64 duration() {
+                return _duration;
+            }
+            
         protected:
             kk::Strong<InputStream> _input;
             kk::Strong<AudioCodec> _codec;
             kk::Ubyte * _data;
+            size_t _frameBytes;
             size_t _size;
             size_t _length;
             kk::Boolean _cancel;
+            kk::Uint64 _duration;
+            kk::Uint64 _preDuration;
         };
         
         static void AudioQueueOutput_AudioQueueOutputCallback(
@@ -237,9 +262,12 @@ namespace kk {
             
             AudioQueueOutputCallback * cb = (AudioQueueOutputCallback *) inUserData;
             
-            inBuffer->mAudioDataByteSize = (UInt32) cb->size();
+            if(cb->isCanceled()) {
+                return;
+            }
             
             if(cb->read(inBuffer->mAudioData)) {
+                inBuffer->mAudioDataByteSize = inBuffer->mAudioDataBytesCapacity;
                 AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, NULL);
             } else {
                 cb->cancel();
@@ -286,7 +314,7 @@ namespace kk {
                 AudioStreamBasicDescription format = {0};
                 
                 format.mFormatID = kAudioFormatLinearPCM;
-                format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+                format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger;
                 format.mChannelsPerFrame = 1;
                 format.mBitsPerChannel = 16;
                 format.mFramesPerPacket = 1;
@@ -314,6 +342,7 @@ namespace kk {
                 for(int i=0;i<AUDIO_RECORD_BUFFER_SIZE;i++){
                     
                     if(cb.read(buffers[i]->mAudioData)) {
+                        buffers[i]->mAudioDataByteSize = bufferSize;
                         AudioQueueEnqueueBuffer(queue, buffers[i], 0, NULL);
                     } else {
                         break;
@@ -350,6 +379,8 @@ namespace kk {
                 }
                 
                 cb.cancel();
+                
+                _duration = cb.duration();
                 
                 AudioQueueStop(queue, true);
                 
