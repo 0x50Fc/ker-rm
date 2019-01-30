@@ -302,7 +302,7 @@ declare class AudioQueue extends EventEmitter {
     stop(): void
     resume(): void
     pause(): void
-    readonly duration:number
+    readonly duration: number
 }
 
 declare class AudioQueueInput extends AudioQueue {
@@ -394,6 +394,8 @@ declare class FileReader extends EventEmitter {
     readonly readyState: number
     readonly result: string | ArrayBuffer | undefined
     readonly error: string | undefined
+    readonly md5: string
+    readonly size: number
     readAsText(v: Blob | File): void
     readAsDataURL(v: Blob | File): void
     readAsArrayBuffer(v: Blob | File): void

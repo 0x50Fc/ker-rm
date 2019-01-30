@@ -84,11 +84,14 @@ static const kk::Class * Class() { \
         virtual void lock();
         virtual void unlock();
         virtual void addObject(Object * object);
+        virtual void weak(Object * object,Object ** ptr);
+        virtual void unweak(Object * object,Object ** ptr);
         static Atomic * current();
     protected:
         pthread_mutex_t _lock;
         pthread_mutex_t _objectLock;
         std::queue<Object *> _objects;
+        std::map<Object *,std::set<Object **>> _weakObjects;
     };
     
     class Zombies {
@@ -107,7 +110,6 @@ static const kk::Class * Class() { \
         
     private:
         int _retainCount;
-        std::set<Object **> _weakObjects;
     public:
         
         Object();

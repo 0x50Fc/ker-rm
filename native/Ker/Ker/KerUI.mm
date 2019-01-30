@@ -63,7 +63,7 @@ namespace kk {
             
         }
         
-        void UI::execCommand(App * app,Command * command) {
+        void UI::execCommand(Command * command) {
             startTransaction();
             
             {
@@ -94,7 +94,7 @@ namespace kk {
                     
                     @autoreleasepool {
                         
-                        [KerUI execPageCommand:cmd app:app->appid()];
+                        [KerUI execPageCommand:cmd app:cmd->appid];
                         
                     }
                     
@@ -109,7 +109,7 @@ namespace kk {
                     
                     @autoreleasepool {
                         
-                        [KerUI execViewCommand:cmd app:app->appid()];
+                        [KerUI execViewCommand:cmd app:cmd->appid];
                         
                     }
                     
@@ -124,7 +124,7 @@ namespace kk {
                 if(cmd) {
                     
                     @autoreleasepool {
-                        [KerUI execCanvasCommand:cmd app:app->appid()];
+                        [KerUI execCanvasCommand:cmd app:cmd->appid];
                     }
                     
                     return;
@@ -491,6 +491,8 @@ static NSMutableDictionary * gKerUIViewClass = nil;
         [(UILabel *) view setAttributedText:string];
     } else if([view isKindOfClass:[UITextView class]]) {
         [(UITextView *) view setAttributedText:string];
+    } else if([view isKindOfClass:[UITextField class]]) {
+        [(UITextField *) view setAttributedText:string];
     }
 }
 
@@ -564,6 +566,30 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     
     [view removeFromSuperview];
     [[[UIApplication sharedApplication] keyWindow] addSubview:view];
+}
+
++(void) setPadding:(KerId) viewId
+              left:(CGFloat) left
+               top:(CGFloat) top
+             right:(CGFloat) right
+            bottom:(CGFloat) bottom {
+    
+    if(KerUIViews == nil) {
+        return ;
+    }
+    
+    id key = @(viewId);
+    
+    UIView * view = [KerUIViews objectForKey:key];
+    
+    if(view == nil) {
+        return;
+    }
+    
+    if([view isKindOfClass:[UIScrollView class]]) {
+        [(UIScrollView *) view setScrollIndicatorInsets:UIEdgeInsetsMake(top, left, bottom, right)];
+    }
+    
 }
 
 +(void) execViewCommand:(kk::ui::ViewCommand *) command app:(KerId) app {
@@ -809,6 +835,24 @@ static NSMutableDictionary * gKerUIViewClass = nil;
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 [KerUI showToScreen:viewId];
+            });
+            
+            return;
+        }
+    }
+    
+    {
+        kk::ui::ViewSetPaddingCommand * v = dynamic_cast<kk::ui::ViewSetPaddingCommand *>(command);
+        
+        if(v != nullptr) {
+            
+            kk::Uint64 viewId = v->viewId;
+            CGFloat left = (CGFloat) v->left;
+            CGFloat top = (CGFloat) v->top;
+            CGFloat right = (CGFloat) v->right;
+            CGFloat bottom = (CGFloat) v->bottom;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [KerUI setPadding:viewId left:left top:top right:right bottom:bottom];
             });
             
             return;

@@ -762,6 +762,9 @@ namespace kk {
         virtual void recycle(duk_context * ctx) = 0;
     };
     
+    class JSWeakObject {
+    };
+    
     class JSObject : public Object , public Copying, public Getter , public JSRecycle {
     public:
         JSObject(duk_context * ctx, void * heapptr);

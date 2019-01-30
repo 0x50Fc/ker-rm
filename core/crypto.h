@@ -18,6 +18,7 @@ namespace kk {
     public:
         Crypto();
         virtual ~Crypto();
+        virtual kk::String MD5(const void * data, size_t size);
         virtual kk::String MD5(kk::CString v);
         virtual void encodeBASE64(const void * data, size_t size,Buffer & buffer);
         virtual kk::Boolean decodeBASE64(kk::CString v, size_t length, Buffer & buffer);

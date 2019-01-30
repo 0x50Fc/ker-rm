@@ -590,7 +590,7 @@ namespace kk {
         return value(v.value, base, defaultValue, v.name.c_str());
     }
     
-    LayoutElement::LayoutElement(Document * document,CString name, ElementKey elementId):StyleElement(document,name,elementId),verticalAlign(VerticalAlignTop),hidden(false) {
+    LayoutElement::LayoutElement(Document * document,CString name, ElementKey elementId):StyleElement(document,name,elementId),verticalAlign(VerticalAlignTop),hidden(false),_layouting(false) {
         
     }
     
@@ -625,6 +625,31 @@ namespace kk {
             hidden = kk::CStringEqual(get(key), "true");
         }
         StyleElement::changedKey(key);
+    }
+    
+    void LayoutElement::setNeedLayout() {
+        
+        if(_layouting) {
+            return;
+        }
+        
+        LayoutElement * p = dynamic_cast<LayoutElement *>(parent());
+        if(p != nullptr) {
+            p->setNeedLayout();
+            return;
+        }
+        
+        _layouting = true;
+        kk::Weak<LayoutElement> v = this;
+        
+        getCurrentDispatchQueue()->async([v,this]()->void{
+            LayoutElement * element = v.operator->();
+            if(element != nullptr) {
+                _layouting = false;
+                kk::Strong<ElementEvent> e = new ElementEvent(element);
+                element->emit("layout",e);
+            }
+        });
     }
     
     void LayoutElement::onLayout(LayoutContext * context) {

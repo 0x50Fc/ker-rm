@@ -374,7 +374,12 @@ namespace kk {
         }
         
         duk_push_object(ctx);
-        SetObject(ctx, -1, object);
+        
+        if(dynamic_cast<JSWeakObject *>(object)) {
+            SetWeakObject(ctx, -1, object);
+        } else {
+            SetObject(ctx, -1, object);
+        }
         
         {
             NativeObject * v = dynamic_cast<NativeObject *>(object);
@@ -765,10 +770,18 @@ namespace kk {
                 duk_push_uint(ctx, any.uint32Value);
                 break;
             case TypeInt64:
-                duk_push_sprintf(ctx, "%lld",any.int64Value);
+                if((kk::Int64) (kk::Int) any.int64Value == any.int64Value) {
+                    duk_push_int(ctx, (duk_int_t) any.int64Value);
+                } else {
+                    duk_push_sprintf(ctx, "%lld",any.int64Value);
+                }
                 break;
             case TypeUint64:
-                duk_push_sprintf(ctx, "%llu",any.uint64Value);
+                if((kk::Uint64) (kk::Int) any.uint64Value == any.int64Value) {
+                    duk_push_int(ctx, (duk_int_t) any.uint64Value);
+                } else {
+                    duk_push_sprintf(ctx, "%llu",any.uint64Value);
+                }
                 break;
             case TypeBoolean:
                 duk_push_boolean(ctx, any.booleanValue);

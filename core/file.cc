@@ -429,6 +429,14 @@ namespace kk {
         return _result;
     }
     
+    kk::Uint64 FileReader::size() {
+        return _size;
+    }
+    
+    kk::CString FileReader::md5() {
+        return _md5.c_str();
+    }
+    
     void FileReader::read(kk::Blob * v,FileReaderType type) {
         
         if(v == nullptr || v->size() == 0) {
@@ -456,6 +464,10 @@ namespace kk {
             
             if(b->read(data)) {
  
+                Crypto C;
+                this->_size = b->size();
+                this->_md5 = C.MD5(data,b->size());
+                
                 switch (type) {
                     case FileReaderTypeText:
                         data[b->size()] = 0;
@@ -464,7 +476,7 @@ namespace kk {
                     case FileReaderTypeDataURL:
                     {
                         Buffer v;
-                        Crypto C;
+                        
                         v.format("data:%s;base64,",b->type());
                         C.encodeBASE64(data, b->size(), v);
                         this->_result = v.toCString();
@@ -475,6 +487,9 @@ namespace kk {
                         break;
                 }
                 
+                this->_queue->async([rd,this]()->void{
+                    this->doDone();
+                });
             } else {
                 this->_queue->async([rd,this]()->void{
                     this->doError("File Reader Error");
@@ -531,6 +546,10 @@ namespace kk {
                 kk::PutMethod(ctx, -1, "readAsText", &FileReader::readAsText);
                 kk::PutMethod(ctx, -1, "readAsDataURL", &FileReader::readAsDataURL);
                 kk::PutMethod(ctx, -1, "readAsArrayBuffer", &FileReader::readAsArrayBuffer);
+                kk::PutProperty(ctx, -1, "md5", &FileReader::md5);
+                kk::PutProperty(ctx, -1, "size", &FileReader::size);
+                kk::PutProperty(ctx, -1, "result", &FileReader::result);
+                
                 kk::PutMethod(ctx, -1, "abort", &FileReader::abort);
                 kk::PutProperty(ctx, -1, "onload", &FileReader::onload, &FileReader::setOnload);
                 kk::PutProperty(ctx, -1, "onerror", &FileReader::onerror, &FileReader::setOnerror);

@@ -245,6 +245,8 @@ declare namespace ker {
 
     function dateFormat(d: Date | string | number, fmt: string): string
 
+    function maxlength(s: string, maxlength: number, tail?: string): string
+
     function Page(object: UIPageObject, page: UIPage, setTimeout: any): void
 
     interface AudioPlayVoiceObject {
@@ -263,5 +265,5 @@ declare namespace ker {
     function playVoice(object:AudioPlayVoiceObject):void
 
     function stopVoice(object:AudioStopVoiceObject):void
-    
+
 }

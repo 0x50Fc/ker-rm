@@ -68,6 +68,7 @@ namespace kk {
         
         class CanvasCommand : public Command {
         public:
+            kk::Uint64 appid;
             kk::Uint64 canvasId;
         };
         
@@ -121,6 +122,7 @@ namespace kk {
         
         class ViewCommand : public Command {
         public:
+            kk::Uint64 appid;
             kk::Uint64 viewId;
         };
         
@@ -195,6 +197,14 @@ namespace kk {
         class ViewShowToScreenCommand : public ViewCommand {
         };
         
+        class ViewSetPaddingCommand : public ViewCommand {
+        public:
+            Float left;
+            Float top;
+            Float right;
+            Float bottom;
+        };
+        
         class View : public EventEmitter {
         public:
             View(kk::CString name,ViewConfiguration * configuration,App * app,kk::Uint64 viewId);
@@ -208,6 +218,7 @@ namespace kk {
             virtual void setContentSize(Float width,Float height);
             virtual void setContentOffset(Point & offset,kk::Boolean animated);
             virtual void setContentOffset(Float x,Float y,kk::Boolean animated);
+            virtual void setPadding(Float left,Float top,Float right,Float bottom);
             virtual void scrollToTop(kk::Boolean animated);
             virtual void scrollToBottom(kk::Boolean animated);
             virtual void scrollToLeft(kk::Boolean animated);

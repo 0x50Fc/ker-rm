@@ -19,6 +19,8 @@ namespace kk {
         PageElement::~PageElement() {
             if(_page != nullptr) {
                 _page->off("component.*", (EventFunction *) _onEvent);
+                _page->unload();
+                _page = nullptr;
             }
         }
         
@@ -106,6 +108,7 @@ namespace kk {
                 kk::Strong<Event> e = new Event();
                 ViewElement::emit("unload", e);
                 _page->off("component.*", (EventFunction *) _onEvent);
+                _page->unload();
                 _page = nullptr;
             }
         }

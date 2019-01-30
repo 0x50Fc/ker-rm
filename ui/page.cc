@@ -17,21 +17,11 @@ namespace kk {
             kk::Openlib<kk::ui::Page *>::add(std::move(func));
         }
         
-        Page::Page(App * app,kk::Uint64 pageId,kk::CString type):_app(app),_pageId(pageId),_librarys(new TObject<kk::String, kk::Any>()),_type(type),_heapptr(nullptr) {
+        Page::Page(App * app,kk::Uint64 pageId,kk::CString type):_app(app),_pageId(pageId),_librarys(new TObject<kk::String, kk::Any>()),_type(type) {
             
             app->queue()->sync([this]()->void{
                 
                 duk_context * ctx = _app->jsContext();
-                
-                kk::PushWeakObject(ctx, this);
-                
-                _heapptr = duk_get_heapptr(ctx, -1);
-                
-                duk_push_heap_stash(ctx);
-                duk_push_sprintf(ctx, "0x%x", (long) _heapptr);
-                duk_dup(ctx, -3);
-                duk_put_prop(ctx, -3);
-                duk_pop_2(ctx);
                 
                 _func = new kk::TFunction<void, kk::CString,kk::Event *>([this](kk::CString name,kk::Event * event)->void{
                     kk::String v("app.");
@@ -49,23 +39,38 @@ namespace kk {
         
         Page::~Page() {
 
-            _app->removePage(_pageId);
-            _app->off("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
-
+            if(_app != nullptr) {
+                _app->removePage(_pageId);
+                _app->off("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
+            }
+            
             if(_view != nullptr) {
                 _view->removeRecycleViews();
                 _view->removeAllSubviews();
             }
             
-            {
+            auto jitContext = JITContext::current();
+            
+            if(_librarys != nullptr){
+                auto i = _librarys->begin();
+                auto e = _librarys->end();
+                while(i != e) {
+                    auto & v = i->second;
+                    if(v.type == TypeObject || v.type == TypeFunction) {
+                        Object * a = v.objectValue;
+                        if(a != nullptr) {
+                            jitContext->remove(a);
+                        }
+                    }
+                    i ++;
+                }
+            }
+            
+            if(_app != nullptr) {
+                
                 duk_context * ctx = _app->jsContext();
-                
-                duk_push_heap_stash(ctx);
-                duk_push_sprintf(ctx, "0x%x",_heapptr);
-                duk_del_prop(ctx, -2);
-                duk_pop(ctx);
-                
-                JITContext::current()->remove(this);
+            
+                jitContext->remove(this);
                 
                 duk_gc(ctx, DUK_GC_COMPACT);
                 
@@ -129,7 +134,8 @@ namespace kk {
                 kk::Strong<PageSetLeftViewCommand> cmd = new PageSetLeftViewCommand();
                 cmd->pageId = _pageId;
                 cmd->viewId = v == nullptr ? 0:v->viewId();
-                _app->execCommand(cmd);
+                cmd->appid = _app->appid();
+                UI::main()->execCommand(cmd);
             }
             
         }
@@ -145,7 +151,8 @@ namespace kk {
                 kk::Strong<PageSetRightViewCommand> cmd = new PageSetRightViewCommand();
                 cmd->pageId = _pageId;
                 cmd->viewId = v == nullptr ? 0:v->viewId();
-                _app->execCommand(cmd);
+                cmd->appid = _app->appid();
+                UI::main()->execCommand(cmd);
             }
             
         }
@@ -161,7 +168,8 @@ namespace kk {
                 kk::Strong<PageSetTitleViewCommand> cmd = new PageSetTitleViewCommand();
                 cmd->pageId = _pageId;
                 cmd->viewId = v == nullptr ? 0:v->viewId();
-                _app->execCommand(cmd);
+                cmd->appid = _app->appid();
+                UI::main()->execCommand(cmd);
             }
             
         }
@@ -192,7 +200,8 @@ namespace kk {
                 kk::Strong<PageSetOptionsCommand> cmd = new PageSetOptionsCommand();
                 cmd->pageId = _pageId;
                 cmd->data = data;
-                _app->execCommand(cmd);
+                cmd->appid = _app->appid();
+                UI::main()->execCommand(cmd);
             }
         }
         
@@ -205,7 +214,8 @@ namespace kk {
                 kk::Strong<PageCloseCommand> cmd = new PageCloseCommand();
                 cmd->pageId = _pageId;
                 cmd->animated = animated;
-                _app->execCommand(cmd);
+                cmd->appid = _app->appid();
+                UI::main()->execCommand(cmd);
             }
         }
         
@@ -240,7 +250,7 @@ namespace kk {
                 
                 if(duk_pcall(ctx, 0) == DUK_EXEC_SUCCESS) {
                     
-                    duk_push_heapptr(ctx, _heapptr);
+                    PushWeakObject(ctx, this);
                     duk_push_string(ctx, path);
                     PushObject(ctx, query);
                     kk::String basePath = CStringPathDirname(path);

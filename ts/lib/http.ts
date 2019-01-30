@@ -78,6 +78,8 @@ namespace ker {
             }
         }
 
+        console.info("[HTTP]",url);
+
         let req = new HTTPRequest();
         let contentType: string | undefined;
 
@@ -102,9 +104,11 @@ namespace ker {
                 if (object.responseType == "arraybuffer") {
                     res.data = req.responseArrayBuffer
                 } else if (object.dataType === undefined || object.dataType == 'json') {
+                    let v = req.responseText;
                     try {
-                        res.data = JSON.parse(req.responseText);
+                        res.data = JSON.parse(v);
                     } catch (e) {
+                        console.info("[HTTP] [JSON] [ERROR]",v);
                         if (object.fail !== undefined) {
                             object.fail(e + '');
                         }
@@ -165,5 +169,7 @@ namespace ker {
 
         return new RequestTask(req);
     }
+
+    
 
 }

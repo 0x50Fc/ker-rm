@@ -102,6 +102,8 @@ namespace kk {
         virtual kk::CString error();
         virtual FileReaderState readyState();
         virtual kk::Any & result();
+        virtual kk::Uint64 size();
+        virtual kk::CString md5();
         
         Ker_CLASS(FileReader, EventEmitter, "FileReader")
         
@@ -116,6 +118,8 @@ namespace kk {
         FileReaderState _readyState;
         kk::Strong<JSObject> _onload;
         kk::Strong<JSObject> _onerror;
+        kk::String _md5;
+        kk::Uint64 _size;
     };
     
 }

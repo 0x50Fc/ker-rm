@@ -39,11 +39,11 @@ namespace ker {
         document.rootElement = element;
 
         let layout = function () {
+            layouting = false;
             if (page.view) {
                 context.layout(element);
                 context.obtainView(element);
             }
-            layouting = false;
         };
 
         let setLayout = function () {
@@ -65,7 +65,7 @@ namespace ker {
 
         page.on("unload", function () {
 
-            element.recycleView();
+            element.recycle();
 
             if (object.onunload !== undefined) {
                 object.onunload();

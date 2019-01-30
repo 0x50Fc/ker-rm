@@ -76,6 +76,26 @@ var ker;
 })(ker || (ker = {}));
 var ker;
 (function (ker) {
+    function maxlength(s, maxlength, tail) {
+        if (tail === void 0) { tail = "..."; }
+        var length = 0;
+        for (var i = 0; i < s.length; i++) {
+            var c = s.charCodeAt(i);
+            var len = 1;
+            if (c > 0x0ff) {
+                len = 2;
+            }
+            if (length + len > maxlength) {
+                return s.substr(0, i) + tail;
+            }
+            length += len;
+        }
+        return s;
+    }
+    ker.maxlength = maxlength;
+})(ker || (ker = {}));
+var ker;
+(function (ker) {
     var Evaluate = /** @class */ (function () {
         function Evaluate(evaluateScript, keys) {
             this.evaluateScript = evaluateScript;
@@ -598,11 +618,11 @@ var ker;
         }
         document.rootElement = element;
         var layout = function () {
+            layouting = false;
             if (page.view) {
                 context.layout(element);
                 context.obtainView(element);
             }
-            layouting = false;
         };
         var setLayout = function () {
             if (layouting) {
@@ -617,7 +637,7 @@ var ker;
             setLayout();
         });
         page.on("unload", function () {
-            element.recycleView();
+            element.recycle();
             if (object.onunload !== undefined) {
                 object.onunload();
             }
@@ -874,6 +894,7 @@ var ker;
                 }
             }
         }
+        console.info("[HTTP]", url);
         var req = new HTTPRequest();
         var contentType;
         if (object.header) {
@@ -895,10 +916,12 @@ var ker;
                     res.data = req.responseArrayBuffer;
                 }
                 else if (object.dataType === undefined || object.dataType == 'json') {
+                    var v = req.responseText;
                     try {
-                        res.data = JSON.parse(req.responseText);
+                        res.data = JSON.parse(v);
                     }
                     catch (e) {
+                        console.info("[HTTP] [JSON] [ERROR]", v);
                         if (object.fail !== undefined) {
                             object.fail(e + '');
                         }
@@ -1333,7 +1356,7 @@ var ker;
         Dialog.prototype.recycle = function () {
             screen.off("change", this._onLayout);
             this._data.off([]);
-            this._viewElement.recycleView();
+            this._element.recycle();
             this._view.removeView();
         };
         Dialog.prototype.layout = function () {

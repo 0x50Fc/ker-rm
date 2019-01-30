@@ -107,9 +107,7 @@ namespace kk {
                 }
             };
             
-            kk::Strong<AudioQueueInput> strong = this;
-            
-            _queue->async([strong,this,doError,doDone]()->void{
+            _queue->async([this,doError,doDone]()->void{
                 
                 AudioQueueInputCallback cb(_codec,_output);
                 
@@ -305,9 +303,7 @@ namespace kk {
                 }
             };
             
-            kk::Strong<AudioQueueOutput> strong = this;
-            
-            _queue->async([strong,this,doError,doDone]()->void{
+            _queue->async([this,doError,doDone]()->void{
                 
                 AudioQueueOutputCallback cb(_codec,_input);
                 

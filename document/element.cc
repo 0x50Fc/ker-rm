@@ -545,6 +545,11 @@ namespace kk  {
     
     void Element::recycle() {
         off();
+        Element * p = firstChild();
+        while(p) {
+            p->recycle();
+            p = p->nextSibling();
+        }
     }
     
     void Element::Openlib() {

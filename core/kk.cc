@@ -27,26 +27,6 @@ namespace kk {
             z->dealloc(this);
         }
         
-        Atomic * a = Atomic::current();
-        
-        if(a != nullptr) {
-            a->lock();
-        }
-        
-        std::set<Object **>::iterator i =_weakObjects.begin();
-        
-        while(i != _weakObjects.end()) {
-            Object ** v = * i;
-            if(v) {
-                *v = NULL;
-            }
-            i ++;
-        }
-        
-        if(a != nullptr) {
-            a->unlock();
-        }
-     
     }
     
     String Object::toString() {
@@ -112,12 +92,9 @@ namespace kk {
         
         Atomic * a = Atomic::current();
         if(a != nullptr) {
-            a->lock();
+            a->weak(this, ptr);
         }
-        _weakObjects.insert(ptr);
-        if(a != nullptr) {
-            a->unlock();
-        }
+        
     }
     
     void Object::unWeak(Object ** ptr) {
@@ -130,15 +107,9 @@ namespace kk {
         
         Atomic * a = Atomic::current();
         if(a != nullptr) {
-            a->lock();
+            a->unweak(this, ptr);
         }
-        std::set<Object **>::iterator i = _weakObjects.find(ptr);
-        if(i != _weakObjects.end()) {
-            _weakObjects.erase(i);
-        }
-        if(a != nullptr) {
-            a->unlock();
-        }
+        
     }
     
 #ifndef KER_ZOMBIES
@@ -179,6 +150,21 @@ namespace kk {
                 _objects.pop();
             }
             
+            if(v != nullptr) {
+                auto i = _weakObjects.find(v);
+                if(i != _weakObjects.end()) {
+                    auto & q = i->second;
+                    auto n = q.begin();
+                    auto e = q.end();
+                    while(n != e) {
+                        Object ** ptr = * n;
+                        * ptr = nullptr;
+                        n ++;
+                    }
+                    _weakObjects.erase(i);
+                }
+            }
+            
             pthread_mutex_unlock(&_objectLock);
             
             if(v != nullptr && v->retainCount() == 0) {
@@ -186,6 +172,40 @@ namespace kk {
             }
             
         } while (v);
+    }
+    
+    
+    void Atomic::weak(Object * object,Object ** ptr) {
+    
+        pthread_mutex_lock(&_objectLock);
+        
+        auto i = _weakObjects.find(object);
+        
+        if(i == _weakObjects.end()) {
+            _weakObjects[object] = {ptr};
+        } else {
+            i->second.insert(ptr);
+        }
+        
+        pthread_mutex_unlock(&_objectLock);
+    }
+    
+    void Atomic::unweak(Object * object,Object ** ptr) {
+        
+        pthread_mutex_lock(&_objectLock);
+        
+        auto i = _weakObjects.find(object);
+        
+        if(i != _weakObjects.end()) {
+            auto & s = i->second;
+            auto n = s.find(ptr);
+            if(n != s.end()) {
+                s.erase(n);
+            }
+        }
+        
+        pthread_mutex_unlock(&_objectLock);
+        
     }
     
     void Atomic::addObject(Object * object) {

@@ -44,7 +44,7 @@ namespace kk {
             element->obtainView(this);
         }
         
-        ViewElement::ViewElement(Document * document,CString name, ElementKey elementId):kk::LayoutElement(document,name,elementId),_obtaining(false) {
+        ViewElement::ViewElement(Document * document,CString name, ElementKey elementId):kk::LayoutElement(document,name,elementId),_obtaining(false),_autoLevelId(0),_levelId(0) {
             
         }
         
@@ -55,6 +55,55 @@ namespace kk {
                 onViewLayout();
             }
  
+        }
+        
+        void ViewElement::onDidAddChildren(Element * element) {
+            
+            ViewElement * e = dynamic_cast<ViewElement *>(element);
+            
+            if(e != nullptr) {
+                e->_levelId = ++ _autoLevelId;
+            }
+            
+            LayoutElement::onDidAddChildren(element);
+        }
+        
+        void ViewElement::onWillRemoveChildren(Element * element) {
+            LayoutElement::onWillRemoveChildren(element);
+            
+            ViewElement * e = dynamic_cast<ViewElement *>(element);
+            
+            if(e != nullptr) {
+                e->_levelId = 0;
+            }
+            
+        }
+        
+        kk::String ViewElement::reuse() {
+            kk::CString v = get("reuse");
+            if(v == nullptr) {
+                ViewElement * p = dynamic_cast<ViewElement *>( parent() );
+                if(p != nullptr) {
+                    kk::String n = p->reuse();
+                    if(!n.empty()) {
+                        n.append("_");
+                        n.append(_name);
+                        n.append("_");
+                        char fmt[255];
+                        snprintf(fmt, sizeof(fmt), "%d",_levelId);
+                        n.append(fmt);
+                        return n;
+                    }
+                }
+            }
+            return v == nullptr ? kk::String() : v;
+        }
+        
+        void ViewElement::setNeedLayout() {
+            if(_view == nullptr) {
+                return;
+            }
+            LayoutElement::setNeedLayout();
         }
         
         void ViewElement::onViewLayout() {
@@ -92,7 +141,11 @@ namespace kk {
         }
         
         kk::Boolean ViewElement::canRecycleView() {
-            return _view != nullptr && get("reuse") != nullptr;
+            if(_view == nullptr) {
+                return false;
+            }
+            kk::String s = reuse();
+            return !s.empty();
         }
         
         static void ViewElementObtainChildrenViewForEach(Element * p,std::function<void(ViewElement *)> && item) {
@@ -133,6 +186,7 @@ namespace kk {
                     e->obtainView(context);
                 } else if(e->canRecycleView()){
                     e->recycleView();
+                    e->recycleChildrenView();
                 }
                 
             });
@@ -191,7 +245,9 @@ namespace kk {
                         return;
                     }
                     
-                    _view = v->obtainView(get("reuse"));
+                    kk::String r = reuse();
+                    
+                    _view = v->obtainView(r.empty() ? nullptr : r.c_str());
                     
                     if(_view == nullptr) {
                         Strong<View> vv = createView(context);
@@ -247,6 +303,9 @@ namespace kk {
         }
         
         void ViewElement::recycle() {
+            if(_view != nullptr) {
+                _view->removeView();
+            }
             recycleView();
             LayoutElement::recycle();
         }
@@ -255,12 +314,26 @@ namespace kk {
             if(_view != nullptr) {
                 View * p = _view->parent();
                 if(p != nullptr) {
-                    p->recycleView(_view, get("reuse"));
+                    kk::String r = reuse();
+                    p->recycleView(_view, r.empty() ? nullptr : r.c_str());
                 } else {
                     _view->removeView();
                 }
                 onRecycleView(_view);
                 _view = nullptr;
+                keys(_changedKeys);
+            }
+        }
+        
+        void ViewElement::recycleChildrenView() {
+            Element * p = firstChild();
+            while(p){
+                ViewElement * e = dynamic_cast<ViewElement *>(p);
+                if(e != nullptr) {
+                    e->recycleView();
+                    e->recycleChildrenView();
+                }
+                p = p->nextSibling();
             }
         }
         
@@ -381,6 +454,12 @@ namespace kk {
                 ViewElementSetPixelValue(context, view, key, value);
             } else if(kk::CStringEqual(key, "border-width")) {
                 ViewElementSetPixelValue(context, view, key, value);
+            } else if(kk::CStringEqual(key, "padding")) {
+                kk::Edge e(value);
+                view->setPadding(context->value(e.left, 0, 0),
+                                 context->value(e.top, 0, 0),
+                                 context->value(e.right, 0, 0),
+                                 context->value(e.bottom, 0, 0));
             } else {
                 ViewElementSetStringValue(context, view, key, value);
             }

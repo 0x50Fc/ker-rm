@@ -18,6 +18,7 @@ namespace kk {
 
         class PageCommand : public Command {
         public:
+            kk::Uint64 appid;
             kk::Uint64 pageId;
         };
         
@@ -47,7 +48,7 @@ namespace kk {
         };
         
         
-        class Page : public EventEmitter , public kk::Container {
+        class Page : public EventEmitter , public kk::Container, public JSWeakObject {
         public:
             Page(App * app,kk::Uint64 pageId,kk::CString type);
             virtual ~Page();
@@ -84,8 +85,7 @@ namespace kk {
             Ker_CLASS(Page,EventEmitter,"UIPage")
             
         protected:
-            
-            kk::Strong<App> _app;
+            kk::Weak<App> _app;
             kk::Strong<kk::TFunction<void,kk::CString,kk::Event *>> _func;
             kk::Strong<View> _view;
             kk::Strong<View> _leftView;
@@ -96,7 +96,6 @@ namespace kk {
             Size _size;
             kk::Uint64 _pageId;
             kk::String _type;
-            void * _heapptr;
         };
         
         void addPageOpenlib(std::function<void(duk_context *,Page *)> && func);

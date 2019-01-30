@@ -251,7 +251,7 @@ namespace kk {
         
         class Canvas;
         
-        class Context : public EventEmitter, public Container, public JSResource {
+        class Context : public EventEmitter, public Container, public JSResource, public JSWeakObject {
         public:
             Context(kk::CString basePath,kk::DispatchQueue * queue);
             virtual ~Context();
@@ -302,7 +302,7 @@ namespace kk {
             virtual kk::Strong<App> createApp(kk::CString basePath,kk::CString appkey);
             virtual void removeApp(kk::Uint64 appid);
             virtual kk::Strong<App> getApp(kk::Uint64 appid);
-            virtual void execCommand(App * app,Command * command);
+            virtual void execCommand(Command * command);
             virtual void dispatchCommand(kk::Uint64 appid,Command * command);
             virtual void emit(kk::Uint64 appid,kk::CString name,kk::Event * event);
             virtual void emit(kk::Uint64 appid,kk::Uint64 viewId,kk::CString name,kk::Event * event);

@@ -78,7 +78,7 @@ namespace kk {
         }
         
         App::~App() {
-  
+
             UI::main()->removeApp(_appid);
             
             kk::Log("[App] [dealloc]");
@@ -102,6 +102,8 @@ namespace kk {
             kk::Strong<Page> page = createPage(u.scheme());
             kk::TObject<kk::String,kk::String> & queryObject = u.queryObject();
         
+            page->set(this);
+            
             page->opening();
             page->run(u.path(), &queryObject);
             page->open(animated);
@@ -113,7 +115,7 @@ namespace kk {
             cmd->appid = _appid;
             cmd->delta = delta;
             cmd->animated = animated;
-            execCommand(cmd);
+            UI::main()->execCommand(cmd);
         }
         
         kk::Strong<View> App::createView(kk::CString name,ViewConfiguration * configuration) {
@@ -180,10 +182,6 @@ namespace kk {
         
         Size App::getAttributedTextContentSize(AttributedText * text,Float maxWidth) {
             return ::kk::ui::getAttributedTextContentSize(this, text, maxWidth);
-        }
-        
-        void App::execCommand(Command * command) {
-            UI::main()->execCommand(this, command);
         }
         
         void App::dispatchCommand(Command * command) {

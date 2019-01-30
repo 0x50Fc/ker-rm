@@ -60,6 +60,7 @@ var ker;
                 }
             }
         }
+        console.info("[HTTP]", url);
         var req = new HTTPRequest();
         var contentType;
         if (object.header) {
@@ -81,10 +82,12 @@ var ker;
                     res.data = req.responseArrayBuffer;
                 }
                 else if (object.dataType === undefined || object.dataType == 'json') {
+                    var v = req.responseText;
                     try {
-                        res.data = JSON.parse(req.responseText);
+                        res.data = JSON.parse(v);
                     }
                     catch (e) {
+                        console.info("[HTTP] [JSON] [ERROR]", v);
                         if (object.fail !== undefined) {
                             object.fail(e + '');
                         }

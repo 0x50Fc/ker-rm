@@ -68,7 +68,10 @@ namespace kk {
             virtual void changedKey(CString key);
             virtual AttributedText * text(ViewContext * context);
             
-            virtual void onLayout(LayoutContext * context);
+            virtual void obtainView(ViewContext * context);
+            virtual void recycleView();
+            virtual void setNeedsDisplay();
+            virtual void display(ViewContext * context);
             
             Ker_CLASS(TextElement,ViewElement,"UITextElement")
             
@@ -85,9 +88,9 @@ namespace kk {
             virtual void setViewKey(ViewContext * context,View * view,CString key, CString value);
             virtual void onDidAddChildren(Element * element);
             virtual void onWillRemoveChildren(Element * element);
-            virtual void onObtainView(ViewContext * context,View * view);
             
             kk::Strong<AttributedText> _text;
+            kk::Boolean _displaying;
         };
         
     }

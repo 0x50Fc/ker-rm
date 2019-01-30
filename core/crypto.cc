@@ -96,8 +96,8 @@ namespace kk {
             case 1: {
                 /* XX== */
                 t = (kk::Uint) (*src++);
-                *dst++ = Crypto_base64_dectab[t >> 2];           /* XXXXXX-- */
-                *dst++ = Crypto_base64_dectab[(t << 4) & 0x3f];  /* ------XX */
+                *dst++ = Crypto_base64_enctab[t >> 2];           /* XXXXXX-- */
+                *dst++ = Crypto_base64_enctab[(t << 4) & 0x3f];  /* ------XX */
                 *dst++ = '=';
                 *dst++ = '=';
                 break;
@@ -106,9 +106,9 @@ namespace kk {
                 /* XXX= */
                 t = (kk::Uint) (*src++);
                 t = (t << 8) + (kk::Uint) (*src++);
-                *dst++ = Crypto_base64_dectab[t >> 10];          /* XXXXXX-- -------- */
-                *dst++ = Crypto_base64_dectab[(t >> 4) & 0x3f];  /* ------XX XXXX---- */
-                *dst++ = Crypto_base64_dectab[(t << 2) & 0x3f];  /* -------- ----XXXX */
+                *dst++ = Crypto_base64_enctab[t >> 10];          /* XXXXXX-- -------- */
+                *dst++ = Crypto_base64_enctab[(t >> 4) & 0x3f];  /* ------XX XXXX---- */
+                *dst++ = Crypto_base64_enctab[(t << 2) & 0x3f];  /* -------- ----XXXX */
                 *dst++ = '=';
                 break;
             }
@@ -246,16 +246,20 @@ namespace kk {
         return nullptr;
     }
     
+    kk::String Crypto::MD5(kk::CString v) {
+        return MD5((const void *) v,v == nullptr ? 0 : (size_t) strlen(v));
+    }
+    
 #if defined(__APPLE__)
     
-    kk::String Crypto::MD5(kk::CString string) {
+    kk::String Crypto::MD5(const void * data,size_t size) {
         
         CC_MD5_CTX m;
         
         CC_MD5_Init(&m);
         
-        if(string) {
-            CC_MD5_Update(&m, string, (CC_LONG) strlen(string));
+        if(data && size > 0) {
+            CC_MD5_Update(&m, data, (CC_LONG) size);
         }
         
         unsigned char md[16];
@@ -272,14 +276,14 @@ namespace kk {
     }
 #elif defined(__ANDROID_API__)
     
-    kk::String Crypto::MD5(kk::CString string) {
+    kk::String Crypto::MD5(const void * data,size_t size) {
         
         md5_state_t m;
         
         md5_init(&m);
         
-        if(string) {
-            md5_append(&m, (md5_byte_t *) string, (size_t) strlen(string));
+        if(data && size > 0) {
+            md5_append(&m, (md5_byte_t *) data, (size_t) size);
         }
         
         md5_byte_t md[16];
@@ -297,14 +301,14 @@ namespace kk {
     
 #else
     
-    kk::String Crypto::MD5(kk::CString string) {
+    kk::String Crypto::MD5(const void * data,size_t size) {
         
         MD5_CTX m;
         
         MD5_Init(&m);
         
-        if(string) {
-            MD5_Update(&m, string, (size_t) strlen(string));
+        if(data && size > 0) {
+            MD5_Update(&m, data, size);
         }
         
         unsigned char md[16];

@@ -71,7 +71,7 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
-    [super touchesBegan:touches withEvent:event];
+    //[super touchesBegan:touches withEvent:event];
     [self event:@"touchstart" touches:touches withEvent:event];
     if(!_hover) {
         _hover = YES;
@@ -98,6 +98,9 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     [super touchesEnded:touches withEvent:event];
     [self event:@"touchend" touches:touches withEvent:event];
+    if(CGRectContainsPoint(self.bounds, [[touches anyObject] locationInView:self])) {
+        [self event:@"tap" touches:touches withEvent:event];
+    }
     if(_hover) {
         _hover = NO;
         [self event:@"out" touches:touches withEvent:event];
@@ -125,13 +128,5 @@ static NSString * KerViewUITouchPhaseCString(UITouchPhase phase) {
     _app = 0;
 }
 
-- (void)endTrackingWithTouch:(nullable UITouch *)touch withEvent:(nullable UIEvent *)event {
-    
-    if(CGRectContainsPoint(self.bounds, [touch locationInView:self])) {
-        [self event:@"tap" touches:[NSSet setWithObject:touch] withEvent:event];
-    }
-    
-    [super endTrackingWithTouch:touch withEvent:event];
-}
 
 @end

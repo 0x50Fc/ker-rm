@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <Ker/UIView+KerViewProtocol.h>
 
-@interface KerView : UIControl
+@interface KerView : UIView
 
 @end
 

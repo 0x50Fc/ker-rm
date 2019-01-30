@@ -170,10 +170,11 @@ namespace kk {
                             kk::Strong<App> app = c->app();
                             if(app != nullptr) {
                                 kk::Strong<CanvasDisplayCGContextCommand> cmd = new CanvasDisplayCGContextCommand();
+                                cmd->appid = app->appid();
                                 cmd->canvasId = c->canvasId();
                                 cmd->viewId = c->view()->viewId();
                                 cmd->context = v.operator->();
-                                app->execCommand(cmd);
+                                UI::main()->execCommand(cmd);
                             }
                         }
                     });
@@ -210,7 +211,8 @@ namespace kk {
                 cmd->name = name;
                 cmd->configuration = configuration;
                 cmd->viewId = viewId;
-                app->execCommand(cmd);
+                cmd->appid = app->appid();
+                UI::main()->execCommand(cmd);
             }
         }
         
@@ -218,9 +220,10 @@ namespace kk {
             
             {
                 kk::Strong<ViewNativeCreateCommand> cmd = new ViewNativeCreateCommand();
+                cmd->appid = app->appid();
                 cmd->native = native;
                 cmd->viewId = viewId;
-                app->execCommand(cmd);
+                UI::main()->execCommand(cmd);
             }
             
         }
@@ -231,14 +234,16 @@ namespace kk {
                 if(_showToScreen) {
                     {
                         kk::Strong<ViewRemoveCommand> cmd = new ViewRemoveCommand();
+                        cmd->appid = app->appid();
                         cmd->viewId = _viewId;
-                        app->execCommand(cmd);
+                        UI::main()->execCommand(cmd);
                     }
                 }
                 {
                     kk::Strong<ViewDeleteCommand> cmd = new ViewDeleteCommand();
+                    cmd->appid = app->appid();
                     cmd->viewId = _viewId;
-                    app->execCommand(cmd);
+                    UI::main()->execCommand(cmd);
                 }
                 app->removeView(_viewId);
             }
@@ -248,8 +253,9 @@ namespace kk {
         void View::showToScreen() {
             if(_app != nullptr){
                 kk::Strong<ViewShowToScreenCommand> cmd = new ViewShowToScreenCommand();
+                cmd->appid = _app->appid();
                 cmd->viewId = _viewId;
-                _app->execCommand(cmd);
+                UI::main()->execCommand(cmd);
             }
             _showToScreen = true;
         }
@@ -300,15 +306,17 @@ namespace kk {
         
         void View::evaluateJavaScript(kk::CString code) {
             kk::Strong<ViewEvaluateJavaScriptCommand> cmd = new ViewEvaluateJavaScriptCommand();
+            cmd->appid = _app->appid();
             cmd->viewId = _viewId;
             if(code != nullptr) {
                 cmd->code = code;
             }
-            _app->execCommand(cmd);
+            UI::main()->execCommand(cmd);
         }
         
         void View::setContent(kk::CString content,kk::CString contentType,kk::CString basePath) {
             kk::Strong<ViewSetContentCommand> cmd = new ViewSetContentCommand();
+            cmd->appid = _app->appid();
             cmd->viewId = _viewId;
             if(content != nullptr){
                 cmd->content = content;
@@ -319,18 +327,20 @@ namespace kk {
             if(basePath != nullptr) {
                 cmd->basePath = basePath;
             }
-            _app->execCommand(cmd);
+            UI::main()->execCommand(cmd);
         }
         
         void View::setAttributedText(AttributedText * text) {
             kk::Strong<ViewSetAttributedTextCommand> cmd = new ViewSetAttributedTextCommand();
+            cmd->appid = _app->appid();
             cmd->viewId = _viewId;
             cmd->text = text;
-            _app->execCommand(cmd);
+            UI::main()->execCommand(cmd);
         }
         
         void View::set(kk::CString name,kk::CString value) {
             kk::Strong<ViewSetCommand> cmd = new ViewSetCommand();
+            cmd->appid = _app->appid();
             cmd->viewId = _viewId;
             if(name != nullptr) {
                 cmd->name = name;
@@ -338,32 +348,35 @@ namespace kk {
             if(value != nullptr) {
                 cmd->value = value;
             }
-            _app->execCommand(cmd);
+            UI::main()->execCommand(cmd);
         }
         
         void View::setFrame(Rect & frame) {
             _frame = frame;
             kk::Strong<ViewSetFrameCommand> cmd = new ViewSetFrameCommand();
+            cmd->appid = _app->appid();
             cmd->viewId = _viewId;
             cmd->frame = frame;
-            _app->execCommand(cmd);
+            UI::main()->execCommand(cmd);
         }
         
         void View::setContentSize(Size & size) {
             _contentSize = size;
             kk::Strong<ViewSetContentSizeCommand> cmd = new ViewSetContentSizeCommand();
+            cmd->appid = _app->appid();
             cmd->viewId = _viewId;
             cmd->size = size;
-            _app->execCommand(cmd);
+            UI::main()->execCommand(cmd);
         }
         
         void View::setContentOffset(Point & offset,kk::Boolean animated) {
             _contentOffset = offset;
             kk::Strong<ViewSetContentOffsetCommand> cmd = new ViewSetContentOffsetCommand();
+            cmd->appid = _app->appid();
             cmd->viewId = _viewId;
             cmd->offset = offset;
             cmd->animated = animated;
-            _app->execCommand(cmd);
+            UI::main()->execCommand(cmd);
         }
         
         kk::Uint64 View::viewId() {
@@ -379,10 +392,11 @@ namespace kk {
             _subviews[view] = view;
             
             kk::Strong<ViewAddsubviewCommand> cmd = new ViewAddsubviewCommand();
+            cmd->appid = _app->appid();
             cmd->viewId = _viewId;
             cmd->subviewId = view->_viewId;
             cmd->position = position;
-            _app->execCommand(cmd);
+            UI::main()->execCommand(cmd);
         }
         
         void View::removeView() {
@@ -392,7 +406,6 @@ namespace kk {
             View * p = _parent;
             kk::Strong<View> v = this;
             kk::Uint64 viewId = _viewId;
-            kk::Strong<App> app = (App *) _app;
             
             if(p != nullptr) {
                 _parent = nullptr;
@@ -403,8 +416,9 @@ namespace kk {
             }
             
             kk::Strong<ViewRemoveCommand> cmd = new ViewRemoveCommand();
+            cmd->appid = _app->appid();
             cmd->viewId = viewId;
-            app->execCommand(cmd);
+            UI::main()->execCommand(cmd);
             
         }
         
@@ -421,7 +435,7 @@ namespace kk {
                 
                 cmd->viewId = view->viewId();
                 
-                _app->execCommand(cmd);
+                UI::main()->execCommand(cmd);
                 
                 i ++;
             }
@@ -516,6 +530,17 @@ namespace kk {
             setContentOffset(p, animated);
         }
         
+        void View::setPadding(Float left,Float top,Float right,Float bottom) {
+            kk::Strong<ViewSetPaddingCommand> cmd = new ViewSetPaddingCommand();
+            cmd->appid = _app->appid();
+            cmd->viewId = _viewId;
+            cmd->left = left;
+            cmd->top = top;
+            cmd->right = right;
+            cmd->bottom = bottom;
+            UI::main()->execCommand(cmd);
+        }
+        
         void View::scrollToTop(kk::Boolean animated) {
             Point p = {_contentOffset.x,0};
             setContentOffset(p, animated);
@@ -591,14 +616,16 @@ namespace kk {
             _image = image;
             if(image == nullptr) {
                 kk::Strong<ViewSetImageCommand> cmd = new ViewSetImageCommand();
+                cmd->appid = _app->appid();
                 cmd->viewId = _viewId;
                 cmd->image = nullptr;
-                _app->execCommand(cmd);
+                UI::main()->execCommand(cmd);
             } else if(image->state() == ImageStateLoaded) {
                 kk::Strong<ViewSetImageCommand> cmd = new ViewSetImageCommand();
+                cmd->appid = _app->appid();
                 cmd->viewId = _viewId;
                 cmd->image = image;
-                _app->execCommand(cmd);
+                UI::main()->execCommand(cmd);
             } else if(image->state() != ImageStateError) {
                 if(_onImageLoadFunc == nullptr) {
                     kk::Weak<View> v = this;
@@ -610,16 +637,17 @@ namespace kk {
                             kk::Strong<ViewSetImageCommand> cmd = new ViewSetImageCommand();
                             cmd->viewId = viewId;
                             cmd->image = image;
-                            app->execCommand(cmd);
+                            UI::main()->execCommand(cmd);
                         }
                     });
                 }
                 _image->on("load", (kk::TFunction<void, kk::CString,Event *> *) _onImageLoadFunc);
             } else {
                 kk::Strong<ViewSetImageCommand> cmd = new ViewSetImageCommand();
+                cmd->appid = _app->appid();
                 cmd->viewId = _viewId;
                 cmd->image = nullptr;
-                _app->execCommand(cmd);
+                UI::main()->execCommand(cmd);
             }
         }
         

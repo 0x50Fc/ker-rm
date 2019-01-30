@@ -43,7 +43,7 @@ namespace kk {
         
         void ViewElementSetStringValue(ViewContext * context,View * view,CString key, CString value);
         void ViewElementSetPixelValue(ViewContext * context,View * view,CString key, CString value);
-        
+     
         class ViewElement : public kk::LayoutElement {
         public:
             ViewElement(Document * document,CString name, ElementKey elementId);
@@ -54,6 +54,9 @@ namespace kk {
             virtual View * view();
             virtual void changedKey(CString key);
             virtual void recycle();
+            virtual kk::String reuse();
+            
+            virtual void setNeedLayout();
             
             Ker_CLASS(ViewElement,LayoutElement,"UIViewElement")
             
@@ -68,6 +71,7 @@ namespace kk {
             virtual void onObtainView(ViewContext * context,View * view);
             virtual void onRecycleView(View * view);
             virtual void obtainChildrenView(ViewContext * context);
+            virtual void recycleChildrenView();
             virtual void onViewLayout();
             virtual Strong<View> createView(ViewContext * context);
             virtual kk::Boolean isVisibleChildren(ViewElement * element);
@@ -76,6 +80,13 @@ namespace kk {
             Point _contentOffset;
             kk::Strong<View> _view;
             std::set<kk::String> _changedKeys;
+            
+            kk::Int _autoLevelId;
+            kk::Int _levelId;
+            
+            virtual void onDidAddChildren(Element * element);
+            virtual void onWillRemoveChildren(Element * element);
+            
         };
         
     }

@@ -79,8 +79,6 @@ namespace kk {
             
             virtual kk::Uint64 appid();
             
-            virtual void execCommand(Command * command);
-            
             virtual void dispatchCommand(Command * command);
             
             virtual void openlib();

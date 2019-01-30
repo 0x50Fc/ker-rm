@@ -122,13 +122,15 @@ namespace kk {
         kk::Boolean hidden;
         VerticalAlign verticalAlign;
         
+        virtual void setNeedLayout();
+        
         Ker_CLASS(LayoutElement,StyleElement,"LayoutElement")
         static void Openlib();
         
         virtual void onLayout(LayoutContext * context);
         
     protected:
-
+        kk::Boolean _layouting;
         
     };
     

@@ -20,11 +20,11 @@ var ker;
         }
         document.rootElement = element;
         var layout = function () {
+            layouting = false;
             if (page.view) {
                 context.layout(element);
                 context.obtainView(element);
             }
-            layouting = false;
         };
         var setLayout = function () {
             if (layouting) {
@@ -39,7 +39,7 @@ var ker;
             setLayout();
         });
         page.on("unload", function () {
-            element.recycleView();
+            element.recycle();
             if (object.onunload !== undefined) {
                 object.onunload();
             }

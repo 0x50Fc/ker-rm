@@ -34,7 +34,7 @@ namespace ker {
         recycle(): void {
             screen.off("change", this._onLayout);
             this._data.off([]);
-            this._viewElement.recycleView();
+            this._element.recycle();
             this._view.removeView();
         }
 

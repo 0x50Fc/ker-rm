@@ -167,37 +167,51 @@ namespace kk {
             return v;
         }
 
-        TextElement::TextElement(Document * document,CString name, ElementKey elementId):ViewElement(document,name,elementId),textAlign(TextAlignLeft) {
+        TextElement::TextElement(Document * document,CString name, ElementKey elementId):ViewElement(document,name,elementId),textAlign(TextAlignLeft),_displaying(false) {
             
         }
         
         void TextElement::changedKey(CString key) {
             if(kk::CStringEqual(key, "#text") || kk::CStringEqual(key, "value")) {
                 _text = nullptr;
+                setNeedLayout();
+                setNeedsDisplay();
                 return;
             } else if(kk::CStringEqual(key, "font")) {
                 font.set(get(key));
                 _text = nullptr;
+                setNeedLayout();
+                setNeedsDisplay();
                 return;
             } else if(kk::CStringEqual(key, "color")) {
                 color = Color(get(key));
                 _text = nullptr;
+                setNeedLayout();
+                setNeedsDisplay();
                 return;
             } else if(kk::CStringEqual(key, "letter-spacing")) {
                 letterSpacing.set(get(key));
                 _text = nullptr;
+                setNeedLayout();
+                setNeedsDisplay();
                 return;
             } else if(kk::CStringEqual(key, "line-spacing")) {
                 lineSpacing.set(get(key));
                 _text = nullptr;
+                setNeedLayout();
+                setNeedsDisplay();
                 return;
             } else if(kk::CStringEqual(key, "paragraph-spacing")) {
                 paragraphSpacing.set(get(key));
                 _text = nullptr;
+                setNeedLayout();
+                setNeedsDisplay();
                 return;
             } else if(kk::CStringEqual(key, "text-align")){
                 textAlign = TextAlignFromString(get(key));
                 _text = nullptr;
+                setNeedLayout();
+                setNeedsDisplay();
                 return;
             }
             
@@ -274,6 +288,16 @@ namespace kk {
             }
         }
         
+        void TextElement::obtainView(ViewContext * context) {
+            ViewElement::obtainView(context);
+            display(context);
+        }
+        
+        void TextElement::recycleView() {
+            _displaying = true;
+            ViewElement::recycleView();
+        }
+        
         AttributedText * TextElement::text(ViewContext * context) {
             if(_text == nullptr) {
                 _text = new AttributedText();
@@ -340,16 +364,15 @@ namespace kk {
             return _text;
         }
         
-        void TextElement::onObtainView(ViewContext * context,View * view) {
-            ViewElement::onObtainView(context, view);
-            view->setAttributedText(text(context));
+        void TextElement::setNeedsDisplay() {
+            _text = nullptr;
+            _displaying = true;
         }
         
-        void TextElement::onLayout(LayoutContext * context) {
-            ViewElement::onLayout(context);
-            ViewContext * viewContext = dynamic_cast<ViewContext *>(context);
-            if(_view != nullptr && viewContext != nullptr) {
-                _view->setAttributedText(text(viewContext));
+        void TextElement::display(ViewContext * context) {
+            if(_displaying && _view != nullptr) {
+                _view->setAttributedText(text(context));
+                _displaying = false;
             }
         }
         
@@ -384,6 +407,7 @@ namespace kk {
             });
             
         }
+        
         
         static Element * TextElementCreate(Document * document,kk::CString name,ElementKey elementId) {
             return new TextElement(document,name,elementId);
