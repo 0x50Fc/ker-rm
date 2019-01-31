@@ -33,7 +33,7 @@ namespace ker {
             try {
                 return this.evaluateScript.apply(undefined, vs);
             } catch (e) {
-                console.error("[Evaluate:exec]", e);
+                console.error("[Evaluate:exec]", e.stack);
             }
 
         }

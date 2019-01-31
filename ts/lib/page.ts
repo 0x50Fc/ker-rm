@@ -8,6 +8,7 @@ namespace ker {
         document?: Document
         data?: DataObject
         setData?: (object: DataObject) => void
+        postData?: (object: DataObject) => void
         onload?: (document: Document) => void
         onunload?: () => void
     }
@@ -116,6 +117,26 @@ namespace ker {
         object.setData = (object: DataObject): void => {
             data.setData(object);
             setLayout();
+        };
+
+        let dataing: DataObject | undefined;
+
+        object.postData = (object: DataObject): void => {
+            if (dataing === undefined) {
+                dataing = object;
+                setTimeout(() => {
+                    if(dataing !== undefined) {
+                        let v = dataing as DataObject;
+                        dataing = undefined;
+                        data.setData(v);
+                        setLayout();
+                    }
+                }, 0);
+            } else {
+                for(let key in object){
+                    dataing[key] = object[key];
+                }
+            }
         };
 
         if (object.onload !== undefined) {

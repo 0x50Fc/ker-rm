@@ -82,7 +82,7 @@ var ker;
     }
     function playVoice(object) {
         playRecycle();
-        Audio.startSession(Audio.Ambient, function (errmsg) {
+        Audio.startSession(Audio.Playback, function (errmsg) {
             if (errmsg) {
                 if (object.fail !== undefined) {
                     object.fail(errmsg);

@@ -129,7 +129,7 @@ namespace ker {
 
         playRecycle();
 
-        Audio.startSession(Audio.Ambient, (errmsg?: string): void => {
+        Audio.startSession(Audio.Playback, (errmsg?: string): void => {
 
             if (errmsg) {
                 if (object.fail !== undefined) {

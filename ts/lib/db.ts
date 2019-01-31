@@ -1,3 +1,5 @@
+import { emit } from "cluster";
+
 namespace ker {
 
     export enum DBIndexType {
@@ -27,7 +29,7 @@ namespace ker {
     }
 
     export enum DBCommandType {
-        ADD, SET, REMOVE
+        NONE, ADD, SET, REMOVE
     }
 
     export interface DBCommand {
@@ -104,6 +106,26 @@ namespace ker {
         return type;
     }
 
+    class DBTransaction {
+        private _commands: DBCommand[];
+        private _emitter: EventEmitter;
+
+        constructor(emittr: EventEmitter) {
+            this._emitter = emittr;
+            this._commands = [];
+        }
+
+        add<T extends DBCommand>(command: T): void {
+            this._commands.push(command);
+        }
+
+        commit(): void {
+            let e = new Event();
+            e.data = this._commands;
+            this._emitter.emit("change", e);
+        }
+    }
+
     export class DBContext {
 
         private _emitter: EventEmitter;
@@ -119,21 +141,24 @@ namespace ker {
             });
         }
 
+        get db(): Database {
+            return this._db;
+        }
+
         on(name: string, func: EventFunction): void {
             this._emitter.on(name, func);
         }
+
         off(name?: string, func?: EventFunction): void {
             this._emitter.off(name, func);
         }
+
         has(name: string): boolean {
             return this._emitter.has(name);
         }
+
         emit(name: string, event: Event): void {
             this._emitter.emit(name, event);
-        }
-
-        get db(): Database {
-            return this._db;
         }
 
         addEntry(entry: DBEntry): void {
@@ -279,147 +304,193 @@ namespace ker {
             });
         }
 
-        query(sql: string, data: DatabaseValue[], done: (objects: DatabaseRow[], errmsg: string | undefined) => void): void {
-            this._db.query(sql, data, done);
+        startTransaction(): DBTransaction {
+            return new DBTransaction(this._emitter);
         }
 
-        exec(sql: string, data: DatabaseValue[], done: (id: number, errmsg: string | undefined) => void): void {
-            this._db.exec(sql, data, done);
+        query(sql: string, data: DatabaseValue[]): Promise<DatabaseRow[]> {
+            return new Promise<DatabaseRow[]>((resolve: (objects: DatabaseRow[]) => void, reject: (reason: string) => void): void => {
+                this._db.query(sql, data, (objects: DatabaseRow[], errmsg: string | undefined): void => {
+                    if (errmsg !== undefined) {
+                        reject(errmsg);
+                    } else {
+                        resolve(objects);
+                    }
+                });
+            });
         }
 
-        queryEntry(entry: DBEntry, sql: string, data: DatabaseValue[], done: (objects: DBObject[], errmsg: string | undefined) => void): void {
-            this._db.query(['SELECT * FROM [', entry.name, '] ', sql].join(''), data, done);
+        exec(sql: string, data: DatabaseValue[]): Promise<number> {
+            return new Promise<number>((resolve: (id: number) => void, reject: (reason: string) => void): void => {
+                this._db.exec(sql, data, (id: number, errmsg: string | undefined): void => {
+                    if (errmsg !== undefined) {
+                        reject(errmsg);
+                    } else {
+                        resolve(id);
+                    }
+                });
+            });
         }
 
-        add(object: DBObject, entry: DBEntry, done?: (errmsg: string | undefined) => void): void {
+        queryEntry(entry: DBEntry, sql: string, data: DatabaseValue[]): Promise<DBObject[]> {
 
-            let sql = ['INSERT INTO [', entry.name, ']('];
-            let names: string[] = [];
-            let valus: string[] = [];
-            let vs: DatabaseValue[] = [];
-
-            for (let fd of entry.fields) {
-                names.push('[' + fd.name + ']');
-                valus.push('?');
-                let v = object[fd.name];
-                if (v === undefined) {
-                    vs.push(fd.default);
-                } else {
-                    vs.push(v);
-                }
-            }
-
-            sql.push(names.join(','));
-            sql.push(') VALUES(');
-            sql.push(valus.join(','));
-            sql.push(')')
-
-            console.info("[SQL]", sql.join(''), vs);
-
-            this._db.exec(sql.join(''), vs, (id: number, errmsg: string | undefined): void => {
-
-                if (errmsg === undefined) {
-                    object.id = id;
-                    let e = new Event();
-                    e.data = {
-                        type: DBCommandType.ADD,
-                        object: object,
-                        entry: entry
-                    };
-                    this.emit("change", e);
-                }
-                if (done !== undefined) {
-                    done(errmsg);
-                }
+            return new Promise<DBObject[]>((resolve: (objects: DBObject[]) => void, reject: (reason: string) => void): void => {
+                this._db.query(['SELECT * FROM [', entry.name, '] ', sql].join(''), data, (objects: DBObject[], errmsg: string | undefined): void => {
+                    if (errmsg !== undefined) {
+                        reject(errmsg);
+                    } else {
+                        resolve(objects);
+                    }
+                });
             });
 
         }
 
-        remove(objects: DBObject[], entry: DBEntry, done?: (errmsg: string | undefined) => void): void {
+        add(object: DBObject, entry: DBEntry, trans?: DBTransaction): Promise<DBObject> {
 
-            let sql = ['DELETE FROM [', entry.name, '] FROM [id] IN ('];
-            let vs: DatabaseValue[] = [];
-            let as: string[] = [];
+            return new Promise<DBObject>((resolve: (object: DBObject) => void, reject: (reason: string) => void): void => {
 
-            for (let v of objects) {
-                as.push("?");
-                vs.push(v.id);
-            }
+                let sql = ['INSERT INTO [', entry.name, ']('];
+                let names: string[] = [];
+                let valus: string[] = [];
+                let vs: DatabaseValue[] = [];
 
-            sql.push(as.join(','))
-            sql.push(")")
-
-            console.info("[SQL]", sql.join(''), vs);
-
-            this._db.exec(sql.join(''), vs, (id: number, errmsg: string | undefined): void => {
-
-                if (errmsg === undefined) {
-                    let e = new Event();
-                    e.data = {
-                        type: DBCommandType.REMOVE,
-                        objects: objects,
-                        entry: entry
-                    };
-                    this.emit("change", e);
-                }
-                if (done !== undefined) {
-                    done(errmsg);
-                }
-            });
-
-        }
-
-        set(object: DBObject, entry: DBEntry, keys?: string[] | undefined, done?: (errmsg: string | undefined) => void): void {
-
-            let sql = ['UPDATE [', entry.name, '] SET '];
-            let items: string[] = [];
-            let vs: DatabaseValue[] = [];
-
-            if (keys === undefined) {
-                keys = [];
                 for (let fd of entry.fields) {
-                    keys.push(fd.name);
+                    names.push('[' + fd.name + ']');
+                    valus.push('?');
+                    let v = object[fd.name];
+                    if (v === undefined) {
+                        vs.push(fd.default);
+                    } else {
+                        vs.push(v);
+                    }
                 }
-            }
 
-            let defaultValues: DatabaseRow = {};
+                sql.push(names.join(','));
+                sql.push(') VALUES(');
+                sql.push(valus.join(','));
+                sql.push(')')
 
-            for (let fd of entry.fields) {
-                defaultValues[fd.name] = fd.default;
-            }
+                console.info("[SQL]", sql.join(''), vs);
 
-            for (let key of keys) {
-                let v = object[key];
-                if (v === undefined) {
-                    v = defaultValues[key];
-                }
-                vs.push(v);
-                items.push('[' + key + ']=?');
-            }
+                this._db.exec(sql.join(''), vs, (id: number, errmsg: string | undefined): void => {
 
-            sql.push(items.join(","));
-            sql.push(" WHERE [id]=?");
+                    object.id = id;
+                    
+                    if (errmsg === undefined) {
+                        if (trans !== undefined) {
+                            trans.add({
+                                type: DBCommandType.ADD,
+                                object: object,
+                                entry: entry
+                            })
+                        }
+                        resolve(object);
+                    } else {
+                        reject(errmsg);
+                    }
 
-            vs.push(object.id);
+                });
 
-            console.info("[SQL]", sql.join(''), vs);
-
-            this._db.exec(sql.join(''), vs, (id: number, errmsg: string | undefined): void => {
-
-                if (errmsg === undefined) {
-                    let e = new Event();
-                    e.data = {
-                        type: DBCommandType.SET,
-                        object: object,
-                        entry: entry,
-                        keys: keys
-                    };
-                    this.emit("change", e);
-                }
-                if (done !== undefined) {
-                    done(errmsg);
-                }
             });
+
+        }
+
+        remove(objects: DBObject[], entry: DBEntry, trans?: DBTransaction): Promise<DBObject[]> {
+
+            return new Promise<DBObject[]>((resolve: (objects: DBObject[]) => void, reject: (reason: string) => void): void => {
+
+                let sql = ['DELETE FROM [', entry.name, '] FROM [id] IN ('];
+                let vs: DatabaseValue[] = [];
+                let as: string[] = [];
+
+                for (let v of objects) {
+                    as.push("?");
+                    vs.push(v.id);
+                }
+
+                sql.push(as.join(','))
+                sql.push(")")
+
+                console.info("[SQL]", sql.join(''), vs);
+
+                this._db.exec(sql.join(''), vs, (id: number, errmsg: string | undefined): void => {
+
+                    if (errmsg === undefined) {
+                        if (trans !== undefined) {
+                            trans.add({
+                                type: DBCommandType.REMOVE,
+                                objects: objects,
+                                entry: entry
+                            })
+                        }
+                        resolve(objects);
+                    } else {
+                        reject(errmsg);
+                    }
+
+                });
+
+            });
+
+        }
+
+        set(object: DBObject, entry: DBEntry, keys?: string[] | undefined, trans?: DBTransaction): Promise<DBObject> {
+
+            return new Promise<DBObject>((resolve: (object: DBObject) => void, reject: (reason: string) => void): void => {
+
+                let sql = ['UPDATE [', entry.name, '] SET '];
+                let items: string[] = [];
+                let vs: DatabaseValue[] = [];
+
+                if (keys === undefined) {
+                    keys = [];
+                    for (let fd of entry.fields) {
+                        keys.push(fd.name);
+                    }
+                }
+
+                let defaultValues: DatabaseRow = {};
+
+                for (let fd of entry.fields) {
+                    defaultValues[fd.name] = fd.default;
+                }
+
+                for (let key of keys) {
+                    let v = object[key];
+                    if (v === undefined) {
+                        v = defaultValues[key];
+                    }
+                    vs.push(v);
+                    items.push('[' + key + ']=?');
+                }
+
+                sql.push(items.join(","));
+                sql.push(" WHERE [id]=?");
+
+                vs.push(object.id);
+
+                console.info("[SQL]", sql.join(''), vs);
+
+                this._db.exec(sql.join(''), vs, (id: number, errmsg: string | undefined): void => {
+
+                    if (errmsg === undefined) {
+                        if (trans !== undefined) {
+                            trans.add({
+                                type: DBCommandType.SET,
+                                object: object,
+                                keys: keys,
+                                entry: entry
+                            })
+                        }
+                        resolve(object);
+                    } else {
+                        reject(errmsg);
+                    }
+                });
+
+            });
+
 
         }
     }

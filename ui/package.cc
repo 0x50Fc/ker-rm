@@ -24,10 +24,6 @@ namespace kk {
             
             if(kk::CStringEqual(u.scheme(), "http") || kk::CStringEqual(u.scheme(), "https")) {
                 _appkey = C.MD5(URI);
-                _path = GetDirectory(kAppDirectory);
-                _path.append("/");
-                _path.append(_appkey);
-                _path.append("/");
                 struct stat st;
                 if(-1 != stat(_path.c_str(), &st)) {
                     _state = PackageStateLoaded;
@@ -40,34 +36,99 @@ namespace kk {
                     });
                 } else {
                     _state = PackageStateLoading;
-                    kk::HTTPRequest * http = new HTTPRequest(UI::main()->queue());
-                    _http = http;
-                    _http->open("GET", URI, HTTPResponseTypeUnzip);
-                    _http->on("progress", new kk::TFunction<void,kk::CString,Event *>([pkg](kk::CString name,kk::Event * event)->void{
-                        kk::Strong<Package> package = pkg.operator->();
-                        if(package != nullptr) {
-                            kk::Strong<kk::Event> e = new kk::Event();
-                            package->emit(name, e);
-                        }
-                    }));
-                    _http->on("error", new kk::TFunction<void,kk::CString,Event *>([pkg](kk::CString name,kk::Event * event)->void{
-                        kk::Strong<Package> package = pkg.operator->();
-                        if(package != nullptr) {
-                            kk::Strong<kk::Event> e = new kk::Event();
-                            package->setState(PackageStateError);
-                            package->emit(name, e);
-                        }
-                    }));
-                    _http->on("done", new kk::TFunction<void,kk::CString,Event *>([pkg,http](kk::CString name,kk::Event * event)->void{
-                        kk::Strong<Package> package = pkg.operator->();
-                        if(package != nullptr) {
-                            rename(http->responseFile().c_str(), package->_path.c_str());
-                            kk::Strong<kk::Event> e = new kk::Event();
-                            package->setState(PackageStateLoaded);
-                            package->emit("load", e);
-                        }
-                    }));
-                    _http->send();
+                    {
+                        kk::HTTPRequest * http = new HTTPRequest(UI::main()->queue());
+                        _http = http;
+                        _http->open("GET", URI, HTTPResponseTypeString);
+                        _http->on("error", new kk::TFunction<void,kk::CString,Event *>([pkg](kk::CString name,kk::Event * event)->void{
+                            kk::Strong<Package> package = pkg.operator->();
+                            if(package != nullptr) {
+                                kk::Strong<kk::Event> e = new kk::Event();
+                                package->setState(PackageStateError);
+                                package->emit(name, e);
+                            }
+                        }));
+                        _http->on("done", new kk::TFunction<void,kk::CString,Event *>([pkg,http,this,u](kk::CString name,kk::Event * event)->void{
+                            kk::Strong<Package> package = pkg.operator->();
+                            if(package != nullptr) {
+                                
+                                duk_context * ctx = duk_create_heap_default();
+                                
+                                kk::String s = http->responseText();
+                                kk::String version;
+                                
+                                kk::duk_json_decode(ctx, (void *) s.c_str(), s.size());
+                                
+                                if(duk_is_object(ctx, -1)) {
+                                    duk_get_prop_string(ctx, -1, "version");
+                                    if(duk_is_string(ctx, -1)) {
+                                        version = duk_to_string(ctx, -1);
+                                    }
+                                }
+                                
+                                duk_pop_n(ctx,duk_get_top(ctx));
+                                
+                                duk_destroy_heap(ctx);
+                                
+                                if(version.empty()) {
+                                    kk::Strong<kk::Event> e = new kk::Event();
+                                    package->setState(PackageStateError);
+                                    package->emit("error", e);
+                                } else {
+                                    kk::URI & URI = (kk::URI &) u;
+                                    kk::String p;
+                                    p.append(URI.scheme());
+                                    p.append("://");
+                                    p.append(URI.host());
+                                    p.append(kk::CStringPathDirname(URI.path()));
+                                    p.append("/");
+                                    p.append(version);
+                                    p.append(".ker");
+                                    
+                                    kk::Crypto C;
+                                    
+                                    _path = GetDirectory(kAppDirectory);
+                                    _path.append("/");
+                                    _path.append(C.MD5(p.c_str()));
+                                    _path.append("/");
+                                    
+                                    {
+                                        kk::HTTPRequest * http = new HTTPRequest(UI::main()->queue());
+                                        _http = http;
+                                        _http->open("GET", p.c_str(), HTTPResponseTypeUnzip);
+                                        _http->on("progress", new kk::TFunction<void,kk::CString,Event *>([pkg](kk::CString name,kk::Event * event)->void{
+                                            kk::Strong<Package> package = pkg.operator->();
+                                            if(package != nullptr) {
+                                                kk::Strong<kk::Event> e = new kk::Event();
+                                                package->emit(name, e);
+                                            }
+                                        }));
+                                        _http->on("error", new kk::TFunction<void,kk::CString,Event *>([pkg](kk::CString name,kk::Event * event)->void{
+                                            kk::Strong<Package> package = pkg.operator->();
+                                            if(package != nullptr) {
+                                                kk::Strong<kk::Event> e = new kk::Event();
+                                                package->setState(PackageStateError);
+                                                package->emit(name, e);
+                                            }
+                                        }));
+                                        _http->on("done", new kk::TFunction<void,kk::CString,Event *>([pkg,http](kk::CString name,kk::Event * event)->void{
+                                            kk::Strong<Package> package = pkg.operator->();
+                                            if(package != nullptr) {
+                                                rename(http->responseFile().c_str(), package->_path.c_str());
+                                                kk::Strong<kk::Event> e = new kk::Event();
+                                                package->setState(PackageStateLoaded);
+                                                package->emit("load", e);
+                                            }
+                                        }));
+                                        _http->send();
+                                    }
+                                }
+                                
+                            }
+                        }));
+                        _http->send();
+                    }
+                    
                 }
             } else {
                 kk::String p = ResolveURI(u.path());

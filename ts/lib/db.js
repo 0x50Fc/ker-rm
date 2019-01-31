@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var ker;
 (function (ker) {
     var DBIndexType;
@@ -18,9 +20,10 @@ var ker;
     })(DBFieldType = ker.DBFieldType || (ker.DBFieldType = {}));
     var DBCommandType;
     (function (DBCommandType) {
-        DBCommandType[DBCommandType["ADD"] = 0] = "ADD";
-        DBCommandType[DBCommandType["SET"] = 1] = "SET";
-        DBCommandType[DBCommandType["REMOVE"] = 2] = "REMOVE";
+        DBCommandType[DBCommandType["NONE"] = 0] = "NONE";
+        DBCommandType[DBCommandType["ADD"] = 1] = "ADD";
+        DBCommandType[DBCommandType["SET"] = 2] = "SET";
+        DBCommandType[DBCommandType["REMOVE"] = 3] = "REMOVE";
     })(DBCommandType = ker.DBCommandType || (ker.DBCommandType = {}));
     function DBSQLDefaultValue(fd) {
         switch (fd.type) {
@@ -70,6 +73,21 @@ var ker;
         }
         return type;
     }
+    var DBTransaction = /** @class */ (function () {
+        function DBTransaction(emittr) {
+            this._emitter = emittr;
+            this._commands = [];
+        }
+        DBTransaction.prototype.add = function (command) {
+            this._commands.push(command);
+        };
+        DBTransaction.prototype.commit = function () {
+            var e = new Event();
+            e.data = this._commands;
+            this._emitter.emit("change", e);
+        };
+        return DBTransaction;
+    }());
     var DBContext = /** @class */ (function () {
         function DBContext(db) {
             this._emitter = new EventEmitter();
@@ -80,6 +98,13 @@ var ker;
                 }
             });
         }
+        Object.defineProperty(DBContext.prototype, "db", {
+            get: function () {
+                return this._db;
+            },
+            enumerable: true,
+            configurable: true
+        });
         DBContext.prototype.on = function (name, func) {
             this._emitter.on(name, func);
         };
@@ -92,13 +117,6 @@ var ker;
         DBContext.prototype.emit = function (name, event) {
             this._emitter.emit(name, event);
         };
-        Object.defineProperty(DBContext.prototype, "db", {
-            get: function () {
-                return this._db;
-            },
-            enumerable: true,
-            configurable: true
-        });
         DBContext.prototype.addEntry = function (entry) {
             var _this = this;
             this._db.query("SELECT * FROM __entrys WHERE name=?", [entry.name], function (items, errmsg) {
@@ -222,126 +240,168 @@ var ker;
                 }
             });
         };
-        DBContext.prototype.query = function (sql, data, done) {
-            this._db.query(sql, data, done);
+        DBContext.prototype.startTransaction = function () {
+            return new DBTransaction(this._emitter);
         };
-        DBContext.prototype.exec = function (sql, data, done) {
-            this._db.exec(sql, data, done);
-        };
-        DBContext.prototype.queryEntry = function (entry, sql, data, done) {
-            this._db.query(['SELECT * FROM [', entry.name, '] ', sql].join(''), data, done);
-        };
-        DBContext.prototype.add = function (object, entry, done) {
+        DBContext.prototype.query = function (sql, data) {
             var _this = this;
-            var sql = ['INSERT INTO [', entry.name, ']('];
-            var names = [];
-            var valus = [];
-            var vs = [];
-            for (var _i = 0, _a = entry.fields; _i < _a.length; _i++) {
-                var fd = _a[_i];
-                names.push('[' + fd.name + ']');
-                valus.push('?');
-                var v = object[fd.name];
-                if (v === undefined) {
-                    vs.push(fd.default);
-                }
-                else {
-                    vs.push(v);
-                }
-            }
-            sql.push(names.join(','));
-            sql.push(') VALUES(');
-            sql.push(valus.join(','));
-            sql.push(')');
-            console.info("[SQL]", sql.join(''), vs);
-            this._db.exec(sql.join(''), vs, function (id, errmsg) {
-                if (errmsg === undefined) {
-                    object.id = id;
-                    var e = new Event();
-                    e.data = {
-                        type: DBCommandType.ADD,
-                        object: object,
-                        entry: entry
-                    };
-                    _this.emit("change", e);
-                }
-                if (done !== undefined) {
-                    done(errmsg);
-                }
+            return new Promise(function (resolve, reject) {
+                _this._db.query(sql, data, function (objects, errmsg) {
+                    if (errmsg !== undefined) {
+                        reject(errmsg);
+                    }
+                    else {
+                        resolve(objects);
+                    }
+                });
             });
         };
-        DBContext.prototype.remove = function (objects, entry, done) {
+        DBContext.prototype.exec = function (sql, data) {
             var _this = this;
-            var sql = ['DELETE FROM [', entry.name, '] FROM [id] IN ('];
-            var vs = [];
-            var as = [];
-            for (var _i = 0, objects_1 = objects; _i < objects_1.length; _i++) {
-                var v = objects_1[_i];
-                as.push("?");
-                vs.push(v.id);
-            }
-            sql.push(as.join(','));
-            sql.push(")");
-            console.info("[SQL]", sql.join(''), vs);
-            this._db.exec(sql.join(''), vs, function (id, errmsg) {
-                if (errmsg === undefined) {
-                    var e = new Event();
-                    e.data = {
-                        type: DBCommandType.REMOVE,
-                        objects: objects,
-                        entry: entry
-                    };
-                    _this.emit("change", e);
-                }
-                if (done !== undefined) {
-                    done(errmsg);
-                }
+            return new Promise(function (resolve, reject) {
+                _this._db.exec(sql, data, function (id, errmsg) {
+                    if (errmsg !== undefined) {
+                        reject(errmsg);
+                    }
+                    else {
+                        resolve(id);
+                    }
+                });
             });
         };
-        DBContext.prototype.set = function (object, entry, keys, done) {
+        DBContext.prototype.queryEntry = function (entry, sql, data) {
             var _this = this;
-            var sql = ['UPDATE [', entry.name, '] SET '];
-            var items = [];
-            var vs = [];
-            if (keys === undefined) {
-                keys = [];
+            return new Promise(function (resolve, reject) {
+                _this._db.query(['SELECT * FROM [', entry.name, '] ', sql].join(''), data, function (objects, errmsg) {
+                    if (errmsg !== undefined) {
+                        reject(errmsg);
+                    }
+                    else {
+                        resolve(objects);
+                    }
+                });
+            });
+        };
+        DBContext.prototype.add = function (object, entry, trans) {
+            var _this = this;
+            return new Promise(function (resolve, reject) {
+                var sql = ['INSERT INTO [', entry.name, ']('];
+                var names = [];
+                var valus = [];
+                var vs = [];
                 for (var _i = 0, _a = entry.fields; _i < _a.length; _i++) {
                     var fd = _a[_i];
-                    keys.push(fd.name);
+                    names.push('[' + fd.name + ']');
+                    valus.push('?');
+                    var v = object[fd.name];
+                    if (v === undefined) {
+                        vs.push(fd.default);
+                    }
+                    else {
+                        vs.push(v);
+                    }
                 }
-            }
-            var defaultValues = {};
-            for (var _b = 0, _c = entry.fields; _b < _c.length; _b++) {
-                var fd = _c[_b];
-                defaultValues[fd.name] = fd.default;
-            }
-            for (var _d = 0, keys_1 = keys; _d < keys_1.length; _d++) {
-                var key = keys_1[_d];
-                var v = object[key];
-                if (v === undefined) {
-                    v = defaultValues[key];
+                sql.push(names.join(','));
+                sql.push(') VALUES(');
+                sql.push(valus.join(','));
+                sql.push(')');
+                console.info("[SQL]", sql.join(''), vs);
+                _this._db.exec(sql.join(''), vs, function (id, errmsg) {
+                    object.id = id;
+                    if (errmsg === undefined) {
+                        if (trans !== undefined) {
+                            trans.add({
+                                type: DBCommandType.ADD,
+                                object: object,
+                                entry: entry
+                            });
+                        }
+                        resolve(object);
+                    }
+                    else {
+                        reject(errmsg);
+                    }
+                });
+            });
+        };
+        DBContext.prototype.remove = function (objects, entry, trans) {
+            var _this = this;
+            return new Promise(function (resolve, reject) {
+                var sql = ['DELETE FROM [', entry.name, '] FROM [id] IN ('];
+                var vs = [];
+                var as = [];
+                for (var _i = 0, objects_1 = objects; _i < objects_1.length; _i++) {
+                    var v = objects_1[_i];
+                    as.push("?");
+                    vs.push(v.id);
                 }
-                vs.push(v);
-                items.push('[' + key + ']=?');
-            }
-            sql.push(items.join(","));
-            sql.push(" WHERE [id]=?");
-            vs.push(object.id);
-            console.info("[SQL]", sql.join(''), vs);
-            this._db.exec(sql.join(''), vs, function (id, errmsg) {
-                if (errmsg === undefined) {
-                    var e = new Event();
-                    e.data = {
-                        type: DBCommandType.SET,
-                        object: object,
-                        entry: entry,
-                        keys: keys
-                    };
-                    _this.emit("change", e);
+                sql.push(as.join(','));
+                sql.push(")");
+                console.info("[SQL]", sql.join(''), vs);
+                _this._db.exec(sql.join(''), vs, function (id, errmsg) {
+                    if (errmsg === undefined) {
+                        if (trans !== undefined) {
+                            trans.add({
+                                type: DBCommandType.REMOVE,
+                                objects: objects,
+                                entry: entry
+                            });
+                        }
+                        resolve(objects);
+                    }
+                    else {
+                        reject(errmsg);
+                    }
+                });
+            });
+        };
+        DBContext.prototype.set = function (object, entry, keys, trans) {
+            var _this = this;
+            return new Promise(function (resolve, reject) {
+                var sql = ['UPDATE [', entry.name, '] SET '];
+                var items = [];
+                var vs = [];
+                if (keys === undefined) {
+                    keys = [];
+                    for (var _i = 0, _a = entry.fields; _i < _a.length; _i++) {
+                        var fd = _a[_i];
+                        keys.push(fd.name);
+                    }
                 }
-                if (done !== undefined) {
-                    done(errmsg);
+                var defaultValues = {};
+                for (var _b = 0, _c = entry.fields; _b < _c.length; _b++) {
+                    var fd = _c[_b];
+                    defaultValues[fd.name] = fd.default;
                 }
+                for (var _d = 0, keys_1 = keys; _d < keys_1.length; _d++) {
+                    var key = keys_1[_d];
+                    var v = object[key];
+                    if (v === undefined) {
+                        v = defaultValues[key];
+                    }
+                    vs.push(v);
+                    items.push('[' + key + ']=?');
+                }
+                sql.push(items.join(","));
+                sql.push(" WHERE [id]=?");
+                vs.push(object.id);
+                console.info("[SQL]", sql.join(''), vs);
+                _this._db.exec(sql.join(''), vs, function (id, errmsg) {
+                    if (errmsg === undefined) {
+                        if (trans !== undefined) {
+                            trans.add({
+                                type: DBCommandType.SET,
+                                object: object,
+                                keys: keys,
+                                entry: entry
+                            });
+                        }
+                        resolve(object);
+                    }
+                    else {
+                        reject(errmsg);
+                    }
+                });
             });
         };
         return DBContext;

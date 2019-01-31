@@ -173,6 +173,8 @@ namespace kk {
     
     void EventEmitter::emit(kk::CString name,Event * event) {
         
+        kk::Strong<EventEmitter> strong = this;
+        
         std::list<Strong<Object>> vs;
         
         String n(name);

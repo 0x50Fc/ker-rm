@@ -46,6 +46,255 @@
 	};
 
 })();
+
+(function () {
+
+    var State = {
+        PENDING: 0,
+        FULFILLED: 1,
+        REJECTED: 2
+    };
+
+    Promise = function (executor) {
+        this.state = State.PENDING;
+        this.value = undefined;
+
+        var p = this;
+
+        try {
+            executor(function (result) {
+                setValue(p, result);
+            }, function (reason) {
+                setReason(p, reason);
+            });
+        } catch (reason) {
+            setReason(p, reason);
+        }
+
+    };
+
+    Promise.reject = function (reason) {
+        var v = Object.create(Promise.prototype, {});
+        v.state = State.REJECTED;
+        v.value = reason;
+        return v;
+    };
+
+    Promise.resolve = function (value) {
+        var v = Object.create(Promise.prototype, {});
+        v.state = State.FULFILLED;
+        v.value = value;
+        return v;
+    };
+
+    Promise.all = function (items) {
+        return new Promise(function (resolve, reject) {
+            var count = 0;
+            var maxCount = items.length;
+            var done = false;
+            var values = [];
+
+            for (var i = 0; i < items.length; i++) {
+
+                (function (i, item) {
+
+                    item.then(function (value) {
+
+                        if (done) {
+                            return;
+                        }
+
+                        values[i] = value;
+                        count++;
+                        if (count == maxCount) {
+                            done = true;
+                            resolve(values);
+                        }
+                    }, function (reason) {
+
+                        if (done) {
+                            return;
+                        }
+
+                        done = true;
+
+                        reject(reason);
+                    });
+
+                })(i, items[i]);
+            }
+        });
+    };
+
+    Promise.race = function (items) {
+        return new Promise(function (resolve, reject) {
+            var done = false;
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                item.then(function (value) {
+
+                    if (done) {
+                        return;
+                    }
+                    done = true;
+                    resolve(value);
+                }, function (reason) {
+
+                    if (done) {
+                        return;
+                    }
+
+                    done = true;
+                    reject(reason);
+                });
+            }
+        });
+    };
+
+    function setValue(p, value) {
+        if (p.state != State.PENDING) {
+            throw "Promise not is PENDING";
+        }
+
+        if (value instanceof Promise) {
+            value.then(function (value) {
+                try {
+                    setValue(p, value);
+                } catch (reason) {
+                    setReason(p, reason);
+                }
+            }, function (reason) {
+                setReason(p, reason);
+            });
+        }
+
+        if (typeof p._onResolve == 'function') {
+
+            var fn = p._onResolve;
+
+            p._onResolve = undefined;
+
+            try {
+                var newValue = fn(value);
+                if (newValue === undefined) {
+                    newValue = value;
+                }
+                setValue(p, newValue);
+            } catch (reason) {
+                setReason(p, reason);
+            }
+
+        } else {
+            p.state = State.FULFILLED;
+            p.value = value;
+        }
+    }
+
+    function setReason(p, reason) {
+
+        if (p.state != State.PENDING) {
+            throw "Promise not is PENDING";
+        }
+
+        if (typeof p._onReject == 'function') {
+
+            var fn = p._onReject;
+
+            p._onReject = undefined;
+
+            try {
+                fn(reason);
+                setReason(p, reason);
+                p.state = State.REJECTED;
+                p.value = reason;
+            } catch (reason) {
+                setReason(p, reason);
+            }
+
+        } else {
+            p.state = State.REJECTED;
+            p.value = reason;
+        }
+
+    }
+
+    Promise.prototype = Object.create(Object.prototype, {
+        then: {
+            value: function (onResolve, onReject) {
+
+                var v = Object.create(Promise.prototype, {});
+                v.state = State.PENDING;
+                this._onResolve = function (value) {
+                    if (typeof onResolve == 'function') {
+                        try {
+                            var newValue = onResolve(value);
+                            if (newValue === undefined) {
+                                newValue = value;
+                            }
+                            setValue(v, newValue);
+                        } catch (reason) {
+                            setReason(v, reason);
+                        }
+                    } else {
+                        try {
+                            setValue(v, value);
+                        } catch (reason) {
+                            setReason(v, reason);
+                        }
+                    }
+                };
+                this._onReject = function (reason) {
+                    if (typeof onReject == 'function') {
+                        try {
+                            onReject(reason);
+                            setReason(v, reason);
+                        } catch (r) {
+                            setReason(v, r);
+                        }
+                    } else {
+                        setReason(v, reason);
+                    }
+                };
+                if (this.state == State.FULFILLED) {
+                    this._onResolve(this.value);
+                } else if (this.state == State.REJECTED) {
+                    this._onReject(this.value);
+                }
+                return v;
+
+            },
+            writable: false,
+            configurable: false,
+            enumerable: true
+        },
+        catch: {
+            value: function (onReject) {
+                return this.then(undefined, onReject);
+            },
+            writable: false,
+            configurable: false,
+            enumerable: true
+        },
+        finally: {
+            value: function (onFinally) {
+                var fn = function () {
+                    if (typeof onFinally == 'function') {
+                        try {
+                            onFinally();
+                        } catch (e) {
+
+                        }
+                    }
+                };
+                return this.then(fn, fn);
+            },
+            writable: false,
+            configurable: false,
+            enumerable: true
+        }
+    });
+
+})();
 var ker;
 (function (ker) {
     function dateFormat(d, fmt) {
@@ -115,7 +364,7 @@ var ker;
                 return this.evaluateScript.apply(undefined, vs);
             }
             catch (e) {
-                console.error("[Evaluate:exec]", e);
+                console.error("[Evaluate:exec]", e.stack);
             }
         };
         return Evaluate;
@@ -675,6 +924,25 @@ var ker;
             data.setData(object);
             setLayout();
         };
+        var dataing;
+        object.postData = function (object) {
+            if (dataing === undefined) {
+                dataing = object;
+                setTimeout(function () {
+                    if (dataing !== undefined) {
+                        var v = dataing;
+                        dataing = undefined;
+                        data.setData(v);
+                        setLayout();
+                    }
+                }, 0);
+            }
+            else {
+                for (var key in object) {
+                    dataing[key] = object[key];
+                }
+            }
+        };
         if (object.onload !== undefined) {
             object.onload(document);
         }
@@ -765,7 +1033,7 @@ var ker;
     }
     function playVoice(object) {
         playRecycle();
-        Audio.startSession(Audio.Ambient, function (errmsg) {
+        Audio.startSession(Audio.Playback, function (errmsg) {
             if (errmsg) {
                 if (object.fail !== undefined) {
                     object.fail(errmsg);
@@ -982,6 +1250,8 @@ var ker;
     }
     ker.request = request;
 })(ker || (ker = {}));
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var ker;
 (function (ker) {
     var DBIndexType;
@@ -1002,9 +1272,10 @@ var ker;
     })(DBFieldType = ker.DBFieldType || (ker.DBFieldType = {}));
     var DBCommandType;
     (function (DBCommandType) {
-        DBCommandType[DBCommandType["ADD"] = 0] = "ADD";
-        DBCommandType[DBCommandType["SET"] = 1] = "SET";
-        DBCommandType[DBCommandType["REMOVE"] = 2] = "REMOVE";
+        DBCommandType[DBCommandType["NONE"] = 0] = "NONE";
+        DBCommandType[DBCommandType["ADD"] = 1] = "ADD";
+        DBCommandType[DBCommandType["SET"] = 2] = "SET";
+        DBCommandType[DBCommandType["REMOVE"] = 3] = "REMOVE";
     })(DBCommandType = ker.DBCommandType || (ker.DBCommandType = {}));
     function DBSQLDefaultValue(fd) {
         switch (fd.type) {
@@ -1054,6 +1325,21 @@ var ker;
         }
         return type;
     }
+    var DBTransaction = /** @class */ (function () {
+        function DBTransaction(emittr) {
+            this._emitter = emittr;
+            this._commands = [];
+        }
+        DBTransaction.prototype.add = function (command) {
+            this._commands.push(command);
+        };
+        DBTransaction.prototype.commit = function () {
+            var e = new Event();
+            e.data = this._commands;
+            this._emitter.emit("change", e);
+        };
+        return DBTransaction;
+    }());
     var DBContext = /** @class */ (function () {
         function DBContext(db) {
             this._emitter = new EventEmitter();
@@ -1064,6 +1350,13 @@ var ker;
                 }
             });
         }
+        Object.defineProperty(DBContext.prototype, "db", {
+            get: function () {
+                return this._db;
+            },
+            enumerable: true,
+            configurable: true
+        });
         DBContext.prototype.on = function (name, func) {
             this._emitter.on(name, func);
         };
@@ -1076,13 +1369,6 @@ var ker;
         DBContext.prototype.emit = function (name, event) {
             this._emitter.emit(name, event);
         };
-        Object.defineProperty(DBContext.prototype, "db", {
-            get: function () {
-                return this._db;
-            },
-            enumerable: true,
-            configurable: true
-        });
         DBContext.prototype.addEntry = function (entry) {
             var _this = this;
             this._db.query("SELECT * FROM __entrys WHERE name=?", [entry.name], function (items, errmsg) {
@@ -1206,126 +1492,168 @@ var ker;
                 }
             });
         };
-        DBContext.prototype.query = function (sql, data, done) {
-            this._db.query(sql, data, done);
+        DBContext.prototype.startTransaction = function () {
+            return new DBTransaction(this._emitter);
         };
-        DBContext.prototype.exec = function (sql, data, done) {
-            this._db.exec(sql, data, done);
-        };
-        DBContext.prototype.queryEntry = function (entry, sql, data, done) {
-            this._db.query(['SELECT * FROM [', entry.name, '] ', sql].join(''), data, done);
-        };
-        DBContext.prototype.add = function (object, entry, done) {
+        DBContext.prototype.query = function (sql, data) {
             var _this = this;
-            var sql = ['INSERT INTO [', entry.name, ']('];
-            var names = [];
-            var valus = [];
-            var vs = [];
-            for (var _i = 0, _a = entry.fields; _i < _a.length; _i++) {
-                var fd = _a[_i];
-                names.push('[' + fd.name + ']');
-                valus.push('?');
-                var v = object[fd.name];
-                if (v === undefined) {
-                    vs.push(fd.default);
-                }
-                else {
-                    vs.push(v);
-                }
-            }
-            sql.push(names.join(','));
-            sql.push(') VALUES(');
-            sql.push(valus.join(','));
-            sql.push(')');
-            console.info("[SQL]", sql.join(''), vs);
-            this._db.exec(sql.join(''), vs, function (id, errmsg) {
-                if (errmsg === undefined) {
-                    object.id = id;
-                    var e = new Event();
-                    e.data = {
-                        type: DBCommandType.ADD,
-                        object: object,
-                        entry: entry
-                    };
-                    _this.emit("change", e);
-                }
-                if (done !== undefined) {
-                    done(errmsg);
-                }
+            return new Promise(function (resolve, reject) {
+                _this._db.query(sql, data, function (objects, errmsg) {
+                    if (errmsg !== undefined) {
+                        reject(errmsg);
+                    }
+                    else {
+                        resolve(objects);
+                    }
+                });
             });
         };
-        DBContext.prototype.remove = function (objects, entry, done) {
+        DBContext.prototype.exec = function (sql, data) {
             var _this = this;
-            var sql = ['DELETE FROM [', entry.name, '] FROM [id] IN ('];
-            var vs = [];
-            var as = [];
-            for (var _i = 0, objects_1 = objects; _i < objects_1.length; _i++) {
-                var v = objects_1[_i];
-                as.push("?");
-                vs.push(v.id);
-            }
-            sql.push(as.join(','));
-            sql.push(")");
-            console.info("[SQL]", sql.join(''), vs);
-            this._db.exec(sql.join(''), vs, function (id, errmsg) {
-                if (errmsg === undefined) {
-                    var e = new Event();
-                    e.data = {
-                        type: DBCommandType.REMOVE,
-                        objects: objects,
-                        entry: entry
-                    };
-                    _this.emit("change", e);
-                }
-                if (done !== undefined) {
-                    done(errmsg);
-                }
+            return new Promise(function (resolve, reject) {
+                _this._db.exec(sql, data, function (id, errmsg) {
+                    if (errmsg !== undefined) {
+                        reject(errmsg);
+                    }
+                    else {
+                        resolve(id);
+                    }
+                });
             });
         };
-        DBContext.prototype.set = function (object, entry, keys, done) {
+        DBContext.prototype.queryEntry = function (entry, sql, data) {
             var _this = this;
-            var sql = ['UPDATE [', entry.name, '] SET '];
-            var items = [];
-            var vs = [];
-            if (keys === undefined) {
-                keys = [];
+            return new Promise(function (resolve, reject) {
+                _this._db.query(['SELECT * FROM [', entry.name, '] ', sql].join(''), data, function (objects, errmsg) {
+                    if (errmsg !== undefined) {
+                        reject(errmsg);
+                    }
+                    else {
+                        resolve(objects);
+                    }
+                });
+            });
+        };
+        DBContext.prototype.add = function (object, entry, trans) {
+            var _this = this;
+            return new Promise(function (resolve, reject) {
+                var sql = ['INSERT INTO [', entry.name, ']('];
+                var names = [];
+                var valus = [];
+                var vs = [];
                 for (var _i = 0, _a = entry.fields; _i < _a.length; _i++) {
                     var fd = _a[_i];
-                    keys.push(fd.name);
+                    names.push('[' + fd.name + ']');
+                    valus.push('?');
+                    var v = object[fd.name];
+                    if (v === undefined) {
+                        vs.push(fd.default);
+                    }
+                    else {
+                        vs.push(v);
+                    }
                 }
-            }
-            var defaultValues = {};
-            for (var _b = 0, _c = entry.fields; _b < _c.length; _b++) {
-                var fd = _c[_b];
-                defaultValues[fd.name] = fd.default;
-            }
-            for (var _d = 0, keys_1 = keys; _d < keys_1.length; _d++) {
-                var key = keys_1[_d];
-                var v = object[key];
-                if (v === undefined) {
-                    v = defaultValues[key];
+                sql.push(names.join(','));
+                sql.push(') VALUES(');
+                sql.push(valus.join(','));
+                sql.push(')');
+                console.info("[SQL]", sql.join(''), vs);
+                _this._db.exec(sql.join(''), vs, function (id, errmsg) {
+                    object.id = id;
+                    if (errmsg === undefined) {
+                        if (trans !== undefined) {
+                            trans.add({
+                                type: DBCommandType.ADD,
+                                object: object,
+                                entry: entry
+                            });
+                        }
+                        resolve(object);
+                    }
+                    else {
+                        reject(errmsg);
+                    }
+                });
+            });
+        };
+        DBContext.prototype.remove = function (objects, entry, trans) {
+            var _this = this;
+            return new Promise(function (resolve, reject) {
+                var sql = ['DELETE FROM [', entry.name, '] FROM [id] IN ('];
+                var vs = [];
+                var as = [];
+                for (var _i = 0, objects_1 = objects; _i < objects_1.length; _i++) {
+                    var v = objects_1[_i];
+                    as.push("?");
+                    vs.push(v.id);
                 }
-                vs.push(v);
-                items.push('[' + key + ']=?');
-            }
-            sql.push(items.join(","));
-            sql.push(" WHERE [id]=?");
-            vs.push(object.id);
-            console.info("[SQL]", sql.join(''), vs);
-            this._db.exec(sql.join(''), vs, function (id, errmsg) {
-                if (errmsg === undefined) {
-                    var e = new Event();
-                    e.data = {
-                        type: DBCommandType.SET,
-                        object: object,
-                        entry: entry,
-                        keys: keys
-                    };
-                    _this.emit("change", e);
+                sql.push(as.join(','));
+                sql.push(")");
+                console.info("[SQL]", sql.join(''), vs);
+                _this._db.exec(sql.join(''), vs, function (id, errmsg) {
+                    if (errmsg === undefined) {
+                        if (trans !== undefined) {
+                            trans.add({
+                                type: DBCommandType.REMOVE,
+                                objects: objects,
+                                entry: entry
+                            });
+                        }
+                        resolve(objects);
+                    }
+                    else {
+                        reject(errmsg);
+                    }
+                });
+            });
+        };
+        DBContext.prototype.set = function (object, entry, keys, trans) {
+            var _this = this;
+            return new Promise(function (resolve, reject) {
+                var sql = ['UPDATE [', entry.name, '] SET '];
+                var items = [];
+                var vs = [];
+                if (keys === undefined) {
+                    keys = [];
+                    for (var _i = 0, _a = entry.fields; _i < _a.length; _i++) {
+                        var fd = _a[_i];
+                        keys.push(fd.name);
+                    }
                 }
-                if (done !== undefined) {
-                    done(errmsg);
+                var defaultValues = {};
+                for (var _b = 0, _c = entry.fields; _b < _c.length; _b++) {
+                    var fd = _c[_b];
+                    defaultValues[fd.name] = fd.default;
                 }
+                for (var _d = 0, keys_1 = keys; _d < keys_1.length; _d++) {
+                    var key = keys_1[_d];
+                    var v = object[key];
+                    if (v === undefined) {
+                        v = defaultValues[key];
+                    }
+                    vs.push(v);
+                    items.push('[' + key + ']=?');
+                }
+                sql.push(items.join(","));
+                sql.push(" WHERE [id]=?");
+                vs.push(object.id);
+                console.info("[SQL]", sql.join(''), vs);
+                _this._db.exec(sql.join(''), vs, function (id, errmsg) {
+                    if (errmsg === undefined) {
+                        if (trans !== undefined) {
+                            trans.add({
+                                type: DBCommandType.SET,
+                                object: object,
+                                keys: keys,
+                                entry: entry
+                            });
+                        }
+                        resolve(object);
+                    }
+                    else {
+                        reject(errmsg);
+                    }
+                });
             });
         };
         return DBContext;

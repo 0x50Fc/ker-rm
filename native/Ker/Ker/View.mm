@@ -106,7 +106,7 @@ namespace kk {
         Size getAttributedTextContentSize(Context * context,AttributedText * text,kk::Float maxWidth) {
             NSAttributedString * string = GetAttributedText(text, context);
             CGRect bounds = [string boundingRectWithSize:CGSizeMake(maxWidth == 0 ? MAXFLOAT : maxWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin context:nil];
-            Size v = { (Float) bounds.size.width, (Float) bounds.size.height};
+            Size v = { (Float) ceil(bounds.size.width), (Float) ceil(bounds.size.height)};
             return v;
         }
         

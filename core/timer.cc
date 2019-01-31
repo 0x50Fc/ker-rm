@@ -104,7 +104,7 @@ namespace kk {
                     return 0;
                 });
                 
-                container->addLibrary("clearTimeout", v);
+                container->addLibrary("setInterval", v);
             }
             
             {
@@ -123,7 +123,7 @@ namespace kk {
                     
                 });
                 
-                container->addLibrary("clearTimeout", v);
+                container->addLibrary("clearInterval", v);
             }
             
         });

@@ -55,15 +55,27 @@ namespace kk {
                     return;
                 }
                 
-                [session requestRecordPermission:^(BOOL granted) {
-                    
-                    if(granted) {
+                if(category == AudioSessionCategoryRecord || category == AudioSessionCategoryPlayAndRecord) {
+                    if(session.recordPermission == AVAudioSessionRecordPermissionGranted) {
                         func(nullptr);
                     } else {
-                        func("请开启录音权限");
+                        std::function<void(kk::CString)> * fn = new std::function<void(kk::CString)>(func);
+                        [session requestRecordPermission:^(BOOL granted) {
+                            
+                            if(granted) {
+                                (*fn)(nullptr);
+                            } else {
+                                (*fn)("请开启录音权限");
+                            }
+                            
+                            delete fn;
+                            
+                        }];
                     }
-                    
-                }];
+                } else {
+                    func(nullptr);
+                }
+                
                 
             }
             

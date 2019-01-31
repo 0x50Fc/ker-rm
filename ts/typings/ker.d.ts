@@ -431,3 +431,20 @@ declare var query: any
 declare var page: UIPage
 declare var screen: UIScreen
 declare function compile(code: string, path: string): any
+
+
+declare class Promise<T> {
+
+    constructor(executor: (resolve: (value: T) => void, reject: (reason: any) => void) => void)
+
+    then(onfulfilled?: (value: T) => T | Promise<T> | undefined, onrejected?: (reason: any) => void): void
+
+    catch(onrejected?: (reason: any) => void): void
+
+    finally(onfinally?: () => void): void
+
+    static all(iterable: Promise<any>[]): Promise<any>
+    static race(iterable: Promise<any>[]): Promise<any>
+    static resolve(value: any): Promise<any>
+    static reject(reason: any): Promise<any>
+}

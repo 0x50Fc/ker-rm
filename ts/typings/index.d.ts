@@ -83,6 +83,7 @@ declare namespace ker {
         document?: Document
         data?: DataObject
         setData?: (object: DataObject) => void
+        postData?: (object: DataObject) => void
         onload?: (document: Document) => void
         onunload?: () => void
     }
@@ -223,24 +224,39 @@ declare namespace ker {
         [key: string]: DBField
     }
 
-    class DBContext extends EventEmitter {
-        constructor(db: Database)
+    interface DBTransaction {
+        commit(): void 
+    }
 
-        readonly db: Database
+    class DBContext {
+        
+        constructor(db: Database) 
 
-        addEntry(entry: DBEntry): void
+        readonly db: Database 
 
-        query(sql: string, data: DatabaseValue[], done: (objects: DatabaseRow[], errmsg: string | undefined) => void): void
+        on(name: string, func: EventFunction): void
 
-        exec(sql: string, data: DatabaseValue[], done: (id: number, errmsg: string | undefined) => void): void
+        off(name?: string, func?: EventFunction): void 
 
-        queryEntry(entry: DBEntry, sql: string, data: DatabaseValue[], done: (objects: DBObject[], errmsg: string | undefined) => void): void
+        has(name: string): boolean
 
-        add(object: DBObject, entry: DBEntry, done?: (errmsg: string | undefined) => void): void
+        emit(name: string, event: Event): void 
 
-        remove(objects: DBObject[], entry: DBEntry, done?: (errmsg: string | undefined) => void): void
+        addEntry(entry: DBEntry): void 
 
-        set(object: DBObject, entry: DBEntry, keys?: string[] | undefined, done?: (errmsg: string | undefined) => void): void
+        startTransaction(): DBTransaction 
+
+        query(sql: string, data: DatabaseValue[]): Promise<DatabaseRow[]>
+
+        exec(sql: string, data: DatabaseValue[]): Promise<number> 
+
+        queryEntry(entry: DBEntry, sql: string, data: DatabaseValue[]): Promise<DBObject[]> 
+
+        add(object: DBObject, entry: DBEntry, trans?: DBTransaction): Promise<DBObject> 
+
+        remove(objects: DBObject[], entry: DBEntry, trans?: DBTransaction): Promise<DBObject[]>
+
+        set(object: DBObject, entry: DBEntry, keys?: string[] | undefined, trans?: DBTransaction): Promise<DBObject>
     }
 
     function dateFormat(d: Date | string | number, fmt: string): string
@@ -250,7 +266,7 @@ declare namespace ker {
     function Page(object: UIPageObject, page: UIPage, setTimeout: any): void
 
     interface AudioPlayVoiceObject {
-        file:File
+        file: File
         success?: () => void
         fail?: (errmsg?: string) => void
         complete?: () => void
@@ -262,8 +278,8 @@ declare namespace ker {
         complete?: () => void
     }
 
-    function playVoice(object:AudioPlayVoiceObject):void
+    function playVoice(object: AudioPlayVoiceObject): void
 
-    function stopVoice(object:AudioStopVoiceObject):void
+    function stopVoice(object: AudioStopVoiceObject): void
 
 }

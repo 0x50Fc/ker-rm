@@ -33,6 +33,7 @@ namespace kk {
                 _codec->encode(data, _data);
                 _output->write(_data, _size);
                 _duration += _preDuration;
+                kk::Log("[Audio] [Input] %g",(double) _duration / 1000);
             }
             
             virtual void cancel() {

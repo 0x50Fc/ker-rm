@@ -77,6 +77,25 @@ var ker;
             data.setData(object);
             setLayout();
         };
+        var dataing;
+        object.postData = function (object) {
+            if (dataing === undefined) {
+                dataing = object;
+                setTimeout(function () {
+                    if (dataing !== undefined) {
+                        var v = dataing;
+                        dataing = undefined;
+                        data.setData(v);
+                        setLayout();
+                    }
+                }, 0);
+            }
+            else {
+                for (var key in object) {
+                    dataing[key] = object[key];
+                }
+            }
+        };
         if (object.onload !== undefined) {
             object.onload(document);
         }

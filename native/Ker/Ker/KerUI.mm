@@ -387,7 +387,9 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     }
     
     if([view isKindOfClass:[UIScrollView class]]) {
-        [(UIScrollView *) view setContentSize:size];
+        if(!CGSizeEqualToSize(size, [(UIScrollView *) view contentSize])) {
+            [(UIScrollView *) view setContentSize:size];
+        }
     }
     
 }
