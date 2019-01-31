@@ -32,7 +32,7 @@ namespace kk {
         class Package : public EventEmitter {
         public:
             
-            Package(kk::CString URI);
+            Package(kk::CString URI,kk::CString appkey);
             
             virtual ~Package();
             

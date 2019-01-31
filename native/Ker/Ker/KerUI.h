@@ -51,7 +51,7 @@ typedef void (^KerUIOpenCallback)(KerId appid,NSString * errmsg);
 
 +(NSString *) mimeType:(NSString *) filePath data:(NSData *) data defaultType:(NSString *) defaultType;
 
-+(void) open:(NSString *) URI query:(NSDictionary<NSString *,NSString *> *) query callback:(KerUIOpenCallback) callback;
++(void) open:(NSString *) URI appkey:(NSString *) appkey query:(NSDictionary<NSString *,NSString *> *) query callback:(KerUIOpenCallback) callback;
 
 +(NSString *) resolveURI:(NSString *) path;
 

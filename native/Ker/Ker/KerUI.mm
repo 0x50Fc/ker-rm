@@ -1173,11 +1173,11 @@ static NSMutableDictionary * gKerUIViewClass = nil;
     return [NSString stringWithCString:s.c_str() encoding:NSUTF8StringEncoding];
 }
                  
- +(void) open:(NSString *) URI query:(NSDictionary<NSString *,NSString *> *) query callback:(KerUIOpenCallback) callback {
+ +(void) open:(NSString *) URI appkey:(NSString *) appkey query:(NSDictionary<NSString *,NSString *> *) query callback:(KerUIOpenCallback) callback {
 
      kk::Strong<kk::NativeObject> cb = new kk::NativeObject((__bridge kk::Native *) callback);
      kk::Strong<kk::NativeValue> q = new kk::NativeValue((__bridge kk::Native *) query);
-     kk::ui::UI::main()->open([URI UTF8String], q,[cb](kk::Uint64 appid,kk::CString errmsg)->void{
+     kk::ui::UI::main()->open([URI UTF8String], [appkey UTF8String], q,[cb](kk::Uint64 appid,kk::CString errmsg)->void{
          
          @autoreleasepool {
              

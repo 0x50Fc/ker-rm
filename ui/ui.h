@@ -306,7 +306,7 @@ namespace kk {
             virtual void dispatchCommand(kk::Uint64 appid,Command * command);
             virtual void emit(kk::Uint64 appid,kk::CString name,kk::Event * event);
             virtual void emit(kk::Uint64 appid,kk::Uint64 viewId,kk::CString name,kk::Event * event);
-            virtual void open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func);
+            virtual void open(kk::CString uri,kk::CString appkey,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func);
             virtual void startTransaction();
             virtual kk::Sqlite * database();
             virtual Screen * mainScreen();

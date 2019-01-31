@@ -886,12 +886,16 @@ namespace kk {
         }
         
 
-        void UI::open(kk::CString uri,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func) {
+        void UI::open(kk::CString uri,kk::CString appkey,kk::Object * query,std::function<void(kk::Uint64,kk::CString)> && func) {
             kk::String u = uri;
             kk::Strong<kk::Object> q = query;
-            _queue->async([u,q,func]()->void{
+            kk::String apk;
+            if(appkey) {
+                apk.append(appkey);
+            }
+            _queue->async([u,q,func,apk]()->void{
                 
-                kk::ui::Package * package = new kk::ui::Package(u.c_str());
+                kk::ui::Package * package = new kk::ui::Package(u.c_str(),apk.empty() ? nullptr : apk.c_str());
                 
                 package->retain();
                 
