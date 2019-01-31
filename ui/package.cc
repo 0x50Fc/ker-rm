@@ -31,7 +31,7 @@ namespace kk {
             if(kk::CStringEqual(u.scheme(), "http") || kk::CStringEqual(u.scheme(), "https")) {
                 _path = GetDirectory(kAppDirectory);
                 _path.append("/");
-                _path.append(_appkey);
+                _path.append(C.MD5(URI));
                 _path.append("/");
                 struct stat st;
                 if(-1 != stat(_path.c_str(), &st)) {
