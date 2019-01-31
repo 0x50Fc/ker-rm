@@ -1,0 +1,11 @@
+<view class="container">
+
+
+  <button open-type='getImageInfo' bindgetuserinfo="getImageInfo" bindtap="getImageInfo">getImageInfo</button>
+
+  <button open-type='saveImageToPhotosAlbum' bindgetuserinfo="saveImageToPhotosAlbum" bindtap="saveImageToPhotosAlbum">saveImageToPhotosAlbum</button>
+
+
+
+
+</view>

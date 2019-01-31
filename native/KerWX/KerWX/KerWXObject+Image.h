@@ -16,6 +16,16 @@
 
 @end
 
+@interface KerWXGetImageInfoRes : WXCallbackRes
+
+@property (nonatomic, assign) double width;
+@property (nonatomic, assign) double height;
+@property (nonatomic, copy) NSString * path;
+@property (nonatomic, copy) NSString * orientation;
+@property (nonatomic, copy) NSString * type;
+
+@end
+
 @protocol KerWXChooseImageObject <NSObject>
 
 @property(nonatomic,assign,readonly) int count;
@@ -28,9 +38,23 @@
 
 @end
 
+@protocol KerWXGetImageInfoObject <WXCallbackFunction>
+
+@property (nonatomic, copy, readonly) NSString * src;
+
+@end
+
+@protocol KerWXSaveImageToPhotosAlbumObject <WXCallbackFunction>
+
+@property (nonatomic, copy, readonly) NSString * filePath;
+
+@end
+
 @interface KerWXObject (Image)<UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 
 -(void) chooseImage:(KerJSObject *) object;
+-(void) getImageInfo:(KerJSObject *) object;
+-(void) saveImageToPhotosAlbum:(KerJSObject *) object;
 
 @end
 

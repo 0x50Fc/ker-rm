@@ -184,7 +184,12 @@ Page({
           {
             zh: '图片',
             url: 'image/image'
-          }, {
+          },
+          {
+            zh: "图片api测试",
+            url: "image-test/index"
+          }, 
+          {
             zh: '录音',
             url: 'voice/voice'
           },
