@@ -854,6 +854,8 @@ namespace kk {
         operator kk::Strong<TObject<kk::String,kk::Any>>();
         operator kk::Strong<Array<kk::Any>>();
         
+        kk::Strong<NativeObject> toNativeObject();
+        
     protected:
         duk_context * _ctx;
         kk::Strong<DispatchQueue> _queue;
@@ -880,13 +882,8 @@ namespace kk {
     
     struct Signature;
     
-    typedef void (*SignatureFromFunc)(Signature * s,duk_context * ctx, duk_idx_t idx);
-    typedef void (*SignatureToFunc)(Signature * s,duk_context * ctx);
-    
     struct Signature {
         SignatureType type;
-        SignatureFromFunc from;
-        SignatureToFunc to;
         union {
             Int8 int8Value;
             Uint8 uint8Value;

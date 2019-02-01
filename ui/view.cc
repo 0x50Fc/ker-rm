@@ -229,24 +229,29 @@ namespace kk {
         }
         
         View::~View() {
+            
             App * app = _app;
-            if(app != nullptr){
-                if(_showToScreen) {
-                    {
-                        kk::Strong<ViewRemoveCommand> cmd = new ViewRemoveCommand();
-                        cmd->appid = app->appid();
-                        cmd->viewId = _viewId;
-                        UI::main()->execCommand(cmd);
-                    }
-                }
+            
+            if(_showToScreen) {
                 {
-                    kk::Strong<ViewDeleteCommand> cmd = new ViewDeleteCommand();
-                    cmd->appid = app->appid();
+                    kk::Strong<ViewRemoveCommand> cmd = new ViewRemoveCommand();
+                    cmd->appid = app ? app->appid() : 0;
                     cmd->viewId = _viewId;
                     UI::main()->execCommand(cmd);
                 }
+            }
+            
+            {
+                kk::Strong<ViewDeleteCommand> cmd = new ViewDeleteCommand();
+                cmd->appid = app ? app->appid() : 0;
+                cmd->viewId = _viewId;
+                UI::main()->execCommand(cmd);
+            }
+            
+            if(app != nullptr){
                 app->removeView(_viewId);
             }
+            
             kk::Log("[View] [dealloc]");
         }
         

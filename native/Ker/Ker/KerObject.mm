@@ -331,6 +331,12 @@ namespace kk {
         return nullptr;
     }
     
+    kk::Strong<NativeObject> JSObject::toNativeObject() {
+        KerJSObject * v = [[KerJSObject alloc] initWithJSObject:this];
+        kk::Strong<NativeObject> r = new NativeObject((__bridge kk::Native *) v);
+        return r;
+    }
+    
     namespace objc {
         
         static void SignatureInit(Signature & returnSignature,std::vector<Signature> & arguments,const char * types);
@@ -454,7 +460,7 @@ namespace kk {
                         
                         if(m && v) {
                             
-                            Signature r = {SignatureTypeVoid,nullptr,nullptr};
+                            Signature r = {SignatureTypeVoid};
                             
                             std::vector<Signature> args;
                             
@@ -469,9 +475,10 @@ namespace kk {
                                 SignatureSetArguments(inv,i,args[i - 2]);
                             }
                             
-                            inv.selector = method_getName(m);
+                            [inv setTarget:(__bridge id)v->native()];
+                            [inv setSelector:method_getName(m)];
                             
-                            [inv invokeWithTarget:(__bridge id)v->native()];
+                            [inv invoke];
                             
                             SignatureGetReturnValue(inv,r);
                             
@@ -552,7 +559,7 @@ namespace kk {
                                 return 0;
                             }
                         
-                            Signature r = {SignatureTypeVoid,nullptr,nullptr};
+                            Signature r = {SignatureTypeVoid};
                             
                             std::vector<Signature> args;
                             
@@ -656,8 +663,6 @@ namespace kk {
                 case '@':
                     s.type = SignatureTypeNative;
                     s.nativeValue = nullptr;
-                    s.from = SignatureObjectFromFunc;
-                    s.to = SignatureObjectToFunc;
                     break;
                 default:
                     break;
@@ -674,7 +679,7 @@ namespace kk {
             
             for(NSUInteger i=2;i<n;i++) {
                 
-                Signature v = {SignatureTypeVoid,nullptr,nullptr};
+                Signature v = {SignatureTypeVoid};
                 
                 SignatureSetType(v,[s getArgumentTypeAtIndex:i]);
                 
@@ -1164,7 +1169,7 @@ id KerObjectFromAny(kk::Any & v) {
 }
 
 
-static void KerJSObjectDynamicObjectSetReturnValue(duk_context * ctx, duk_idx_t idx,NSInvocation * anInvocation) {
+static id KerJSObjectDynamicObjectSetReturnValue(duk_context * ctx, duk_idx_t idx,NSInvocation * anInvocation) {
     
     switch (* [[anInvocation methodSignature] methodReturnType]) {
         case 'c':
@@ -1251,11 +1256,14 @@ static void KerJSObjectDynamicObjectSetReturnValue(duk_context * ctx, duk_idx_t 
         {
             id v = ker_to_NSObject(ctx, idx);
             [anInvocation setReturnValue:&v];
+            return v;
         }
             break;
         default:
             break;
     }
+    
+    return nil;
 }
 
 static void KerJSObjectDynamicObjectPushValue(duk_context * ctx, NSInvocation * anInvocation,int idx) {
@@ -1346,7 +1354,9 @@ static void KerJSObjectDynamicObjectGetProperty(KerJSObject * object,NSInvocatio
     
     if(v) {
         
-        v->queue()->sync([v,name,anInvocation]()->void{
+        __block id returnValue = nil;
+        
+        void (^fn)(void) = ^(){
             
             duk_context * ctx = v->jsContext();
             void * heapptr = v->heapptr();
@@ -1357,13 +1367,19 @@ static void KerJSObjectDynamicObjectGetProperty(KerJSObject * object,NSInvocatio
                 
                 duk_get_prop_string(ctx, -1, [name UTF8String]);
                 
-                KerJSObjectDynamicObjectSetReturnValue(ctx,-1,anInvocation);
+                returnValue = KerJSObjectDynamicObjectSetReturnValue(ctx,-1,anInvocation);
                 
                 duk_pop_2(ctx);
                 
             }
             
-        });
+        };
+        
+        if(v->queue() == kk::getCurrentDispatchQueue()) {
+            fn();
+        } else {
+            dispatch_sync(kk::DispatchQueueGCD(v->queue()), fn);
+        }
         
     }
     
@@ -1375,7 +1391,7 @@ static void KerJSObjectDynamicObjectSetProperty(KerJSObject * object,NSInvocatio
     
     if(v) {
         
-        v->queue()->sync([v,name,anInvocation]()->void{
+        void (^fn)(void) = ^(){
             
             duk_context * ctx = v->jsContext();
             void * heapptr = v->heapptr();
@@ -1390,10 +1406,15 @@ static void KerJSObjectDynamicObjectSetProperty(KerJSObject * object,NSInvocatio
                 
                 duk_pop(ctx);
                 
-                
             }
             
-        });
+        };
+        
+        if(v->queue() == kk::getCurrentDispatchQueue()) {
+            fn();
+        } else {
+            dispatch_sync(kk::DispatchQueueGCD(v->queue()), fn);
+        }
         
     }
     
@@ -1405,7 +1426,9 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
     
     if(v) {
         
-        v->queue()->sync([v,anInvocation,name]()->void{
+        __block id returnValue = nil;
+        
+        void (^fn)(void) = ^(){
             
             duk_context * ctx = v->jsContext();
             void * heapptr = v->heapptr();
@@ -1429,7 +1452,8 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
                     if(duk_pcall_method(ctx, (duk_idx_t) n - 2) != DUK_EXEC_SUCCESS) {
                         kk::Error(ctx, -1, "[KerJSObjectDynamicObjectInvoke]");
                     } else {
-                        KerJSObjectDynamicObjectSetReturnValue(ctx,-1,anInvocation);
+                        returnValue = KerJSObjectDynamicObjectSetReturnValue(ctx,-1,anInvocation);
+                        
                     }
                     
                 }
@@ -1438,13 +1462,21 @@ static void KerJSObjectDynamicObjectInvoke(KerJSObject * object,NSInvocation * a
                 
             }
             
-        });
+        };
+        
+        if(v->queue() == kk::getCurrentDispatchQueue()) {
+            fn();
+        } else {
+            dispatch_sync(kk::DispatchQueueGCD(v->queue()), fn);
+        }
         
     }
     
 }
 
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
+    
+    [anInvocation retainArguments];
     
     NSString * name = NSStringFromSelector(anInvocation.selector);
     NSRange r = [name rangeOfString:@":"];

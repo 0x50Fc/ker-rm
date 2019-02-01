@@ -18,10 +18,17 @@ namespace kk {
         
  
         Package::Package(kk::CString URI):_URI(URI),_state(PackageStateNone) {
-            if(kk::CStringHasSuffix(URI, ".ker")) {
-                loadKer(URI, nullptr);
+            if((kk::CStringHasPrefix(URI, "http://") || kk::CStringHasPrefix(URI, "https://")) ) {
+                if(kk::CStringHasSuffix(URI, ".ker")) {
+                    loadKer(URI, nullptr);
+                } else {
+                    loadMeta(URI);
+                }
             } else {
-                loadMeta(URI);
+                kk::String u = ResolveURI(URI);
+                Crypto C;
+                kk::String appkey = C.MD5(u.c_str());
+                loadKer(URI, appkey.c_str());
             }
         }
         

@@ -11,6 +11,8 @@
 
 namespace kk {
 
+    extern ::dispatch_queue_t DispatchQueueGCD(DispatchQueue * queue) ;
+    
     namespace audio {
         
         void Audio::startSession(AudioSessionCategory category,std::function<void(kk::CString)> && func) {
@@ -59,16 +61,23 @@ namespace kk {
                     if(session.recordPermission == AVAudioSessionRecordPermissionGranted) {
                         func(nullptr);
                     } else {
+                        dispatch_queue_t queue = DispatchQueueGCD(kk::getCurrentDispatchQueue());
+                        
                         std::function<void(kk::CString)> * fn = new std::function<void(kk::CString)>(func);
+                        
                         [session requestRecordPermission:^(BOOL granted) {
                             
-                            if(granted) {
-                                (*fn)(nullptr);
-                            } else {
-                                (*fn)("请开启录音权限");
-                            }
-                            
-                            delete fn;
+                            dispatch_async(queue, ^{
+                                
+                                if(granted) {
+                                    (*fn)(nullptr);
+                                } else {
+                                    (*fn)("请开启录音权限");
+                                }
+                                
+                                delete fn;
+                                
+                            });
                             
                         }];
                     }

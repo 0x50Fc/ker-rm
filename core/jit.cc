@@ -1117,11 +1117,7 @@ namespace kk {
     
     void duk_push_Signature(duk_context * ctx,Signature & v) {
         
-        if(v.to != nullptr) {
-            (*v.to)(&v,ctx);
-            return;
-        }
-        
+
         switch (v.type) {
             case SignatureTypeInt8:
                 duk_push_int(ctx, v.int8Value);
@@ -1172,7 +1168,7 @@ namespace kk {
                 break;
             case SignatureTypeNative:
                 if(v.nativeValue != nullptr) {
-                    PushObject(ctx, new NativeObject(v.nativeValue));
+                    PushNative(ctx, v.nativeValue);
                 } else {
                     duk_push_undefined(ctx);
                 }
@@ -1184,11 +1180,7 @@ namespace kk {
     }
     
     void duk_get_Signature(duk_context * ctx,duk_idx_t idx,Signature & v) {
-        
-        if(v.from != nullptr) {
-            (*v.from)(&v,ctx,idx);
-            return;
-        }
+    
         
         switch (duk_get_type(ctx, idx)) {
             case DUK_TYPE_NUMBER:
@@ -1325,7 +1317,22 @@ namespace kk {
             {
                 switch (v.type) {
                     case SignatureTypeObject:
-                        v.objectValue = new JSObject(ctx,duk_get_heapptr(ctx, idx));
+                    {
+                        kk::Object * vv = GetObject(ctx, -1);
+                        if(vv) {
+                            v.objectValue = vv;
+                        } else {
+                            v.objectValue = new JSObject(ctx,duk_get_heapptr(ctx, idx));
+                        }
+                    }
+                        break;
+                    case SignatureTypeNative:
+                    {
+                        kk::Strong<JSObject> vv = new JSObject(ctx,duk_get_heapptr(ctx, idx));
+                        kk::Strong<NativeObject> nv = vv->toNativeObject();
+                        v.objectValue = (Object *) nv;
+                        v.nativeValue = nv->native();
+                    }
                         break;
                     default:
                         break;
