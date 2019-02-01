@@ -40,7 +40,7 @@ namespace ker {
 
         recycle();
 
-        Audio.startSession(Audio.Record, (errmsg?: string): void => {
+        Audio.startSession(Audio.PlayAndRecord, (errmsg?: string): void => {
 
             if (errmsg) {
                 if (object.fail !== undefined) {

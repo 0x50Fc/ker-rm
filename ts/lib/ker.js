@@ -971,7 +971,7 @@ var ker;
     }
     function startRecord(object) {
         recycle();
-        Audio.startSession(Audio.Record, function (errmsg) {
+        Audio.startSession(Audio.PlayAndRecord, function (errmsg) {
             if (errmsg) {
                 if (object.fail !== undefined) {
                     object.fail(errmsg);

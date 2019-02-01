@@ -32,7 +32,7 @@ namespace kk {
         class Package : public EventEmitter {
         public:
             
-            Package(kk::CString URI,kk::CString appkey);
+            Package(kk::CString URI);
             
             virtual ~Package();
             
@@ -46,6 +46,8 @@ namespace kk {
             static void Openlib();
             
         protected:
+            virtual void loadKer(kk::CString URI,kk::CString appkey);
+            virtual void loadMeta(kk::CString URI);
             PackageState _state;
             kk::String _URI;
             kk::String _path;

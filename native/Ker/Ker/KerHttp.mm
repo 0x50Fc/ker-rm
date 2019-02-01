@@ -73,7 +73,7 @@ namespace kk {
                 return;
             }
             
-            NSMutableURLRequest * req = [NSMutableURLRequest requestWithURL:u];
+            NSMutableURLRequest * req = [NSMutableURLRequest requestWithURL:u cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:0];
             
             [req setHTTPMethod:[NSString stringWithCString:_method.c_str() encoding:NSUTF8StringEncoding]];
             

@@ -16,7 +16,84 @@ namespace kk {
     
     namespace ui {
         
-        Package::Package(kk::CString URI,kk::CString appkey):_URI(URI),_state(PackageStateNone) {
+ 
+        Package::Package(kk::CString URI):_URI(URI),_state(PackageStateNone) {
+            if(kk::CStringHasSuffix(URI, ".ker")) {
+                loadKer(URI, nullptr);
+            } else {
+                loadMeta(URI);
+            }
+        }
+        
+        void Package::loadMeta(kk::CString URI) {
+            
+            kk::Weak<Package> pkg(this);
+            kk::URI u(URI);
+            Crypto C;
+            kk::String appkey = C.MD5(URI);
+            
+            kk::Log("[Package] [Meta] %s",URI);
+            
+            kk::HTTPRequest * http = new HTTPRequest(UI::main()->queue());
+            _http = http;
+            _http->open("GET", URI, HTTPResponseTypeString);
+            _http->on("error", new kk::TFunction<void,kk::CString,Event *>([pkg](kk::CString name,kk::Event * event)->void{
+                kk::Strong<Package> package = pkg.operator->();
+                if(package != nullptr) {
+                    kk::Strong<kk::Event> e = new kk::Event();
+                    package->setState(PackageStateError);
+                    package->emit(name, e);
+                }
+            }));
+            _http->on("done", new kk::TFunction<void,kk::CString,Event *>([pkg,http,u,appkey](kk::CString name,kk::Event * event)->void{
+                kk::Strong<Package> package = pkg.operator->();
+                if(package != nullptr) {
+                    
+                    kk::String v = http->responseText();
+                    kk::String version;
+                    
+                    kk::Log("[Package] [Meta] %s",v.c_str());
+                    
+                    duk_context * ctx = duk_create_heap_default();
+                    
+                    kk::duk_json_decode(ctx, (void *) v.c_str(), v.size());
+                    
+                    if(duk_is_object(ctx, -1)){
+                        duk_get_prop_string(ctx, -1, "version");
+                        if(duk_is_string(ctx, -1)) {
+                            version = duk_to_string(ctx, -1);
+                        }
+                    }
+                    
+                    duk_pop_n(ctx, duk_get_top(ctx));
+                    
+                    duk_destroy_heap(ctx);
+                    
+                    if(version.empty()) {
+                        kk::Strong<kk::Event> e = new kk::Event();
+                        package->setState(PackageStateError);
+                        package->emit("error", e);
+                    } else {
+                        Crypto C;
+                        kk::URI & U = (kk::URI &) u;
+                        kk::String p;
+                        p.append(U.scheme());
+                        p.append("://");
+                        p.append(U.host());
+                        p.append(kk::CStringPathDirname(U.path()));
+                        p.append("/");
+                        p.append(version);
+                        p.append(".ker");
+                        package->loadKer(p.c_str(), appkey.c_str());
+                    }
+                    
+                }
+            }));
+            _http->send();
+            
+        }
+        
+        void Package::loadKer(kk::CString URI,kk::CString appkey) {
            
             kk::URI u(URI);
             kk::Crypto C;
@@ -132,7 +209,7 @@ namespace kk {
             
             addAppOpenlib([](duk_context * ctx,App * app)->void{
                 
-                kk::PushClass<Package,kk::CString,kk::CString>(ctx, [](duk_context * ctx)->void{
+                kk::PushClass<Package,kk::CString>(ctx, [](duk_context * ctx)->void{
                     
                     kk::PutMethod<Package,kk::Uint64,kk::Object *>(ctx, -1, "run", &Package::run);
                     kk::PutProperty<Package,kk::CString>(ctx, -1, "URI", &Package::URI);
