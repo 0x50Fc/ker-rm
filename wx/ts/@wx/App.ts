@@ -178,10 +178,12 @@ export class App implements Recycle {
 
     readonly options: AppOptions
 
-    get object():AppObject{
+    readonly cssContent: string
+
+    get object(): AppObject {
         return this._object
     }
-    
+
     constructor(basePath: string) {
         this.appid = ++autoId;
         this.basePath = basePath;
@@ -191,6 +193,13 @@ export class App implements Recycle {
                 this.options = JSON.parse(v);
             }
         }
+        {
+            this.cssContent = app.getTextContent(basePath + "/app.css") || '';
+        }
+    }
+
+    open(path: string, query: QueryObject): void {
+        app.open("@wx/page/page.js?appid=" + this.appid + "&path=" + encodeURIComponent(path) + "&query=" + encodeURIComponent(JSON.stringify(query)),true);
     }
 
     run(path?: string, query?: QueryObject): void {
@@ -218,6 +227,9 @@ export class App implements Recycle {
             },
             clearInterval: (id: any): void => {
                 clearInterval(id);
+            },
+            require: (path: string): any => {
+                return require(this.basePath + "/" + path);
             },
             wx: wx
         }
