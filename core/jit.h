@@ -913,7 +913,22 @@ namespace kk {
     void duk_pcall_method(duk_context * ctx,Signature returnSignature,std::vector<Signature> & arguments);
     
     duk_ret_t duk_json_decode(duk_context * ctx,void * data,size_t size);
-   
+ 
+    template<typename T,typename ... TArgs>
+    class TWeakFunction : public Function, public JSWeakObject {
+    public:
+        TWeakFunction(std::function<T(TArgs ...)> && func):_func(func){}
+        T operator()(TArgs ... args) {
+            return _func(args...);
+        }
+        operator std::function<T(TArgs ...)>&() {
+            return _func;
+        }
+    private:
+        std::function<T(TArgs ...)> _func;
+    };
+    
+    
 }
 
 #endif /* jit_h */

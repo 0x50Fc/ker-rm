@@ -39,6 +39,8 @@ namespace kk {
         
         Page::~Page() {
 
+            _objects.clear();
+            
             if(_app != nullptr) {
                 _app->removePage(_pageId);
                 _app->off("*", (kk::TFunction<void, kk::CString,kk::Event *> *) _func);
@@ -64,6 +66,7 @@ namespace kk {
                     }
                     i ++;
                 }
+                _librarys = nullptr;
             }
             
             if(_app != nullptr) {

@@ -342,10 +342,9 @@ namespace kk {
         }
         
         Context::~Context() {
-            _queue->sync([this]()->void{
-                JITContext::current()->remove(_jsContext);
-                duk_destroy_heap(_jsContext);
-            });
+            _objects.clear();
+            JITContext::current()->remove(_jsContext);
+            duk_destroy_heap(_jsContext);
         }
         
         void Context::set(kk::Object * object) {

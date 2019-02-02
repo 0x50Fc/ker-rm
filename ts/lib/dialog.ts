@@ -38,7 +38,7 @@ namespace ker {
             this._view.removeView();
         }
 
-        private layout(): void {
+        layout(): void {
             this._viewContext.setSize(screen.width, screen.height);
             this._viewContext.setUnit("px", screen.density, 0);
             this._element.setFrame(0, 0, screen.width, screen.height);

@@ -106,25 +106,36 @@ namespace kk {
         }
         
         virtual ~GCDDispatchSource() {
-            dispatch_source_set_event_handler(_source, nullptr);
-            dispatch_release(_source);
+            if(_source != nullptr) {
+                dispatch_source_set_event_handler(_source, nullptr);
+                dispatch_release(_source);
+            }
 //            kk::Log("[GCDDispatchSource] [dealloc]");
         }
         
         virtual void suspend() {
-            dispatch_suspend(_source);
+            if(_source != nullptr) {
+                dispatch_suspend(_source);
+            }
         }
         
         virtual void resume() {
-            dispatch_resume(_source);
+            if(_source != nullptr) {
+                dispatch_resume(_source);
+            }
         }
         
         virtual void cancel() {
-            dispatch_cancel(_source);
+            if(_source != nullptr) {
+                dispatch_source_set_event_handler(_source, nullptr);
+                dispatch_source_cancel(_source);
+                dispatch_release(_source);
+                _source = nullptr;
+            }
         }
         
         virtual void setTimer(kk::Uint64 delay,kk::Uint64 interval) {
-            dispatch_source_set_timer(_source, dispatch_walltime(NULL, delay * NSEC_PER_MSEC), interval * NSEC_PER_MSEC, 0);
+            dispatch_source_set_timer(_source, dispatch_walltime(NULL, delay * NSEC_PER_MSEC), interval == 0 ? DISPATCH_TIME_FOREVER : interval * NSEC_PER_MSEC, 0);
         }
         
         virtual void setEvent(std::function<void()> && func) {
@@ -134,7 +145,7 @@ namespace kk {
     protected:
         
         virtual void onEvent() {
-            if(_event != nullptr) {
+            if(_source != nullptr && _event != nullptr) {
                 std::function<void()> fn = _event;
                 fn();
             }

@@ -361,7 +361,11 @@ namespace kk {
             _JSFunction * v = dynamic_cast<_JSFunction *>(object);
             if(v != nullptr) {
                 duk_push_c_function(ctx, v->getInvoke(), v->getArguments());
-                SetObject(ctx, -1, v);
+                if(dynamic_cast<JSWeakObject *>(v)) {
+                    SetWeakObject(ctx, -1, v);
+                } else {
+                    SetObject(ctx, -1, v);
+                }
                 return;
             }
         }

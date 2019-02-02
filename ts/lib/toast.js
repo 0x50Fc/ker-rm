@@ -48,6 +48,7 @@ var ker;
         view.setData({
             title: object.title
         });
+        view.layout();
         view.show();
         viewSet[id] = view;
         setTimeout(function () {

@@ -25,9 +25,11 @@ namespace kk {
     
     Timer::~Timer() {
         if(_source != nullptr) {
+            _source->setEvent(nullptr);
             _source->cancel();
+            _source = nullptr;
         }
-//        kk::Log("[Timer] [dealloc]");
+        kk::Log("[Timer] [dealloc]");
     }
     
     void Timer::resume() {
@@ -38,6 +40,7 @@ namespace kk {
     
     void Timer::cancel() {
         if(_source != nullptr) {
+            _source->setEvent(nullptr);
             _source->cancel();
             _source = nullptr;
         }
@@ -53,10 +56,13 @@ namespace kk {
                     if(container != nullptr && func != nullptr) {
                         kk::Strong<JSObject> fn = func;
                         Timer * v = new Timer(container->queue(),tv,0);
+                        kk::Strong<Timer> s = v;
                         v->setEvent([fn,container,v]()->void{
-                            fn->invoke<void>(nullptr);
-                            v->cancel();
-                            container->remove(v);
+                            if(container->get(v) != nullptr) {
+                                v->cancel();
+                                container->remove(v);
+                                fn->invoke<void>(nullptr);
+                            }
                         });
                         container->set(v);
                         v->resume();
