@@ -1,6 +1,6 @@
 
 (function () {
-	
+
 	function parseArguments(vs, args) {
 		for (var i = 0; i < args.length; i++) {
 			var v = args[i];
@@ -9,7 +9,7 @@
 					var s;
 					try {
 						s = JSON.stringify(v, undefined, 4);
-					} catch(e) {
+					} catch (e) {
 						s = v + '';
 					}
 					vs.push(s);
@@ -45,3 +45,5 @@
 	};
 
 })();
+
+var ker = global.ker || (global.ker = {});

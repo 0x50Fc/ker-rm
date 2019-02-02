@@ -42,10 +42,21 @@ namespace kk {
         }
         
         Atomic * a = Atomic::current();
+        
         if(a != nullptr) {
             a->lock();
         }
+        
         _retainCount --;
+        
+        if(a != nullptr) {
+            a->unlock();
+        }
+        
+        if(a != nullptr) {
+            a->lock();
+        }
+        
         if(_retainCount == 0) {
             if(a != nullptr) {
                 a->addObject(this);
@@ -53,6 +64,7 @@ namespace kk {
                 delete this;
             }
         }
+        
         if(a != nullptr) {
             a->unlock();
         }
@@ -67,13 +79,17 @@ namespace kk {
         }
         
         Atomic * a = Atomic::current();
+        
         if(a != nullptr) {
             a->lock();
         }
+        
         _retainCount ++;
+        
         if(a != nullptr) {
             a->unlock();
         }
+        
     }
     
     int Object::retainCount() {
@@ -150,21 +166,6 @@ namespace kk {
                 _objects.pop();
             }
             
-            if(v != nullptr) {
-                auto i = _weakObjects.find(v);
-                if(i != _weakObjects.end()) {
-                    auto & q = i->second;
-                    auto n = q.begin();
-                    auto e = q.end();
-                    while(n != e) {
-                        Object ** ptr = * n;
-                        * ptr = nullptr;
-                        n ++;
-                    }
-                    _weakObjects.erase(i);
-                }
-            }
-            
             pthread_mutex_unlock(&_objectLock);
             
             if(v != nullptr && v->retainCount() == 0) {
@@ -211,6 +212,18 @@ namespace kk {
     void Atomic::addObject(Object * object) {
         pthread_mutex_lock(&_objectLock);
         _objects.push(object);
+        auto i = _weakObjects.find(object);
+        if(i != _weakObjects.end()) {
+            auto & q = i->second;
+            auto n = q.begin();
+            auto e = q.end();
+            while(n != e) {
+                Object ** ptr = * n;
+                * ptr = nullptr;
+                n ++;
+            }
+            _weakObjects.erase(i);
+        }
         pthread_mutex_unlock(&_objectLock);
     }
    

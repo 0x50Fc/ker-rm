@@ -239,6 +239,20 @@ namespace kk {
             }
         }
         
+        kk::Strong<File> App::openFileURI(kk::CString uri,kk::CString type) {
+            URI u(uri);
+            if(kk::CStringEqual(u.scheme(), "ker-data")) {
+                kk::String p;
+                p.append("/");
+                p.append(_appkey);
+                p.append("/");
+                if(!kk::CStringHasPrefix(u.path(), p.c_str())) {
+                    return nullptr;
+                }
+            }
+            return File::openURI(uri, type);
+        }
+        
         kk::Strong<File> App::openTempFile(kk::CString prefix,kk::CString suffix,kk::CString type) {
             kk::String u;
             u.append("ker-tmp:///");
@@ -325,6 +339,7 @@ namespace kk {
                     kk::PutMethod<App,Size,AttributedText *,Float>(ctx, -1, "getAttributedTextContentSize", &App::getAttributedTextContentSize);
                     kk::PutStrongMethod<App,kk::Database,kk::CString>(ctx, -1, "openDataBase", &App::openDataBase);
                     kk::PutStrongMethod<App,File,kk::CString,kk::CString,kk::CString>(ctx, -1, "openFile", &App::openFile);
+                    kk::PutStrongMethod<App,File,kk::CString,kk::CString>(ctx, -1, "openFileURI", &App::openFileURI);
                     kk::PutStrongMethod<App,File,kk::CString,kk::CString,kk::CString>(ctx, -1, "openTempFile", &App::openTempFile);
                     
                     kk::PutStrongMethod<App,View,kk::CString,ViewConfiguration *>(ctx,-1,"createView",&App::createView);

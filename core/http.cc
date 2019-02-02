@@ -15,6 +15,90 @@
 
 namespace kk {
 
+#define FormDataToken "8jej23fkdxxd"
+#define FormDataTokenBegin "--8jej23fkdxxd"
+#define FormDataTokenEnd "--8jej23fkdxxd--"
+#define FormDataMutilpartType "multipart/form-data; boundary=8jej23fkdxxd"
+    
+    FormData::FormData() {
+        
+    }
+    
+    void FormData::append(kk::CString key,kk::CString value) {
+        if(key == nullptr) {
+            return ;
+        }
+        FormDataEntry entry = {key , value ? value : "",nullptr};
+        _entrys.push_back(entry);
+    }
+    
+    void FormData::append(kk::CString key,kk::Blob * Blob, kk::CString filename) {
+        if(key == nullptr) {
+            return ;
+        }
+        FormDataEntry entry = {key , filename ? filename : "blob",Blob};
+        _entrys.push_back(entry);
+    }
+    
+    void FormData::append(kk::CString key,kk::File * file) {
+        if(key == nullptr) {
+            return ;
+        }
+        FormDataEntry entry = {key , file->name() ,file};
+        _entrys.push_back(entry);
+    }
+    
+    void FormData::append(kk::CString key,kk::Any v) {
+        if(v.type == TypeObject) {
+            {
+                kk::File * a = v.objectValue;
+                if(a != nullptr) {
+                    append(key, a);
+                    return;
+                }
+            }
+            {
+                kk::Blob * a = v.objectValue;
+                if(a != nullptr) {
+                    append(key, a, "blob");
+                    return;
+                }
+            }
+        } else {
+            kk::CString vv = v;
+            if(vv != nullptr) {
+                append(key, vv);
+            }
+        }
+    }
+    
+    kk::CString FormData::contentType() {
+        return FormDataMutilpartType;
+    }
+    
+    void FormData::read(Buffer & data) {
+        auto i = _entrys.begin();
+        auto e = _entrys.end();
+        while(i != e) {
+            auto & entry = * i;
+            Blob * object = entry.object;
+            if(object != nullptr) {
+                data.format("%s\r\nContent-Disposition: form-data; name=\"%s\"; filename=\"%s\"\r\n",FormDataTokenBegin,entry.key.c_str(),entry.value.c_str());
+                data.format("Content-Type: %s\r\nContent-Transfer-Encoding: binary\r\n\r\n",object->type());
+                data.capacity(data.byteLength() + object->size());
+                if(object->read(data.data() + data.byteLength())) {
+                    data.setByteLength(data.byteLength() + object->size());
+                }
+                data.format("\r\n");
+            } else {
+                data.format("%s\r\nContent-Disposition: form-data; name=\"%s\"\r\n\r\n%s\r\n",FormDataTokenBegin,entry.key.c_str(),entry.value.c_str());
+            }
+            i ++;
+        }
+        data.format("%s",FormDataTokenEnd);
+    }
+    
+    
     HTTPRequest::HTTPRequest():HTTPRequest(getCurrentDispatchQueue()) {
 
     }
@@ -62,6 +146,25 @@ namespace kk {
         } else {
             send(buffer->data(),buffer->byteLength());
         }
+    }
+    
+    void HTTPRequest::send(FormData * data) {
+        if(data == nullptr) {
+            send(nullptr,0);
+            return ;
+        }
+        kk::Strong<Buffer> b = new Buffer();
+        kk::Strong<DispatchQueue> queue = (DispatchQueue *) _queue;
+        kk::Strong<HTTPRequest> r = this;
+        kk::Strong<FormData> d = data;
+        IODispatchQueue()->async([b,r,queue,d]()->void{
+            Buffer & data = b.operator*();
+            d->read(data);
+            queue->async([b,r,d]()->void{
+                HTTPRequest * req = r.operator->();
+                req->send(b->data(), b->byteLength());
+            });
+        });
     }
     
     void HTTPRequest::send(kk::Any value) {
@@ -310,7 +413,10 @@ namespace kk {
             if(r != nullptr) {
                 kk::Strong<kk::Event> e = new Event();
                 r->emit("done", e);
-                remove(r->_tempFile.c_str());
+                kk::String p = r->_tempFile;
+                IODispatchQueue()->async([p]()->void{
+                    remove(p.c_str());
+                });
             }
         });
     }
@@ -339,8 +445,13 @@ namespace kk {
         return v;
     }
     
-    kk::String HTTPRequest::responseFile() {
-        return _tempFile;
+    kk::Strong<File> HTTPRequest::responseFile() {
+        kk::String p = ResolveURI(_tempFile.c_str());
+        kk::CString contentType = getResponseHeader("Content-Type");
+        if(contentType == nullptr) {
+            contentType = getResponseHeader("content-type");
+        }
+        return File::open(_tempFile.c_str(), p.c_str(), contentType, true);
     }
     
     kk::Strong<kk::ArrayBuffer> HTTPRequest::responseArrayBuffer() {
@@ -353,6 +464,10 @@ namespace kk {
     void HTTPRequest::Openlib() {
         
         kk::Openlib<>::add([](duk_context * ctx)->void{
+            
+            kk::PushClass<FormData>(ctx, [](duk_context * ctx)->void{
+                kk::PutMethod<FormData,void,kk::CString,kk::Any>(ctx, -1, "append", &FormData::append);
+            });
             
             kk::PushClass<HTTPRequest>(ctx, [](duk_context * ctx)->void{
                 
@@ -374,7 +489,7 @@ namespace kk {
                 kk::PutMethod<HTTPRequest,kk::CString,kk::CString>(ctx, -1, "getResponseHeader", &HTTPRequest::getResponseHeader);
                 kk::PutProperty<HTTPRequest,kk::Int>(ctx, -1, "statusCode", &HTTPRequest::statusCode);
                 kk::PutProperty<HTTPRequest,kk::String>(ctx, -1, "responseText", &HTTPRequest::responseText);
-                kk::PutProperty<HTTPRequest,kk::String>(ctx, -1, "responseFile", &HTTPRequest::responseFile);
+                kk::PutStrongProperty<HTTPRequest,kk::File>(ctx, -1, "responseFile", &HTTPRequest::responseFile);
                 kk::PutStrongProperty<HTTPRequest,kk::ArrayBuffer>(ctx, -1, "responseArrayBuffer", &HTTPRequest::responseArrayBuffer);
                 kk::PutStrongProperty<HTTPRequest,kk::TObject<kk::String, kk::String>>(ctx, -1, "responseHeaders", &HTTPRequest::responseHeaders);
                 

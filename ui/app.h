@@ -73,6 +73,8 @@ namespace kk {
             
             virtual kk::Strong<File> openFile(kk::CString directory,kk::CString path,kk::CString type);
             
+            virtual kk::Strong<File> openFileURI(kk::CString uri,kk::CString type);
+            
             virtual kk::Strong<File> openTempFile(kk::CString prefix,kk::CString suffix,kk::CString type);
             
             virtual kk::CString appkey();

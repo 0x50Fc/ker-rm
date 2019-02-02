@@ -11,12 +11,109 @@
 #include <unistd.h>
 #include "crypto.h"
 #include "uri.h"
+#include <stdio.h>
 
 namespace kk {
  
     Blob::Blob(Object * object,kk::Uint offset,kk::Uint size,kk::CString type):_size(size),_object(object),_offset(offset) {
         if(type != nullptr) {
             _type = type;
+        }
+    }
+    
+    Blob::Blob(Any & object,Any & options):_size(0),_object(nullptr),_offset(0) {
+        if(object.type == TypeObject) {
+            
+            do {
+                
+                {
+                    ArrayBuffer * v = object.objectValue;
+                    if(v != nullptr) {
+                        _object = v;
+                        _size = v->byteLength();
+                        break;
+                    }
+                }
+                
+                {
+                    _Array * v = object.objectValue;
+                    
+                    if(v != nullptr) {
+                        
+                        Buffer b;
+                        
+                        v->forEach([&b](Any & v)->void{
+                            if(v.type == TypeObject) {
+                                ArrayBuffer * a = v.objectValue;
+                                if(a != nullptr) {
+                                    b.append(a->data(), a->byteLength());
+                                }
+                            } else {
+                                CString a = v;
+                                if(a != nullptr) {
+                                    b.append(a, (kk::Uint) kk::CStringLength(a));
+                                }
+                            }
+                        });
+                        
+                        if(b.byteLength() > 0) {
+                            _size = b.byteLength();
+                            _object = new ArrayBuffer(b.data(),_size);
+                        }
+                        break;
+                    }
+                }
+                
+            } while (0);
+            
+        } else {
+            CString v = object;
+            if(v != nullptr) {
+                _size = (kk::Uint) kk::CStringLength(v);
+                _object = new ArrayBuffer((void *)v,_size);
+            }
+        }
+        
+        if(options.type == TypeObject) {
+            do {
+                {
+                    _TObject * v = options.objectValue;
+                    if(v != nullptr) {
+                        v->forEach([this](Any & value,Any & key)->void{
+                            kk::CString k = key;
+                            if(kk::CStringEqual(k, "type")) {
+                                _type = (kk::CString) value;
+                            }
+                        });
+                        break;
+                    }
+                }
+                {
+                    JSObject * v = options.objectValue;
+                    
+                    if(v != nullptr) {
+                        
+                        duk_context * ctx = v->jsContext();
+                        void * heapptr = v->heapptr();
+                        
+                        if(ctx && heapptr) {
+                            duk_push_heapptr(ctx, heapptr);
+                            duk_get_prop_string(ctx, -1, "type");
+                            if(duk_is_string(ctx, -1)) {
+                                _type = duk_to_string(ctx, -1);
+                            }
+                            duk_pop_2(ctx);
+                        }
+                    
+                        break;
+                    }
+                }
+            } while(0);
+        } else {
+            kk::CString v = options;
+            if(v != nullptr) {
+                _type = v;
+            }
         }
     }
     
@@ -119,7 +216,7 @@ namespace kk {
             kk::String p(_path);
             
             IODispatchQueue()->async([p,done,queue]()->void{
-                unlink(p.c_str());
+                ::remove(p.c_str());
                 if(done != nullptr) {
                     queue->async((std::function<void()> &&)done);
                 }
@@ -508,7 +605,7 @@ namespace kk {
         
         kk::Openlib<>::add([](duk_context * ctx)->void{
             
-            kk::PushInterface<Blob>(ctx, [](duk_context *ctx)->void{
+            kk::PushClass<Blob,kk::Any,kk::Any>(ctx, [](duk_context *ctx)->void{
                 
                 kk::PutProperty(ctx, -1, "size", &Blob::size);
                 kk::PutProperty(ctx, -1, "type", &Blob::type);

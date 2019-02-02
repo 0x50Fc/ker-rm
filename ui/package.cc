@@ -150,10 +150,22 @@ namespace kk {
                     _http->on("done", new kk::TFunction<void,kk::CString,Event *>([pkg,http](kk::CString name,kk::Event * event)->void{
                         kk::Strong<Package> package = pkg.operator->();
                         if(package != nullptr) {
-                            rename(http->responseFile().c_str(), package->_path.c_str());
-                            kk::Strong<kk::Event> e = new kk::Event();
-                            package->setState(PackageStateLoaded);
-                            package->emit("load", e);
+                            kk::Strong<File> file = http->responseFile();
+                            if(file != nullptr) {
+                                kk::Strong<File> to = File::open(package->_path.c_str(), "", "", true);
+                                file->move(to, [pkg]()->void{
+                                    kk::Strong<Package> package = pkg.operator->();
+                                    if(package != nullptr) {
+                                        kk::Strong<kk::Event> e = new kk::Event();
+                                        package->setState(PackageStateLoaded);
+                                        package->emit("load", e);
+                                    }
+                                });
+                            } else {
+                                kk::Strong<kk::Event> e = new kk::Event();
+                                package->setState(PackageStateError);
+                                package->emit(name, e);
+                            }
                         }
                     }));
                     _http->send();

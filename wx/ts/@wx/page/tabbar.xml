@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<body layout="relative" width="100%" height="100%" background-color="#ffffff">
+    <page kk:for="{{items}}" width="100%" height="100%" margin="0px 0px {{bottombar.height}} 0px" hidden="{{index != selectedIndex}}" 
+        path="@wx/page/page.js?appid={{appid}}&amp;path={{encodeURIComponent(item.pagePath)}}"></page>
+    <view bottom="0px" width="100%" height="{{bottombar.height}}" padding="{{bottombar.padding}}">
+        <view kk:for="{{items}}" width="{{100 / items.length}}%" height="100%" left="{{index * 100 / items.length}}%" ontap="onTabAction" data-index="{{index}}">
+            <image width="24px" height="24px" background-color="#f2f2f2" top="8rpx" />
+            <text font="24rpx" style="color: #ddd;" style:selected="color: #333;" status="{{index == selectedIndex ? 'selected':''}}" bottom="4rpx">{{item.text}}</text>
+        </view>
+        <view width="100%" height="1rpx" top="0px" background-color="#e5e5e5"></view>
+    </view>
+</body>

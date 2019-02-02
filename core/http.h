@@ -11,8 +11,32 @@
 
 #include <core/event.h>
 #include <core/dispatch.h>
+#include <core/file.h>
 
 namespace kk {
+    
+    struct FormDataEntry {
+        kk::String key;
+        kk::String value;
+        kk::Strong<Blob> object;
+    };
+    
+    class FormData : public Object {
+    public:
+        FormData();
+        virtual void append(kk::CString key,kk::CString value);
+        virtual void append(kk::CString key,kk::Blob * Blob, kk::CString filename);
+        virtual void append(kk::CString key,kk::File * file);
+        virtual void append(kk::CString key,kk::Any v);
+        virtual kk::CString contentType();
+        virtual void read(Buffer & data);
+        
+        Ker_CLASS(FormData, Object, "FormData")
+        
+    protected:
+        Buffer _b;
+        std::vector<FormDataEntry> _entrys;
+    };
     
     enum  {
         HTTPResponseTypeNone,
@@ -32,6 +56,7 @@ namespace kk {
         virtual void open(kk::CString method,kk::CString url,HTTPResponseType responseType);
         virtual void send(kk::CString text);
         virtual void send(kk::ArrayBuffer * buffer);
+        virtual void send(FormData * data);
         virtual void send(kk::Any value);
         virtual void send(void * data,size_t size);
         virtual void send();
@@ -39,7 +64,7 @@ namespace kk {
         virtual HTTPResponseType responseType();
         virtual kk::Buffer& response();
         virtual kk::String responseText();
-        virtual kk::String responseFile();
+        virtual kk::Strong<File> responseFile();
         virtual kk::Strong<kk::ArrayBuffer> responseArrayBuffer();
         virtual void setRequestHeader(kk::CString key,kk::CString value);
         virtual kk::CString getResponseHeader(kk::CString key);

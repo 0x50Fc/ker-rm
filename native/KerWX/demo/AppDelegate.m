@@ -19,7 +19,6 @@
 +(void) initialize {
     
     [KerUI openlib];
-    [KerWXObject openlib];
     
 }
 

@@ -255,6 +255,7 @@ static const kk::Class * Class() { \
         operator TT*() {
             return dynamic_cast<TT *>(_object);
         }
+    
     protected:
         virtual void set(Object * object) {
             if(_object != nullptr) {
@@ -449,6 +450,7 @@ static const kk::Class * Class() { \
         void * _data;
         size_t _size;
     };
+    
     
     class _Array : public Object {
     public:

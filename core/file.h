@@ -19,6 +19,7 @@ namespace kk {
     class Blob : public Object {
     public:
         Blob(Object * object,kk::Uint offset,kk::Uint size,kk::CString type);
+        Blob(Any & object,Any & options);
         virtual ~Blob();
         virtual kk::Uint size();
         virtual kk::CString type();
