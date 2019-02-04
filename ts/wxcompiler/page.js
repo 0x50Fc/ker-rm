@@ -2,8 +2,8 @@
 var path = require('path');
 var fs = require('fs');
 var htmlparser = require("htmlparser2");
+var css = require("./css");
 var babel = require('@babel/parser');
-var UglifyJS = require("uglify-js");
 
 function mkdirs(p) {
     if (fs.existsSync(p)) {
@@ -13,9 +13,8 @@ function mkdirs(p) {
     fs.mkdirSync(p, 0o777);
 }
 
-function Page(p, basePath, outPath, debug) {
+function Page(p, basePath, outPath) {
 
-    this.debug = debug;
     this.basePath = basePath;
     this.outPath = outPath === undefined ? basePath : outPath;
     this.dirname = path.dirname(p);
@@ -27,13 +26,24 @@ function Page(p, basePath, outPath, debug) {
     this.outBase = path.join(this.outPath, path.relative(basePath, base));
 
     this.path = {
-        xml: base + '.xml',
-        js: this.outBase + '_view.js',
+        html: this.outBase + '.wx.html',
+        wxml: base + '.wxml',
+        wxss: base + '.wxss',
+        json: base + '.json',
+        page: this.outBase + '.page.js',
     };
 
     if (this.basePath != this.outPath) {
         mkdirs(path.dirname(this.base));
     }
+
+    if (fs.existsSync(this.path.json)) {
+        this.object = JSON.parse(fs.readFileSync(this.path.json, { encoding: 'utf-8' })) || {};
+    } else {
+        this.object = {};
+    }
+
+    this.cssImports = {};
 
 };
 
@@ -206,12 +216,12 @@ function compileAttributeValue(source, vs) {
             code.push(JSON.stringify(source.substr(idx)));
         }
 
-        vs.push("E(function(");
+        vs.push("__E(function(");
         vs.push(keySet.join(','));
         vs.push("){ return ");
         vs.push(code.join('+'))
         vs.push("; },");
-        vs.push(JSON.stringify(keySet));
+        vs.push(JSON.stringify(keys));
         vs.push(")");
 
 
@@ -241,22 +251,69 @@ function compileAttributes(attrs, vs) {
 Page.prototype = Object.create(Object.prototype, {
     compile: {
         value: function () {
-            mkdirs(path.dirname(this.path.js));
+            mkdirs(path.dirname(this.path.page));
+            fs.writeFileSync(this.path.page, 'require("wx/wx.page.js")({path: path,query: query}, ' + JSON.stringify(path.relative(this.basePath, this.base)) + ', page, app);');
             var vs = [];
-            this.compilePageView(vs);
-            if (this.debug) {
-                fs.writeFileSync(this.path.js, vs.join(''), { encoding: "utf-8" });
-            } else {
-                let v = UglifyJS.minify(vs.join(''));
-                fs.writeFileSync(this.path.js, v.code, { encoding: "utf-8" });
-            }
+            vs.push('<style type="text/css">\n');
+            this.compileUsingComponentsCSS(vs);
+            this.compilePageCSS(vs);
+            vs.push('</style></head><body><script type="text/javascript">\n');
+            vs.push("(function(ready){ if(window.kk) { ready(); } else { window.addEventListener('ker',ready); }  })(")
+            vs.push("function(){\n");
+            vs.push("var __CC = {};\n");
+            vs.push("var __V = kk.CreateElement;\n");
+            vs.push("var __T = kk.CreateTElement;\n");
+            vs.push("var __E = kk.CreateEvaluate;\n");
+            vs.push("var __C = kk.CreateCElement;\n");
 
+            this.compileUsingComponents(vs);
+
+            vs.push("kk.Page(");
+
+            this.compilePageView(vs);
+
+            vs.push(");});\n");
+            vs.push('</script></body>');
+
+            fs.writeFileSync(this.path.html, vs.join(''));
+        },
+        writable: false
+    },
+    compileUsingComponentsCSS: {
+        value: function (vs) {
+            var usingComponents = this.object.usingComponents;
+            if (usingComponents) {
+                for (var key in usingComponents) {
+                    var src = usingComponents[key];
+                    this.compilePageCSS(vs, path.join(this.dirname, src) + '.wxss');
+                }
+            }
+        },
+        writable: false
+    },
+    compileUsingComponents: {
+        value: function (vs) {
+            var usingComponents = this.object.usingComponents;
+            if (usingComponents) {
+                for (var key in usingComponents) {
+                    var src = usingComponents[key];
+                    vs.push("__CC[");
+                    vs.push(JSON.stringify(key));
+                    vs.push("] = ");
+                    this.compilePageView(vs, path.join(this.dirname, src) + '.wxml');
+                    vs.push(";\n");
+                }
+            }
         },
         writable: false
     },
     compilePageView: {
-        value: function (vs) {
-            var wxmlPath = this.path.xml;
+        value: function (vs, wxmlPath) {
+
+            if (wxmlPath === undefined) {
+                wxmlPath = this.path.wxml;
+            }
+
             var dir = path.dirname(wxmlPath);
             var object = this.object || {};
 
@@ -345,7 +402,7 @@ Page.prototype = Object.create(Object.prototype, {
                             ontext: ontext,
                             onclosetag: onclosetag,
                             onerror: onerror
-                        }, { decodeEntities: true, recognizeSelfClosing: true, lowerCaseAttributeNames: false, lowerCaseTags: false });
+                        }, { decodeEntities: true, recognizeSelfClosing: true });
 
                         var p = path.join(basePath, src);
                         var v = fs.readFileSync(p, { encoding: 'utf8' });
@@ -354,6 +411,29 @@ Page.prototype = Object.create(Object.prototype, {
                         par.end();
                         basePaths.pop();
                     }
+                } else if (element.name == "import") {
+
+                    var src = element.attrs['src'];
+
+                    if (src) {
+                        var basePath = basePaths[basePaths.length - 1];
+
+                        var par = new htmlparser.Parser({
+                            onopentag: onopentag,
+                            ontext: ontext,
+                            onclosetag: onclosetag,
+                            onerror: onerror
+                        }, { decodeEntities: true, recognizeSelfClosing: true });
+
+                        var p = path.join(basePath, src);
+                        var v = fs.readFileSync(p, { encoding: 'utf8' });
+                        basePaths.push(path.dirname(p));
+                        par.write(v);
+                        par.end();
+                        basePaths.pop();
+                    }
+
+                    element = element.parent;
                 } else {
                     element = element.parent;
                 }
@@ -369,41 +449,183 @@ Page.prototype = Object.create(Object.prototype, {
                 ontext: ontext,
                 onclosetag: onclosetag,
                 onerror: onerror
-            }, { decodeEntities: true, recognizeSelfClosing: true, lowerCaseAttributeNames: false, lowerCaseTags: false });
+            }, { decodeEntities: true, recognizeSelfClosing: true });
 
             parse.write(fs.readFileSync(wxmlPath, { encoding: 'utf8' }));
             parse.end();
             end();
 
+            vs.push("function(element,data,context){\n");
+
             var level = 0;
+
+            level++;
+
             for (var element of element.children) {
                 View(element, path.relative(relativePath, basePaths[basePaths.length - 1]));
             }
 
+            level--;
+
+            vs.push("}");
+
+
             function View(element, basePath) {
-                vs.push("\t".repeat(level));
-                vs.push("V(element,data,");
-                vs.push(JSON.stringify(element.name));
-                vs.push(",");
 
-                compileAttributes(element.attrs, vs)
+                if (element.name == 'template') {
 
-                vs.push(",function(element,data){\n");
+                    var name = element.attrs['is'];
 
-                level++;
+                    if (name) {
+                        delete element.attrs['is'];
+                        vs.push("\t".repeat(level));
+                        vs.push("__T(element,data,");
+                        compileAttributes(element.attrs, vs)
+                        vs.push(",T_");
+                        vs.push(name);
+                        vs.push(",context);\n");
+                    } else {
+                        name = element.attrs['name'];
+                        if (name) {
+                            vs.push("\t".repeat(level));
+                            if (element.parent && element.parent.name == 'import') {
+                                vs.push("T_");
+                            } else {
+                                vs.push("var T_");
+                            }
+                            vs.push(name);
+                            vs.push(" = function(element,data,context){ \n");
+                            level++;
+                            if (element.children) {
+                                for (var e of element.children) {
+                                    View(e);
+                                }
+                            }
+                            level--;
+                            vs.push("\t".repeat(level));
+                            vs.push("};\n");
+                        }
+                    }
+                } else if (element.name == 'import') {
 
-                if (element.children) {
-                    for (var e of element.children) {
-                        View(e);
+                    if (element.children) {
+                        for (var e of element.children) {
+                            if (e.name == 'template') {
+                                var name = e.attrs['name'];
+                                if (name) {
+                                    vs.push("\t".repeat(level));
+                                    vs.push("var T_");
+                                    vs.push(name);
+                                    vs.push(";\n");
+                                }
+                            }
+                        }
+                        vs.push("\t".repeat(level));
+                        vs.push("(function(){\n");
+
+                        level++;
+
+                        for (var e of element.children) {
+                            if (e.name == 'template') {
+                                if (e.attrs['name']) {
+                                    View(e);
+                                }
+                            } else if (e.name == 'import') {
+                                View(e);
+                            }
+                        }
+
+                        level--;
+
+                        vs.push("\t".repeat(level));
+                        vs.push("})();\n")
+                    }
+
+                } else if (object.usingComponents && object.usingComponents[element.name]) {
+
+                    var src = object.usingComponents[element.name];
+
+                    vs.push("\t".repeat(level));
+                    vs.push("__C(element,data,");
+                    vs.push(JSON.stringify(element.name));
+                    vs.push(",")
+                    compileAttributes(element.attrs, vs)
+                    vs.push(",__CC[");
+                    vs.push(JSON.stringify(element.name));
+                    vs.push("],context,");
+                    vs.push(JSON.stringify(path.relative(relativePath, path.join(basePaths[0], src))));
+                    vs.push(");\n");
+
+                } else {
+                    vs.push("\t".repeat(level));
+                    vs.push("__V(element,data,");
+                    vs.push(JSON.stringify(element.name));
+                    vs.push(",");
+
+                    compileAttributes(element.attrs, vs)
+
+                    vs.push(",context,function(element,data,context){\n");
+
+                    level++;
+
+                    if (element.children) {
+                        for (var e of element.children) {
+                            View(e);
+                        }
+                    }
+
+                    level--;
+
+                    vs.push("\t".repeat(level));
+
+                    if (basePath !== undefined) {
+                        vs.push("},");
+                        vs.push(JSON.stringify(basePath));
+                        vs.push(");\n");
+                    } else {
+                        vs.push("});\n");
                     }
                 }
+            }
 
-                level--;
+        },
+        writable: false
+    },
+    compilePageCSS: {
+        value: function (vs, p) {
 
-                vs.push("\t".repeat(level));
+            var imports = this.cssImports;
 
-                vs.push("});\n");
+            vs.push(Parse(p || this.path.wxss));
 
+            function Parse(p) {
+                if (fs.existsSync(p)) {
+                    var s = new css.Source(p);
+                    s.compile();
+                    s.exec();
+
+                    for (var i = 0; i < s.tokens.length; i++) {
+
+                        var token = s.tokens[i];
+
+                        if (token.type == css.Token.TYPE_AT) {
+                            if (token.source) {
+                                var p = path.normalize(token.path);
+                                if (p) {
+                                    if (imports[p]) {
+                                        delete token.source;
+                                        token.text = '';
+                                    } else {
+                                        imports[p] = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return s.toString();
+                }
+                return '';
             }
 
         },

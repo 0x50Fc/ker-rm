@@ -1,0 +1,459 @@
+
+* {
+    margin: 0px; 
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+
+body {
+    font-family:-apple-system-font, "Helvetica Neue", sans-serif;
+    background-color:rgba(255,255,255,0);
+    height:100%;
+    font-size:32rpx;
+    -webkit-user-select:none;
+    user-select:none;
+    width:100%;
+    overflow-x:hidden;
+}
+
+wx-view {
+    display: block;
+}
+
+wx-input {
+    display:block;
+    height: 44rpx;
+    text-overflow:clip;
+    overflow:hidden;
+    white-space:nowrap;
+    font-family:UICTFontTextStyleBody;
+    min-height:44rpx;
+}
+
+wx-input > span {
+    color: #999999;
+}
+
+wx-canvas {
+    width:300px;
+    height:150px;
+    display:block;
+    position:relative;
+}
+    
+wx-scroll-view {
+    -webkit-overflow-scrolling:touch;
+    display: block;
+    overflow: auto;
+}
+
+wx-image {
+    display:inline-block;
+    overflow:hidden;
+}
+
+wx-image img {
+    width: 100%;
+}
+
+wx-navigator {
+    height:auto;
+    width:auto;
+    display:block;
+}
+
+wx-button {
+    position:relative;
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+    padding-left:14px;
+    padding-right:14px;
+    box-sizing:border-box;
+    font-size:18px;
+    text-align:center;
+    text-decoration:none;
+    line-height:2.55555556;
+    border-radius:5px;
+    overflow:hidden;
+    color:#000000;
+    background-color:#F8F8F8;
+    border: solid 1rpx #999;
+}
+
+wx-button[plain] {
+    color:#353535;
+    border:1px solid #353535;
+    background-color:transparent;
+}
+    
+wx-button[size=mini] {
+    display:inline-block;
+    line-height:2.3;
+    font-size:13px;
+    padding:0 1.34em;
+}
+
+wx-button[disabled] {
+    color:rgba(255, 255, 255, 0.6);
+}
+    
+wx-button[type=default] {
+    color:#000000;
+    background-color:#F8F8F8;
+}
+
+wx-button[type=default][disabled] {
+    color:rgba(0, 0, 0, 0.3);
+    background-color:#F7F7F7;
+}
+
+wx-button[type=primary] {
+    color:#FFFFFF;
+    background-color:#1AAD19;
+}
+
+wx-button[type=primary][plain] {
+    color:#1aad19;
+    border:1px solid #1aad19;
+    background-color:transparent;
+}
+
+wx-button[type=primary][disabled] {
+    background-color:#9ED99D;
+}
+
+wx-button[type=warn] {
+    color:#FFFFFF;
+    background-color:#E64340;
+}
+
+wx-button[type=warn][plain] {
+    color:#e64340;
+    border:1px solid #e64340;
+    background-color:transparent;
+}
+
+wx-button[disabled][type=warn] {
+    background-color:#EC8B89;
+}
+
+.button-hover {
+    color:rgba(0, 0, 0, 0.6);
+    background-color:#DEDEDE;
+}
+    
+.button-hover[type=default] {
+    color:rgba(0, 0, 0, 0.6);
+    background-color:#DEDEDE;
+}
+
+.button-hover[type=primary] {
+    color:rgba(255, 255, 255, 0.6);
+    background-color:#179B16;
+}
+
+.button-hover[type=warn] {
+    color:rgba(255, 255, 255, 0.6);
+    background-color:#CE3C39;
+}
+    
+.navigator-hover {
+    background-color:rgba(0, 0, 0, 0.1);
+    opacity:0.7;
+}
+    
+wx-swiper {
+    position: relative;
+    height: 150px;
+    display: block;
+    overflow: hidden;
+}
+
+wx-swiper div.wx-scroll {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+wx-swiper div.wx-content {
+    display: block;
+}
+
+wx-swiper div.wx-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: auto;
+    height: auto;
+    display: none;
+}
+
+wx-swiper div.wx-dots.wx-vertical {
+    left: auto;
+    right: 9px;
+    top: 50%;
+}
+
+wx-swiper div.wx-clear {
+    clear: both;
+}
+
+wx-swiper div.wx-dots span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    margin: 0px 1.5px;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+wx-swiper div.wx-dots.wx-vertical span {
+    display: block;
+    margin: 1.5px 0px;
+}
+
+wx-swiper div.wx-dots span.wx-active {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+wx-swiper-item {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+wx-progress {
+    position: relative;
+    display:-webkit-flex;
+    display:flex;
+    -webkit-align-items:center;
+    align-items:center;
+}
+
+wx-progress > div.bar {
+    background-color: #ebebeb;
+    height: auto;
+    width: 100%;
+    display: block;
+    position: relative;
+}
+
+wx-progress > div.bar > div {
+    height: 6px;
+    width: 0%;
+    background-color: #09BB07;
+}
+
+wx-progress > div.info {
+    display: none;
+    color: #000;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+wx-checkbox {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    border: solid 1px #d1d1d1;
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+wx-checkbox > div {
+    display: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    background-color: #09BB07;
+}
+
+wx-checkbox[checked] > div {
+    display: block;
+}
+
+wx-checkbox[disabled] > div {
+    background-color: #d1d1d1;
+}
+
+wx-radio {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    border: solid 1px #d1d1d1;
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+wx-radio > div {
+    display: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    background-color: #09BB07;
+}
+
+wx-radio[checked] > div {
+    display: block;
+}
+
+wx-radio[disabled] > div {
+    background-color: #d1d1d1;
+}
+
+
+wx-label {
+    display: flex;
+    align-items: center;
+}
+
+wx-slider {
+    position: relative;
+    display:-webkit-flex;
+    display:flex;
+    -webkit-align-items:center;
+    align-items:center;
+    padding: 14px;
+}
+
+wx-slider > div.bar {
+    background-color: #ebebeb;
+    height: auto;
+    width: 100%;
+    display: block;
+    border-radius: 1.5px;
+    overflow: visible;
+    position: relative;
+}
+
+wx-slider > div.bar > div {
+    height: 3px;
+    width: 0%;
+    border-radius: 1.5px;
+    background-color: #09BB07;
+}
+
+wx-slider > div.bar > div.cur {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    box-shadow: 0px 0px 6px #888888;
+    margin-top: -14px;
+    margin-left: -14px;
+    left: 0%;
+    top: 50%;
+    background-color: #fff;
+    z-index: 1;
+}
+
+wx-slider > div.info {
+    display: none;
+    color: #000;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+wx-switch {
+    display: inline-block;
+    width: 52px;
+    height: 32px;
+    border-radius: 16px;
+    border: solid 1px #e5e5e5;
+    position: relative;
+    background-color: #fff;
+}
+
+wx-switch > div.cur {
+    height: 30px;
+    width: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 6px #ddd;
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    background-color: #fff;
+}
+
+wx-switch[checked] {
+    background-color: #09BB07;
+    border-color: #09BB07;
+}
+
+wx-switch[checked] > div.cur {
+    left: auto;
+    right: 1px;
+}
+
+wx-switch[disabled] {
+    background-color: #999;
+    border-color: #e5e5e5;
+}
+
+wx-modal {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: none;
+}
+
+wx-modal .wx-modal-box {
+    position: absolute;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0px 0px 5px #999;
+    overflow: hidden;
+    width: 600rpx;
+    height: auto;
+    top: 30%;
+    left: 50%;
+    margin-left: -300rpx;
+}
+
+wx-modal .wx-modal-title {
+    padding: 30rpx 20rpx;
+    text-align: center;
+    font-size: 32rpx;
+    color: #333;
+    display: none;
+}
+
+wx-modal .wx-modal-content {
+    padding: 40rpx 20rpx;
+    border-top: solid 1rpx #e5e5e5;
+    display: none;
+}
+
+wx-modal .wx-modal-bottom {
+    height: 88rpx;
+    border-top: solid 1rpx #e5e5e5;
+}
+
+wx-modal .wx-modal-cancel {
+    float: left;
+    width: 50%;
+    height: 88rpx;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 88rpx;
+    border-right: solid 1rpx #e5e5e5;
+    color: #666666;
+}
+
+wx-modal .wx-modal-confirm {
+    float: left;
+    width: 50%;
+    height: 88rpx;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 88rpx;
+    color: #333;
+}

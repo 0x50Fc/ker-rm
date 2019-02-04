@@ -11,12 +11,13 @@ program
     .command('package <inDir> <outDir> <version>')
     .description('quick generate app package')
     .usage("package <inDir> <outDir> <version>")
-    .action(function (inDir, outDir, version) {
+    .option('-d, --debug', 'Debug')
+    .action(function (inDir, outDir, version, cmd) {
 
         console.info(inDir, ">>", outDir, version);
 
         if (!fs.existsSync(outDir)) {
-            fs.mkdirSync(outDir);
+            mkdirs(outDir);
         }
 
         var object;
@@ -35,23 +36,21 @@ program
             object.items = [version];
         } else {
             var i = 0;
-            for(;i<object.items.length;i++) {
-                if(object.items[i] == version) {
+            for (; i < object.items.length; i++) {
+                if (object.items[i] == version) {
                     break;
                 }
             }
-            if(i >= object.items.length) {
+            if (i >= object.items.length) {
                 object.items.push(version);
             }
         }
 
         object['version'] = version;
 
-        var app = new App(inDir, outDir + '/' + version);
+        var app = new App(inDir, outDir + '/' + version, undefined, cmd.debug);
 
         app.compile();
-
-        walk(inDir, inDir, outDir + '/' + version);
 
         fs.writeFileSync(outDir + '/app.json', JSON.stringify(object, undefined, 2));
 
@@ -67,6 +66,34 @@ program
 
     });
 
+program
+    .command('view <dir>')
+    .description('quick generate view javascript')
+    .usage("view <dir>")
+    .action(function (dir) {
+
+        function walk(p, basePath, outPath) {
+
+            if (p.endsWith(".xml")) {
+
+                var page = new Page(p, basePath, outPath, true);
+
+                page.compile();
+
+            } else {
+                var st = fs.statSync(p);
+                if (st && st.isDirectory()) {
+                    for (var item of fs.readdirSync(p)) {
+                        walk(path.join(p, item), basePath, outPath);
+                    }
+                }
+            }
+        }
+
+        walk(dir, dir, dir);
+
+
+    });
 
 program
     .command('init')
@@ -74,14 +101,18 @@ program
     .usage("init")
     .action(function () {
 
-        cp(path.join(__dirname, "lib/ker.js"), "@ker/ker.js");
-        cp(path.join(__dirname, "typings/lib.es5.d.ts"), "@ker/lib.es5.d.ts");
-        cp(path.join(__dirname, "typings/ker.d.ts"), "@ker/ker.d.ts");
-        cp(path.join(__dirname, "typings/index.d.ts"), "@ker/index.d.ts");
+        cp(path.join(__dirname, "@ker/ker.js"), "@ker/ker.js");
+        cp(path.join(__dirname, "@typings/lib.es5.d.ts"), "@ker/lib.es5.d.ts");
+        cp(path.join(__dirname, "@typings/ker.d.ts"), "@ker/ker.d.ts");
+        cp(path.join(__dirname, "@typings/global.d.ts"), "@ker/global.d.ts");
+
+        cp(path.join(__dirname, "@wx"), "@wx",function(from,to){
+            return (from.endsWith(".ts") || from.endsWith(".xml"))
+        });
 
         if (!fs.existsSync("./main.ts")) {
             fs.writeFileSync("./main.ts", [
-                'app.exec("@ker/ker.js");',
+                'require("@ker/ker.js");',
                 'console.info("Hello World!");'
             ].join('\r\n'), { encoding: 'utf-8' });
         }
@@ -105,24 +136,6 @@ program
 
 program.parse(process.argv);
 
-function walk(p, basePath, outPath) {
-
-    if (p.endsWith(".xml")) {
-
-        var page = new Page(p, basePath, outPath);
-
-        page.compile();
-
-    } else {
-        var st = fs.statSync(p);
-        if (st && st.isDirectory()) {
-            for (var item of fs.readdirSync(p)) {
-                walk(path.join(p, item), basePath, outPath);
-            }
-        }
-    }
-}
-
 
 function mkdirs(p) {
 
@@ -139,14 +152,14 @@ function mkdirs(p) {
     fs.mkdirSync(p);
 };
 
-function cp(from, to) {
+function cp(from, to, filter) {
 
     var st = fs.statSync(from);
     if (st && st.isDirectory()) {
-        for (var item of fs.readdirSync(p)) {
-            cp(path.join(p, item), path.join(to, item));
+        for (var item of fs.readdirSync(from)) {
+            cp(path.join(from, item), path.join(to, item), filter);
         }
-    } else if (st) {
+    } else if (st && (filter === undefined || (filter(from, to)))) {
         mkdirs(path.dirname(to));
         fs.copyFileSync(from, to);
     }

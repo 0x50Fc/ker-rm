@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "noLib": false,
+    "strict": false
+  },
+  "compileOnSave": true,
+  "include": [
+    "../@typings/*.ts",
+    "**/*.ts"
+  ]
+}
