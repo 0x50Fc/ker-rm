@@ -37,6 +37,10 @@
 		1A53C6E921B8EA2D00170AB7 /* KerURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6E721B8EA2D00170AB7 /* KerURLProtocol.m */; };
 		1A53C6F821BE154300170AB7 /* UIImage+Ker.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A53C6F621BE154300170AB7 /* UIImage+Ker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A53C6F921BE154300170AB7 /* UIImage+Ker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A53C6F721BE154300170AB7 /* UIImage+Ker.mm */; };
+		1A7BDB782212A42700A432E7 /* GLContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7BDB762212A42700A432E7 /* GLContext.h */; };
+		1A7BDB792212A42700A432E7 /* GLContext.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A7BDB772212A42700A432E7 /* GLContext.cc */; };
+		1A7BDB802212B4F300A432E7 /* KerCanvasView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A7BDB7E2212B4F300A432E7 /* KerCanvasView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1A7BDB812212B4F300A432E7 /* KerCanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7BDB7F2212B4F300A432E7 /* KerCanvasView.m */; };
 		1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AB4421BE30BC00C636F5 /* package.cc */; };
 		1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1AA4AC0821BF5B3600C636F5 /* sqlite.cc */; };
 		1AA4AC0B21BF65E300C636F5 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AA4AC0A21BF65E300C636F5 /* libsqlite3.tbd */; };
@@ -186,6 +190,10 @@
 		1A53C6E721B8EA2D00170AB7 /* KerURLProtocol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerURLProtocol.m; sourceTree = "<group>"; };
 		1A53C6F621BE154300170AB7 /* UIImage+Ker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Ker.h"; sourceTree = "<group>"; };
 		1A53C6F721BE154300170AB7 /* UIImage+Ker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIImage+Ker.mm"; sourceTree = "<group>"; };
+		1A7BDB762212A42700A432E7 /* GLContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GLContext.h; sourceTree = "<group>"; };
+		1A7BDB772212A42700A432E7 /* GLContext.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GLContext.cc; sourceTree = "<group>"; };
+		1A7BDB7E2212B4F300A432E7 /* KerCanvasView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KerCanvasView.h; sourceTree = "<group>"; };
+		1A7BDB7F2212B4F300A432E7 /* KerCanvasView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KerCanvasView.m; sourceTree = "<group>"; };
 		1AA4AB4321BE30A400C636F5 /* package.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = package.h; sourceTree = "<group>"; };
 		1AA4AB4421BE30BC00C636F5 /* package.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = package.cc; sourceTree = "<group>"; };
 		1AA4AC0721BF5AA200C636F5 /* sqlite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sqlite.h; sourceTree = "<group>"; };
@@ -339,6 +347,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A7BDB572212A35E00A432E7 /* gl */ = {
+			isa = PBXGroup;
+			children = (
+				1A7BDB762212A42700A432E7 /* GLContext.h */,
+				1A7BDB772212A42700A432E7 /* GLContext.cc */,
+			);
+			name = gl;
+			path = ../../../gl;
+			sourceTree = "<group>";
+		};
 		1AA4AB4621BE311F00C636F5 /* minizip */ = {
 			isa = PBXGroup;
 			children = (
@@ -394,6 +412,7 @@
 		1AF0658A219D516000F8F7A8 /* Ker */ = {
 			isa = PBXGroup;
 			children = (
+				1A7BDB572212A35E00A432E7 /* gl */,
 				AC9BE90F21F976EE00D58282 /* audio */,
 				1AE0927E21EDBEC500133215 /* document */,
 				1AA4AB4621BE311F00C636F5 /* minizip */,
@@ -445,6 +464,8 @@
 				1AE91CD321DDB84D0055C932 /* KerStrong.h */,
 				1AE91CD421DDB84D0055C932 /* KerStrong.mm */,
 				AC9BE91721F9952200D58282 /* KerAudioSession.mm */,
+				1A7BDB7E2212B4F300A432E7 /* KerCanvasView.h */,
+				1A7BDB7F2212B4F300A432E7 /* KerCanvasView.m */,
 			);
 			path = Ker;
 			sourceTree = "<group>";
@@ -601,6 +622,7 @@
 				1A53C6C421B8C8D500170AB7 /* KerPageWindowController.h in Headers */,
 				1AE092A421F6C6EF00133215 /* duk_config_debug.h in Headers */,
 				1AF065A7219D518200F8F7A8 /* container.h in Headers */,
+				1A7BDB802212B4F300A432E7 /* KerCanvasView.h in Headers */,
 				1AF065A5219D518200F8F7A8 /* event.h in Headers */,
 				1AF065C9219D52AC00F8F7A8 /* view.h in Headers */,
 				1AFDAF7321E4AC8A000FAAE9 /* net.h in Headers */,
@@ -620,6 +642,7 @@
 				1AF065EC219D54E600F8F7A8 /* KerPageViewController.h in Headers */,
 				1AF065C4219D52AC00F8F7A8 /* page.h in Headers */,
 				1AE092A021F56F2300133215 /* PageElement.h in Headers */,
+				1A7BDB782212A42700A432E7 /* GLContext.h in Headers */,
 				1AF065A4219D518200F8F7A8 /* bio.h in Headers */,
 				1AF065E8219D54AC00F8F7A8 /* KerPage.h in Headers */,
 				1AF065F9219D555E00F8F7A8 /* UIScrollView+KerViewProtocol.h in Headers */,
@@ -743,12 +766,14 @@
 				AC9BE91D21F99B2F00D58282 /* speex.cc in Sources */,
 				1AF4CE3621A56B5A00AE1249 /* UIColor+Ker.mm in Sources */,
 				1AF06604219D555E00F8F7A8 /* UITextField+KerViewProtocol.mm in Sources */,
+				1A7BDB792212A42700A432E7 /* GLContext.cc in Sources */,
 				1AF065B7219D51C000F8F7A8 /* duktape.c in Sources */,
 				1A3AF07421EC7F0B001C8759 /* WebSocket.cc in Sources */,
 				ACB2A50721FF12E700C07902 /* BarElement.cc in Sources */,
 				1AF065D1219D535A00F8F7A8 /* CGContext.mm in Sources */,
 				1AA4AC0921BF5B3600C636F5 /* sqlite.cc in Sources */,
 				1AA4AC3C21BFBC3A00C636F5 /* unzip.c in Sources */,
+				1A7BDB812212B4F300A432E7 /* KerCanvasView.m in Sources */,
 				1AE0928E21EDDC6C00133215 /* LayoutElement.cc in Sources */,
 				1AA4AB4521BE30BC00C636F5 /* package.cc in Sources */,
 				1AFDAF7221E4AC8A000FAAE9 /* net.cc in Sources */,
