@@ -13,6 +13,7 @@
 #include <ui/CGContext.h>
 #include <core/event.h>
 #include <core/dispatch.h>
+#include <gl/GLContext.h>
 
 namespace kk {
     
@@ -76,6 +77,29 @@ namespace kk {
         public:
             kk::Uint64 viewId;
             kk::Strong<kk::ui::CG::Context> context;
+        };
+        
+        class CanvasCreateGLContextCommand : public CanvasCommand {
+        public:
+            kk::Uint64 viewId;
+            kk::Uint width;
+            kk::Uint height;
+            kk::Strong<kk::GL::GLContext> context;
+        };
+        
+        class CanvasSetGLContextCommand : public CanvasCommand {
+        public:
+            kk::Uint64 viewId;
+            kk::Boolean resize;
+            kk::Uint width;
+            kk::Uint height;
+            kk::Strong<kk::GL::GLContext> context;
+        };
+        
+        class CanvasDisplayGLContextCommand : public CanvasCommand {
+        public:
+            kk::Uint64 viewId;
+            kk::Strong<kk::GL::GLContext> context;
         };
         
         class Canvas : public EventEmitter {
@@ -304,7 +328,7 @@ namespace kk {
             std::vector<WebViewUserScript> _userScripts;
             std::vector<WebViewUserAction> _userActions;
         };
-
+        
         
     }
     

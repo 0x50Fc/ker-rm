@@ -26,6 +26,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "KerURLProtocol.h"
 #import "KerView.h"
+#import "KerCanvasView.h"
 
 static NSMutableDictionary * KerUIPages = nil;
 static NSMutableDictionary * KerUIViews = nil;
@@ -510,10 +511,6 @@ static NSMutableDictionary * gKerUIViewClass = nil;
         return;
     }
     
-    if([view isKindOfClass:[UIScrollView class]]) {
-        NSLog(@"");
-    }
-    
     view = [view KerViewContentView];
     
     if(view == nil) {
@@ -886,6 +883,126 @@ static NSMutableDictionary * gKerUIViewClass = nil;
         }
     }
     
+    {
+        kk::ui::CanvasCreateGLContextCommand * cmd = dynamic_cast<kk::ui::CanvasCreateGLContextCommand *>(command);
+        
+        if(cmd) {
+           
+            if(cmd->viewId == 0) {
+                KerGLContext * GLContext = [[KerGLContext alloc] init];
+                [GLContext resizeGLContext:cmd->width height:cmd->height];
+                cmd->context->set(GLContext.width, GLContext.height);
+                cmd->context->setFramebuffer(GLContext.framebuffer);
+                cmd->context->setNative((__bridge kk::Native *) GLContext);
+            } else {
+                kk::GL::GLContext * context = cmd->context;
+                KerId viewId = cmd->viewId;
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    [KerUI canvasCreateGLContext:viewId context:context];
+                    [EAGLContext setCurrentContext:nil];
+                });
+                KerGLContext * GLContext = (__bridge KerGLContext *) context->native();
+                [EAGLContext setCurrentContext:[GLContext GLContext]];
+            }
+           
+            return ;
+        }
+    }
+    
+    {
+        kk::ui::CanvasSetGLContextCommand * cmd = dynamic_cast<kk::ui::CanvasSetGLContextCommand *>(command);
+        
+        if(cmd) {
+            
+            if(cmd->viewId == 0) {
+                KerGLContext * GLContext = (__bridge KerGLContext *) cmd->context->native();
+                [EAGLContext setCurrentContext:[GLContext GLContext]];
+                [GLContext resizeGLContext:cmd->width height:cmd->height];
+                cmd->context->set(GLContext.width, GLContext.height);
+            } else {
+                KerGLContext * GLContext = (__bridge KerGLContext *) cmd->context->native();
+                if(cmd->resize) {
+                    kk::GL::GLContext * context = cmd->context;
+                    KerId viewId = cmd->viewId;
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        [KerUI canvasSetGLContext:viewId context:context];
+                        [EAGLContext setCurrentContext:nil];
+                    });
+                }
+                cmd->context->set(GLContext.width, GLContext.height);
+                [EAGLContext setCurrentContext:[GLContext GLContext]];
+            }
+            
+            return ;
+        }
+    }
+    
+    {
+        kk::ui::CanvasDisplayGLContextCommand * cmd = dynamic_cast<kk::ui::CanvasDisplayGLContextCommand *>(command);
+        
+        if(cmd) {
+            
+            KerGLContext * GLContext = (__bridge KerGLContext *) cmd->context->native();
+            
+            [GLContext displayGLContext];
+            
+            [EAGLContext setCurrentContext:nil];
+            
+            return ;
+        }
+    }
+    
+}
+
++(void) canvasCreateGLContext:(KerId) viewId context:(kk::GL::GLContext *) context {
+    
+    if(KerUIViews == nil) {
+        return ;
+    }
+    
+    id key = @(viewId);
+    
+    KerCanvasView * view = (KerCanvasView *) [KerUIViews objectForKey:key];
+    
+    if(view == nil) {
+        return;
+    }
+    
+    if(![view isKindOfClass:[KerCanvasView class]]) {
+        return;
+    }
+    
+    KerGLContext * GLContext = [[KerGLContext alloc] init];
+    
+    [GLContext resizeGLContext:[view GLLayer]];
+    
+    context->set(GLContext.width, GLContext.height);
+    context->setFramebuffer(GLContext.framebuffer);
+    context->setNative((__bridge kk::Native *) GLContext);
+    
+}
+
++(void) canvasSetGLContext:(KerId) viewId context:(kk::GL::GLContext *) context {
+    
+    if(KerUIViews == nil) {
+        return ;
+    }
+    
+    id key = @(viewId);
+    
+    KerCanvasView * view = (KerCanvasView *) [KerUIViews objectForKey:key];
+    
+    if(view == nil) {
+        return;
+    }
+    
+    if(![view isKindOfClass:[KerCanvasView class]]) {
+        return;
+    }
+    
+    KerGLContext * GLContext = (__bridge KerGLContext *) context->native();
+    [GLContext resizeGLContext:[view GLLayer]];
+    
 }
 
 +(void) page:(KerId) pageId setLeftView:(KerId) viewId {
@@ -1207,6 +1324,7 @@ static NSString * gKerAppUserAgent = nil;
     }
     
     [self setViewClass:[KerView class] name:@"view"];
+    [self setViewClass:[KerCanvasView class] name:@"canvas"];
     [self setPageViewClass:[KerView class] name:@"page"];
     [self setImageViewClass:[UIImageView class] name:@"image"];
     [self setViewClass:[UIScrollView class] name:@"scroll"];

@@ -9,6 +9,7 @@
 #include <ui/view.h>
 #include <ui/app.h>
 
+
 namespace kk {
     
     namespace ui {
@@ -151,7 +152,7 @@ namespace kk {
                 return nullptr;
             }
             
-            if(strcmp(name, "2d") == 0) {
+            if(kk::CStringEqual(name, "2d")) {
                 
                 kk::Strong<kk::ui::CG::Context> v = (kk::ui::CG::Context *) _context;
                 
@@ -180,6 +181,50 @@ namespace kk {
                     });
                 }
                 
+            } else if(kk::CStringEqual(name, "webgl")) {
+                
+                kk::Strong<kk::GL::GLContext> v = (kk::GL::GLContext *) _context;
+                
+                if(v == nullptr) {
+                    v = new kk::GL::GLContext();
+                    _context = v;
+                    kk::Strong<CanvasCreateGLContextCommand> cmd = new CanvasCreateGLContextCommand();
+                    cmd->appid =  _app == nullptr ? 0 : _app->appid();
+                    cmd->canvasId = _canvasId;
+                    cmd->viewId = _view == nullptr ? 0 : _view->viewId();
+                    cmd->context = v;
+                    cmd->width = _width;
+                    cmd->height = _height;
+                    UI::main()->execCommand(cmd);
+                } else {
+                    kk::Strong<CanvasSetGLContextCommand> cmd = new CanvasSetGLContextCommand();
+                    cmd->appid =  _app == nullptr ? 0 : _app->appid();
+                    cmd->canvasId = _canvasId;
+                    cmd->viewId = _view == nullptr ? 0 : _view->viewId();
+                    cmd->context = v;
+                    cmd->resize = _resize;
+                    cmd->width = _width;
+                    cmd->height = _height;
+                    UI::main()->execCommand(cmd);
+                }
+                
+                if(_view != nullptr) {
+                    kk::Weak<Canvas> canvas = this;
+                    _queue->async([v,canvas]()->void {
+                        kk::Strong<Canvas> c = canvas.operator->();
+                        if(c != nullptr) {
+                            kk::Strong<App> app = c->app();
+                            if(app != nullptr) {
+                                kk::Strong<CanvasDisplayGLContextCommand> cmd = new CanvasDisplayGLContextCommand();
+                                cmd->appid = app->appid();
+                                cmd->canvasId = c->canvasId();
+                                cmd->viewId = c->view()->viewId();
+                                cmd->context = v.operator->();
+                                UI::main()->execCommand(cmd);
+                            }
+                        }
+                    });
+                }
             }
             
             _resize = false;
